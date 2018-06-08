@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of Polymorphine/Http package.
+ * This file is part of Polymorphine/Routing package.
  *
  * (c) Shudd3r <q3.shudder@gmail.com>
  *
@@ -26,7 +26,7 @@ class StaticUriMask implements Pattern
     public function __construct(string $pattern)
     {
         $this->pattern = $pattern;
-        $this->uri = $this->groupUriSegments($pattern);
+        $this->uri     = $this->groupUriSegments($pattern);
     }
 
     public function matchedRequest(ServerRequestInterface $request): ?ServerRequestInterface

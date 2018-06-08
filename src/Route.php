@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of Polymorphine/Http package.
+ * This file is part of Polymorphine/Routing package.
  *
  * (c) Shudd3r <q3.shudder@gmail.com>
  *
@@ -25,7 +25,7 @@ interface Route
      * Returns instance of response passed as parameter if no matching Route is found.
      *
      * @param ServerRequestInterface $request
-     * @param ResponseInterface $notFound
+     * @param ResponseInterface      $notFound
      *
      * @return ResponseInterface
      */

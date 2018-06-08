@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of Polymorphine/Http package.
+ * This file is part of Polymorphine/Routing package.
  *
  * (c) Shudd3r <q3.shudder@gmail.com>
  *
@@ -32,7 +32,9 @@ class MockedRoute implements Route
 
     public function forward(ServerRequestInterface $request, ResponseInterface $notFound): ResponseInterface
     {
-        if ($this->callback) { return $this->callback->__invoke($request) ?? $notFound; }
+        if ($this->callback) {
+            return $this->callback->__invoke($request) ?? $notFound;
+        }
         return $this->id ? new FakeResponse($this->id) : $notFound;
     }
 

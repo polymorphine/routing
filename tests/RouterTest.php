@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of Polymorphine/Http package.
+ * This file is part of Polymorphine/Routing package.
  *
  * (c) Shudd3r <q3.shudder@gmail.com>
  *
@@ -27,15 +27,6 @@ class RouterTest extends TestCase
     public static function setUpBeforeClass()
     {
         self::$notFound = new FakeResponse();
-    }
-
-    private function router(bool $matched = true, UriInterface $uri = null)
-    {
-        return new Router(
-            new MockedRoute($matched ? 'matched' : ''),
-            $uri ?? new FakeUri(),
-            self::$notFound
-        );
     }
 
     public function testInstantiation()
@@ -79,5 +70,14 @@ class RouterTest extends TestCase
         $router = $router->route('new.context');
         $this->assertInstanceOf(Router::class, $router);
         $this->assertSame('new.context', $route->path);
+    }
+
+    private function router(bool $matched = true, UriInterface $uri = null)
+    {
+        return new Router(
+            new MockedRoute($matched ? 'matched' : ''),
+            $uri ?? new FakeUri(),
+            self::$notFound
+        );
     }
 }

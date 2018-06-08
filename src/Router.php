@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of Polymorphine/Http package.
+ * This file is part of Polymorphine/Routing package.
  *
  * (c) Shudd3r <q3.shudder@gmail.com>
  *
