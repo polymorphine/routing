@@ -71,7 +71,7 @@ class ResponseScanSwitchTest extends TestCase
         $this->route()->uri(new FakeUri(), []);
     }
 
-    public function testGatewayMethodEndpointCall_ReturnsFoundRoute()
+    public function testRouteMethodEndpointCall_ReturnsFoundRoute()
     {
         $routeA = new MockedRoute('A');
         $routeB = new MockedRoute('B');
@@ -80,7 +80,7 @@ class ResponseScanSwitchTest extends TestCase
         $this->assertSame('B', $route->route('B')->id);
     }
 
-    public function testGatewayMethodGatewayCall_AsksNextGateway()
+    public function testRouteMethodSwitchCall_AsksNextSwitch()
     {
         $routeA = new MockedRoute('A');
         $routeB = new MockedRoute('B');
@@ -89,13 +89,13 @@ class ResponseScanSwitchTest extends TestCase
         $this->assertSame('PathB', $route->route('BFound.PathB')->path);
     }
 
-    public function testGatewayWithEmptyPath_ThrowsException()
+    public function testRouteCallWithEmptyPath_ThrowsException()
     {
         $this->expectException(SwitchCallException::class);
         $this->route()->route('');
     }
 
-    public function testGatewayWithUnknownName_ThrowsException()
+    public function testRouteCallWithUnknownName_ThrowsException()
     {
         $this->assertInstanceOf(Route::class, $this->route()->route('example'));
         $this->expectException(SwitchCallException::class);

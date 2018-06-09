@@ -77,7 +77,7 @@ class PatternGateTest extends TestCase
         $this->assertSame('/foo/bar', $uri->getPath());
     }
 
-    public function testGateway_ReturnsRouteProducingUriWithDefinedSegments()
+    public function testRouteMethod_ReturnsRouteProducingUriWithDefinedSegments()
     {
         $subRoute = new MockedRoute('/foo/bar');
 
@@ -87,7 +87,7 @@ class PatternGateTest extends TestCase
         $this->assertSame('http:/foo/bar', (string) $uri);
     }
 
-    public function testComposedGateway_ReturnsRouteProducingUriWithDefinedSegments()
+    public function testComposedRoutesUriCall_ReturnsUriWithSegmentsDefinedInAllRoutes()
     {
         $subRoute = $this->staticGate('//example.com', new MockedRoute('/foo/bar'));
         $uri      = $this->staticGate('https:', $subRoute)->route('some.path')->uri(new FakeUri(), []);

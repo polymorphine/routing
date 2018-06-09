@@ -39,7 +39,7 @@ class MiddlewareGatewayTest extends TestCase
         $this->assertSame('processed: wrap response wrap', (string) $response->getBody());
     }
 
-    public function testGatewayCallsRouteWithSameParameter()
+    public function testRouteCallsNextRouteWithSameParameter()
     {
         $this->assertInstanceOf(Route::class, $route = $this->middleware()->route('some.name'));
         $this->assertSame('some.name', $route->path);

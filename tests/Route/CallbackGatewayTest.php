@@ -49,7 +49,7 @@ class CallbackGatewayTest extends TestCase
         $this->assertNotSame(self::$prototype, $this->middleware()->forward($request, self::$prototype));
     }
 
-    public function testGatewayCallsRouteWithSameParameter()
+    public function testRouteCallsWrappedRouteWithSameParameter()
     {
         $this->assertInstanceOf(Route::class, $route = $this->middleware()->route('some.name'));
         $this->assertSame('some.name', $route->path);
