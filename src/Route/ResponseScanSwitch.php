@@ -11,16 +11,16 @@
 
 namespace Polymorphine\Routing\Route;
 
+use Polymorphine\Routing\Exception\EndpointCallException;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Exception\SwitchCallException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriInterface;
 
 
 class ResponseScanSwitch implements Route
 {
-    use LockedEndpointMethod;
-
     private $routes = [];
 
     /**
@@ -55,6 +55,11 @@ class ResponseScanSwitch implements Route
         }
 
         return $path ? $this->switchRoute($this->routes[$id], $path) : $this->routes[$id];
+    }
+
+    public function uri(UriInterface $prototype, array $params): UriInterface
+    {
+        throw new EndpointCallException('Uri not defined in gateway route');
     }
 
     private function switchRoute(Route $route, string $path)
