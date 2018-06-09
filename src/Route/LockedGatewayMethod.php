@@ -12,13 +12,13 @@
 namespace Polymorphine\Routing\Route;
 
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Exception\GatewayCallException;
+use Polymorphine\Routing\Exception\SwitchCallException;
 
 
 trait LockedGatewayMethod
 {
     public function gateway(string $path): Route
     {
-        throw new GatewayCallException(sprintf('Gateway not found for path `%s`', $path));
+        throw new SwitchCallException(sprintf('Gateway not found for path `%s`', $path));
     }
 }

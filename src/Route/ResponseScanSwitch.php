@@ -12,12 +12,12 @@
 namespace Polymorphine\Routing\Route;
 
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Exception\GatewayCallException;
+use Polymorphine\Routing\Exception\SwitchCallException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 
-class FirstMatchForwardGateway implements Route
+class ResponseScanSwitch implements Route
 {
     use LockedEndpointMethod;
 
@@ -47,11 +47,11 @@ class FirstMatchForwardGateway implements Route
         [$id, $path] = explode(self::PATH_SEPARATOR, $path, 2) + [false, false];
 
         if (!$id) {
-            throw new GatewayCallException('Invalid gateway path - non empty string required');
+            throw new SwitchCallException('Invalid gateway path - non empty string required');
         }
 
         if (!isset($this->routes[$id])) {
-            throw new GatewayCallException(sprintf('Gateway `%s` not found', $id));
+            throw new SwitchCallException(sprintf('Gateway `%s` not found', $id));
         }
 
         return $path ? $this->route($this->routes[$id], $path) : $this->routes[$id];

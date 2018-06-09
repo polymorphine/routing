@@ -14,6 +14,6 @@ namespace Polymorphine\Routing\Exception;
 use InvalidArgumentException;
 
 
-class GatewayCallException extends InvalidArgumentException
+class InvalidUriParamsException extends InvalidArgumentException
 {
 }

@@ -13,16 +13,16 @@ namespace Polymorphine\Routing\Tests\Route;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Route\FirstMatchForwardGateway;
+use Polymorphine\Routing\Route\ResponseScanSwitch;
 use Polymorphine\Routing\Exception\EndpointCallException;
-use Polymorphine\Routing\Exception\GatewayCallException;
+use Polymorphine\Routing\Exception\SwitchCallException;
 use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
 
 
-class FirstMatchForwardGatewayTest extends TestCase
+class ResponseScanSwitchTest extends TestCase
 {
     private static $notFound;
 
@@ -91,14 +91,14 @@ class FirstMatchForwardGatewayTest extends TestCase
 
     public function testGatewayWithEmptyPath_ThrowsException()
     {
-        $this->expectException(GatewayCallException::class);
+        $this->expectException(SwitchCallException::class);
         $this->route()->gateway('');
     }
 
     public function testGatewayWithUnknownName_ThrowsException()
     {
         $this->assertInstanceOf(Route::class, $this->route()->gateway('example'));
-        $this->expectException(GatewayCallException::class);
+        $this->expectException(SwitchCallException::class);
         $this->route()->gateway('NotDefined');
     }
 
@@ -106,6 +106,6 @@ class FirstMatchForwardGatewayTest extends TestCase
     {
         $dummy           = new MockedRoute('DUMMY');
         $dummy->callback = function () { return null; };
-        return new FirstMatchForwardGateway(['example' => $dummy] + $routes);
+        return new ResponseScanSwitch(['example' => $dummy] + $routes);
     }
 }

@@ -42,7 +42,7 @@ interface Route
      *
      * @param string $path
      *
-     * @throws Exception\GatewayCallException
+     * @throws Exception\SwitchCallException
      *
      * @return Route
      */
@@ -72,7 +72,7 @@ interface Route
      * @param UriInterface $prototype
      *
      * @throws Exception\EndpointCallException
-     * @throws Exception\UriParamsException
+     * @throws Exception\InvalidUriParamsException
      * @throws Exception\UnreachableEndpointException
      *
      * @return UriInterface

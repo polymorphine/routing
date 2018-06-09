@@ -14,6 +14,6 @@ namespace Polymorphine\Routing\Exception;
 use InvalidArgumentException;
 
 
-class UriParamsException extends InvalidArgumentException
+class SwitchCallException extends InvalidArgumentException
 {
 }

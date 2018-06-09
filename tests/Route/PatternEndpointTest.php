@@ -13,7 +13,7 @@ namespace Polymorphine\Routing\Tests\Route;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Exception\GatewayCallException;
+use Polymorphine\Routing\Exception\SwitchCallException;
 use Polymorphine\Routing\Tests\Doubles\MockedPattern;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
@@ -78,7 +78,7 @@ class PatternEndpointTest extends TestCase
     public function testGateway_ThrowsException()
     {
         $route = $this->route('//example.com');
-        $this->expectException(GatewayCallException::class);
+        $this->expectException(SwitchCallException::class);
         $route->gateway('route.path');
     }
 

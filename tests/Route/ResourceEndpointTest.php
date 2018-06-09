@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\ResourceEndpoint;
 use Polymorphine\Routing\Exception\UnreachableEndpointException;
-use Polymorphine\Routing\Exception\UriParamsException;
+use Polymorphine\Routing\Exception\InvalidUriParamsException;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
@@ -133,7 +133,7 @@ class ResourceEndpointTest extends TestCase
 
     public function testUriWithInvalidIdParam_ThrowsException()
     {
-        $this->expectException(UriParamsException::class);
+        $this->expectException(InvalidUriParamsException::class);
         $this->resource('/path/to/resource')->uri(new FakeUri(), ['id' => '08ab']);
     }
 

@@ -13,7 +13,7 @@ namespace Polymorphine\Routing\Route;
 
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Exception\UnreachableEndpointException;
-use Polymorphine\Routing\Exception\UriParamsException;
+use Polymorphine\Routing\Exception\InvalidUriParamsException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
@@ -70,7 +70,7 @@ class ResourceEndpoint implements Route
 
         if ($id && !$this->validId($id)) {
             $message = 'Cannot build valid uri string with `%s` id param for `%s` resource path';
-            throw new UriParamsException(sprintf($message, $id, $this->path));
+            throw new InvalidUriParamsException(sprintf($message, $id, $this->path));
         }
 
         $path = ($id) ? $this->path . '/' . $id : $this->path;

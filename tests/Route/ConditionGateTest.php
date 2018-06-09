@@ -13,7 +13,7 @@ namespace Polymorphine\Routing\Tests\Route;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Route\RequestFirewall;
+use Polymorphine\Routing\Route\ConditionGate;
 use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
@@ -21,7 +21,7 @@ use Polymorphine\Routing\Tests\Doubles\FakeUri;
 use Psr\Http\Message\ServerRequestInterface;
 
 
-class RequestFirewallTest extends TestCase
+class ConditionGateTest extends TestCase
 {
     private static $notFound;
 
@@ -73,7 +73,7 @@ class RequestFirewallTest extends TestCase
         $closure = $closure ?: function (ServerRequestInterface $request) {
             return strpos($request->getRequestTarget(), '/foo/bar') === 0;
         };
-        return new RequestFirewall($closure, $route ?: new MockedRoute('default'));
+        return new ConditionGate($closure, $route ?: new MockedRoute('default'));
     }
 
     private function request($path = '/')

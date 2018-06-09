@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route\Pattern;
 use Polymorphine\Routing\Route\Pattern\DynamicTargetMask;
 use Polymorphine\Routing\Exception\UnreachableEndpointException;
-use Polymorphine\Routing\Exception\UriParamsException;
+use Polymorphine\Routing\Exception\InvalidUriParamsException;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
 use Psr\Http\Message\ServerRequestInterface;
@@ -104,14 +104,14 @@ class DynamicTargetMaskTest extends TestCase
     public function testUriInsufficientParams_ThrowsException()
     {
         $pattern = $this->pattern('/some-{#number}/{$slug}');
-        $this->expectException(UriParamsException::class);
+        $this->expectException(InvalidUriParamsException::class);
         $pattern->uri(new FakeUri(), [22]);
     }
 
     public function testUriInvalidTypeParams_ThrowsException()
     {
         $pattern = $this->pattern('/user/{#countryId}');
-        $this->expectException(UriParamsException::class);
+        $this->expectException(InvalidUriParamsException::class);
         $pattern->uri(new FakeUri(), ['Poland']);
     }
 
@@ -235,7 +235,7 @@ class DynamicTargetMaskTest extends TestCase
     public function testUriInvalidParamWithProvidedPattern()
     {
         $pattern = new DynamicTargetMask('/{lang}/foo', ['lang' => '(en|pl|fr)']);
-        $this->expectException(UriParamsException::class);
+        $this->expectException(InvalidUriParamsException::class);
         $pattern->uri(new FakeUri(), ['es']);
     }
 

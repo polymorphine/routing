@@ -17,7 +17,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 
 
-class PatternGateway implements Route
+class PatternGate implements Route
 {
     use Route\Pattern\PatternSelection;
 

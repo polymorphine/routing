@@ -13,14 +13,14 @@ namespace Polymorphine\Routing\Tests\Route;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route\Pattern\StaticUriMask;
-use Polymorphine\Routing\Route\PatternGateway;
+use Polymorphine\Routing\Route\PatternGate;
 use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
 
 
-class PatternGatewayTest extends TestCase
+class PatternGateTest extends TestCase
 {
     private static $notFound;
 
@@ -31,18 +31,18 @@ class PatternGatewayTest extends TestCase
 
     public function testInstantiation()
     {
-        $this->assertInstanceOf(PatternGateway::class, $default = $this->staticGate());
-        $this->assertInstanceOf(PatternGateway::class, $https = $this->staticGate('https:'));
-        $this->assertInstanceOf(PatternGateway::class, $http = $this->staticGate('http:'));
+        $this->assertInstanceOf(PatternGate::class, $default = $this->staticGate());
+        $this->assertInstanceOf(PatternGate::class, $https = $this->staticGate('https:'));
+        $this->assertInstanceOf(PatternGate::class, $http = $this->staticGate('http:'));
 
         $this->assertEquals($default, $https);
         $this->assertNotEquals($default, $http);
 
-        $gateway = PatternGateway::withPatternString('/test/{#testId}', new MockedRoute('default'));
-        $this->assertInstanceOf(PatternGateway::class, $gateway);
+        $gateway = PatternGate::withPatternString('/test/{#testId}', new MockedRoute('default'));
+        $this->assertInstanceOf(PatternGate::class, $gateway);
 
-        $gateway = PatternGateway::withPatternString('//domain.com/test/foo', new MockedRoute('default'));
-        $this->assertInstanceOf(PatternGateway::class, $gateway);
+        $gateway = PatternGate::withPatternString('//domain.com/test/foo', new MockedRoute('default'));
+        $this->assertInstanceOf(PatternGate::class, $gateway);
     }
 
     public function testNotMatchingPattern_ReturnsNotFoundResponseInstance()
@@ -96,7 +96,7 @@ class PatternGatewayTest extends TestCase
 
     private function staticGate(string $uriPattern = 'https:', $subRoute = null)
     {
-        return new PatternGateway(
+        return new PatternGate(
             new StaticUriMask($uriPattern),
             $subRoute ?: new MockedRoute('default')
         );

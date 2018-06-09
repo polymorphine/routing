@@ -12,7 +12,7 @@
 namespace Polymorphine\Routing\Route\Pattern;
 
 use Polymorphine\Routing\Route\Pattern;
-use Polymorphine\Routing\Exception\UriParamsException;
+use Polymorphine\Routing\Exception\InvalidUriParamsException;
 use Polymorphine\Routing\Exception\UnreachableEndpointException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
@@ -134,7 +134,7 @@ class DynamicTargetMask implements Pattern
     {
         if (count($params) < count($this->params)) {
             $message = 'Route requires %s params for `%s` path - %s provided';
-            throw new UriParamsException(sprintf($message, count($this->params), $this->parsedPath, count($params)));
+            throw new InvalidUriParamsException(sprintf($message, count($this->params), $this->parsedPath, count($params)));
         }
 
         $placeholders = [];
@@ -152,7 +152,7 @@ class DynamicTargetMask implements Pattern
         $value = (string) $value;
         if (!preg_match('/^' . $type . '$/', $value)) {
             $message = 'Invalid param `%s` type for `%s` route path';
-            throw new UriParamsException(sprintf($message, $name, $this->parsedPath));
+            throw new InvalidUriParamsException(sprintf($message, $name, $this->parsedPath));
         }
 
         return $value;
