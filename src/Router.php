@@ -11,12 +11,13 @@
 
 namespace Polymorphine\Routing;
 
+use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 
 
-class Router
+class Router implements RequestHandlerInterface
 {
     private $route;
     private $uriPrototype;
@@ -29,17 +30,17 @@ class Router
         $this->notFound     = $notFound;
     }
 
-    public function dispatch(ServerRequestInterface $request): ResponseInterface
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         return $this->route->forward($request, $this->notFound);
     }
 
-    public function uri(string $path, array $params = [])
+    public function uri(string $path, array $params = []): UriInterface
     {
         return $this->route->gateway($path)->uri($this->uriPrototype, $params);
     }
 
-    public function route(string $path)
+    public function route(string $path): Router
     {
         return new static($this->route->gateway($path), $this->uriPrototype, $this->notFound);
     }

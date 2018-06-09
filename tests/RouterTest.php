@@ -37,14 +37,14 @@ class RouterTest extends TestCase
     public function testNotMatchedRequestDispatch_ReturnsNotFoundResponseInstance()
     {
         $router = $this->router(false);
-        $this->assertSame(self::$notFound, $router->dispatch(new FakeServerRequest()));
+        $this->assertSame(self::$notFound, $router->handle(new FakeServerRequest()));
     }
 
     public function testMatchingRequestDispatch_ReturnsEndpointResponse()
     {
         $router = $this->router(true);
-        $this->assertNotSame(self::$notFound, $router->dispatch(new FakeServerRequest()));
-        $this->assertSame('matched', $router->dispatch(new FakeServerRequest())->body);
+        $this->assertNotSame(self::$notFound, $router->handle(new FakeServerRequest()));
+        $this->assertSame('matched', $router->handle(new FakeServerRequest())->body);
     }
 
     public function testUri_ReturnsUriBasedOnDefault()
