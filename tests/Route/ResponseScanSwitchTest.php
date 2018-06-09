@@ -24,11 +24,11 @@ use Polymorphine\Routing\Tests\Doubles\FakeUri;
 
 class ResponseScanSwitchTest extends TestCase
 {
-    private static $notFound;
+    private static $prototype;
 
     public static function setUpBeforeClass()
     {
-        self::$notFound = new FakeResponse();
+        self::$prototype = new FakeResponse();
     }
 
     public function testInstantiation()
@@ -36,20 +36,20 @@ class ResponseScanSwitchTest extends TestCase
         $this->assertInstanceOf(Route::class, $this->route());
     }
 
-    public function testForwardingNotMatchingRequest_ReturnsNotFoundInstance()
+    public function testForwardingNotMatchingRequest_ReturnsPrototypeInstance()
     {
         $route = $this->route();
-        $this->assertSame(self::$notFound, $route->forward(new FakeServerRequest(), self::$notFound));
+        $this->assertSame(self::$prototype, $route->forward(new FakeServerRequest(), self::$prototype));
 
         $route = $this->route(['name' => new MockedRoute('')]);
-        $this->assertSame(self::$notFound, $route->forward(new FakeServerRequest(), self::$notFound));
+        $this->assertSame(self::$prototype, $route->forward(new FakeServerRequest(), self::$prototype));
     }
 
     public function testForwardingMatchingRequest_ReturnsEndpointResponse()
     {
         $route = new MockedRoute('', function () { return new FakeResponse(); });
         $route = $this->route(['name' => $route]);
-        $this->assertNotSame(self::$notFound, $route->forward(new FakeServerRequest(), self::$notFound));
+        $this->assertNotSame(self::$prototype, $route->forward(new FakeServerRequest(), self::$prototype));
     }
 
     public function testForwardingMatchingRequest_ReturnsMatchingEndpointResponse()
@@ -61,8 +61,8 @@ class ResponseScanSwitchTest extends TestCase
         $route    = $this->route(['A' => $routeA, 'B' => $routeB]);
         $requestA = new FakeServerRequest('POST');
         $requestB = new FakeServerRequest('GET');
-        $this->assertSame('A', $route->forward($requestA, self::$notFound)->body);
-        $this->assertSame('B', $route->forward($requestB, self::$notFound)->body);
+        $this->assertSame('A', $route->forward($requestA, self::$prototype)->body);
+        $this->assertSame('B', $route->forward($requestB, self::$prototype)->body);
     }
 
     public function testUriMethod_ThrowsException()
@@ -76,8 +76,8 @@ class ResponseScanSwitchTest extends TestCase
         $routeA = new MockedRoute('A');
         $routeB = new MockedRoute('B');
         $route  = $this->route(['A' => $routeA, 'B' => $routeB]);
-        $this->assertSame('A', $route->gateway('A')->id);
-        $this->assertSame('B', $route->gateway('B')->id);
+        $this->assertSame('A', $route->route('A')->id);
+        $this->assertSame('B', $route->route('B')->id);
     }
 
     public function testGatewayMethodGatewayCall_AsksNextGateway()
@@ -85,21 +85,21 @@ class ResponseScanSwitchTest extends TestCase
         $routeA = new MockedRoute('A');
         $routeB = new MockedRoute('B');
         $route  = $this->route(['AFound' => $routeA, 'BFound' => $routeB]);
-        $this->assertSame('PathA', $route->gateway('AFound.PathA')->path);
-        $this->assertSame('PathB', $route->gateway('BFound.PathB')->path);
+        $this->assertSame('PathA', $route->route('AFound.PathA')->path);
+        $this->assertSame('PathB', $route->route('BFound.PathB')->path);
     }
 
     public function testGatewayWithEmptyPath_ThrowsException()
     {
         $this->expectException(SwitchCallException::class);
-        $this->route()->gateway('');
+        $this->route()->route('');
     }
 
     public function testGatewayWithUnknownName_ThrowsException()
     {
-        $this->assertInstanceOf(Route::class, $this->route()->gateway('example'));
+        $this->assertInstanceOf(Route::class, $this->route()->route('example'));
         $this->expectException(SwitchCallException::class);
-        $this->route()->gateway('NotDefined');
+        $this->route()->route('NotDefined');
     }
 
     private function route(array $routes = [])

@@ -58,7 +58,7 @@ class Router implements RequestHandlerInterface
      */
     public function uri(string $path, array $params = []): UriInterface
     {
-        return $this->route->gateway($path)->uri($this->baseUri, $params);
+        return $this->route->route($path)->uri($this->baseUri, $params);
     }
 
     /**
@@ -68,6 +68,6 @@ class Router implements RequestHandlerInterface
      */
     public function route(string $path): Router
     {
-        return new static($this->route->gateway($path), $this->baseUri, $this->baseResponse);
+        return new static($this->route->route($path), $this->baseUri, $this->baseResponse);
     }
 }

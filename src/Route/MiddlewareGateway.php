@@ -30,14 +30,14 @@ class MiddlewareGateway implements Route
         $this->route      = $route;
     }
 
-    public function forward(ServerRequestInterface $request, ResponseInterface $notFound): ResponseInterface
+    public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
     {
-        return $this->middleware->process($request, new RouteHandler($this->route, $notFound));
+        return $this->middleware->process($request, new RouteHandler($this->route, $prototype));
     }
 
-    public function gateway(string $path): Route
+    public function route(string $path): Route
     {
-        return $this->route->gateway($path);
+        return $this->route->route($path);
     }
 
     public function uri(UriInterface $prototype, array $params): UriInterface

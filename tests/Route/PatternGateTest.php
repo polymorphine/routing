@@ -22,11 +22,11 @@ use Polymorphine\Routing\Tests\Doubles\FakeUri;
 
 class PatternGateTest extends TestCase
 {
-    private static $notFound;
+    private static $prototype;
 
     public static function setUpBeforeClass()
     {
-        self::$notFound = new FakeResponse();
+        self::$prototype = new FakeResponse();
     }
 
     public function testInstantiation()
@@ -45,20 +45,20 @@ class PatternGateTest extends TestCase
         $this->assertInstanceOf(PatternGate::class, $gateway);
     }
 
-    public function testNotMatchingPattern_ReturnsNotFoundResponseInstance()
+    public function testNotMatchingPattern_ReturnsPrototypeInstance()
     {
         $request = $this->request('http:/some/path');
-        $this->assertSame(self::$notFound, $this->staticGate('https:/some/path')->forward($request, self::$notFound));
+        $this->assertSame(self::$prototype, $this->staticGate('https:/some/path')->forward($request, self::$prototype));
         $request = $this->request('http://example.com/foo/bazzzz');
-        $this->assertSame(self::$notFound, $this->staticGate('example.com/foo/ba')->forward($request, self::$notFound));
+        $this->assertSame(self::$prototype, $this->staticGate('example.com/foo/ba')->forward($request, self::$prototype));
     }
 
     public function testMatchingPattern_ReturnsForwardedRouteResponse()
     {
         $request = $this->request('http://example.com/some/path');
-        $this->assertNotSame(self::$notFound, $this->staticGate('//example.com')->forward($request, self::$notFound));
+        $this->assertNotSame(self::$prototype, $this->staticGate('//example.com')->forward($request, self::$prototype));
         $request = $this->request('http://www.example.com?foo=bar');
-        $this->assertNotSame(self::$notFound, $this->staticGate('http:?foo=bar')->forward($request, self::$notFound));
+        $this->assertNotSame(self::$prototype, $this->staticGate('http:?foo=bar')->forward($request, self::$prototype));
     }
 
     public function testUri_ReturnsUriWithPatternDefinedSegments()
@@ -81,16 +81,16 @@ class PatternGateTest extends TestCase
     {
         $subRoute = new MockedRoute('/foo/bar');
 
-        $uri = $this->staticGate('https://example.com', $subRoute)->gateway('some.path')->uri(new FakeUri(), []);
+        $uri = $this->staticGate('https://example.com', $subRoute)->route('some.path')->uri(new FakeUri(), []);
         $this->assertSame('https://example.com/foo/bar', (string) $uri);
-        $uri = $this->staticGate('http:', $subRoute)->gateway('some.path')->uri(new FakeUri(), []);
+        $uri = $this->staticGate('http:', $subRoute)->route('some.path')->uri(new FakeUri(), []);
         $this->assertSame('http:/foo/bar', (string) $uri);
     }
 
     public function testComposedGateway_ReturnsRouteProducingUriWithDefinedSegments()
     {
         $subRoute = $this->staticGate('//example.com', new MockedRoute('/foo/bar'));
-        $uri      = $this->staticGate('https:', $subRoute)->gateway('some.path')->uri(new FakeUri(), []);
+        $uri      = $this->staticGate('https:', $subRoute)->route('some.path')->uri(new FakeUri(), []);
         $this->assertSame('https://example.com/foo/bar', (string) $uri);
     }
 

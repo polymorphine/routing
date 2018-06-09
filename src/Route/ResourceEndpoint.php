@@ -43,25 +43,25 @@ class ResourceEndpoint implements Route
         $this->handlers = $handlers;
     }
 
-    public function forward(ServerRequestInterface $request, ResponseInterface $notFound): ResponseInterface
+    public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
     {
         $path = ($this->path[0] !== '/')
             ? $this->relativeRequestPath($request->getUri()->getPath())
             : $this->path;
 
-        if (!$path) { return $notFound; }
+        if (!$path) { return $prototype; }
 
         $method = $request->getMethod();
 
         if ($method === self::GET) {
-            return $this->dispatchGetMethod($request, $path) ?? $notFound;
+            return $this->dispatchGetMethod($request, $path) ?? $prototype;
         }
 
         if ($method === self::POST) {
-            return $this->dispatchPostMethod($request, $path) ?? $notFound;
+            return $this->dispatchPostMethod($request, $path) ?? $prototype;
         }
 
-        return $this->dispatchItemMethod($method, $request, $path) ?? $notFound;
+        return $this->dispatchItemMethod($method, $request, $path) ?? $prototype;
     }
 
     public function uri(UriInterface $prototype, array $params): UriInterface

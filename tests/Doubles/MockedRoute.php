@@ -30,15 +30,15 @@ class MockedRoute implements Route
         $this->callback = $callback;
     }
 
-    public function forward(ServerRequestInterface $request, ResponseInterface $notFound): ResponseInterface
+    public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
     {
         if ($this->callback) {
-            return $this->callback->__invoke($request) ?? $notFound;
+            return $this->callback->__invoke($request) ?? $prototype;
         }
-        return $this->id ? new FakeResponse($this->id) : $notFound;
+        return $this->id ? new FakeResponse($this->id) : $prototype;
     }
 
-    public function gateway(string $path): Route
+    public function route(string $path): Route
     {
         $this->path = $path;
         return $this;

@@ -31,18 +31,18 @@ class ResponseScanSwitch implements Route
         $this->routes = $routes;
     }
 
-    public function forward(ServerRequestInterface $request, ResponseInterface $notFound): ResponseInterface
+    public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
     {
-        $response = $notFound;
+        $response = $prototype;
         foreach ($this->routes as $route) {
-            $response = $route->forward($request, $notFound);
-            if ($response !== $notFound) { break; }
+            $response = $route->forward($request, $prototype);
+            if ($response !== $prototype) { break; }
         }
 
         return $response;
     }
 
-    public function gateway(string $path): Route
+    public function route(string $path): Route
     {
         [$id, $path] = explode(self::PATH_SEPARATOR, $path, 2) + [false, false];
 
@@ -54,11 +54,11 @@ class ResponseScanSwitch implements Route
             throw new SwitchCallException(sprintf('Gateway `%s` not found', $id));
         }
 
-        return $path ? $this->route($this->routes[$id], $path) : $this->routes[$id];
+        return $path ? $this->switchRoute($this->routes[$id], $path) : $this->routes[$id];
     }
 
-    private function route(Route $route, string $path)
+    private function switchRoute(Route $route, string $path)
     {
-        return $route->gateway($path);
+        return $route->route($path);
     }
 }

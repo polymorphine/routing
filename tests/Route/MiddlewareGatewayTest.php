@@ -31,17 +31,17 @@ class MiddlewareGatewayTest extends TestCase
 
     public function testMiddlewareForwardsRequest()
     {
-        $notFound = new FakeResponse();
-        $request  = new FakeServerRequest('POST');
-        $response = $this->middleware()->forward($request->withAttribute('middleware', 'processed'), $notFound);
+        $prototype = new FakeResponse();
+        $request   = new FakeServerRequest('POST');
+        $response  = $this->middleware()->forward($request->withAttribute('middleware', 'processed'), $prototype);
 
-        $this->assertNotSame($notFound, $response);
+        $this->assertNotSame($prototype, $response);
         $this->assertSame('processed: wrap response wrap', (string) $response->getBody());
     }
 
     public function testGatewayCallsRouteWithSameParameter()
     {
-        $this->assertInstanceOf(Route::class, $route = $this->middleware()->gateway('some.name'));
+        $this->assertInstanceOf(Route::class, $route = $this->middleware()->route('some.name'));
         $this->assertSame('some.name', $route->path);
     }
 

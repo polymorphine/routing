@@ -49,9 +49,9 @@ class LazyRouteTest extends TestCase
         $this->assertSame('invoked', $response->body);
     }
 
-    public function testGatewayIsCalledOnIOnvokedRoute()
+    public function testGatewayIsCalledOnInvokedRoute()
     {
-        $route = $this->route()->gateway('invoked.route.path');
+        $route = $this->route()->route('invoked.route.path');
         $this->assertInstanceOf(Route::class, $this->route);
         $this->assertSame('invoked.route.path', $route->path);
     }

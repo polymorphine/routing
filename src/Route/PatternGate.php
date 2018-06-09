@@ -35,11 +35,11 @@ class PatternGate implements Route
         return new self(self::selectPattern($pattern, $params), $route);
     }
 
-    public function forward(ServerRequestInterface $request, ResponseInterface $notFound): ResponseInterface
+    public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
     {
         $request = $this->pattern->matchedRequest($request);
 
-        return $request ? $this->route->forward($request, $notFound) : $notFound;
+        return $request ? $this->route->forward($request, $prototype) : $prototype;
     }
 
     public function uri(UriInterface $prototype, array $params): UriInterface
@@ -49,8 +49,8 @@ class PatternGate implements Route
         return $this->pattern->uri($uri, $params);
     }
 
-    public function gateway(string $path): Route
+    public function route(string $path): Route
     {
-        return new self($this->pattern, $this->route->gateway($path));
+        return new self($this->pattern, $this->route->route($path));
     }
 }

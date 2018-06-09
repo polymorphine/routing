@@ -23,11 +23,11 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class ConditionGateTest extends TestCase
 {
-    private static $notFound;
+    private static $prototype;
 
     public static function setUpBeforeClass()
     {
-        self::$notFound = new FakeResponse();
+        self::$prototype = new FakeResponse();
     }
 
     public function testInstantiation()
@@ -35,30 +35,30 @@ class ConditionGateTest extends TestCase
         $this->assertInstanceOf(Route::class, $this->route());
     }
 
-    public function testNotMatchingPath_ReturnsNotFoundResponseInstance()
+    public function testNotMatchingPath_ReturnsPrototypeInstance()
     {
         $route = $this->route(function () { return false; });
-        $this->assertSame(self::$notFound, $route->forward($this->request(), self::$notFound));
-        $this->assertSame(self::$notFound, $route->forward($this->request('/bar/foo'), self::$notFound));
-        $this->assertSame(self::$notFound, $route->forward($this->request('anything'), self::$notFound));
+        $this->assertSame(self::$prototype, $route->forward($this->request(), self::$prototype));
+        $this->assertSame(self::$prototype, $route->forward($this->request('/bar/foo'), self::$prototype));
+        $this->assertSame(self::$prototype, $route->forward($this->request('anything'), self::$prototype));
     }
 
     public function testMatchingPathForwardsRequest()
     {
         $route = $this->route();
-        $this->assertNotSame(self::$notFound, $route->forward($this->request('/foo/bar'), self::$notFound));
-        $this->assertSame('default', $route->forward($this->request('/foo/bar'), self::$notFound)->body);
+        $this->assertNotSame(self::$prototype, $route->forward($this->request('/foo/bar'), self::$prototype));
+        $this->assertSame('default', $route->forward($this->request('/foo/bar'), self::$prototype)->body);
 
         $route    = $this->route(function ($request) { return $request instanceof FakeServerRequest; });
-        $response = $route->forward($this->request('anything'), self::$notFound);
-        $this->assertNotSame(self::$notFound, $response);
+        $response = $route->forward($this->request('anything'), self::$prototype);
+        $this->assertNotSame(self::$prototype, $response);
         $this->assertSame('default', $response->body);
     }
 
     public function testGatewayCallIsPassedToWrappedRoute()
     {
         $route = $this->route();
-        $this->assertSame('path.forwarded', $route->gateway('path.forwarded')->path);
+        $this->assertSame('path.forwarded', $route->route('path.forwarded')->path);
     }
 
     public function testUriCallIsPassedToWrappedRoute()

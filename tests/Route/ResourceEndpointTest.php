@@ -24,11 +24,11 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class ResourceEndpointTest extends TestCase
 {
-    private static $notFound;
+    private static $prototype;
 
     public static function setUpBeforeClass()
     {
-        self::$notFound = new FakeResponse();
+        self::$prototype = new FakeResponse();
     }
 
     public function testInstantiation()
@@ -44,12 +44,12 @@ class ResourceEndpointTest extends TestCase
      * @param Route                  $resource
      * @param string                 $message
      */
-    public function testNotMatchingRequest_ReturnsNotFoundResponseInstance(
+    public function testNotMatchingRequest_ReturnsPrototypeInstance(
         ServerRequestInterface $request,
         Route $resource,
         string $message
     ) {
-        $this->assertSame(self::$notFound, $resource->forward($request, self::$notFound), $message);
+        $this->assertSame(self::$prototype, $resource->forward($request, self::$prototype), $message);
     }
 
     public function notMatchingRequests()
@@ -77,7 +77,7 @@ class ResourceEndpointTest extends TestCase
         ServerRequestInterface $request,
         Route $resource
     ) {
-        $this->assertNotSame(self::$notFound, $resource->forward($request, self::$notFound));
+        $this->assertNotSame(self::$prototype, $resource->forward($request, self::$prototype));
     }
 
     public function matchingRequests()
@@ -97,19 +97,19 @@ class ResourceEndpointTest extends TestCase
     public function testMatchingIdRequestIsForwardedWithIdAttribute()
     {
         $request  = $this->request('/foo/345');
-        $response = $this->resource('/foo')->forward($request, self::$notFound);
+        $response = $this->resource('/foo')->forward($request, self::$prototype);
         $this->assertSame(['id' => '345'], $response->fromRequest->getAttributes());
 
         $request  = $this->request('/foo/666/slug/3000', 'PATCH');
-        $response = $this->resource('/foo', ['PATCH'])->forward($request, self::$notFound);
+        $response = $this->resource('/foo', ['PATCH'])->forward($request, self::$prototype);
         $this->assertSame(['id' => '666'], $response->fromRequest->getAttributes());
 
         $request  = $this->request('/foo/bar/baz/554', 'PATCH');
-        $response = $this->resource('baz')->forward($request, self::$notFound);
+        $response = $this->resource('baz')->forward($request, self::$prototype);
         $this->assertSame(['id' => '554'], $response->fromRequest->getAttributes());
 
         $request  = $this->request('/some/path/500/slug-string-1000', 'PATCH');
-        $response = $this->resource('some/path')->forward($request, self::$notFound);
+        $response = $this->resource('some/path')->forward($request, self::$prototype);
         $this->assertSame(['id' => '500'], $response->fromRequest->getAttributes());
     }
 
@@ -143,7 +143,7 @@ class ResourceEndpointTest extends TestCase
         $this->resource('/foo/bar')->uri(FakeUri::fromString('/other/path'), []);
     }
 
-    public function testUriForRelativePathWithoutPrototypePath_throwsException()
+    public function testUriForRelativePathWithoutPrototypePath_ThrowsException()
     {
         $resource = $this->resource('bar/baz');
         $this->expectException(UnreachableEndpointException::class);

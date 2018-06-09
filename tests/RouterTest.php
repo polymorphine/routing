@@ -22,11 +22,11 @@ use Psr\Http\Message\UriInterface;
 
 class RouterTest extends TestCase
 {
-    private static $notFound;
+    private static $prototype;
 
     public static function setUpBeforeClass()
     {
-        self::$notFound = new FakeResponse();
+        self::$prototype = new FakeResponse();
     }
 
     public function testInstantiation()
@@ -34,16 +34,16 @@ class RouterTest extends TestCase
         $this->assertInstanceOf(Router::class, $this->router());
     }
 
-    public function testNotMatchedRequestDispatch_ReturnsNotFoundResponseInstance()
+    public function testNotMatchedRequestDispatch_ReturnsPrototypeInstance()
     {
         $router = $this->router(false);
-        $this->assertSame(self::$notFound, $router->handle(new FakeServerRequest()));
+        $this->assertSame(self::$prototype, $router->handle(new FakeServerRequest()));
     }
 
     public function testMatchingRequestDispatch_ReturnsEndpointResponse()
     {
         $router = $this->router(true);
-        $this->assertNotSame(self::$notFound, $router->handle(new FakeServerRequest()));
+        $this->assertNotSame(self::$prototype, $router->handle(new FakeServerRequest()));
         $this->assertSame('matched', $router->handle(new FakeServerRequest())->body);
     }
 
@@ -62,7 +62,7 @@ class RouterTest extends TestCase
         $router = new Router(
             $route = new MockedRoute('matched'),
             $uri ?? new FakeUri(),
-            self::$notFound
+            self::$prototype
         );
 
         $route->path = 'root.context';
@@ -77,7 +77,7 @@ class RouterTest extends TestCase
         return new Router(
             new MockedRoute($matched ? 'matched' : ''),
             $uri ?? new FakeUri(),
-            self::$notFound
+            self::$prototype
         );
     }
 }

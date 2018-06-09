@@ -21,32 +21,27 @@ interface Route
     public const PATH_SEPARATOR = '.';
 
     /**
-     * Forward $request and handle it from matching endpoint Route or Routes
-     * Returns instance of response passed as parameter if no matching Route is found.
+     * Forward $request and handle it from matching endpoint Route(s).
+     * Returns the same instance of response prototype if request was not handled.
      *
      * @param ServerRequestInterface $request
-     * @param ResponseInterface      $notFound
+     * @param ResponseInterface      $prototype
      *
      * @return ResponseInterface
      */
-    public function forward(ServerRequestInterface $request, ResponseInterface $notFound): ResponseInterface;
+    public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface;
 
     /**
-     * Get subsequent Route by its $path.
+     * Route located behind last switch defined with provided identifiers path.
      *
-     * If routing is organized in nested hierarchical structure
-     * provided $path should be relative to current position in Routing tree
+     * @param string $path by default dot separated switch identifiers relative
+     *                     to current position in routing tree
      *
-     * If Route specified with $path cannot be found
-     * GatewayCallException should be thrown
-     *
-     * @param string $path
-     *
-     * @throws Exception\SwitchCallException
+     * @throws Exception\SwitchCallException if Route specified with $path cannot be found
      *
      * @return Route
      */
-    public function gateway(string $path): Route;
+    public function route(string $path): Route;
 
     /**
      * Get endpoint call Uri.

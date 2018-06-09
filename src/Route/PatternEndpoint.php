@@ -44,11 +44,11 @@ class PatternEndpoint implements Route
         return new self('GET', self::selectPattern($path, $params), $callback);
     }
 
-    public function forward(ServerRequestInterface $request, ResponseInterface $notFound): ResponseInterface
+    public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
     {
         return ($this->methodMatch($request) && $request = $this->pattern->matchedRequest($request))
             ? $this->callback->__invoke($request)
-            : $notFound;
+            : $prototype;
     }
 
     public function uri(UriInterface $prototype, array $params): UriInterface

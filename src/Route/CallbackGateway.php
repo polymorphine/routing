@@ -43,17 +43,17 @@ class CallbackGateway implements Route
         $this->route    = $route;
     }
 
-    public function forward(ServerRequestInterface $request, ResponseInterface $notFound): ResponseInterface
+    public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
     {
-        $forward = function (ServerRequestInterface $request) use ($notFound) {
-            return $this->route->forward($request, $notFound);
+        $forward = function (ServerRequestInterface $request) use ($prototype) {
+            return $this->route->forward($request, $prototype);
         };
-        return $this->callback->__invoke($request, $forward) ?? $notFound;
+        return $this->callback->__invoke($request, $forward) ?? $prototype;
     }
 
-    public function gateway(string $path): Route
+    public function route(string $path): Route
     {
-        return $this->route->gateway($path);
+        return $this->route->route($path);
     }
 
     public function uri(UriInterface $prototype, array $params): UriInterface

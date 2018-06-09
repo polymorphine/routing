@@ -24,11 +24,11 @@ use Closure;
 
 class CallbackGatewayTest extends TestCase
 {
-    private static $notFound;
+    private static $prototype;
 
     public static function setUpBeforeClass()
     {
-        self::$notFound = new FakeResponse();
+        self::$prototype = new FakeResponse();
     }
 
     public function testInstantiation()
@@ -40,18 +40,18 @@ class CallbackGatewayTest extends TestCase
     public function testClosurePreventsForwardingRequest()
     {
         $request = new FakeServerRequest();
-        $this->assertSame(self::$notFound, $this->middleware()->forward($request, self::$notFound));
+        $this->assertSame(self::$prototype, $this->middleware()->forward($request, self::$prototype));
     }
 
     public function testMiddlewareForwardsRequest()
     {
         $request = new FakeServerRequest('POST');
-        $this->assertNotSame(self::$notFound, $this->middleware()->forward($request, self::$notFound));
+        $this->assertNotSame(self::$prototype, $this->middleware()->forward($request, self::$prototype));
     }
 
     public function testGatewayCallsRouteWithSameParameter()
     {
-        $this->assertInstanceOf(Route::class, $route = $this->middleware()->gateway('some.name'));
+        $this->assertInstanceOf(Route::class, $route = $this->middleware()->route('some.name'));
         $this->assertSame('some.name', $route->path);
     }
 

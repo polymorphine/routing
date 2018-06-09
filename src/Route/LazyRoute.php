@@ -27,22 +27,22 @@ class LazyRoute implements Route
         $this->routeCallback = $routeCallback;
     }
 
-    public function forward(ServerRequestInterface $request, ResponseInterface $notFound): ResponseInterface
+    public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
     {
-        return $this->route()->forward($request, $notFound);
+        return $this->invokedRoute()->forward($request, $prototype);
     }
 
-    public function gateway(string $path): Route
+    public function route(string $path): Route
     {
-        return $this->route()->gateway($path);
+        return $this->invokedRoute()->route($path);
     }
 
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
-        return $this->route()->uri($prototype, $params);
+        return $this->invokedRoute()->uri($prototype, $params);
     }
 
-    private function route(): Route
+    private function invokedRoute(): Route
     {
         return $this->route ?? $this->route = ($this->routeCallback)();
     }

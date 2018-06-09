@@ -19,16 +19,16 @@ use Psr\Http\Message\ResponseInterface;
 class RouteHandler implements RequestHandlerInterface
 {
     private $route;
-    private $notFound;
+    private $prototype;
 
-    public function __construct(Route $route, ResponseInterface $notFound)
+    public function __construct(Route $route, ResponseInterface $prototype)
     {
-        $this->route    = $route;
-        $this->notFound = $notFound;
+        $this->route     = $route;
+        $this->prototype = $prototype;
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        return $this->route->forward($request, $this->notFound);
+        return $this->route->forward($request, $this->prototype);
     }
 }

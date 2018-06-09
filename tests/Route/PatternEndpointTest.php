@@ -23,11 +23,11 @@ use Psr\Http\Message\UriInterface;
 
 class PatternEndpointTest extends TestCase
 {
-    private static $notFound;
+    private static $prototype;
 
     public static function setUpBeforeClass()
     {
-        self::$notFound = new FakeResponse();
+        self::$prototype = new FakeResponse();
     }
 
     public function testInstantiation()
@@ -41,32 +41,32 @@ class PatternEndpointTest extends TestCase
         $this->assertInstanceOf(Route::class, $route);
     }
 
-    public function testNotMatchingRequest_ReturnsNotFoundResponseInstance()
+    public function testNotMatchingRequest_ReturnsPrototypeInstance()
     {
         $route = $this->route('/page/3', 'GET', $this->dummyCallback());
-        $this->assertSame(self::$notFound, $route->forward($this->request('/page/3', 'POST'), self::$notFound));
-        $this->assertSame(self::$notFound, $route->forward($this->request('/page/4', 'GET'), self::$notFound));
+        $this->assertSame(self::$prototype, $route->forward($this->request('/page/3', 'POST'), self::$prototype));
+        $this->assertSame(self::$prototype, $route->forward($this->request('/page/4', 'GET'), self::$prototype));
     }
 
     public function testMatchingRequest_ReturnsEndpointResponse()
     {
         $response = $this->route('/page/3', 'GET', $this->dummyCallback())
-                         ->forward($this->request('/page/3', 'GET'), self::$notFound);
-        $this->assertNotSame(self::$notFound, $response);
+                         ->forward($this->request('/page/3', 'GET'), self::$prototype);
+        $this->assertNotSame(self::$prototype, $response);
 
         $response = $this->route('/page/576/foo-bar-45', 'UPDATE', $this->dummyCallback())
-                         ->forward($this->request('/page/576/foo-bar-45', 'UPDATE'), self::$notFound);
-        $this->assertNotSame(self::$notFound, $response);
+                         ->forward($this->request('/page/576/foo-bar-45', 'UPDATE'), self::$prototype);
+        $this->assertNotSame(self::$prototype, $response);
     }
 
     public function testRequestIsForwardedWithMatchedAttributes()
     {
         $response = $this->route('/page/3', 'GET')
-                         ->forward($this->request('/page/3', 'GET'), self::$notFound);
+                         ->forward($this->request('/page/3', 'GET'), self::$prototype);
         $this->assertSame(['pattern' => 'passed'], $response->fromRequest->attr);
 
         $response = $this->route('/page/576/foo-bar-45', 'UPDATE')
-                         ->forward($this->request('/page/576/foo-bar-45', 'UPDATE'), self::$notFound);
+                         ->forward($this->request('/page/576/foo-bar-45', 'UPDATE'), self::$prototype);
         $this->assertSame(['pattern' => 'passed'], $response->fromRequest->attr);
     }
 
@@ -79,7 +79,7 @@ class PatternEndpointTest extends TestCase
     {
         $route = $this->route('//example.com');
         $this->expectException(SwitchCallException::class);
-        $route->gateway('route.path');
+        $route->route('route.path');
     }
 
     private function route($path = '/', $method = 'GET', $callback = null)

@@ -29,16 +29,16 @@ class ConditionGate implements Route
         $this->route     = $route;
     }
 
-    public function forward(ServerRequestInterface $request, ResponseInterface $notFound): ResponseInterface
+    public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
     {
         return $this->condition->__invoke($request)
-            ? $this->route->forward($request, $notFound)
-            : $notFound;
+            ? $this->route->forward($request, $prototype)
+            : $prototype;
     }
 
-    public function gateway(string $path): Route
+    public function route(string $path): Route
     {
-        return $this->route->gateway($path);
+        return $this->route->route($path);
     }
 
     public function uri(UriInterface $prototype, array $params): UriInterface

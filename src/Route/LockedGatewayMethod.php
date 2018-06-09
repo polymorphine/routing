@@ -17,7 +17,7 @@ use Polymorphine\Routing\Exception\SwitchCallException;
 
 trait LockedGatewayMethod
 {
-    public function gateway(string $path): Route
+    public function route(string $path): Route
     {
         throw new SwitchCallException(sprintf('Gateway not found for path `%s`', $path));
     }
