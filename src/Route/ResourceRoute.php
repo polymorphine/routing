@@ -11,6 +11,7 @@
 
 namespace Polymorphine\Routing\Route;
 
+use Polymorphine\Routing\Exception\SwitchCallException;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Exception\UnreachableEndpointException;
 use Polymorphine\Routing\Exception\InvalidUriParamsException;
@@ -19,11 +20,9 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 
 
-class ResourceEndpoint implements Route
+class ResourceRoute implements Route
 {
-    use LockedGatewayMethod;
-
-    public const INDEX  = 'INDEX';
+    public const INDEX  = 'INDEX'; //pseudo method
     public const GET    = 'GET';
     public const POST   = 'POST';
     public const PUT    = 'PUT';
@@ -62,6 +61,11 @@ class ResourceEndpoint implements Route
         }
 
         return $this->dispatchItemMethod($method, $request, $path) ?? $prototype;
+    }
+
+    public function route(string $path): Route
+    {
+        throw new SwitchCallException(sprintf('Gateway not found for path `%s`', $path));
     }
 
     public function uri(UriInterface $prototype, array $params): UriInterface

@@ -12,8 +12,9 @@
 namespace Polymorphine\Routing\Tests\Route;
 
 use PHPUnit\Framework\TestCase;
+use Polymorphine\Routing\Exception\SwitchCallException;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Route\ResourceEndpoint;
+use Polymorphine\Routing\Route\ResourceRoute;
 use Polymorphine\Routing\Exception\UnreachableEndpointException;
 use Polymorphine\Routing\Exception\InvalidUriParamsException;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
@@ -22,7 +23,7 @@ use Polymorphine\Routing\Tests\Doubles\FakeUri;
 use Psr\Http\Message\ServerRequestInterface;
 
 
-class ResourceEndpointTest extends TestCase
+class ResourceRouteTest extends TestCase
 {
     private static $prototype;
 
@@ -34,7 +35,7 @@ class ResourceEndpointTest extends TestCase
     public function testInstantiation()
     {
         $this->assertInstanceOf(Route::class, $resource = $this->resource('/some/path'));
-        $this->assertInstanceOf(ResourceEndpoint::class, $resource);
+        $this->assertInstanceOf(ResourceRoute::class, $resource);
     }
 
     /**
@@ -157,6 +158,12 @@ class ResourceEndpointTest extends TestCase
         $this->assertSame('http://example.com/bar/baz/3456', (string) $uri);
     }
 
+    public function testRouteMethodCall_ThrowsException()
+    {
+        $this->expectException(SwitchCallException::class);
+        $this->resource('/user/posts')->route('user');
+    }
+
     private function resource(string $path, array $methods = ['INDEX', 'POST', 'GET', 'PUT', 'PATCH', 'DELETE'])
     {
         $handlers = [];
@@ -164,7 +171,7 @@ class ResourceEndpointTest extends TestCase
             $handlers[$method] = $this->dummyCallback();
         }
 
-        return new ResourceEndpoint($path, $handlers);
+        return new ResourceRoute($path, $handlers);
     }
 
     private function dummyCallback()
