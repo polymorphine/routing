@@ -9,7 +9,7 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Route;
+namespace Polymorphine\Routing\Route\Splitter;
 
 use Polymorphine\Routing\Exception\EndpointCallException;
 use Polymorphine\Routing\Route;

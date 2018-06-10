@@ -9,11 +9,11 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Tests\Route;
+namespace Polymorphine\Routing\Tests\Route\Splitter;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Route\ResponseScanSwitch;
+use Polymorphine\Routing\Route\Splitter\ResponseScanSwitch;
 use Polymorphine\Routing\Exception\EndpointCallException;
 use Polymorphine\Routing\Exception\SwitchCallException;
 use Polymorphine\Routing\Tests\Doubles\MockedRoute;

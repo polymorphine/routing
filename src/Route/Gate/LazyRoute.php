@@ -9,40 +9,41 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Route;
+namespace Polymorphine\Routing\Route\Gate;
 
 use Polymorphine\Routing\Route;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
-use Closure;
 
 
-class ConditionGate implements Route
+class LazyRoute implements Route
 {
-    private $condition;
+    private $routeCallback;
     private $route;
 
-    public function __construct(Closure $condition, Route $route)
+    public function __construct(callable $routeCallback)
     {
-        $this->condition = $condition;
-        $this->route     = $route;
+        $this->routeCallback = $routeCallback;
     }
 
     public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
     {
-        return $this->condition->__invoke($request)
-            ? $this->route->forward($request, $prototype)
-            : $prototype;
+        return $this->invokedRoute()->forward($request, $prototype);
     }
 
     public function route(string $path): Route
     {
-        return $this->route->route($path);
+        return $this->invokedRoute()->route($path);
     }
 
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
-        return $this->route->uri($prototype, $params);
+        return $this->invokedRoute()->uri($prototype, $params);
+    }
+
+    private function invokedRoute(): Route
+    {
+        return $this->route ?? $this->route = ($this->routeCallback)();
     }
 }

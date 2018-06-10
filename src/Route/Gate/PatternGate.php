@@ -9,7 +9,7 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Route;
+namespace Polymorphine\Routing\Route\Gate;
 
 use Polymorphine\Routing\Route;
 use Psr\Http\Message\ServerRequestInterface;
@@ -24,7 +24,7 @@ class PatternGate implements Route
     private $pattern;
     private $route;
 
-    public function __construct(Pattern $pattern, Route $route)
+    public function __construct(Route\Pattern $pattern, Route $route)
     {
         $this->pattern = $pattern;
         $this->route   = $route;

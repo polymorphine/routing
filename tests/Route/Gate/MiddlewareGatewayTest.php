@@ -9,11 +9,11 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Tests\Route;
+namespace Polymorphine\Routing\Tests\Route\Gate;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Route\MiddlewareGateway;
+use Polymorphine\Routing\Route\Gate\MiddlewareGateway;
 use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 use Polymorphine\Routing\Tests\Doubles\FakeMiddleware;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
