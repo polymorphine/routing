@@ -35,8 +35,22 @@ abstract class Splitter implements Route
 
     public function route(string $path): Route
     {
-        [$id, $path] = explode(self::PATH_SEPARATOR, $path, 2) + [false, false];
+        [$id, $path] = $this->splitRoutePath($path);
+        return $this->getRoute($id, $path);
+    }
 
+    public function uri(UriInterface $prototype, array $params): UriInterface
+    {
+        throw new EndpointCallException('Uri not defined in gateway route');
+    }
+
+    protected function splitRoutePath(string $path): array
+    {
+        return explode(static::PATH_SEPARATOR, $path, 2) + [null, null];
+    }
+
+    protected function getRoute(?string $id, ?string $path): Route
+    {
         if (!$id) {
             throw new SwitchCallException('Invalid gateway path - non empty string required');
         }
@@ -45,15 +59,10 @@ abstract class Splitter implements Route
             throw new SwitchCallException(sprintf('Gateway `%s` not found', $id));
         }
 
-        return $path ? $this->switchRoute($this->routes[$id], $path) : $this->routes[$id];
+        return $path ? $this->nextSwitchRoute($this->routes[$id], $path) : $this->routes[$id];
     }
 
-    public function uri(UriInterface $prototype, array $params): UriInterface
-    {
-        throw new EndpointCallException('Uri not defined in gateway route');
-    }
-
-    private function switchRoute(Route $route, string $path)
+    private function nextSwitchRoute(Route $route, string $path)
     {
         return $route->route($path);
     }
