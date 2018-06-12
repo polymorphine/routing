@@ -24,7 +24,7 @@ class MockedRoute implements Route
     public $callback;
     public $path;
 
-    public function __construct(string $id, Closure $callback = null)
+    public function __construct(string $id = null, Closure $callback = null)
     {
         $this->id       = $id;
         $this->callback = $callback;

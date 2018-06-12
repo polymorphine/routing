@@ -20,6 +20,7 @@ use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\UriInterface;
 
 
 class PathSegmentSwitchTest extends TestCase
@@ -66,12 +67,9 @@ class PathSegmentSwitchTest extends TestCase
             ])
         ]);
 
-        $requestAB = new FakeServerRequest('GET', FakeUri::fromString('/A/B/C/D'));
-        $requestBA = new FakeServerRequest('GET', FakeUri::fromString('B/A/foo/bar'));
-
         $this->assertSame('prototype', $this->routeForwardCall($route));
-        $this->assertSame('responseAB', $this->routeForwardCall($route, $requestAB));
-        $this->assertSame('responseBA', $this->routeForwardCall($route, $requestBA));
+        $this->assertSame('responseAB', $this->routeForwardCall($route, '/A/B/C/D'));
+        $this->assertSame('responseBA', $this->routeForwardCall($route, 'B/A/foo/bar'));
     }
 
     public function testRouteMethodEndpointCall_ReturnsMatchingRoute()
@@ -80,12 +78,18 @@ class PathSegmentSwitchTest extends TestCase
             'A' => new MockedRoute('responseA'),
             'B' => new MockedRoute('responseB')
         ]);
-        $this->assertSame('responseA', $this->routeForwardCall($route->route('A')));
-        $this->assertSame('responseB', $this->routeForwardCall($route->route('B')));
+        $this->assertSame('responseA', $this->routeForwardCall($route->route('A'), 'http://example.com/A/foo'));
+        $this->assertSame('responseB', $this->routeForwardCall($route->route('B'), '/B/FizzBuzz'));
         $this->assertSame('prototype', $this->routeForwardCall($route));
     }
 
-    public function testAccessNestedRouteWithRoutePath()
+    public function testNestedPathWithRoutePath_ReturnsSameRouteAsRepeatedRouteCall()
+    {
+        $route = $this->createStructure(new MockedRoute('endpoint'), ['foo', 'bar', 'baz']);
+        $this->assertEquals($route->route('foo.bar.baz'), $route->route('foo')->route('bar')->route('baz'));
+    }
+
+    public function testAccessNestedRouteWithRoutePath_ReturnsRouteThatMatchesAllPathSegments()
     {
         $route  = new PathSegmentSwitch([
             'A' => new PathSegmentSwitch([
@@ -94,14 +98,56 @@ class PathSegmentSwitchTest extends TestCase
             ]),
             'B' => new MockedRoute('responseB')
         ]);
-        $this->assertSame('prototype', $this->routeForwardCall($route->route('A')));
-        $this->assertSame('responseB', $this->routeForwardCall($route->route('B')));
-        $this->assertSame('responseAA', $this->routeForwardCall($route->route('A.A')));
-        $this->assertSame('responseAB', $this->routeForwardCall($route->route('A.B')));
+        $this->assertSame('prototype', $this->routeForwardCall($route->route('A'), 'http://example.com/B/A/123'));
+        $this->assertSame('responseB', $this->routeForwardCall($route->route('B'), 'http://example.com/B/A/123'));
+        $this->assertSame('responseAA', $this->routeForwardCall($route->route('A.A'), 'http://example.com/A/A/123'));
+        $this->assertSame('responseAB', $this->routeForwardCall($route->route('A.B'), 'A/B/foo/bar'));
     }
 
-    private function routeForwardCall(Route $route, ServerRequestInterface $request = null): string
+    /**
+     * @dataProvider segmentCombinations
+     * @param array $segments
+     * @param string $uri
+     */
+    public function testEndpointUri_ReturnsUriThatCanReachEndpoint(array $segments, string $uri)
     {
-        return (string) $route->forward($request ?? new FakeServerRequest(), new FakeResponse('prototype'))->getBody();
+        $prototype = FakeUri::fromString($uri);
+        $expected  = $prototype->withPath($prototype->getPath() . '/' . implode('/', $segments));
+
+        $path     = implode(Route::PATH_SEPARATOR, $segments);
+        $endpoint = new MockedRoute(); //need empty to return clean uri prototype
+        $route    = $this->createStructure($endpoint, $segments);
+        $this->assertSame((string) $expected, (string) $route->route($path)->uri($prototype, []));
+
+        $endpoint->id = 'valid'; //need value for concrete response
+        $request = new FakeServerRequest('GET', $expected);
+        $this->assertSame('valid', (string) $route->forward($request, new FakeResponse('prototype'))->getBody());
+    }
+
+    public function segmentCombinations()
+    {
+        return [
+            [['foo', 'bar'], 'http://example.com?query=string'],
+            [['foo', 'bar', 'baz'], 'http://example.com?query=string'],
+            [['foo'], 'http:?query']
+        ];
+    }
+
+    private function routeForwardCall(Route $route, string $requestUri = null): string
+    {
+        $response = $route->forward(
+            new FakeServerRequest('GET', $requestUri ? FakeUri::fromString($requestUri) : new FakeUri()),
+            new FakeResponse('prototype')
+        );
+        return (string) $response->getBody();
+    }
+
+    private function createStructure(Route $endpoint, array $segments)
+    {
+        $route = $endpoint;
+        while ($segment = array_pop($segments)) {
+            $route = new PathSegmentSwitch([$segment => $route]);
+        }
+        return $route;
     }
 }
