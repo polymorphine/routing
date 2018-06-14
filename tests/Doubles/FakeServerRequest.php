@@ -98,6 +98,8 @@ class FakeServerRequest implements ServerRequestInterface
 
     public function withMethod($method)
     {
+        $this->method = $method;
+        return $this;
     }
 
     public function withUri(UriInterface $uri, $preserveHost = false)

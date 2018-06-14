@@ -18,6 +18,8 @@ use Polymorphine\Routing\Builder\PathSegmentSwitchBuilder;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Splitter;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
+use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
+use Polymorphine\Routing\Tests\Doubles\FakeUri;
 use Psr\Http\Message\ServerRequestInterface;
 
 
@@ -47,6 +49,26 @@ class RoutingBuilderTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->structureExample()->endpoint('home')->callback(function () { return new FakeResponse(); });
+    }
+
+    public function testStructureIntegrity()
+    {
+        $routes = $this->structureExample()->build();
+        $prototype = new FakeResponse('proto');
+
+        $this->assertSame($prototype, $routes->forward(new FakeServerRequest(), $prototype));
+
+        $request = $this->matchingRequest($routes, 'paths.user.index');
+        $this->assertSame('users.index', (string) $routes->forward($request, $prototype)->getBody());
+
+        $request = $this->matchingRequest($routes, 'home');
+        $this->assertSame('/', (string) $routes->route('home')->uri(new FakeUri(), []));
+        $this->assertSame('home', (string) $routes->forward($request, $prototype)->getBody());
+
+        $request = $this->matchingRequest($routes, 'paths.posts', [123], 'OPTIONS');
+        $this->assertSame('/posts/123', (string) $routes->route('paths.posts')->uri(new FakeUri(), [123]));
+        $this->assertSame('paths.posts', (string) $routes->forward($request, $prototype)->getBody());
+        $this->assertSame('proto', (string) $routes->forward($request->withMethod('POST'), $prototype)->getBody());
     }
 
     private function structureExample()
@@ -80,9 +102,19 @@ class RoutingBuilderTest extends TestCase
             return new FakeResponse('user.newInfo.' . $request->getAttribute('id'));
         });
 
-        $path->endpoint('posts')->options('{$id}')->callback(function () { return new FakeResponse('paths.posts'); });
-        $path->endpoint('posts.ping')->head('{$id}')->callback(function () { return new FakeResponse('paths.posts.ping'); });
+        $path->endpoint('posts')->options('{#id}')->callback(function () { return new FakeResponse('paths.posts'); });
+        $path->endpoint('posts.ping')->head('{#id}')->callback(function () { return new FakeResponse('paths.posts.ping'); });
 
         return $routing;
+    }
+
+    private function matchingRequest(
+        Route $routes,
+        string $path,
+        array $params = [],
+        string $method = 'GET'
+    ): ServerRequestInterface {
+        $uri = $routes->route($path)->uri(new FakeUri(), $params);
+        return new FakeServerRequest($method, $uri);
     }
 }

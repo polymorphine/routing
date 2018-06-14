@@ -133,15 +133,16 @@ class DynamicTargetMask implements Pattern
     private function uriPlaceholders(array $params): array
     {
         if (count($params) < count($this->params)) {
-            $message = "Route requires %s params for `%s` path - %s provided";
+            $message = 'Route requires %s params for `%s` path - %s provided';
             $message = sprintf($message, count($this->params), $this->parsedPath, count($params));
             throw new InvalidUriParamsException($message);
         }
 
         $placeholders = [];
         foreach ($this->params as $name => $type) {
-            $param                = $params[$name] ?? array_shift($params);
-            $token                = self::PARAM_DELIM_LEFT . $name . self::PARAM_DELIM_RIGHT;
+            $param = $params[$name] ?? array_shift($params);
+            $token = self::PARAM_DELIM_LEFT . $name . self::PARAM_DELIM_RIGHT;
+
             $placeholders[$token] = $this->validParam($name, $type, $param);
         }
 
