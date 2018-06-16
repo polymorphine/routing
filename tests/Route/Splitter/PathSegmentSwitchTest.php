@@ -78,15 +78,15 @@ class PathSegmentSwitchTest extends TestCase
             'A' => new MockedRoute('responseA'),
             'B' => new MockedRoute('responseB')
         ]);
-        $this->assertSame('responseA', $this->routeForwardCall($route->route('A'), 'http://example.com/A/foo'));
-        $this->assertSame('responseB', $this->routeForwardCall($route->route('B'), '/B/FizzBuzz'));
+        $this->assertSame('responseA', $this->routeForwardCall($route->select('A'), 'http://example.com/A/foo'));
+        $this->assertSame('responseB', $this->routeForwardCall($route->select('B'), '/B/FizzBuzz'));
         $this->assertSame('prototype', $this->routeForwardCall($route));
     }
 
     public function testNestedPathWithRoutePath_ReturnsSameRouteAsRepeatedRouteCall()
     {
         $route = $this->createStructure(new MockedRoute('endpoint'), ['foo', 'bar', 'baz']);
-        $this->assertEquals($route->route('foo.bar.baz'), $route->route('foo')->route('bar')->route('baz'));
+        $this->assertEquals($route->select('foo.bar.baz'), $route->select('foo')->select('bar')->select('baz'));
     }
 
     public function testAccessNestedRouteWithRoutePath_ReturnsRouteThatMatchesAllPathSegments()
@@ -98,10 +98,10 @@ class PathSegmentSwitchTest extends TestCase
             ]),
             'B' => new MockedRoute('responseB')
         ]);
-        $this->assertSame('prototype', $this->routeForwardCall($route->route('A'), 'http://example.com/B/A/123'));
-        $this->assertSame('responseB', $this->routeForwardCall($route->route('B'), 'http://example.com/B/A/123'));
-        $this->assertSame('responseAA', $this->routeForwardCall($route->route('A.A'), 'http://example.com/A/A/123'));
-        $this->assertSame('responseAB', $this->routeForwardCall($route->route('A.B'), 'A/B/foo/bar'));
+        $this->assertSame('prototype', $this->routeForwardCall($route->select('A'), 'http://example.com/B/A/123'));
+        $this->assertSame('responseB', $this->routeForwardCall($route->select('B'), 'http://example.com/B/A/123'));
+        $this->assertSame('responseAA', $this->routeForwardCall($route->select('A.A'), 'http://example.com/A/A/123'));
+        $this->assertSame('responseAB', $this->routeForwardCall($route->select('A.B'), 'A/B/foo/bar'));
     }
 
     /**
@@ -117,7 +117,7 @@ class PathSegmentSwitchTest extends TestCase
         $path     = implode(Route::PATH_SEPARATOR, $segments);
         $endpoint = new MockedRoute(); //need empty to return clean uri prototype
         $route    = $this->createStructure($endpoint, $segments);
-        $this->assertSame((string) $expected, (string) $route->route($path)->uri($prototype, []));
+        $this->assertSame((string) $expected, (string) $route->select($path)->uri($prototype, []));
 
         $endpoint->id = 'valid'; //need value for concrete response
         $request = new FakeServerRequest('GET', $expected);

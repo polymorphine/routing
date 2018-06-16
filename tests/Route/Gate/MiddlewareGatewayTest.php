@@ -41,7 +41,7 @@ class MiddlewareGatewayTest extends TestCase
 
     public function testRouteCallsNextRouteWithSameParameter()
     {
-        $this->assertInstanceOf(Route::class, $route = $this->middleware()->route('some.name'));
+        $this->assertInstanceOf(Route::class, $route = $this->middleware()->select('some.name'));
         $this->assertSame('some.name', $route->path);
     }
 

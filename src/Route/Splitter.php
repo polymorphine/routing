@@ -33,7 +33,7 @@ abstract class Splitter implements Route
 
     abstract public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface;
 
-    public function route(string $path): Route
+    public function select(string $path): Route
     {
         [$id, $path] = $this->splitRoutePath($path);
         return $this->getRoute($id, $path);
@@ -64,6 +64,6 @@ abstract class Splitter implements Route
 
     private function nextSwitchRoute(Route $route, string $path)
     {
-        return $route->route($path);
+        return $route->select($path);
     }
 }

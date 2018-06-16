@@ -58,7 +58,7 @@ class ConditionGateTest extends TestCase
     public function testRouteCallIsPassedToWrappedRoute()
     {
         $route = $this->route();
-        $this->assertSame('path.forwarded', $route->route('path.forwarded')->path);
+        $this->assertSame('path.forwarded', $route->select('path.forwarded')->path);
     }
 
     public function testUriCallIsPassedToWrappedRoute()

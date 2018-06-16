@@ -35,9 +35,9 @@ class MiddlewareGateway implements Route
         return $this->middleware->process($request, new RouteHandler($this->route, $prototype));
     }
 
-    public function route(string $path): Route
+    public function select(string $path): Route
     {
-        return $this->route->route($path);
+        return $this->route->select($path);
     }
 
     public function uri(UriInterface $prototype, array $params): UriInterface

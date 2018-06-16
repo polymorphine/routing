@@ -63,7 +63,7 @@ class ResourceRoute implements Route
         return $this->dispatchItemMethod($method, $request, $path) ?? $prototype;
     }
 
-    public function route(string $path): Route
+    public function select(string $path): Route
     {
         throw new SwitchCallException(sprintf('Gateway not found for path `%s`', $path));
     }

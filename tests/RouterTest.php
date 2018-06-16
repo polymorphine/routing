@@ -67,7 +67,7 @@ class RouterTest extends TestCase
 
         $route->path = 'root.context';
 
-        $router = $router->route('new.context');
+        $router = $router->select('new.context');
         $this->assertInstanceOf(Router::class, $router);
         $this->assertSame('new.context', $route->path);
     }

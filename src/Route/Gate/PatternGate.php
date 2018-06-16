@@ -49,8 +49,8 @@ class PatternGate implements Route
         return $this->pattern->uri($uri, $params);
     }
 
-    public function route(string $path): Route
+    public function select(string $path): Route
     {
-        return new self($this->pattern, $this->route->route($path));
+        return new self($this->pattern, $this->route->select($path));
     }
 }

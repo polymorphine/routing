@@ -51,7 +51,7 @@ class CallbackGatewayTest extends TestCase
 
     public function testRouteCallsWrappedRouteWithSameParameter()
     {
-        $this->assertInstanceOf(Route::class, $route = $this->middleware()->route('some.name'));
+        $this->assertInstanceOf(Route::class, $route = $this->middleware()->select('some.name'));
         $this->assertSame('some.name', $route->path);
     }
 

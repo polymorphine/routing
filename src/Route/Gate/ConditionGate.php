@@ -36,9 +36,9 @@ class ConditionGate implements Route
             : $prototype;
     }
 
-    public function route(string $path): Route
+    public function select(string $path): Route
     {
-        return $this->route->route($path);
+        return $this->route->select($path);
     }
 
     public function uri(UriInterface $prototype, array $params): UriInterface

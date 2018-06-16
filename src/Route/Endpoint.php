@@ -20,7 +20,7 @@ abstract class Endpoint implements Route
 {
     abstract public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface;
 
-    public function route(string $path): Route
+    public function select(string $path): Route
     {
         throw new SwitchCallException(sprintf('Gateway not found for path `%s`', $path));
     }

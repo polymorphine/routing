@@ -32,9 +32,9 @@ class LazyRoute implements Route
         return $this->invokedRoute()->forward($request, $prototype);
     }
 
-    public function route(string $path): Route
+    public function select(string $path): Route
     {
-        return $this->invokedRoute()->route($path);
+        return $this->invokedRoute()->select($path);
     }
 
     public function uri(UriInterface $prototype, array $params): UriInterface

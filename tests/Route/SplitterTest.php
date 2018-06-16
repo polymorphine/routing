@@ -39,8 +39,8 @@ class SplitterTest extends TestCase
         $routeA = new MockedRoute('A');
         $routeB = new MockedRoute('B');
         $route  = $this->route(['A' => $routeA, 'B' => $routeB]);
-        $this->assertSame($routeA, $route->route('A'));
-        $this->assertSame($routeB, $route->route('B'));
+        $this->assertSame($routeA, $route->select('A'));
+        $this->assertSame($routeB, $route->select('B'));
     }
 
     public function testRouteMethodSwitchCall_AsksNextSwitch()
@@ -48,21 +48,21 @@ class SplitterTest extends TestCase
         $routeA = new MockedRoute('A');
         $routeB = new MockedRoute('B');
         $route  = $this->route(['AFound' => $routeA, 'BFound' => $routeB]);
-        $this->assertSame('PathA', $route->route('AFound.PathA')->path);
-        $this->assertSame('PathB.PathC', $route->route('BFound.PathB.PathC')->path);
+        $this->assertSame('PathA', $route->select('AFound.PathA')->path);
+        $this->assertSame('PathB.PathC', $route->select('BFound.PathB.PathC')->path);
     }
 
     public function testRouteCallWithEmptyPath_ThrowsException()
     {
         $this->expectException(SwitchCallException::class);
-        $this->route()->route('');
+        $this->route()->select('');
     }
 
     public function testRouteCallWithUnknownName_ThrowsException()
     {
-        $this->assertInstanceOf(Route::class, $this->route()->route('example'));
+        $this->assertInstanceOf(Route::class, $this->route()->select('example'));
         $this->expectException(SwitchCallException::class);
-        $this->route()->route('NotDefined');
+        $this->route()->select('NotDefined');
     }
 
     private function route(array $routes = [])

@@ -161,7 +161,7 @@ class ResourceRouteTest extends TestCase
     public function testRouteMethodCall_ThrowsException()
     {
         $this->expectException(SwitchCallException::class);
-        $this->resource('/user/posts')->route('user');
+        $this->resource('/user/posts')->select('user');
     }
 
     private function resource(string $path, array $methods = ['INDEX', 'POST', 'GET', 'PUT', 'PATCH', 'DELETE'])

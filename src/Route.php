@@ -42,7 +42,7 @@ interface Route
      *
      * @return Route
      */
-    public function route(string $path): Route;
+    public function select(string $path): Route;
 
     /**
      * Get endpoint call Uri.

@@ -26,7 +26,7 @@ class EndpointTest extends TestCase
     {
         $route = new DummyEndpoint();
         $this->expectException(SwitchCallException::class);
-        $route->route('foo');
+        $route->select('foo');
     }
 
     public function testUri_ReturnsPrototype()

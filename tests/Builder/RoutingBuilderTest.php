@@ -62,11 +62,11 @@ class RoutingBuilderTest extends TestCase
         $this->assertSame('users.index', (string) $routes->forward($request, $prototype)->getBody());
 
         $request = $this->matchingRequest($routes, 'home');
-        $this->assertSame('/', (string) $routes->route('home')->uri(new FakeUri(), []));
+        $this->assertSame('/', (string) $routes->select('home')->uri(new FakeUri(), []));
         $this->assertSame('home', (string) $routes->forward($request, $prototype)->getBody());
 
         $request = $this->matchingRequest($routes, 'paths.posts', [123], 'OPTIONS');
-        $this->assertSame('/posts/123', (string) $routes->route('paths.posts')->uri(new FakeUri(), [123]));
+        $this->assertSame('/posts/123', (string) $routes->select('paths.posts')->uri(new FakeUri(), [123]));
         $this->assertSame('paths.posts', (string) $routes->forward($request, $prototype)->getBody());
         $this->assertSame('proto', (string) $routes->forward($request->withMethod('POST'), $prototype)->getBody());
     }
@@ -114,7 +114,7 @@ class RoutingBuilderTest extends TestCase
         array $params = [],
         string $method = 'GET'
     ): ServerRequestInterface {
-        $uri = $routes->route($path)->uri(new FakeUri(), $params);
+        $uri = $routes->select($path)->uri(new FakeUri(), $params);
         return new FakeServerRequest($method, $uri);
     }
 }

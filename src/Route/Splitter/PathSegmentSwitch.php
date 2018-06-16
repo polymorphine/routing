@@ -30,7 +30,7 @@ class PathSegmentSwitch extends Route\Splitter
             : $prototype;
     }
 
-    public function route(string $path): Route
+    public function select(string $path): Route
     {
         [$id, $path] = $this->splitRoutePath($path);
         $route = $this->getRoute($id, $path);

@@ -36,9 +36,9 @@ class PathSegmentGate implements Route
             : $prototype;
     }
 
-    public function route(string $path): Route
+    public function select(string $path): Route
     {
-        return new self($this->segment, $this->route->route($path));
+        return new self($this->segment, $this->route->select($path));
     }
 
     public function uri(UriInterface $prototype, array $params): UriInterface
