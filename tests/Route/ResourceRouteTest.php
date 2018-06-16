@@ -45,7 +45,7 @@ class ResourceRouteTest extends TestCase
      * @param Route                  $resource
      * @param string                 $message
      */
-    public function testNotMatchingRequest_ReturnsPrototypeInstance(
+    public function testForwardNotMatchingRequest_ReturnsPrototypeInstance(
         ServerRequestInterface $request,
         Route $resource,
         string $message
@@ -158,7 +158,7 @@ class ResourceRouteTest extends TestCase
         $this->assertSame('http://example.com/bar/baz/3456', (string) $uri);
     }
 
-    public function testRouteMethodCall_ThrowsException()
+    public function testSelectCall_ThrowsException()
     {
         $this->expectException(SwitchCallException::class);
         $this->resource('/user/posts')->select('user');

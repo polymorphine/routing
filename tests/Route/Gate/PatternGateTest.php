@@ -77,7 +77,7 @@ class PatternGateTest extends TestCase
         $this->assertSame('/foo/bar', $uri->getPath());
     }
 
-    public function testRouteMethod_ReturnsRouteProducingUriWithDefinedSegments()
+    public function testSelectMethod_ReturnsRouteProducingUriWithDefinedSegments()
     {
         $subRoute = new MockedRoute('/foo/bar');
 

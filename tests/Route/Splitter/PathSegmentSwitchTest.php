@@ -19,8 +19,6 @@ use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\UriInterface;
 
 
 class PathSegmentSwitchTest extends TestCase
@@ -72,7 +70,7 @@ class PathSegmentSwitchTest extends TestCase
         $this->assertSame('responseBA', $this->routeForwardCall($route, 'B/A/foo/bar'));
     }
 
-    public function testRouteMethodEndpointCall_ReturnsMatchingRoute()
+    public function testSelectEndpointCall_ReturnsMatchingRoute()
     {
         $route  = new PathSegmentSwitch([
             'A' => new MockedRoute('responseA'),
@@ -83,13 +81,13 @@ class PathSegmentSwitchTest extends TestCase
         $this->assertSame('prototype', $this->routeForwardCall($route));
     }
 
-    public function testNestedPathWithRoutePath_ReturnsSameRouteAsRepeatedRouteCall()
+    public function testSelectNestedPathWithRoutePath_ReturnsSameRouteAsRepeatedRouteCall()
     {
         $route = $this->createStructure(new MockedRoute('endpoint'), ['foo', 'bar', 'baz']);
         $this->assertEquals($route->select('foo.bar.baz'), $route->select('foo')->select('bar')->select('baz'));
     }
 
-    public function testAccessNestedRouteWithRoutePath_ReturnsRouteThatMatchesAllPathSegments()
+    public function testSelectNestedRouteWithRoutePath_ReturnsRouteThatMatchesAllPathSegments()
     {
         $route  = new PathSegmentSwitch([
             'A' => new PathSegmentSwitch([

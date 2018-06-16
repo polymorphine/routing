@@ -57,7 +57,7 @@ class RouterTest extends TestCase
         $this->assertEquals($uri->withPath('matched'), $response);
     }
 
-    public function testRouteMethod_ReturnsRouterInstanceWithNewRootRoute()
+    public function testSelectMethod_ReturnsRouterInstanceWithNewRootRoute()
     {
         $router = new Router(
             $route = new MockedRoute('matched'),

@@ -49,7 +49,7 @@ class LazyRouteTest extends TestCase
         $this->assertSame('invoked', $response->body);
     }
 
-    public function testRouteIsCalledOnInvokedRoute()
+    public function testSelectIsCalledOnInvokedRoute()
     {
         $route = $this->route()->select('invoked.route.path');
         $this->assertInstanceOf(Route::class, $this->route);

@@ -22,14 +22,14 @@ class EndpointTest extends TestCase
         $this->assertInstanceOf(Endpoint::class, new DummyEndpoint());
     }
 
-    public function testRoute_ThrowsException()
+    public function testSelectCall_ThrowsException()
     {
         $route = new DummyEndpoint();
         $this->expectException(SwitchCallException::class);
         $route->select('foo');
     }
 
-    public function testUri_ReturnsPrototype()
+    public function testUriCall_ReturnsPrototype()
     {
         $route = new DummyEndpoint();
         $uri   = new FakeUri();

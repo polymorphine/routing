@@ -34,7 +34,7 @@ class SplitterTest extends TestCase
         $this->route()->uri(new FakeUri(), []);
     }
 
-    public function testRouteMethodEndpointCall_ReturnsFoundRoute()
+    public function testSelectEndpointCall_ReturnsFoundRoute()
     {
         $routeA = new MockedRoute('A');
         $routeB = new MockedRoute('B');
@@ -43,7 +43,7 @@ class SplitterTest extends TestCase
         $this->assertSame($routeB, $route->select('B'));
     }
 
-    public function testRouteMethodSwitchCall_AsksNextSwitch()
+    public function testSelectSwitchCall_AsksNextSwitch()
     {
         $routeA = new MockedRoute('A');
         $routeB = new MockedRoute('B');
@@ -52,13 +52,13 @@ class SplitterTest extends TestCase
         $this->assertSame('PathB.PathC', $route->select('BFound.PathB.PathC')->path);
     }
 
-    public function testRouteCallWithEmptyPath_ThrowsException()
+    public function testSelectWithEmptyPath_ThrowsException()
     {
         $this->expectException(SwitchCallException::class);
         $this->route()->select('');
     }
 
-    public function testRouteCallWithUnknownName_ThrowsException()
+    public function testSelectWithUnknownPathName_ThrowsException()
     {
         $this->assertInstanceOf(Route::class, $this->route()->select('example'));
         $this->expectException(SwitchCallException::class);
