@@ -245,6 +245,10 @@ class DynamicTargetMaskTest extends TestCase
         $request = $pattern->matchedRequest($this->request('/foo/bar/234'));
         $this->assertInstanceOf(ServerRequestInterface::class, $request);
         $this->assertSame(['id' => '234'], $request->getAttributes());
+
+        $pattern = $this->pattern('end/{%of}/{$path}');
+        $request = $pattern->matchedRequest($this->request('/root/end/of/path-slug'));
+        $this->assertSame(['of' => 'of', 'path' => 'path-slug'], $request->getAttributes());
     }
 
     public function testUriFromRelativePathWithRootInPrototype_ReturnsUriWithAppendedPath()

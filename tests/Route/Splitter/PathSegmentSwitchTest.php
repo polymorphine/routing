@@ -42,6 +42,14 @@ class PathSegmentSwitchTest extends TestCase
         $this->assertSame($prototype, $route->forward(new FakeServerRequest(), $prototype));
     }
 
+    public function testForwardNotExistingPathSegment_ReturnsPrototypeInstance()
+    {
+        $route     = new PathSegmentSwitch([]);
+        $prototype = new FakeResponse();
+        $request   = new FakeServerRequest('GET', FakeUri::fromString('//domain.com/'));
+        $this->assertSame($prototype, $route->forward($request, $prototype));
+    }
+
     public function testForwardMatchingPathSegment_ReturnsRouteResponse()
     {
         $route     = new PathSegmentSwitch(['foo' => new MockedRoute('response.body')]);
