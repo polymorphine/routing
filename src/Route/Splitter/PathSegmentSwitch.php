@@ -12,13 +12,26 @@
 namespace Polymorphine\Routing\Route\Splitter;
 
 use Polymorphine\Routing\Route;
-use Psr\Http\Message\ResponseInterface;
+use Polymorphine\Routing\Exception\EndpointCallException;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 
 
-class PathSegmentSwitch extends Route\Splitter
+class PathSegmentSwitch implements Route
 {
+    use RouteSelectMethods;
+
+    protected $routes = [];
+
+    /**
+     * @param Route[] $routes
+     */
+    public function __construct(array $routes)
+    {
+        $this->routes = $routes;
+    }
+
     public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
     {
         $relativePath = $request->getAttribute(static::PATH_ATTRIBUTE) ?? $this->splitUriPath($request->getUri());
@@ -32,10 +45,13 @@ class PathSegmentSwitch extends Route\Splitter
 
     public function select(string $path): Route
     {
-        [$id, $path] = $this->splitRoutePath($path);
-        $route = $this->getRoute($id, $path);
+        [$id, $path] = $this->splitPath($path);
+        return new Route\Gate\PathSegmentGate($id, $this->getRoute($id, $path));
+    }
 
-        return new Route\Gate\PathSegmentGate($id, $route);
+    public function uri(UriInterface $prototype, array $params): UriInterface
+    {
+        throw new EndpointCallException('Uri not defined in gateway route');
     }
 
     private function splitUriPath(UriInterface $uri): array

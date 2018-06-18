@@ -16,7 +16,6 @@ use Polymorphine\Routing\Builder\RoutingBuilder;
 use Polymorphine\Routing\Builder\ResponseScanSwitchBuilder;
 use Polymorphine\Routing\Builder\PathSegmentSwitchBuilder;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Route\Splitter;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
@@ -35,8 +34,8 @@ class RoutingBuilderTest extends TestCase
 
     public function testBuild_ReturnsRouteSplitter()
     {
-        $this->assertInstanceOf(Splitter::class, (new ResponseScanSwitchBuilder())->build());
-        $this->assertInstanceOf(Splitter::class, (new PathSegmentSwitchBuilder())->build());
+        $this->assertInstanceOf(Route\Splitter\ResponseScanSwitch::class, (new ResponseScanSwitchBuilder())->build());
+        $this->assertInstanceOf(Route\Splitter\PathSegmentSwitch::class, (new PathSegmentSwitchBuilder())->build());
     }
 
     public function testBuild_ReturnsRoutingStructure()
@@ -53,7 +52,7 @@ class RoutingBuilderTest extends TestCase
 
     public function testStructureIntegrity()
     {
-        $routes = $this->structureExample()->build();
+        $routes    = $this->structureExample()->build();
         $prototype = new FakeResponse('proto');
 
         $this->assertSame($prototype, $routes->forward(new FakeServerRequest(), $prototype));

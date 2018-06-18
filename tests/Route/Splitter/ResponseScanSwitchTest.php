@@ -12,8 +12,11 @@
 namespace Polymorphine\Routing\Tests\Route\Splitter;
 
 use PHPUnit\Framework\TestCase;
+use Polymorphine\Routing\Exception\EndpointCallException;
+use Polymorphine\Routing\Exception\SwitchCallException;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Splitter\ResponseScanSwitch;
+use Polymorphine\Routing\Tests\Doubles\FakeUri;
 use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
@@ -60,6 +63,43 @@ class ResponseScanSwitchTest extends TestCase
         $requestB = new FakeServerRequest('GET');
         $this->assertSame('A', $route->forward($requestA, self::$prototype)->body);
         $this->assertSame('B', $route->forward($requestB, self::$prototype)->body);
+    }
+
+    public function testUriMethod_ThrowsException()
+    {
+        $this->expectException(EndpointCallException::class);
+        $this->route()->uri(new FakeUri(), []);
+    }
+
+    public function testSelectEndpointCall_ReturnsFoundRoute()
+    {
+        $routeA = new MockedRoute('A');
+        $routeB = new MockedRoute('B');
+        $route  = $this->route(['A' => $routeA, 'B' => $routeB]);
+        $this->assertSame($routeA, $route->select('A'));
+        $this->assertSame($routeB, $route->select('B'));
+    }
+
+    public function testSelectSwitchCall_AsksNextSwitch()
+    {
+        $routeA = new MockedRoute('A');
+        $routeB = new MockedRoute('B');
+        $route  = $this->route(['AFound' => $routeA, 'BFound' => $routeB]);
+        $this->assertSame('PathA', $route->select('AFound.PathA')->path);
+        $this->assertSame('PathB.PathC', $route->select('BFound.PathB.PathC')->path);
+    }
+
+    public function testSelectWithEmptyPath_ThrowsException()
+    {
+        $this->expectException(SwitchCallException::class);
+        $this->route()->select('');
+    }
+
+    public function testSelectWithUnknownPathName_ThrowsException()
+    {
+        $this->assertInstanceOf(Route::class, $this->route()->select('example'));
+        $this->expectException(SwitchCallException::class);
+        $this->route()->select('NotDefined');
     }
 
     private function route(array $routes = [])

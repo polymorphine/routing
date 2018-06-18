@@ -11,13 +11,27 @@
 
 namespace Polymorphine\Routing\Route\Splitter;
 
-use Polymorphine\Routing\Route\Splitter;
+use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Exception\EndpointCallException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriInterface;
 
 
-class ResponseScanSwitch extends Splitter
+class ResponseScanSwitch implements Route
 {
+    use RouteSelectMethods;
+
+    protected $routes = [];
+
+    /**
+     * @param Route[] $routes
+     */
+    public function __construct(array $routes)
+    {
+        $this->routes = $routes;
+    }
+
     public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
     {
         $response = $prototype;
@@ -27,5 +41,16 @@ class ResponseScanSwitch extends Splitter
         }
 
         return $response;
+    }
+
+    public function select(string $path): Route
+    {
+        [$id, $path] = $this->splitPath($path);
+        return $this->getRoute($id, $path);
+    }
+
+    public function uri(UriInterface $prototype, array $params): UriInterface
+    {
+        throw new EndpointCallException('Uri not defined in gateway route');
     }
 }
