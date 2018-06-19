@@ -42,15 +42,15 @@ class PatternGate implements Route
         return $request ? $this->route->forward($request, $prototype) : $prototype;
     }
 
+    public function select(string $path): Route
+    {
+        return new self($this->pattern, $this->route->select($path));
+    }
+
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
         $uri = $this->route->uri($prototype, $params);
 
         return $this->pattern->uri($uri, $params);
-    }
-
-    public function select(string $path): Route
-    {
-        return new self($this->pattern, $this->route->select($path));
     }
 }

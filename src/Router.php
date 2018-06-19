@@ -51,6 +51,16 @@ class Router implements RequestHandlerInterface
     }
 
     /**
+     * @param string $path
+     *
+     * @return Router with changed root context
+     */
+    public function select(string $path): Router
+    {
+        return new static($this->route->select($path), $this->baseUri, $this->baseResponse);
+    }
+
+    /**
      * @param string $path   by default dot separated list of switch identifiers
      * @param array  $params named or ordered variables for dynamic uri patterns
      *
@@ -59,15 +69,5 @@ class Router implements RequestHandlerInterface
     public function uri(string $path, array $params = []): UriInterface
     {
         return $this->route->select($path)->uri($this->baseUri, $params);
-    }
-
-    /**
-     * @param string $path
-     *
-     * @return Router with changed root context
-     */
-    public function select(string $path): Router
-    {
-        return new static($this->route->select($path), $this->baseUri, $this->baseResponse);
     }
 }
