@@ -114,7 +114,7 @@ class StaticUriMask implements Pattern
 
         $prototypePath = $prototype->getPath();
         if ($path[0] === '/') {
-            $this->checkConflict($path, $prototypePath);
+            $this->checkConflict(substr($path, 0, strlen($prototypePath)), $prototypePath);
 
             return $prototype->withPath($path);
         }

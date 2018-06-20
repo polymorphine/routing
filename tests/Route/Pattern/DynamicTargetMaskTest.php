@@ -211,7 +211,30 @@ class DynamicTargetMaskTest extends TestCase
     {
         return [
             ['/user/{#id}', '/some/other/path'],
-            ['/foo/{#id}?some=query', '?other=query']
+            ['/foo/{#id}?some=query', '?other=query'],
+            ['/foo/bar/baz', '/foo/baz']
+        ];
+    }
+
+    /**
+     * @dataProvider prototypeSegmentMatch
+     * @param $pattern
+     * @param $proto
+     * @param $params
+     * @param $expected
+     */
+    public function testUriMatchingPrototypeSegment_ReturnsUriWithMissingPartAppended($pattern, $proto, $params, $expected)
+    {
+        $pattern = $this->pattern($pattern);
+        $this->assertSame($expected, (string) $pattern->uri(FakeUri::fromString($proto), $params));
+    }
+
+    public function prototypeSegmentMatch()
+    {
+        return [
+            ['/user/{#id}', '/user', [1500], '/user/1500'],
+            ['/foo/{#id}?some=query&fizz=buzz', '?some=query&fizz=', [1500], '/foo/1500?some=query&fizz=buzz'],
+            ['/foo/bar/baz', '/foo/bar', [], '/foo/bar/baz']
         ];
     }
 
@@ -226,13 +249,13 @@ class DynamicTargetMaskTest extends TestCase
         $this->assertNull($pattern->matchedRequest($request));
     }
 
-    public function testUriValidParamWithProvidedPattern()
+    public function testUriValidParamWithProvidedPattern_ReturnsUriWithParam()
     {
         $pattern = new DynamicTargetMask('/{lang}/foo', ['lang' => '(en|pl|fr)']);
         $this->assertSame('/en/foo', (string) $pattern->uri(new FakeUri(), ['en']));
     }
 
-    public function testUriInvalidParamWithProvidedPattern()
+    public function testUriInvalidParamWithProvidedPattern_ThrowsException()
     {
         $pattern = new DynamicTargetMask('/{lang}/foo', ['lang' => '(en|pl|fr)']);
         $this->expectException(InvalidUriParamsException::class);

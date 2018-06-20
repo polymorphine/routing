@@ -222,7 +222,7 @@ class DynamicTargetMask implements Pattern
 
     private function checkConflict(string $routeSegment, string $prototypeSegment)
     {
-        if ($prototypeSegment && $routeSegment !== $prototypeSegment) {
+        if ($prototypeSegment && strpos($routeSegment, $prototypeSegment) !== 0) {
             $message = 'Uri conflict detected prototype `%s` does not match route `%s`';
             throw new UnreachableEndpointException(sprintf($message, $prototypeSegment, $routeSegment));
         }

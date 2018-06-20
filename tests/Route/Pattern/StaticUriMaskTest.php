@@ -139,11 +139,22 @@ class StaticUriMaskTest extends TestCase
         return [
             ['http:', 'https://example.com'],
             ['https://www.example.com', 'https://example.com'],
-            ['/foo/bar', '/baz'],
+            ['/foo/bar/baz', '/foo//baz'],
             ['//user:pass@example.com', '//www.example.com'],
             ['?foo=bar&some=value', '?foo=bar&some=otherValue'],
             ['?foo=&some=value', '?foo=something&some=value']
         ];
+    }
+
+    public function testUriMatchingPrototypeSegment_ReturnsUriWithMissingPartAppended()
+    {
+        $pattern = $this->pattern('/foo/bar/baz');
+        $proto   = FakeUri::fromString('/foo/bar');
+        $this->assertSame('/foo/bar/baz', (string) $pattern->uri($proto, []));
+
+        $pattern = $this->pattern('/foo/bar?fizz=buzz&other=param');
+        $proto   = FakeUri::fromString('/foo?fizz=buzz');
+        $this->assertSame('/foo/bar?fizz=buzz&other=param', (string) $pattern->uri($proto, []));
     }
 
     public function testRelativePathIsMatched()

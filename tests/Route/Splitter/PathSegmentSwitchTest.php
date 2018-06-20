@@ -24,8 +24,6 @@ use Polymorphine\Routing\Tests\Doubles\FakeUri;
 
 class PathSegmentSwitchTest extends TestCase
 {
-    //TODO: Conflict detection with path gates
-
     public function testInstantiation()
     {
         $this->assertInstanceOf(Route::class, new PathSegmentSwitch([]));
