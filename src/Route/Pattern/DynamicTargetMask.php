@@ -206,7 +206,8 @@ class DynamicTargetMask implements Pattern
     private function resolveRelativePath($target, UriInterface $prototype): UriInterface
     {
         if (!$path = $prototype->getPath()) {
-            throw new UnreachableEndpointException('Unresolved relative path');
+            $message = sprintf('Missing prototype root for relative route path `%s`', $target);
+            throw new UnreachableEndpointException($message);
         }
 
         $target = $path . '/' . $target;
