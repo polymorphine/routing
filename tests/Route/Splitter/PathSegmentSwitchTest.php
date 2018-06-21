@@ -38,20 +38,20 @@ class PathSegmentSwitchTest extends TestCase
 
     public function testWithRootRoute_UriMethodCall_ReturnsRootUri()
     {
-        $route = new PathSegmentSwitch([], new MockedRoute('root'));
+        $route = new PathSegmentSwitch([], MockedRoute::withUri('root'));
         $this->assertSame('root', $route->uri(new FakeUri(), [])->getPath());
     }
 
     public function testUriFromSelectedRootRoute_ReturnsRootProducedUri()
     {
-        $route = new PathSegmentSwitch([], new MockedRoute('root'));
+        $route = new PathSegmentSwitch([], MockedRoute::response('root'));
         $uri   = $route->uri(new FakeUri(), []);
         $this->assertEquals($uri, $route->select(PathSegmentSwitch::ROOT_PATH)->uri(new FakeUri(), []));
     }
 
     public function testWithRootRoute_UriOrForward_ReturnsResultsEquivalentToRootRouteCalls()
     {
-        $route     = new PathSegmentSwitch([], new MockedRoute('root'));
+        $route     = new PathSegmentSwitch([], MockedRoute::response('root'));
         $structure = $this->createStructure($route, ['foo', 'bar']);
         $wrapped   = new PathSegmentGate('foo', new PathSegmentGate('bar', $route));
         $this->assertEquals($wrapped, $implicit = $structure->select('foo.bar'));
@@ -81,7 +81,7 @@ class PathSegmentSwitchTest extends TestCase
 
     public function testWithRootRoute_ForwardNotExistingPathSegment_ReturnsRootResponse()
     {
-        $route     = new PathSegmentSwitch([], new MockedRoute('root'));
+        $route     = new PathSegmentSwitch([], MockedRoute::response('root'));
         $prototype = new FakeResponse();
         $request   = new FakeServerRequest('GET', FakeUri::fromString('//domain.com/'));
         $this->assertSame('root', (string) $route->forward($request, $prototype)->getBody());
@@ -89,7 +89,7 @@ class PathSegmentSwitchTest extends TestCase
 
     public function testForwardMatchingPathSegment_ReturnsRouteResponse()
     {
-        $route     = new PathSegmentSwitch(['foo' => new MockedRoute('response.body')]);
+        $route     = new PathSegmentSwitch(['foo' => MockedRoute::response('response.body')]);
         $prototype = new FakeResponse();
         $request   = new FakeServerRequest('GET', FakeUri::fromString('/foo/bar'));
         $response  = $route->forward($request, $prototype);
@@ -101,12 +101,12 @@ class PathSegmentSwitchTest extends TestCase
     {
         $route = new PathSegmentSwitch([
             'A' => new PathSegmentSwitch([
-                'A' => new MockedRoute('responseAA'),
-                'B' => new MockedRoute('responseAB')
+                'A' => MockedRoute::response('responseAA'),
+                'B' => MockedRoute::response('responseAB')
             ]),
             'B' => new PathSegmentSwitch([
-                'A' => new MockedRoute('responseBA'),
-                'B' => new MockedRoute('responseBB')
+                'A' => MockedRoute::response('responseBA'),
+                'B' => MockedRoute::response('responseBB')
             ])
         ]);
 
@@ -118,8 +118,8 @@ class PathSegmentSwitchTest extends TestCase
     public function testSelectEndpointCall_ReturnsMatchingRoute()
     {
         $route = new PathSegmentSwitch([
-            'A' => new MockedRoute('responseA'),
-            'B' => new MockedRoute('responseB')
+            'A' => MockedRoute::response('responseA'),
+            'B' => MockedRoute::response('responseB')
         ]);
         $this->assertSame('responseA', $this->routeForwardCall($route->select('A'), 'http://example.com/A/foo'));
         $this->assertSame('responseB', $this->routeForwardCall($route->select('B'), '/B/FizzBuzz'));
@@ -128,7 +128,7 @@ class PathSegmentSwitchTest extends TestCase
 
     public function testSelectNestedPathWithRoutePath_ReturnsSameRouteAsRepeatedRouteCall()
     {
-        $route = $this->createStructure(new MockedRoute('endpoint'), ['foo', 'bar', 'baz']);
+        $route = $this->createStructure(MockedRoute::response('endpoint'), ['foo', 'bar', 'baz']);
         $this->assertEquals($route->select('foo.bar.baz'), $route->select('foo')->select('bar')->select('baz'));
     }
 
@@ -136,10 +136,10 @@ class PathSegmentSwitchTest extends TestCase
     {
         $route = new PathSegmentSwitch([
             'A' => new PathSegmentSwitch([
-                'A' => new MockedRoute('responseAA'),
-                'B' => new MockedRoute('responseAB')
+                'A' => MockedRoute::response('responseAA'),
+                'B' => MockedRoute::response('responseAB')
             ]),
-            'B' => new MockedRoute('responseB')
+            'B' => MockedRoute::response('responseB')
         ]);
         $this->assertSame('prototype', $this->routeForwardCall($route->select('A'), 'http://example.com/B/A/123'));
         $this->assertSame('responseB', $this->routeForwardCall($route->select('B'), 'http://example.com/B/A/123'));
@@ -157,15 +157,16 @@ class PathSegmentSwitchTest extends TestCase
     {
         $prototype = FakeUri::fromString($uri);
         $expected  = $prototype->withPath($prototype->getPath() . '/' . implode('/', $segments));
-
-        $path     = implode(Route::PATH_SEPARATOR, $segments);
-        $endpoint = new MockedRoute(); //need empty to return clean uri prototype
-        $route    = $this->createStructure($endpoint, $segments);
+        $path      = implode(Route::PATH_SEPARATOR, $segments);
+        $endpoint  = MockedRoute::response('endpoint');
+        $route     = $this->createStructure($endpoint, $segments);
         $this->assertSame((string) $expected, (string) $route->select($path)->uri($prototype, []));
 
-        $endpoint->id = 'valid'; //need value for concrete response
-        $request      = new FakeServerRequest('GET', $expected);
-        $this->assertSame('valid', (string) $route->forward($request, new FakeResponse('prototype'))->getBody());
+        $request = new FakeServerRequest('GET', $expected);
+        $this->assertSame('endpoint', (string) $route->forward($request, new FakeResponse('prototype'))->getBody());
+
+        $request = new FakeServerRequest('GET', $prototype);
+        $this->assertSame('prototype', (string) $route->forward($request, new FakeResponse('prototype'))->getBody());
     }
 
     public function segmentCombinations()

@@ -60,7 +60,7 @@ class RouterTest extends TestCase
     public function testSelectMethod_ReturnsRouterInstanceWithNewRootRoute()
     {
         $router = new Router(
-            $route = new MockedRoute('matched'),
+            $route = MockedRoute::response('matched'),
             $uri ?? new FakeUri(),
             self::$prototype
         );
@@ -74,8 +74,11 @@ class RouterTest extends TestCase
 
     private function router(bool $matched = true, UriInterface $uri = null)
     {
+        $response = $matched ? new FakeResponse('matched') : null;
+        $routeUri = $matched ? FakeUri::fromString('matched') : null;
+
         return new Router(
-            new MockedRoute($matched ? 'matched' : ''),
+            new MockedRoute($response, $routeUri),
             $uri ?? new FakeUri(),
             self::$prototype
         );

@@ -59,7 +59,7 @@ class LazyRouteTest extends TestCase
     private function route()
     {
         return new LazyRoute(function () {
-            return $this->route = new MockedRoute('invoked');
+            return $this->route = new MockedRoute(new FakeResponse('invoked'), FakeUri::fromString('invoked'));
         });
     }
 }

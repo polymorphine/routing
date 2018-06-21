@@ -58,7 +58,7 @@ class CallbackGatewayTest extends TestCase
     public function testUriCallIsPassedToWrappedRoute()
     {
         $uri   = 'http://example.com/foo/bar?test=baz';
-        $route = new CallbackGateway($this->basicCallback(), new MockedRoute($uri));
+        $route = new CallbackGateway($this->basicCallback(), MockedRoute::withUri($uri));
         $this->assertSame($uri, (string) $route->uri(new FakeUri(), []));
     }
 
@@ -67,7 +67,7 @@ class CallbackGatewayTest extends TestCase
         if (!$callback) {
             $callback = $this->basicCallback();
         }
-        return new CallbackGateway($callback, new MockedRoute('default'));
+        return new CallbackGateway($callback, MockedRoute::response('default'));
     }
 
     private function basicCallback()

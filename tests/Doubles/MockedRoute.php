@@ -15,27 +15,33 @@ use Polymorphine\Routing\Route;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
-use Closure;
 
 
 class MockedRoute implements Route
 {
-    public $id;
-    public $callback;
+    public $response;
+    public $uri;
     public $path;
 
-    public function __construct(string $id = null, Closure $callback = null)
+    public function __construct(?ResponseInterface $response = null, ?UriInterface $uri = null)
     {
-        $this->id       = $id;
-        $this->callback = $callback;
+        $this->response = $response;
+        $this->uri      = $uri;
+    }
+
+    public static function response(string $response)
+    {
+        return new self(new FakeResponse($response), null);
+    }
+
+    public static function withUri(string $uri)
+    {
+        return new self(null, FakeUri::fromString($uri));
     }
 
     public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
     {
-        if ($this->callback) {
-            return $this->callback->__invoke($request) ?? $prototype;
-        }
-        return $this->id ? new FakeResponse($this->id) : $prototype;
+        return $this->response ?? $prototype;
     }
 
     public function select(string $path): Route
@@ -46,6 +52,14 @@ class MockedRoute implements Route
 
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
-        return $this->id ? $prototype->withPath($this->id) : $prototype;
+        if (!$this->uri) { return $prototype; }
+
+        $part = $this->uri->getScheme() and $prototype = $prototype->withScheme($part);
+        $part = $this->uri->getHost() and $prototype = $prototype->withHost($part);
+        $part = $this->uri->getPath() and $prototype = $prototype->withPath($part);
+        $part = $this->uri->getQuery() and $prototype = $prototype->withQuery($part);
+        $part = $this->uri->getPort() and $prototype = $prototype->withPort($part);
+
+        return $prototype;
     }
 }

@@ -64,7 +64,7 @@ class ConditionGateTest extends TestCase
     public function testUriCallIsPassedToWrappedRoute()
     {
         $uri   = 'http://example.com/foo/bar?test=baz';
-        $route = $this->route(null, new MockedRoute($uri));
+        $route = $this->route(null, MockedRoute::withUri($uri));
         $this->assertSame($uri, (string) $route->uri(new FakeUri(), []));
     }
 
@@ -73,7 +73,7 @@ class ConditionGateTest extends TestCase
         $closure = $closure ?: function (ServerRequestInterface $request) {
             return strpos($request->getRequestTarget(), '/foo/bar') === 0;
         };
-        return new ConditionGate($closure, $route ?: new MockedRoute('default'));
+        return new ConditionGate($closure, $route ?: MockedRoute::response('default'));
     }
 
     private function request($path = '/')

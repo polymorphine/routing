@@ -48,12 +48,12 @@ class MiddlewareGatewayTest extends TestCase
     public function testUriCallIsPassedToWrappedRoute()
     {
         $uri   = 'http://example.com/foo/bar?test=baz';
-        $route = new MiddlewareGateway(new FakeMiddleware('wrap'), new MockedRoute($uri));
+        $route = new MiddlewareGateway(new FakeMiddleware('wrap'), MockedRoute::withUri($uri));
         $this->assertSame($uri, (string) $route->uri(new FakeUri(), []));
     }
 
     private function middleware()
     {
-        return new MiddlewareGateway(new FakeMiddleware('wrap'), new MockedRoute('response'));
+        return new MiddlewareGateway(new FakeMiddleware('wrap'), MockedRoute::response('response'));
     }
 }

@@ -12,7 +12,6 @@
 namespace Polymorphine\Routing\Tests\Route;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Route\Pattern\DynamicTargetMask;
 use Polymorphine\Routing\Route\Pattern\StaticUriMask;
 use Polymorphine\Routing\Route\Gate\PatternGate;
 use Polymorphine\Routing\Tests\Doubles\MockedRoute;
@@ -39,10 +38,10 @@ class PatternGateTest extends TestCase
         $this->assertEquals($default, $https);
         $this->assertNotEquals($default, $http);
 
-        $gateway = PatternGate::withPatternString('/test/{#testId}', new MockedRoute('default'));
+        $gateway = PatternGate::withPatternString('/test/{#testId}', MockedRoute::response('default'));
         $this->assertInstanceOf(PatternGate::class, $gateway);
 
-        $gateway = PatternGate::withPatternString('//domain.com/test/foo', new MockedRoute('default'));
+        $gateway = PatternGate::withPatternString('//domain.com/test/foo', MockedRoute::response('default'));
         $this->assertInstanceOf(PatternGate::class, $gateway);
     }
 
@@ -64,7 +63,7 @@ class PatternGateTest extends TestCase
 
     public function testUri_ReturnsUriWithPatternDefinedSegments()
     {
-        $subRoute = new MockedRoute('/foo/bar');
+        $subRoute = MockedRoute::withUri('/foo/bar');
 
         $uri = $this->staticGate('https:?some=query', $subRoute)->uri(new FakeUri(), []);
         $this->assertSame('https', $uri->getScheme());
@@ -80,7 +79,7 @@ class PatternGateTest extends TestCase
 
     public function testSelectMethod_ReturnsRouteProducingUriWithDefinedSegments()
     {
-        $subRoute = new MockedRoute('/foo/bar');
+        $subRoute = MockedRoute::withUri('/foo/bar');
 
         $uri = $this->staticGate('https://example.com', $subRoute)->select('some.path')->uri(new FakeUri(), []);
         $this->assertSame('https://example.com/foo/bar', (string) $uri);
@@ -90,7 +89,7 @@ class PatternGateTest extends TestCase
 
     public function testComposedRoutesUriCall_ReturnsUriWithSegmentsDefinedInAllRoutes()
     {
-        $subRoute = $this->staticGate('//example.com', new MockedRoute('/foo/bar'));
+        $subRoute = $this->staticGate('//example.com', MockedRoute::withUri('/foo/bar'));
         $uri      = $this->staticGate('https:', $subRoute)->select('some.path')->uri(new FakeUri(), []);
         $this->assertSame('https://example.com/foo/bar', (string) $uri);
     }
@@ -98,23 +97,21 @@ class PatternGateTest extends TestCase
     public function testComposedRelativePathsAreJoinedInCorrectOrder()
     {
         $proto = FakeUri::fromString('/foo');
-        $route = PatternGate::withPatternString('{$bar}', PatternGate::withPatternString('{#baz}', $end = new MockedRoute()));
+        $route = PatternGate::withPatternString('{$bar}', PatternGate::withPatternString('{#baz}', MockedRoute::response('endpoint')));
         $this->assertSame('/foo/bar/123', $uri = (string) $route->uri($proto, ['bar' => 'bar', 'baz' => 123]));
-        $end->id = 'endpoint';
-        $this->assertSame($end->id, (string) $route->forward($this->request($uri), new FakeResponse('proto'))->getBody());
+        $this->assertSame('endpoint', (string) $route->forward($this->request($uri), new FakeResponse('proto'))->getBody());
 
         $proto = FakeUri::fromString('/foo');
-        $route = PatternGate::withPatternString('bar', PatternGate::withPatternString('baz', $end = new MockedRoute()));
+        $route = PatternGate::withPatternString('bar', PatternGate::withPatternString('baz', MockedRoute::response('endpoint')));
         $this->assertSame('/foo/bar/baz', $uri = (string) $route->uri($proto, []));
-        $end->id = 'endpoint';
-        $this->assertSame($end->id, (string) $route->forward($this->request($uri), new FakeResponse('proto'))->getBody());
+        $this->assertSame('endpoint', (string) $route->forward($this->request($uri), new FakeResponse('proto'))->getBody());
     }
 
     private function staticGate(string $uriPattern = 'https:', $subRoute = null)
     {
         return new PatternGate(
             new StaticUriMask($uriPattern),
-            $subRoute ?: new MockedRoute('default')
+            $subRoute ?: MockedRoute::response('default')
         );
     }
 

@@ -41,28 +41,21 @@ class ResponseScanSwitchTest extends TestCase
         $route = $this->route();
         $this->assertSame(self::$prototype, $route->forward(new FakeServerRequest(), self::$prototype));
 
-        $route = $this->route(['name' => new MockedRoute('')]);
+        $route = $this->route(['name' => new MockedRoute()]);
         $this->assertSame(self::$prototype, $route->forward(new FakeServerRequest(), self::$prototype));
     }
 
     public function testForwardingMatchingRequest_ReturnsEndpointResponse()
     {
-        $route = new MockedRoute('', function () { return new FakeResponse(); });
-        $route = $this->route(['name' => $route]);
+        $route = $this->route(['name' => MockedRoute::response('endpoint')]);
         $this->assertNotSame(self::$prototype, $route->forward(new FakeServerRequest(), self::$prototype));
+        $this->assertSame('endpoint', (string) $route->forward(new FakeServerRequest(), self::$prototype)->getBody());
     }
 
-    public function testForwardingMatchingRequest_ReturnsMatchingEndpointResponse()
+    public function testForwardingRequest_ReturnsFirstMatchingEndpointResponse()
     {
-        $callback = function ($request) { return ($request->method === 'POST') ? new FakeResponse('A') : null; };
-        $routeA   = new MockedRoute('', $callback);
-        $callback = function ($request) { return ($request->method === 'GET') ? new FakeResponse('B') : null; };
-        $routeB   = new MockedRoute('', $callback);
-        $route    = $this->route(['A' => $routeA, 'B' => $routeB]);
-        $requestA = new FakeServerRequest('POST');
-        $requestB = new FakeServerRequest('GET');
-        $this->assertSame('A', $route->forward($requestA, self::$prototype)->body);
-        $this->assertSame('B', $route->forward($requestB, self::$prototype)->body);
+        $route = $this->route(['A' => MockedRoute::response('first'), 'B' => MockedRoute::response('second')]);
+        $this->assertSame('first', $route->forward(new FakeServerRequest(), self::$prototype)->body);
     }
 
     public function testUriMethod_ThrowsException()
@@ -73,20 +66,27 @@ class ResponseScanSwitchTest extends TestCase
 
     public function testSelectEndpointCall_ReturnsFoundRoute()
     {
-        $routeA = new MockedRoute('A');
-        $routeB = new MockedRoute('B');
-        $route  = $this->route(['A' => $routeA, 'B' => $routeB]);
+        $route = $this->route([
+            'A' => $routeA = MockedRoute::response('A'),
+            'B' => $routeB = MockedRoute::response('B')
+        ]);
         $this->assertSame($routeA, $route->select('A'));
         $this->assertSame($routeB, $route->select('B'));
     }
 
-    public function testSelectSwitchCall_AsksNextSwitch()
+    public function testSelectSwitchCallWithMorePathSegments_AsksNextSwitch()
     {
-        $routeA = new MockedRoute('A');
-        $routeB = new MockedRoute('B');
-        $route  = $this->route(['AFound' => $routeA, 'BFound' => $routeB]);
-        $this->assertSame('PathA', $route->select('AFound.PathA')->path);
-        $this->assertSame('PathB.PathC', $route->select('BFound.PathB.PathC')->path);
+        $route = $this->route([
+            'AFound' => $routeA = MockedRoute::response('A'),
+            'BFound' => $routeB = MockedRoute::response('B')
+        ]);
+        $selected = $route->select('AFound.PathA');
+        $this->assertSame('PathA', $selected->path);
+        $this->assertSame('A', $selected->response->body);
+
+        $selected = $route->select('BFound.PathB.PathC');
+        $this->assertSame('PathB.PathC', $selected->path);
+        $this->assertSame('B', $selected->response->body);
     }
 
     public function testSelectWithEmptyPath_ThrowsException()
@@ -104,7 +104,7 @@ class ResponseScanSwitchTest extends TestCase
 
     private function route(array $routes = [])
     {
-        $dummy = new MockedRoute('DUMMY', function () { return null; });
+        $dummy = new MockedRoute();
         return new ResponseScanSwitch(['example' => $dummy] + $routes);
     }
 }

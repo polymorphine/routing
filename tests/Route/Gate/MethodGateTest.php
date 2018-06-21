@@ -59,19 +59,19 @@ class MethodGateTest extends TestCase
 
     public function testSelectCallIsPassedDirectlyToNextRoute()
     {
-        $route = new MockedRoute('next');
+        $route = MockedRoute::response('next');
         $this->assertSame($route, $this->gate('GET', $route)->select('some.path'));
         $this->assertSame('some.path', $route->path);
     }
 
     public function testUriCallIsPassedDirectlyToNextRoute()
     {
-        $route = new MockedRoute('next');
+        $route = MockedRoute::withUri('next');
         $this->assertSame('next', $this->gate('GET', $route)->uri(new FakeUri(), [])->getPath());
     }
 
     private function gate(string $methods = 'GET', Route $route = null)
     {
-        return new MethodGate($methods, $route ?? new MockedRoute('forwarded'));
+        return new MethodGate($methods, $route ?? MockedRoute::response('forwarded'));
     }
 }
