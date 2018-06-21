@@ -12,6 +12,7 @@
 namespace Polymorphine\Routing\Tests\Route;
 
 use PHPUnit\Framework\TestCase;
+use Polymorphine\Routing\Route\Pattern\DynamicTargetMask;
 use Polymorphine\Routing\Route\Pattern\StaticUriMask;
 use Polymorphine\Routing\Route\Gate\PatternGate;
 use Polymorphine\Routing\Tests\Doubles\MockedRoute;
@@ -92,6 +93,21 @@ class PatternGateTest extends TestCase
         $subRoute = $this->staticGate('//example.com', new MockedRoute('/foo/bar'));
         $uri      = $this->staticGate('https:', $subRoute)->select('some.path')->uri(new FakeUri(), []);
         $this->assertSame('https://example.com/foo/bar', (string) $uri);
+    }
+
+    public function testComposedRelativePathsAreJoinedInCorrectOrder()
+    {
+        $proto = FakeUri::fromString('/foo');
+        $route = PatternGate::withPatternString('{$bar}', PatternGate::withPatternString('{#baz}', $end = new MockedRoute()));
+        $this->assertSame('/foo/bar/123', $uri = (string) $route->uri($proto, ['bar' => 'bar', 'baz' => 123]));
+        $end->id = 'endpoint';
+        $this->assertSame($end->id, (string) $route->forward($this->request($uri), new FakeResponse('proto'))->getBody());
+
+        $proto = FakeUri::fromString('/foo');
+        $route = PatternGate::withPatternString('bar', PatternGate::withPatternString('baz', $end = new MockedRoute()));
+        $this->assertSame('/foo/bar/baz', $uri = (string) $route->uri($proto, []));
+        $end->id = 'endpoint';
+        $this->assertSame($end->id, (string) $route->forward($this->request($uri), new FakeResponse('proto'))->getBody());
     }
 
     private function staticGate(string $uriPattern = 'https:', $subRoute = null)

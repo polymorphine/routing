@@ -49,8 +49,7 @@ class PatternGate implements Route
 
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
-        $uri = $this->route->uri($prototype, $params);
-
-        return $this->pattern->uri($uri, $params);
+        $prototype = $this->pattern->uri($prototype, $params);
+        return $this->route->uri($prototype, $params);
     }
 }
