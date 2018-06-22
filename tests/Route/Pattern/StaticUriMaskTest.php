@@ -176,12 +176,11 @@ class StaticUriMaskTest extends TestCase
         $this->assertSame('/foo/bar/last/segments?query=string', (string) $pattern->uri($prototype, []));
     }
 
-    public function testUriFromRelativePathWithNoRootInPrototype_ThrowsException()
+    public function testUriFromRelativePathWithNoRootInPrototype_ReturnsUriWithAbsolutePath()
     {
         $pattern   = $this->pattern('bar');
         $prototype = new FakeUri();
-        $this->expectException(UnreachableEndpointException::class);
-        $pattern->uri($prototype, []);
+        $this->assertSame('/bar', (string) $pattern->uri($prototype, []));
     }
 
     private function pattern(string $uri)

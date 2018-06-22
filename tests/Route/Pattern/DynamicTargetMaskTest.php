@@ -287,12 +287,11 @@ class DynamicTargetMaskTest extends TestCase
         $this->assertSame('/foo/bar/34/slug-string?query=string', (string) $pattern->uri($prototype, $params));
     }
 
-    public function testUriFromRelativePathWithNoRootInPrototype_ThrowsException()
+    public function testUriFromRelativePathWithNoRootInPrototype_ReturnsUriWithAbsolutePath()
     {
         $pattern   = $this->pattern('foo/{#id}');
         $prototype = new FakeUri();
-        $this->expectException(UnreachableEndpointException::class);
-        $pattern->uri($prototype, ['34']);
+        $this->assertSame('/foo/34', (string) $pattern->uri($prototype, ['34']));
     }
 
     private function pattern($pattern = '')

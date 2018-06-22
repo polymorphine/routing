@@ -119,11 +119,6 @@ class StaticUriMask implements Pattern
             return $prototype->withPath($path);
         }
 
-        if (!$prototypePath) {
-            $message = sprintf('Missing prototype root for relative route path `%s`', $path);
-            throw new UnreachableEndpointException($message);
-        }
-
         return $prototype->withPath($prototypePath . '/' . $path);
     }
 
