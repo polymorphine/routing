@@ -12,6 +12,7 @@
 namespace Polymorphine\Routing\Tests\Route\Pattern;
 
 use PHPUnit\Framework\TestCase;
+use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Pattern\StaticUriMask;
 use Polymorphine\Routing\Exception\UnreachableEndpointException;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
@@ -86,7 +87,7 @@ class StaticUriMaskTest extends TestCase
         ];
     }
 
-    public function testUri_returnsUri()
+    public function testUriMethod_returnsUriInstance()
     {
         $this->assertInstanceOf(UriInterface::class, $this->pattern('//example.com')->uri(new FakeUri(), []));
     }
@@ -160,9 +161,17 @@ class StaticUriMaskTest extends TestCase
     public function testRelativePathIsMatched()
     {
         $pattern = $this->pattern('bar');
-        $request = $pattern->matchedRequest($this->request('/foo/bar'));
+        $request = $pattern->matchedRequest($this->request('/foo/bar')->withAttribute(Route::PATH_ATTRIBUTE, 'bar'));
         $this->assertInstanceOf(ServerRequestInterface::class, $request);
-        $this->assertSame([], $request->getAttributes());
+        $this->assertSame([Route::PATH_ATTRIBUTE => ''], $request->getAttributes());
+    }
+
+    public function testAbsolutePathWithAsteriskMatchesPathFragment()
+    {
+        $pattern = $this->pattern('/foo/bar*');
+        $request = $pattern->matchedRequest($this->request('/foo/bar/baz/and/anything'));
+        $this->assertInstanceOf(ServerRequestInterface::class, $request);
+        $this->assertSame([Route::PATH_ATTRIBUTE => 'baz/and/anything'], $request->getAttributes());
     }
 
     public function testUriFromRelativePathWithRootInPrototype_ReturnsUriWithAppendedPath()

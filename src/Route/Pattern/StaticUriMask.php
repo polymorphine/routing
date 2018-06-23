@@ -11,6 +11,7 @@
 
 namespace Polymorphine\Routing\Route\Pattern;
 
+use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Pattern;
 use Polymorphine\Routing\Exception\UnreachableEndpointException;
 use Psr\Http\Message\ServerRequestInterface;
@@ -34,10 +35,13 @@ class StaticUriMask implements Pattern
         $uri = $request->getUri();
 
         $match = $this->match($this->uri['scheme'], $uri->getScheme()) &&
-            $this->match($this->uri['authority'], $uri->getAuthority()) &&
-            $this->matchPath($this->uri['path'], $uri->getPath());
+            $this->match($this->uri['authority'], $uri->getAuthority());
 
-        return ($match) ? $this->matchQuery($this->uri['query'], $request) : null;
+        if (!$match) { return null; }
+        if (isset($this->uri['path'])) {
+            $request = $this->matchPath($request);
+        }
+        return ($request) ? $this->matchQuery($request) : null;
     }
 
     public function uri(UriInterface $prototype, array $params): UriInterface
@@ -61,18 +65,39 @@ class StaticUriMask implements Pattern
         return !$routeSegment || $routeSegment === $requestSegment;
     }
 
-    private function matchPath($routePath, $requestPath)
+    private function matchPath(ServerRequestInterface $request): ?ServerRequestInterface
     {
-        if (!$routePath || !$requestPath) { return true; }
-        if ($routePath[0] === '/') {
-            return $routePath === $requestPath;
+        $requestPath  = $request->getUri()->getPath();
+        $relativePath = $request->getAttribute(Route::PATH_ATTRIBUTE) ?? ltrim($requestPath, '/');
+
+        $routePath = $this->uri['path'];
+        if (!$routePath || !$requestPath) { return $request; }
+        if ($routePath[0] === '/' && substr($routePath, -1) !== '*') {
+            return $routePath === $requestPath
+                ? $request->withAttribute(Route::PATH_ATTRIBUTE, '')
+                : null;
         }
 
-        return strpos($requestPath, $routePath) > 0;
+        if ($routePath[0] === '/') {
+            return strpos($requestPath, rtrim($routePath, '*')) === 0
+                ? $request->withAttribute(Route::PATH_ATTRIBUTE, ltrim(substr($requestPath, strlen($routePath)),'/'))
+                : null;
+        }
+
+        if (substr($routePath, -1) !== '*') {
+            return $routePath === $relativePath
+                ? $request->withAttribute(Route::PATH_ATTRIBUTE, '')
+                : null;
+        }
+
+        return strpos($relativePath, rtrim($routePath, '*')) === 0
+            ? $request->withAttribute(Route::PATH_ATTRIBUTE, ltrim(substr($relativePath, strlen($routePath)), '/'))
+            : null;
     }
 
-    private function matchQuery($query, ServerRequestInterface $request)
+    private function matchQuery(ServerRequestInterface $request)
     {
+        $query = $this->uri['query'];
         return ($query) ? $this->queryPattern($query)->matchedRequest($request) : $request;
     }
 
@@ -110,7 +135,7 @@ class StaticUriMask implements Pattern
 
     private function setPath(UriInterface $prototype)
     {
-        if (!$path = $this->uri['path']) { return $prototype; }
+        if (!$path = rtrim($this->uri['path'], '*')) { return $prototype; }
 
         $prototypePath = $prototype->getPath();
         if ($path[0] === '/') {
