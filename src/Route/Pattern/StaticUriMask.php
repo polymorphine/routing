@@ -38,9 +38,7 @@ class StaticUriMask implements Pattern
             $this->match($this->uri['authority'], $uri->getAuthority());
 
         if (!$match) { return null; }
-        if (isset($this->uri['path'])) {
-            $request = $this->matchPath($request);
-        }
+        $request = $this->matchPath($request);
         return ($request) ? $this->matchQuery($request) : null;
     }
 
@@ -67,32 +65,27 @@ class StaticUriMask implements Pattern
 
     private function matchPath(ServerRequestInterface $request): ?ServerRequestInterface
     {
-        $requestPath  = $request->getUri()->getPath();
-        $relativePath = $request->getAttribute(Route::PATH_ATTRIBUTE) ?? ltrim($requestPath, '/');
+        if (!$routePath = $this->uri['path']) { return $request; }
 
-        $routePath = $this->uri['path'];
-        if (!$routePath || !$requestPath) { return $request; }
-        if ($routePath[0] === '/' && substr($routePath, -1) !== '*') {
-            return $routePath === $requestPath
-                ? $request->withAttribute(Route::PATH_ATTRIBUTE, '')
-                : null;
-        }
+        $requestPath = $routePath[0] === '/'
+            ? $request->getUri()->getPath()
+            : $request->getAttribute(Route::PATH_ATTRIBUTE) ?? ltrim($request->getUri()->getPath(), '/');
 
-        if ($routePath[0] === '/') {
-            return strpos($requestPath, rtrim($routePath, '*')) === 0
-                ? $request->withAttribute(Route::PATH_ATTRIBUTE, ltrim(substr($requestPath, strlen($routePath)),'/'))
-                : null;
-        }
+        if (!$requestPath) { return null; }
 
         if (substr($routePath, -1) !== '*') {
-            return $routePath === $relativePath
-                ? $request->withAttribute(Route::PATH_ATTRIBUTE, '')
-                : null;
+            if ($routePath !== $requestPath) { return null; }
+            return $request->withAttribute(Route::PATH_ATTRIBUTE, '');
         }
 
-        return strpos($relativePath, rtrim($routePath, '*')) === 0
-            ? $request->withAttribute(Route::PATH_ATTRIBUTE, ltrim(substr($relativePath, strlen($routePath)), '/'))
+        $routePath = rtrim($routePath, '*');
+        return strpos($requestPath, $routePath) === 0
+            ? $request->withAttribute(Route::PATH_ATTRIBUTE, $this->newPathContext($requestPath, $routePath))
             : null;
+    }
+
+    private function newPathContext(string $relativePath, string $matchedPath): string {
+        return ltrim(substr($relativePath, strlen($matchedPath)),'/');
     }
 
     private function matchQuery(ServerRequestInterface $request)
