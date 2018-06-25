@@ -174,6 +174,21 @@ class StaticUriMaskTest extends TestCase
         $this->assertSame([Route::PATH_ATTRIBUTE => 'baz/and/anything'], $request->getAttributes());
     }
 
+    public function testPathWithAsteriskAndQueryCanBeMatched()
+    {
+        $pattern = $this->pattern('foo/bar*?query=foo');
+        $request = $this->request('//example.com/foo/bar/baz?param=bar&query=foo');
+        $this->assertInstanceOf(ServerRequestInterface::class, $pattern->matchedRequest($request));
+    }
+
+    public function testPathWithAsteriskAndQueryCanBeMatchedInRelativeContext()
+    {
+        $pattern = $this->pattern('foo/bar*?query=foo');
+        $request = $this->request('//example.com/fizz/foo/bar/baz?param=bar&query=foo')
+                        ->withAttribute(Route::PATH_ATTRIBUTE, 'foo/bar');
+        $this->assertInstanceOf(ServerRequestInterface::class, $pattern->matchedRequest($request));
+    }
+
     public function testRelativePathPatternDoesNotMatchBeyondRequestPath()
     {
         $pattern = $this->pattern('foo/bar*');
