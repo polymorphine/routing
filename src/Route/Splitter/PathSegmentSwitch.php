@@ -21,6 +21,7 @@ use Psr\Http\Message\UriInterface;
 class PathSegmentSwitch implements Route
 {
     use RouteSelectMethods;
+    use Route\Pattern\PathContextMethods;
 
     const ROOT_PATH = 'HOME';
 
@@ -39,14 +40,13 @@ class PathSegmentSwitch implements Route
 
     public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
     {
-        $relativePath = $request->getAttribute(static::PATH_ATTRIBUTE) ?? $this->splitUriPath($request->getUri());
-        $nextSegment  = array_shift($relativePath);
+        [$segment, $relativePath] = $this->splitRelativePath($request);
 
-        if (!$nextSegment && $this->root) {
+        if (!$segment && $this->root) {
             return $this->root->forward($request, $prototype);
         }
 
-        $route = $this->routes[$nextSegment] ?? null;
+        $route = $this->routes[$segment] ?? null;
         return $route
             ? $route->forward($request->withAttribute(static::PATH_ATTRIBUTE, $relativePath), $prototype)
             : $prototype;
@@ -67,11 +67,5 @@ class PathSegmentSwitch implements Route
         }
 
         return $this->root->uri($prototype, $params);
-    }
-
-    private function splitUriPath(UriInterface $uri): array
-    {
-        $path = ltrim($uri->getPath(), '/');
-        return explode('/', $path);
     }
 }

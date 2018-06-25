@@ -21,6 +21,8 @@ use InvalidArgumentException;
 
 class StaticUriMask implements Pattern
 {
+    use PathContextMethods;
+
     private $pattern;
     private $uri = [];
 
@@ -32,14 +34,14 @@ class StaticUriMask implements Pattern
 
     public function matchedRequest(ServerRequestInterface $request): ?ServerRequestInterface
     {
-        $uri = $request->getUri();
-
-        $match = $this->match($this->uri['scheme'], $uri->getScheme()) &&
-            $this->match($this->uri['authority'], $uri->getAuthority());
-
+        $uri   = $request->getUri();
+        $match = $this->matchScheme($uri) && $this->matchAuthority($uri);
         if (!$match) { return null; }
-        $request = $this->matchPath($request);
-        return ($request) ? $this->matchQuery($request) : null;
+
+        $matchedRequest = $this->matchPath($request);
+        if (!$matchedRequest) { return null; }
+
+        return $this->matchQuery($matchedRequest);
     }
 
     public function uri(UriInterface $prototype, array $params): UriInterface
@@ -58,19 +60,21 @@ class StaticUriMask implements Pattern
         return new StaticQueryPattern($queryString);
     }
 
-    private function match($routeSegment, $requestSegment)
+    private function matchScheme(UriInterface $uri): bool
     {
-        return !$routeSegment || $routeSegment === $requestSegment;
+        return !$this->uri['scheme'] || $this->uri['scheme'] === $uri->getScheme();
+    }
+
+    private function matchAuthority(UriInterface $uri): bool
+    {
+        return !$this->uri['authority'] || $this->uri['authority'] === $uri->getAuthority();
     }
 
     private function matchPath(ServerRequestInterface $request): ?ServerRequestInterface
     {
         if (!$routePath = $this->uri['path']) { return $request; }
 
-        $requestPath = $routePath[0] === '/'
-            ? $request->getUri()->getPath()
-            : $request->getAttribute(Route::PATH_ATTRIBUTE) ?? ltrim($request->getUri()->getPath(), '/');
-
+        $requestPath = $routePath[0] === '/' ? $request->getUri()->getPath() : $this->relativePath($request);
         if (!$requestPath) { return null; }
 
         if (substr($routePath, -1) !== '*') {
@@ -79,13 +83,8 @@ class StaticUriMask implements Pattern
         }
 
         $routePath = rtrim($routePath, '*');
-        return strpos($requestPath, $routePath) === 0
-            ? $request->withAttribute(Route::PATH_ATTRIBUTE, $this->newPathContext($requestPath, $routePath))
-            : null;
-    }
-
-    private function newPathContext(string $relativePath, string $matchedPath): string {
-        return ltrim(substr($relativePath, strlen($matchedPath)),'/');
+        if (strpos($requestPath, $routePath) !== 0) { return null; }
+        return $request->withAttribute(Route::PATH_ATTRIBUTE, $this->newPathContext($requestPath, $routePath));
     }
 
     private function matchQuery(ServerRequestInterface $request)

@@ -19,6 +19,8 @@ use Psr\Http\Message\UriInterface;
 
 class PathSegmentGate implements Route
 {
+    use Route\Pattern\PathContextMethods;
+
     private $segment;
     private $route;
 
@@ -30,10 +32,9 @@ class PathSegmentGate implements Route
 
     public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
     {
-        $relativePath = $request->getAttribute(static::PATH_ATTRIBUTE) ?? $this->splitUriPath($request->getUri());
-        return $this->segment === array_shift($relativePath)
-            ? $this->route->forward($request->withAttribute(static::PATH_ATTRIBUTE, $relativePath), $prototype)
-            : $prototype;
+        [$segment, $relativePath] = $this->splitRelativePath($request);
+        if ($this->segment !== $segment) { return $prototype; }
+        return $this->route->forward($request->withAttribute(static::PATH_ATTRIBUTE, $relativePath), $prototype);
     }
 
     public function select(string $path): Route
@@ -45,11 +46,5 @@ class PathSegmentGate implements Route
     {
         $path = $prototype->getPath() . '/' . $this->segment;
         return $this->route->uri($prototype->withPath($path), $params);
-    }
-
-    private function splitUriPath(UriInterface $uri): array
-    {
-        $path = ltrim($uri->getPath(), '/');
-        return explode('/', $path);
     }
 }
