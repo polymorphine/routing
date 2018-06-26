@@ -22,6 +22,8 @@ use Psr\Http\Message\UriInterface;
 
 class ResourceRoute implements Route
 {
+    use Route\Pattern\PathContextMethods;
+
     public const INDEX  = 'INDEX'; //pseudo method
     public const GET    = 'GET';
     public const POST   = 'POST';
@@ -44,23 +46,20 @@ class ResourceRoute implements Route
 
     public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
     {
-        $path = ($this->path[0] !== '/')
-            ? $this->relativeRequestPath($request->getUri()->getPath())
-            : $this->path;
-
-        if (!$path) { return $prototype; }
+        if (!$path = $this->matchingPath($request)) { return $prototype; }
 
         $method = $request->getMethod();
-
         if ($method === self::GET) {
             return $this->dispatchGetMethod($request, $path) ?? $prototype;
         }
 
+        $id = $this->getIdSegment($path);
         if ($method === self::POST) {
-            return $this->dispatchPostMethod($request, $path) ?? $prototype;
+            if ($id) { return $prototype; }
+            return $this->handlerResponse(self::POST, $request) ?? $prototype;
         }
 
-        return $this->dispatchItemMethod($method, $request, $path) ?? $prototype;
+        return $this->dispatchItemMethod($method, $request, $id) ?? $prototype;
     }
 
     public function select(string $path): Route
@@ -99,45 +98,34 @@ class ResourceRoute implements Route
         return $handler ? $handler($request) : null;
     }
 
-    private function dispatchItemMethod($name, ServerRequestInterface $request, $path)
+    private function dispatchItemMethod($name, ServerRequestInterface $request, string $id)
     {
-        $requestPath = $request->getUri()->getPath();
-        if (strpos($requestPath, $path) !== 0) { return null; }
-
-        [$id, ] = explode('/', substr($requestPath, strlen($path) + 1), 2) + [false, false];
-        if (!$this->validId($id)) { return null; }
-
+        if (!$id || !$this->validId($id)) { return null; }
         return $this->handlerResponse($name, $request->withAttribute('id', $id));
-    }
-
-    private function dispatchPostMethod(ServerRequestInterface $request, $path)
-    {
-        if ($path !== $request->getUri()->getPath()) { return null; }
-
-        return $this->handlerResponse(self::POST, $request);
     }
 
     private function dispatchGetMethod(ServerRequestInterface $request, string $path)
     {
-        return ($path === $request->getUri()->getPath())
+        return ($path === $this->path)
             ? $this->handlerResponse(self::INDEX, $request)
-            : $this->dispatchItemMethod(self::GET, $request, $path);
+            : $this->dispatchItemMethod(self::GET, $request, $this->getIdSegment($path));
     }
 
     private function resolveRelativePath($path, UriInterface $prototype)
     {
-        if (!$prototypePath = $prototype->getPath()) {
-            throw new UnreachableEndpointException('Unresolved relative path');
-        }
-
-        return '/' . ltrim($prototypePath . '/' . $path, '/');
+        return '/' . ltrim($prototype->getPath() . '/' . $path, '/');
     }
 
-    private function relativeRequestPath($path)
+    private function matchingPath(ServerRequestInterface $request): ?string
     {
-        $pos = strpos($path, $this->path);
-        if (!$pos || $path[$pos - 1] !== '/') { return null; }
+        $path = ($this->path[0] === '/') ? $request->getUri()->getPath() : $this->relativePath($request);
+        return strpos($path, $this->path) === 0 ? $path : null;
+    }
 
-        return substr($path, 0, $pos) . $this->path;
+    private function getIdSegment(string $path): string
+    {
+        $remainingSegments = $this->newPathContext($path, $this->path);
+        [$id, ] = explode('/', $remainingSegments, 2) + ['', null];
+        return $id;
     }
 }

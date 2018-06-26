@@ -89,8 +89,8 @@ class ResourceRouteTest extends TestCase
             [$this->request('/foo/bar/7645', 'GET'), $this->resource('/foo/bar', ['GET'])],
             [$this->request('/foo/bar/7645/slug-name', 'PUT'), $this->resource('/foo/bar', ['PUT'])],
             [$this->request('/foo/bar/7645/some-string-300', 'ANYTHING'), $this->resource('/foo/bar', ['ANYTHING'])],
-            [$this->request('/foo/bar/baz'), $this->resource('bar/baz')],
-            [$this->request('/foo/bar/baz/600'), $this->resource('bar/baz')],
+            [$this->request('/foo/bar/baz')->withAttribute(Route::PATH_ATTRIBUTE, 'bar/baz'), $this->resource('bar/baz')],
+            [$this->request('/foo/bar/baz/600')->withAttribute(Route::PATH_ATTRIBUTE, 'bar/baz/600'), $this->resource('bar/baz')],
             [$this->request('/some/path/500/slug-string-1000'), $this->resource('some/path')]
         ];
     }
@@ -105,9 +105,9 @@ class ResourceRouteTest extends TestCase
         $response = $this->resource('/foo', ['PATCH'])->forward($request, self::$prototype);
         $this->assertSame(['id' => '666'], $response->fromRequest->getAttributes());
 
-        $request  = $this->request('/foo/bar/baz/554', 'PATCH');
+        $request  = $this->request('/foo/bar/baz/554', 'PATCH')->withAttribute(Route::PATH_ATTRIBUTE, 'baz/554');
         $response = $this->resource('baz')->forward($request, self::$prototype);
-        $this->assertSame(['id' => '554'], $response->fromRequest->getAttributes());
+        $this->assertSame('554', $response->fromRequest->getAttribute('id'));
 
         $request  = $this->request('/some/path/500/slug-string-1000', 'PATCH');
         $response = $this->resource('some/path')->forward($request, self::$prototype);
@@ -144,11 +144,11 @@ class ResourceRouteTest extends TestCase
         $this->resource('/foo/bar')->uri(FakeUri::fromString('/other/path'), []);
     }
 
-    public function testUriForRelativePathWithoutPrototypePath_ThrowsException()
+    public function testUriForRelativePathWithoutPrototypePath_ReturnsUriWithAbsolutePath()
     {
         $resource = $this->resource('bar/baz');
-        $this->expectException(UnreachableEndpointException::class);
-        $resource->uri(FakeUri::fromString('http://example.com'), []);
+        $uri = $resource->uri(FakeUri::fromString('http://example.com'), []);
+        $this->assertSame('http://example.com/bar/baz', (string) $uri);
     }
 
     public function testUriForRelativePath_ReturnsUriWithPathAppendedToPrototype()
@@ -177,21 +177,17 @@ class ResourceRouteTest extends TestCase
     private function dummyCallback()
     {
         return function ($request) {
-            $response = new FakeResponse();
-
+            $response              = new FakeResponse();
             $response->fromRequest = $request;
-
             return $response;
         };
     }
 
     private function request($path, $method = null)
     {
-        $request = new FakeServerRequest();
-
+        $request         = new FakeServerRequest();
         $request->method = $method ?? 'GET';
         $request->uri    = FakeUri::fromString($path);
-
         return $request;
     }
 }
