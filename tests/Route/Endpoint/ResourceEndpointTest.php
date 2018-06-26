@@ -9,12 +9,12 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Tests\Route;
+namespace Polymorphine\Routing\Tests\Route\Endpoint;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Exception\SwitchCallException;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Route\ResourceRoute;
+use Polymorphine\Routing\Route\Endpoint\ResourceEndpoint;
+use Polymorphine\Routing\Exception\SwitchCallException;
 use Polymorphine\Routing\Exception\UnreachableEndpointException;
 use Polymorphine\Routing\Exception\InvalidUriParamsException;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
@@ -23,7 +23,7 @@ use Polymorphine\Routing\Tests\Doubles\FakeUri;
 use Psr\Http\Message\ServerRequestInterface;
 
 
-class ResourceRouteTest extends TestCase
+class ResourceEndpointTest extends TestCase
 {
     private static $prototype;
 
@@ -35,7 +35,7 @@ class ResourceRouteTest extends TestCase
     public function testInstantiation()
     {
         $this->assertInstanceOf(Route::class, $resource = $this->resource('/some/path'));
-        $this->assertInstanceOf(ResourceRoute::class, $resource);
+        $this->assertInstanceOf(ResourceEndpoint::class, $resource);
     }
 
     /**
@@ -171,7 +171,7 @@ class ResourceRouteTest extends TestCase
             $handlers[$method] = $this->dummyCallback();
         }
 
-        return new ResourceRoute($path, $handlers);
+        return new ResourceEndpoint($path, $handlers);
     }
 
     private function dummyCallback()
