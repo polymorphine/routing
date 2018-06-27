@@ -74,10 +74,7 @@ class ResourceEndpointTest extends TestCase
      * @param ServerRequestInterface $request
      * @param Route                  $resource
      */
-    public function testMatchingRequest_ReturnsEndpointDefinedResponse(
-        ServerRequestInterface $request,
-        Route $resource
-    ) {
+    public function testMatchingRequest_ReturnsEndpointDefinedResponse(ServerRequestInterface $request, Route $resource) {
         $this->assertNotSame(self::$prototype, $resource->forward($request, self::$prototype));
     }
 
@@ -95,23 +92,27 @@ class ResourceEndpointTest extends TestCase
         ];
     }
 
-    public function testMatchingIdRequestIsForwardedWithIdAttribute()
+    public function testMatchingIdRequestIsForwardedWithIdAndRemainingPathAttributes()
     {
         $request  = $this->request('/foo/345');
         $response = $this->resource('/foo')->forward($request, self::$prototype);
-        $this->assertSame(['id' => '345'], $response->fromRequest->getAttributes());
+        $this->assertSame('345', $response->fromRequest->getAttribute('id'));
+        $this->assertSame('', $response->fromRequest->getAttribute(Route::PATH_ATTRIBUTE));
 
         $request  = $this->request('/foo/666/slug/3000', 'PATCH');
         $response = $this->resource('/foo', ['PATCH'])->forward($request, self::$prototype);
-        $this->assertSame(['id' => '666'], $response->fromRequest->getAttributes());
+        $this->assertSame('666', $response->fromRequest->getAttribute('id'));
+        $this->assertSame('slug/3000', $response->fromRequest->getAttribute(Route::PATH_ATTRIBUTE));
 
         $request  = $this->request('/foo/bar/baz/554', 'PATCH')->withAttribute(Route::PATH_ATTRIBUTE, 'baz/554');
         $response = $this->resource('baz')->forward($request, self::$prototype);
         $this->assertSame('554', $response->fromRequest->getAttribute('id'));
+        $this->assertSame('', $response->fromRequest->getAttribute(Route::PATH_ATTRIBUTE));
 
         $request  = $this->request('/some/path/500/slug-string-1000', 'PATCH');
         $response = $this->resource('some/path')->forward($request, self::$prototype);
-        $this->assertSame(['id' => '500'], $response->fromRequest->getAttributes());
+        $this->assertSame('500', $response->fromRequest->getAttribute('id'));
+        $this->assertSame('slug-string-1000', $response->fromRequest->getAttribute(Route::PATH_ATTRIBUTE));
     }
 
     public function testUriMethod_ReturnsUriWithPath()
