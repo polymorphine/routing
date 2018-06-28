@@ -9,11 +9,11 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Tests\Route\Endpoint;
+namespace Polymorphine\Routing\Tests\Route\Splitter;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Route\Endpoint\ResourceEndpoint;
+use Polymorphine\Routing\Route\Splitter\ResourceMethodSwitch;
 use Polymorphine\Routing\Exception\SwitchCallException;
 use Polymorphine\Routing\Exception\UnreachableEndpointException;
 use Polymorphine\Routing\Exception\InvalidUriParamsException;
@@ -24,7 +24,7 @@ use Polymorphine\Routing\Tests\Doubles\FakeUri;
 use Psr\Http\Message\ServerRequestInterface;
 
 
-class ResourceEndpointTest extends TestCase
+class ResourceMethodSwitchTest extends TestCase
 {
     private static $prototype;
 
@@ -36,7 +36,7 @@ class ResourceEndpointTest extends TestCase
     public function testInstantiation()
     {
         $this->assertInstanceOf(Route::class, $resource = $this->resource('/some/path'));
-        $this->assertInstanceOf(ResourceEndpoint::class, $resource);
+        $this->assertInstanceOf(ResourceMethodSwitch::class, $resource);
     }
 
     /**
@@ -58,7 +58,7 @@ class ResourceEndpointTest extends TestCase
     {
         return [
             [$this->request('/foo/bar', 'POST'), $this->resource('/foo/bar', null, ['GET', 'INDEX']), 'method should not be allowed'],
-            [$this->request('/foo/bar', 'DOIT'), $this->resource('/foo/bar', null, ['DOIT', 'INDEX']), 'methods other than POST or GET require resource id'],
+            [$this->request('/foo/bar', 'DO-IT'), $this->resource('/foo/bar', null, ['DO-IT', 'INDEX']), 'methods other than POST or GET require resource id'],
             [$this->request('/foo/something', 'GET'), $this->resource('/foo/bar'), 'path should not match'],
             [$this->request('/foo/bar/123', 'POST'), $this->resource('/foo/bar'), 'cannot post to id'],
             [$this->request('/foo/bar/a8b3ccf0', 'GET'), $this->resource('/foo/bar', null, ['GET']), 'invalid id format should not match'],
@@ -176,7 +176,7 @@ class ResourceEndpointTest extends TestCase
             $routes[$method] = $route ?? MockedRoute::response($method);
         }
 
-        return new ResourceEndpoint($path, $routes);
+        return new ResourceMethodSwitch($path, $routes);
     }
 
     private function request($path, $method = null)

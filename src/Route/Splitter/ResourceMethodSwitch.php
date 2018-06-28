@@ -9,7 +9,7 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Route\Endpoint;
+namespace Polymorphine\Routing\Route\Splitter;
 
 use Polymorphine\Routing\Exception\SwitchCallException;
 use Polymorphine\Routing\Route;
@@ -20,7 +20,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 
 
-class ResourceEndpoint implements Route
+class ResourceMethodSwitch implements Route
 {
     use Route\Pattern\PathContextMethods;
 
