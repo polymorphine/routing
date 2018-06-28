@@ -17,6 +17,7 @@ use Polymorphine\Routing\Route\Endpoint\ResourceEndpoint;
 use Polymorphine\Routing\Exception\SwitchCallException;
 use Polymorphine\Routing\Exception\UnreachableEndpointException;
 use Polymorphine\Routing\Exception\InvalidUriParamsException;
+use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
@@ -56,12 +57,12 @@ class ResourceEndpointTest extends TestCase
     public function notMatchingRequests()
     {
         return [
-            [$this->request('/foo/bar', 'POST'), $this->resource('/foo/bar', ['GET', 'INDEX']), 'method should not be allowed'],
-            [$this->request('/foo/bar', 'DOIT'), $this->resource('/foo/bar', ['DOIT', 'INDEX']), 'methods other than POST or GET should require resource id'],
+            [$this->request('/foo/bar', 'POST'), $this->resource('/foo/bar', null, ['GET', 'INDEX']), 'method should not be allowed'],
+            [$this->request('/foo/bar', 'DOIT'), $this->resource('/foo/bar', null, ['DOIT', 'INDEX']), 'methods other than POST or GET require resource id'],
             [$this->request('/foo/something', 'GET'), $this->resource('/foo/bar'), 'path should not match'],
             [$this->request('/foo/bar/123', 'POST'), $this->resource('/foo/bar'), 'cannot post to id'],
-            [$this->request('/foo/bar/a8b3ccf0', 'GET'), $this->resource('/foo/bar', ['GET']), 'invalid id format should not match'],
-            [$this->request('/foo/bar', 'GET'), $this->resource('/foo/bar', ['GET']), 'resource list should be defined by INDEX pseudo-method'],
+            [$this->request('/foo/bar/a8b3ccf0', 'GET'), $this->resource('/foo/bar', null, ['GET']), 'invalid id format should not match'],
+            [$this->request('/foo/bar', 'GET'), $this->resource('/foo/bar', null, ['GET']), 'resource list should be defined by INDEX pseudo-method'],
             [$this->request('/foo/bar'), $this->resource('baz'), 'relative resource path is not substring of request path'],
             [$this->request('/some/path/foo'), $this->resource('some/path'), 'no resource id'],
             [$this->request('/some/path/666'), $this->resource('me/path'), 'not a path segment']
@@ -74,18 +75,19 @@ class ResourceEndpointTest extends TestCase
      * @param ServerRequestInterface $request
      * @param Route                  $resource
      */
-    public function testMatchingRequest_ReturnsEndpointDefinedResponse(ServerRequestInterface $request, Route $resource) {
+    public function testMatchingRequest_ReturnsEndpointDefinedResponse(ServerRequestInterface $request, Route $resource)
+    {
         $this->assertNotSame(self::$prototype, $resource->forward($request, self::$prototype));
     }
 
     public function matchingRequests()
     {
         return [
-            [$this->request('/foo/bar', 'POST'), $this->resource('/foo/bar', ['POST', 'PUT'])],
-            [$this->request('/foo/bar', 'GET'), $this->resource('/foo/bar', ['INDEX', 'POST'])],
-            [$this->request('/foo/bar/7645', 'GET'), $this->resource('/foo/bar', ['GET'])],
-            [$this->request('/foo/bar/7645/slug-name', 'PUT'), $this->resource('/foo/bar', ['PUT'])],
-            [$this->request('/foo/bar/7645/some-string-300', 'ANYTHING'), $this->resource('/foo/bar', ['ANYTHING'])],
+            [$this->request('/foo/bar', 'POST'), $this->resource('/foo/bar', null, ['POST', 'PUT'])],
+            [$this->request('/foo/bar', 'GET'), $this->resource('/foo/bar', null, ['INDEX', 'POST'])],
+            [$this->request('/foo/bar/7645', 'GET'), $this->resource('/foo/bar', null, ['GET'])],
+            [$this->request('/foo/bar/7645/slug-name', 'PUT'), $this->resource('/foo/bar', null, ['PUT'])],
+            [$this->request('/foo/bar/7645/some-string-300', 'ANYTHING'), $this->resource('/foo/bar', null, ['ANYTHING'])],
             [$this->request('/foo/bar/baz')->withAttribute(Route::PATH_ATTRIBUTE, 'bar/baz'), $this->resource('bar/baz')],
             [$this->request('/foo/bar/baz/600')->withAttribute(Route::PATH_ATTRIBUTE, 'bar/baz/600'), $this->resource('bar/baz')],
             [$this->request('/some/path/500/slug-string-1000'), $this->resource('some/path')]
@@ -94,25 +96,27 @@ class ResourceEndpointTest extends TestCase
 
     public function testMatchingIdRequestIsForwardedWithIdAndRemainingPathAttributes()
     {
-        $request  = $this->request('/foo/345');
-        $response = $this->resource('/foo')->forward($request, self::$prototype);
-        $this->assertSame('345', $response->fromRequest->getAttribute('id'));
-        $this->assertSame('', $response->fromRequest->getAttribute(Route::PATH_ATTRIBUTE));
+        $route = MockedRoute::response('endpoint');
 
-        $request  = $this->request('/foo/666/slug/3000', 'PATCH');
-        $response = $this->resource('/foo', ['PATCH'])->forward($request, self::$prototype);
-        $this->assertSame('666', $response->fromRequest->getAttribute('id'));
-        $this->assertSame('slug/3000', $response->fromRequest->getAttribute(Route::PATH_ATTRIBUTE));
+        $request = $this->request('/foo/345');
+        $this->resource('/foo', $route)->forward($request, self::$prototype);
+        $this->assertSame('345', $route->forwardedRequest->getAttribute('id'));
+        $this->assertSame('', $route->forwardedRequest->getAttribute(Route::PATH_ATTRIBUTE));
 
-        $request  = $this->request('/foo/bar/baz/554', 'PATCH')->withAttribute(Route::PATH_ATTRIBUTE, 'baz/554');
-        $response = $this->resource('baz')->forward($request, self::$prototype);
-        $this->assertSame('554', $response->fromRequest->getAttribute('id'));
-        $this->assertSame('', $response->fromRequest->getAttribute(Route::PATH_ATTRIBUTE));
+        $request = $this->request('/foo/666/slug/3000', 'PATCH');
+        $this->resource('/foo', $route, ['PATCH'])->forward($request, self::$prototype);
+        $this->assertSame('666', $route->forwardedRequest->getAttribute('id'));
+        $this->assertSame('slug/3000', $route->forwardedRequest->getAttribute(Route::PATH_ATTRIBUTE));
 
-        $request  = $this->request('/some/path/500/slug-string-1000', 'PATCH');
-        $response = $this->resource('some/path')->forward($request, self::$prototype);
-        $this->assertSame('500', $response->fromRequest->getAttribute('id'));
-        $this->assertSame('slug-string-1000', $response->fromRequest->getAttribute(Route::PATH_ATTRIBUTE));
+        $request = $this->request('/foo/bar/baz/554', 'PATCH')->withAttribute(Route::PATH_ATTRIBUTE, 'baz/554');
+        $this->resource('baz', $route, ['PATCH'])->forward($request, self::$prototype);
+        $this->assertSame('554', $route->forwardedRequest->getAttribute('id'));
+        $this->assertSame('', $route->forwardedRequest->getAttribute(Route::PATH_ATTRIBUTE));
+
+        $request = $this->request('/some/path/500/slug-string-1000', 'PATCH');
+        $this->resource('some/path', $route, ['PATCH'])->forward($request, self::$prototype);
+        $this->assertSame('500', $route->forwardedRequest->getAttribute('id'));
+        $this->assertSame('slug-string-1000', $route->forwardedRequest->getAttribute(Route::PATH_ATTRIBUTE));
     }
 
     public function testUriMethod_ReturnsUriWithPath()
@@ -148,7 +152,7 @@ class ResourceEndpointTest extends TestCase
     public function testUriForRelativePathWithoutPrototypePath_ReturnsUriWithAbsolutePath()
     {
         $resource = $this->resource('bar/baz');
-        $uri = $resource->uri(FakeUri::fromString('http://example.com'), []);
+        $uri      = $resource->uri(FakeUri::fromString('http://example.com'), []);
         $this->assertSame('http://example.com/bar/baz', (string) $uri);
     }
 
@@ -165,23 +169,14 @@ class ResourceEndpointTest extends TestCase
         $this->resource('/user/posts')->select('user');
     }
 
-    private function resource(string $path, array $methods = ['INDEX', 'POST', 'GET', 'PUT', 'PATCH', 'DELETE'])
+    private function resource(string $path, ?Route $route = null, array $methods = ['INDEX', 'POST', 'GET', 'PUT', 'PATCH', 'DELETE'])
     {
-        $handlers = [];
+        $routes = [];
         foreach ($methods as $method) {
-            $handlers[$method] = $this->dummyCallback();
+            $routes[$method] = $route ?? MockedRoute::response($method);
         }
 
-        return new ResourceEndpoint($path, $handlers);
-    }
-
-    private function dummyCallback()
-    {
-        return function ($request) {
-            $response              = new FakeResponse();
-            $response->fromRequest = $request;
-            return $response;
-        };
+        return new ResourceEndpoint($path, $routes);
     }
 
     private function request($path, $method = null)

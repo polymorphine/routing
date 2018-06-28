@@ -32,36 +32,31 @@ class ResourceEndpoint implements Route
     public const DELETE = 'DELETE';
 
     private $path;
-    private $handlers;
+    private $routes;
 
     /**
-     * @param string     $path
-     * @param callable[] $handlers
+     * @param string  $path
+     * @param Route[] $routes
      */
-    public function __construct(string $path, array $handlers)
+    public function __construct(string $path, array $routes)
     {
-        $this->path     = $path;
-        $this->handlers = $handlers;
+        $this->path   = $path;
+        $this->routes = $routes;
     }
 
     public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
     {
-        if (!$path = $this->matchingPath($request)) { return $prototype; }
+        $path = $this->matchingPath($request);
+        if (!$path) { return $prototype; }
 
         $method = $request->getMethod();
-        if ($method === self::GET && $path === $this->path) {
-            $request = $request->withAttribute(Route::PATH_ATTRIBUTE, '');
-            return $this->handlerResponse(self::INDEX, $request) ?? $prototype;
-        }
+        $route  = $this->getMethodRoute($method, $path);
+        if (!$route) { return $prototype; }
 
-        if ($method === self::POST) {
-            if ($path !== $this->path) { return $prototype; }
-            $request = $request->withAttribute(Route::PATH_ATTRIBUTE, '');
-            return $this->handlerResponse(self::POST, $request) ?? $prototype;
-        }
+        $request = $this->setAttributes($request, $path);
+        if (!$request) { return $prototype; }
 
-        $path = $this->newPathContext($path, $this->path);
-        return $this->dispatchItemMethod($method, $request, $path) ?? $prototype;
+        return $route->forward($request, $prototype);
     }
 
     public function select(string $path): Route
@@ -80,13 +75,32 @@ class ResourceEndpoint implements Route
 
         $path = ($id) ? $this->path . '/' . $id : $this->path;
 
-        if ($path[0] !== '/') {
-            $path = $this->resolveRelativePath($path, $prototype);
-        } elseif ($prototype->getPath()) {
-            throw new UnreachableEndpointException(sprintf('Path conflict for `%s` resource uri', $path));
+        return $prototype->withPath($this->resolvePathType($path, $prototype));
+    }
+
+    protected function getMethodRoute(string $method, string $path): ?Route
+    {
+        if ($path !== $this->path && $method === self::POST) { return null; }
+        if ($path === $this->path && $method === self::GET) {
+            return $this->routes[self::INDEX] ?? null;
+        }
+        if ($path === $this->path && $method !== self::INDEX && $method !== self::POST) {
+            return null;
         }
 
-        return $prototype->withPath($path);
+        return $this->routes[$method] ?? null;
+    }
+
+    protected function setAttributes(ServerRequestInterface $request, string $path): ?ServerRequestInterface
+    {
+        if ($path === $this->path) {
+            return $request->withAttribute(Route::PATH_ATTRIBUTE, '');
+        }
+
+        [$id, $path] = $this->splitPathSegment($this->newPathContext($path, $this->path));
+        if (!$this->validId($id)) { return null; }
+
+        return $request->withAttribute('id', $id)->withAttribute(Route::PATH_ATTRIBUTE, $path);
     }
 
     protected function validId(string $id)
@@ -94,24 +108,13 @@ class ResourceEndpoint implements Route
         return is_numeric($id);
     }
 
-    protected function handlerResponse($name, ServerRequestInterface $request)
+    private function resolvePathType($path, UriInterface $prototype)
     {
-        $handler = $this->handlers[$name] ?? null;
-        return $handler ? $handler($request) : null;
-    }
+        if ($path[0] === '/' && $prototype->getPath()) {
+            throw new UnreachableEndpointException(sprintf('Path conflict for `%s` resource uri', $path));
+        }
 
-    private function dispatchItemMethod($name, ServerRequestInterface $request, string $path)
-    {
-        [$id, $path] = $this->splitPathSegment($path);
-        if (!$id || !$this->validId($id)) { return null; }
-        $request = $request->withAttribute('id', $id)
-                           ->withAttribute(Route::PATH_ATTRIBUTE, $path);
-        return $this->handlerResponse($name, $request);
-    }
-
-    private function resolveRelativePath($path, UriInterface $prototype)
-    {
-        return '/' . ltrim($prototype->getPath() . '/' . $path, '/');
+        return $path[0] === '/' ? $path : '/' . ltrim($prototype->getPath() . '/' . $path, '/');
     }
 
     private function matchingPath(ServerRequestInterface $request): ?string

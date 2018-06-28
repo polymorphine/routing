@@ -19,6 +19,8 @@ use Psr\Http\Message\UriInterface;
 
 class MockedRoute implements Route
 {
+    /** @var ServerRequestInterface */
+    public $forwardedRequest;
     public $response;
     public $uri;
     public $path;
@@ -41,6 +43,7 @@ class MockedRoute implements Route
 
     public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
     {
+        $this->forwardedRequest = $request;
         return $this->response ?? $prototype;
     }
 
