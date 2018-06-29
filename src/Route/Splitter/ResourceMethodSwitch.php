@@ -11,7 +11,6 @@
 
 namespace Polymorphine\Routing\Route\Splitter;
 
-use Polymorphine\Routing\Exception\SwitchCallException;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Exception\UnreachableEndpointException;
 use Polymorphine\Routing\Exception\InvalidUriParamsException;
@@ -22,6 +21,7 @@ use Psr\Http\Message\UriInterface;
 
 class ResourceMethodSwitch implements Route
 {
+    use RouteSelectMethods;
     use Route\Pattern\PathContextMethods;
 
     public const INDEX  = 'INDEX'; //pseudo method
@@ -61,7 +61,8 @@ class ResourceMethodSwitch implements Route
 
     public function select(string $path): Route
     {
-        throw new SwitchCallException(sprintf('Gateway not found for path `%s`', $path));
+        [$id, $path] = $this->splitPath($path);
+        return new self($this->path, [$id => $this->getRoute($id, $path)]);
     }
 
     public function uri(UriInterface $prototype, array $params): UriInterface
@@ -74,8 +75,13 @@ class ResourceMethodSwitch implements Route
         }
 
         $path = ($id) ? $this->path . '/' . $id : $this->path;
+        $uri  = $prototype->withPath($this->resolvePathType($path, $prototype));
 
-        return $prototype->withPath($this->resolvePathType($path, $prototype));
+        $method = $this->getUriMethod($path);
+        if (!$route = $this->getMethodRoute($method, $path)) {
+            throw new InvalidUriParamsException(); //TODO: message
+        }
+        return $route->uri($uri, $params);
     }
 
     protected function getMethodRoute(string $method, string $path): ?Route
@@ -121,5 +127,15 @@ class ResourceMethodSwitch implements Route
     {
         $path = ($this->path[0] === '/') ? $request->getUri()->getPath() : $this->relativePath($request);
         return strpos($path, $this->path) === 0 ? $path : null;
+    }
+
+    private function getUriMethod(string $path): string
+    {
+        if (count($this->routes) !== 1) {
+            return $path === $this->path ? self::INDEX : self::GET;
+        }
+
+        reset($this->routes);
+        return key($this->routes);
     }
 }
