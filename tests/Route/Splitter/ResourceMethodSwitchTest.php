@@ -163,10 +163,69 @@ class ResourceMethodSwitchTest extends TestCase
         $this->assertSame('http://example.com/bar/baz/3456', (string) $uri);
     }
 
-    public function testSelectCall_ThrowsException()
+    public function testSelectCallNotMatchingMethod_ThrowsException()
     {
         $this->expectException(SwitchCallException::class);
         $this->resource('/user/posts')->select('user');
+    }
+
+    public function testSelectWithDefinedMethod_ReturnsSingleMethodResourceSwitchInstance()
+    {
+        $resource = $this->resource('/user/profile')->select('PUT');
+        $this->assertInstanceOf(ResourceMethodSwitch::class, $resource);
+        $this->assertEquals($this->resource('/user/profile', null, ['PUT']), $resource);
+    }
+
+    public function testUriForMultipleMethodSwitch_ReturnsUriForGETorINDEXMethod()
+    {
+        $resource = $this->resourceWithDistinctUris('posts');
+
+        $this->assertSame('//index.example.com/posts', (string) $resource->uri(new FakeUri(), []));
+        $this->assertSame('//get.example.com/posts/123', (string) $resource->uri(new FakeUri(), ['id' => 123]));
+    }
+
+    public function testUriForSingleMethodInstance_ReturnsUriForSpecificMethodRoute()
+    {
+        $resource = $this->resource('/user/profile', MockedRoute::withUri('//put.example.com?with=query'), ['PUT']);
+        $this->assertSame('//put.example.com/user/profile/123?with=query', (string) $resource->uri(new FakeUri(), ['id' => 123]));
+    }
+
+    public function testUriFromSelectedMethod_ReturnsUriForThisMethod()
+    {
+        $resource = $this->resourceWithDistinctUris('/posts')->select('PATCH');
+        $this->assertSame('//patch.example.com/posts/45', (string) $resource->uri(new FakeUri(), ['id' => 45]));
+    }
+
+    public function testUriFromMultipleMethodSwitchWithUndefinedGETMethod_ThrowsException()
+    {
+        $resource = $this->resourceWithDistinctUris('/resources', ['GET']);
+        $this->expectException(SwitchCallException::class);
+        $resource->uri(new FakeUri(), ['id' => 666]);
+    }
+
+    public function testUriFromMultipleMethodSwitchWithUndefinedINDEXMethod_ThrowsException()
+    {
+        $resource = $this->resourceWithDistinctUris('/resources', ['INDEX']);
+        $this->expectException(SwitchCallException::class);
+        $resource->uri(new FakeUri(), []);
+    }
+
+    private function resourceWithDistinctUris(string $path, array $remove = []): Route
+    {
+        $routes = [
+            'INDEX'  => MockedRoute::withUri('//index.example.com'),
+            'POST'   => MockedRoute::withUri('//post.example.com'),
+            'GET'    => MockedRoute::withUri('//get.example.com'),
+            'PATCH'  => MockedRoute::withUri('//patch.example.com'),
+            'PUT'    => MockedRoute::withUri('//put.example.com'),
+            'DELETE' => MockedRoute::withUri('//delete.example.com')
+        ];
+
+        foreach ($remove as $method) {
+            unset($routes[$method]);
+        }
+
+        return new ResourceMethodSwitch($path, $routes);
     }
 
     private function resource(string $path, ?Route $route = null, array $methods = ['INDEX', 'POST', 'GET', 'PUT', 'PATCH', 'DELETE'])

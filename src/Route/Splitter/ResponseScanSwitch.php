@@ -51,6 +51,6 @@ class ResponseScanSwitch implements Route
 
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
-        throw new EndpointCallException('Uri not defined in gateway route');
+        throw new EndpointCallException('Cannot resolve specific Uri for switch route');
     }
 }
