@@ -53,17 +53,17 @@ abstract class RoutingBuilder
 
     abstract protected function router(array $routes): Route;
 
-    private function addSplitter(string $name, RoutingBuilder $builder): RoutingBuilder
-    {
-        $this->routes[$this->validName($name)] = true;
-        return $this->switches[$name]          = $builder;
-    }
-
-    private function validName(string $name): string
+    protected function validName(string $name): string
     {
         if (!isset($this->routes[$name])) { return $name; }
 
         $message = 'Route name `%s` already exists in this scope';
         throw new InvalidArgumentException(sprintf($message, $name));
+    }
+
+    private function addSplitter(string $name, RoutingBuilder $builder): RoutingBuilder
+    {
+        $this->routes[$this->validName($name)] = true;
+        return $this->switches[$name]          = $builder;
     }
 }
