@@ -51,6 +51,11 @@ abstract class RoutingBuilder
         return $this->addSplitter($name, new ResponseScanSwitchBuilder());
     }
 
+    public function methodSwitch(string $name): RoutingBuilder
+    {
+        return $this->addSplitter($name, new MethodSwitchBuilder());
+    }
+
     abstract protected function router(array $routes): Route;
 
     protected function validName(string $name): string

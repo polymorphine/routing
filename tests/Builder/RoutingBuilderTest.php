@@ -12,6 +12,7 @@
 namespace Polymorphine\Routing\Tests\Builder;
 
 use PHPUnit\Framework\TestCase;
+use Polymorphine\Routing\Builder\MethodSwitchBuilder;
 use Polymorphine\Routing\Builder\RoutingBuilder;
 use Polymorphine\Routing\Builder\ResponseScanSwitchBuilder;
 use Polymorphine\Routing\Builder\PathSegmentSwitchBuilder;
@@ -50,6 +51,13 @@ class RoutingBuilderTest extends TestCase
         $this->structureExample()->endpoint('home')->callback(function () { return new FakeResponse(); });
     }
 
+    public function testAddingMethodSplitterWithUnknownHttpMethod_ThrowsException()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $builder = new MethodSwitchBuilder();
+        $builder->endpoint('INDEX')->callback(function () { return new FakeResponse(); });
+    }
+
     public function testStructureIntegrity()
     {
         $routes    = $this->structureExample()->build();
@@ -68,6 +76,15 @@ class RoutingBuilderTest extends TestCase
         $this->assertSame('/posts/123', (string) $routes->select('paths.posts')->uri(new FakeUri(), [123]));
         $this->assertSame('paths.posts', (string) $routes->forward($request, $prototype)->getBody());
         $this->assertSame('proto', (string) $routes->forward($request->withMethod('POST'), $prototype)->getBody());
+
+        $request = $this->matchingRequest($routes, 'paths.resource.GET.index', [], 'GET');
+        $this->assertSame('paths.resource.GET.index', (string) $routes->forward($request, $prototype)->getBody());
+
+        $request = $this->matchingRequest($routes, 'paths.resource.GET.item', [714], 'GET');
+        $this->assertSame('paths.resource.GET.item.714', (string) $routes->forward($request, $prototype)->getBody());
+
+        $request = $this->matchingRequest($routes, 'paths.resource.DELETE', [714], 'DELETE');
+        $this->assertSame('paths.resource.DELETE', (string) $routes->forward($request, $prototype)->getBody());
     }
 
     private function structureExample()
@@ -103,6 +120,15 @@ class RoutingBuilderTest extends TestCase
 
         $path->endpoint('posts')->options('{#id}')->callback(function () { return new FakeResponse('paths.posts'); });
         $path->endpoint('posts.ping')->head('{#id}')->callback(function () { return new FakeResponse('paths.posts.ping'); });
+
+        $res    = $path->methodSwitch('resource');
+        $resGET = $res->responseScan('GET');
+        $resGET->endpoint('index')->pattern('/resource')->callback(function () { return new FakeResponse('paths.resource.GET.index'); });
+        $resGET->endpoint('item')->pattern('{#id}')->callback(function (ServerRequestInterface $request) {
+            return new FakeResponse('paths.resource.GET.item.' . $request->getAttribute('id'));
+        });
+        $res->endpoint('POST')->pattern('/resource')->callback(function () { return new FakeResponse('paths.resource.POST'); });
+        $res->endpoint('DELETE')->pattern('{#id}')->callback(function () { return new FakeResponse('paths.resource.DELETE'); });
 
         return $routing;
     }
