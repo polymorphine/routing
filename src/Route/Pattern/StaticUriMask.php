@@ -72,11 +72,9 @@ class StaticUriMask implements Pattern
 
     private function matchPath(ServerRequestInterface $request): ?ServerRequestInterface
     {
-        if (!$routePath = $this->uri['path']) { return $request; }
+        if (!$routePath = $this->uri['path']) { return $this->matchEmptyPath($request); }
 
-        $requestPath = $routePath[0] === '/' ? $request->getUri()->getPath() : $this->relativePath($request);
-        if (!$requestPath) { return null; }
-
+        $requestPath = ($routePath[0] === '/') ? $request->getUri()->getPath() : $this->relativePath($request);
         if (substr($routePath, -1) !== '*') {
             if ($routePath !== $requestPath) { return null; }
             return $request->withAttribute(Route::PATH_ATTRIBUTE, '');
@@ -85,6 +83,12 @@ class StaticUriMask implements Pattern
         $routePath = rtrim($routePath, '*');
         if (strpos($requestPath, $routePath) !== 0) { return null; }
         return $request->withAttribute(Route::PATH_ATTRIBUTE, $this->newPathContext($requestPath, $routePath));
+    }
+
+    private function matchEmptyPath(ServerRequestInterface $request)
+    {
+        if ($this->uri['path'] !== '') { return $request; }
+        return ($this->relativePath($request) === '') ? $request : null;
     }
 
     private function matchQuery(ServerRequestInterface $request)

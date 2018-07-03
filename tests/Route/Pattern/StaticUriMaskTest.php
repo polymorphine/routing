@@ -166,6 +166,17 @@ class StaticUriMaskTest extends TestCase
         $this->assertSame([Route::PATH_ATTRIBUTE => ''], $request->getAttributes());
     }
 
+    public function testEmptyRelativePathIsMatched()
+    {
+        $pattern = $this->pattern('');
+        $request = $pattern->matchedRequest($this->request('/foo/bar')->withAttribute(Route::PATH_ATTRIBUTE, 'bar'));
+        $this->assertNull($request);
+
+        $pattern = $this->pattern('');
+        $request = $pattern->matchedRequest($this->request('/foo/bar')->withAttribute(Route::PATH_ATTRIBUTE, ''));
+        $this->assertInstanceOf(ServerRequestInterface::class, $request);
+    }
+
     public function testAbsolutePathWithAsteriskMatchesPathFragment()
     {
         $pattern = $this->pattern('/foo/bar*');
