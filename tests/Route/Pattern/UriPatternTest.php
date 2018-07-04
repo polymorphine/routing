@@ -13,7 +13,7 @@ namespace Polymorphine\Routing\Tests\Route\Pattern;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Route\Pattern\StaticUriMask;
+use Polymorphine\Routing\Route\Pattern\UriPattern;
 use Polymorphine\Routing\Exception\UnreachableEndpointException;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
@@ -22,11 +22,11 @@ use Psr\Http\Message\UriInterface;
 use InvalidArgumentException;
 
 
-class StaticUriMaskTest extends TestCase
+class UriPatternTest extends TestCase
 {
     public function testInstantiation()
     {
-        $this->assertInstanceOf(StaticUriMask::class, $this->pattern('http:/some/path&query=foo'));
+        $this->assertInstanceOf(UriPattern::class, $this->pattern('http:/some/path&query=foo'));
     }
 
     public function testInstantiationWithInvalidUriString_ThrowsException()
@@ -54,7 +54,7 @@ class StaticUriMaskTest extends TestCase
             ['//www.example.com', 'http://www.example.com/some/path'],
             ['http:/some/path', 'http://whatever.com/some/path?query=part&ignored=values'],
             ['?query=foo&bar=baz', 'http://example.com/some/path?query=foo&bar=baz'],
-            ['//example.com:9001', 'https://example.com:9001/foo/path'],
+            ['//example.com:9002', 'https://example.com:9002/foo/path'],
             ['?query=bar&foo', '?query=bar&foo=anything'],
             ['?query=bar&foo=', '?foo=&query=bar']
         ];
@@ -228,7 +228,7 @@ class StaticUriMaskTest extends TestCase
 
     private function pattern(string $uri)
     {
-        return new StaticUriMask($uri);
+        return UriPattern::fromUriString($uri);
     }
 
     private function request(string $uri)

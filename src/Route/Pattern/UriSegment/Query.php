@@ -9,15 +9,15 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Route\Pattern;
+namespace Polymorphine\Routing\Route\Pattern\UriSegment;
 
-use Polymorphine\Routing\Route\Pattern;
-use Polymorphine\Routing\Exception\UnreachableEndpointException;
+use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 
 
-class StaticQueryPattern implements Pattern
+class Query implements Route\Pattern
 {
     private $query;
 
@@ -46,7 +46,7 @@ class StaticQueryPattern implements Pattern
         foreach ($requiredSegments as $name => $value) {
             if (isset($value, $prototypeSegments[$name]) && $prototypeSegments[$name] !== $value) {
                 $message = 'Query param conflict for `%s` key in `%s` query';
-                throw new UnreachableEndpointException(sprintf($message, $name, (string) $this->query));
+                throw new Exception\UnreachableEndpointException(sprintf($message, $name, (string) $this->query));
             }
 
             if (!isset($value) && isset($prototypeSegments[$name])) {

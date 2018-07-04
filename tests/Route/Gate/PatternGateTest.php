@@ -13,7 +13,7 @@ namespace Polymorphine\Routing\Tests\Route;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Route\Pattern\StaticUriMask;
+use Polymorphine\Routing\Route\Pattern\UriPattern;
 use Polymorphine\Routing\Route\Gate\PatternGate;
 use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
@@ -121,7 +121,7 @@ class PatternGateTest extends TestCase
     private function staticGate(string $uriPattern = 'https:', $subRoute = null)
     {
         return new PatternGate(
-            new StaticUriMask($uriPattern),
+            UriPattern::fromUriString($uriPattern),
             $subRoute ?: MockedRoute::response('default')
         );
     }
