@@ -17,13 +17,13 @@ use Polymorphine\Routing\Exception;
 use Polymorphine\Routing\Tests\Doubles;
 
 
-class PathNumericIdTest extends TestCase
+class PathSegmentFormatTest extends TestCase
 {
     public function testFirstNumericPathSegmentIsMatchedAndCapturedFromRelativePath()
     {
         $request = $this->request('/post/7523/some-slug-part')->withAttribute(Route::PATH_ATTRIBUTE, '7523/some-slug-part');
-        $matched = $this->pattern()->matchedRequest($request);
-        $this->assertSame('7523', $matched->getAttribute('id'));
+        $matched = $this->pattern('name')->matchedRequest($request);
+        $this->assertSame('7523', $matched->getAttribute('name'));
         $this->assertSame('some-slug-part', $matched->getAttribute(Route::PATH_ATTRIBUTE));
     }
 
@@ -54,9 +54,12 @@ class PathNumericIdTest extends TestCase
         $this->pattern()->uri($this->uri('/foo/bar'), ['id' => 'id-00765']);
     }
 
-    private function pattern()
+    private function pattern(string $name = 'id', $type = 'numeric')
     {
-        return new Route\Pattern\UriSegment\PathNumericId();
+        switch ($type) {
+            case 'numeric':
+            default: return new Route\Pattern\UriSegment\PathSegmentNumeric($name);
+        }
     }
 
     private function request(string $uri)

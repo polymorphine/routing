@@ -17,26 +17,39 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 
 
-class PathNumericId implements Route\Pattern
+abstract class PathSegmentFormat implements Route\Pattern
 {
     use Route\Pattern\PathContextMethods;
+
+    private $name;
+
+    public function __construct(string $name = 'id')
+    {
+        $this->name = $name;
+    }
 
     public function matchedRequest(ServerRequestInterface $request): ?ServerRequestInterface
     {
         [$id, $path] = $this->splitRelativePath($request);
-        return is_numeric($id) ? $request->withAttribute('id', $id)->withAttribute(Route::PATH_ATTRIBUTE, $path) : null;
+        if (!$this->validFormat($id)) { return null; }
+
+        return $request->withAttribute($this->name, $id)->withAttribute(Route::PATH_ATTRIBUTE, $path);
     }
 
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
-        if (!$id = $params['id'] ?? null) {
-            throw new Exception\InvalidUriParamsException('Missing id');
+        if (!$id = $params[$this->name] ?? null) {
+            $message = sprintf('Missing id parameter for `%s` uri', (string) $prototype);
+            throw new Exception\InvalidUriParamsException($message);
         }
 
-        if (!is_numeric($id)) {
-            throw new Exception\InvalidUriParamsException('Invalid id');
+        if (!$this->validFormat($id)) {
+            $message = sprintf('Invalid id format for `%s` uri (numeric value expected)', (string) $prototype);
+            throw new Exception\InvalidUriParamsException($message);
         }
 
         return $prototype->withPath($prototype->getPath() . '/' . $id);
     }
+
+    abstract protected function validFormat($id): bool;
 }
