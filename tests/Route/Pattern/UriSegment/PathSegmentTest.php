@@ -9,15 +9,16 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Tests\Route\Pattern\UriSegment;
+namespace Polymorphine\Routing\Tests\Route\Segment\UriSegment;
 
 use PHPUnit\Framework\TestCase;
+use Polymorphine\Routing\Route\Pattern\UriSegment\PathSegment;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Exception;
 use Polymorphine\Routing\Tests\Doubles;
 
 
-class PathSegmentFormatTest extends TestCase
+class PathSegmentTest extends TestCase
 {
     public function testFirstNumericPathSegmentIsMatchedAndCapturedFromRelativePath()
     {
@@ -35,7 +36,7 @@ class PathSegmentFormatTest extends TestCase
 
     public function testUri_ReturnsUriWithAppendedIdParam()
     {
-        $uri = $this->pattern()->uri($this->uri('/foo/bar'), ['id' => '00765']);
+        $uri = $this->pattern('id', '[0-9]+')->uri($this->uri('/foo/bar'), ['id' => '00765']);
         $this->assertSame('/foo/bar/00765', $uri->getPath());
 
         $uri = $this->pattern()->uri($this->uri('/foo/bar'), ['id' => 225]);
@@ -54,12 +55,17 @@ class PathSegmentFormatTest extends TestCase
         $this->pattern()->uri($this->uri('/foo/bar'), ['id' => 'id-00765']);
     }
 
-    private function pattern(string $name = 'id', $type = 'numeric')
+    public function testNamedConstructorsEquivalentToConcretePatterns()
     {
-        switch ($type) {
-            case 'numeric':
-            default: return new Route\Pattern\UriSegment\PathSegmentNumeric($name);
-        }
+        $this->assertEquals($this->pattern('id', '[0-9]+'), PathSegment::numeric());
+        $this->assertEquals($this->pattern('id', '[1-9][0-9]*'), PathSegment::number());
+        $this->assertEquals($this->pattern('slug', '[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9]'), PathSegment::slug());
+        $this->assertEquals($this->pattern('name', '[a-zA-Z0-9]+'), PathSegment::name());
+    }
+
+    private function pattern(string $name = 'id', string $regexp = '[1-9][0-9]*')
+    {
+        return new PathSegment($name, $regexp);
     }
 
     private function request(string $uri)
