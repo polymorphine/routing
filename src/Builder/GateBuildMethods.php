@@ -22,57 +22,56 @@ trait GateBuildMethods
 
     private $gates = [];
 
-    public function method(string $methods, string $pattern = null, array $params = [])
+    public function method(string $methods, Route\Pattern $pattern = null)
     {
-        if (isset($pattern)) { $this->pattern($pattern, $params); }
+        if (isset($pattern)) { $this->pattern($pattern); }
         $this->gates[] = function (Route $route) use ($methods) {
             return new MethodGate($methods, $route);
         };
         return $this;
     }
 
-    public function pattern(string $uriPattern, array $params = [])
+    public function pattern(Route\Pattern $pattern)
     {
-        $pattern       = self::selectPattern($uriPattern, $params);
         $this->gates[] = function (Route $route) use ($pattern) {
             return new PatternGate($pattern, $route);
         };
         return $this;
     }
 
-    public function get(string $pattern = null, array $params = [])
+    public function get(Route\Pattern $pattern = null)
     {
-        return $this->method('GET', $pattern, $params);
+        return $this->method('GET', $pattern);
     }
 
-    public function post(string $pattern = null, array $params = [])
+    public function post(Route\Pattern $pattern = null)
     {
-        return $this->method('POST', $pattern, $params);
+        return $this->method('POST', $pattern);
     }
 
-    public function put(string $pattern = null, array $params = [])
+    public function put(Route\Pattern $pattern = null)
     {
-        return $this->method('PUT', $pattern, $params);
+        return $this->method('PUT', $pattern);
     }
 
-    public function patch(string $pattern = null, array $params = [])
+    public function patch(Route\Pattern $pattern = null)
     {
-        return $this->method('PATCH', $pattern, $params);
+        return $this->method('PATCH', $pattern);
     }
 
-    public function delete(string $pattern = null, array $params = [])
+    public function delete(Route\Pattern $pattern = null)
     {
-        return $this->method('DELETE', $pattern, $params);
+        return $this->method('DELETE', $pattern);
     }
 
-    public function head(string $pattern = null, array $params = [])
+    public function head(Route\Pattern $pattern = null)
     {
-        return $this->method('HEAD', $pattern, $params);
+        return $this->method('HEAD', $pattern);
     }
 
-    public function options(string $pattern = null, array $params = [])
+    public function options(Route\Pattern $pattern = null)
     {
-        return $this->method('OPTIONS', $pattern, $params);
+        return $this->method('OPTIONS', $pattern);
     }
 
     private function wrapGates(Route $route): Route

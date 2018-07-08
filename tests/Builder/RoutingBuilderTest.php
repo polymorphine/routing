@@ -17,6 +17,8 @@ use Polymorphine\Routing\Builder\RoutingBuilder;
 use Polymorphine\Routing\Builder\ResponseScanSwitchBuilder;
 use Polymorphine\Routing\Builder\PathSegmentSwitchBuilder;
 use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Route\Pattern\UriSegment\Path;
+use Polymorphine\Routing\Route\Pattern\UriSegment\PathSegment;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
@@ -72,18 +74,18 @@ class RoutingBuilderTest extends TestCase
         $this->assertSame('/', (string) $routes->select('home')->uri(new FakeUri(), []));
         $this->assertSame('home', (string) $routes->forward($request, $prototype)->getBody());
 
-        $request = $this->matchingRequest($routes, 'paths.posts', [123], 'OPTIONS');
-        $this->assertSame('/posts/123', (string) $routes->select('paths.posts')->uri(new FakeUri(), [123]));
+        $request = $this->matchingRequest($routes, 'paths.posts', ['id' => 123], 'OPTIONS');
+        $this->assertSame('/posts/123', (string) $routes->select('paths.posts')->uri(new FakeUri(), ['id' => 123]));
         $this->assertSame('paths.posts', (string) $routes->forward($request, $prototype)->getBody());
         $this->assertSame('proto', (string) $routes->forward($request->withMethod('POST'), $prototype)->getBody());
 
         $request = $this->matchingRequest($routes, 'paths.resource.GET.index', [], 'GET');
         $this->assertSame('paths.resource.GET.index', (string) $routes->forward($request, $prototype)->getBody());
 
-        $request = $this->matchingRequest($routes, 'paths.resource.GET.item', [714], 'GET');
+        $request = $this->matchingRequest($routes, 'paths.resource.GET.item', ['id' => 714], 'GET');
         $this->assertSame('paths.resource.GET.item.714', (string) $routes->forward($request, $prototype)->getBody());
 
-        $request = $this->matchingRequest($routes, 'paths.resource.DELETE', [714], 'DELETE');
+        $request = $this->matchingRequest($routes, 'paths.resource.DELETE', ['id' => 714], 'DELETE');
         $this->assertSame('paths.resource.DELETE', (string) $routes->forward($request, $prototype)->getBody());
     }
 
@@ -93,7 +95,7 @@ class RoutingBuilderTest extends TestCase
 
         $routing = new ResponseScanSwitchBuilder();
 
-        $routing->endpoint('home')->get('/')->callback(function () {
+        $routing->endpoint('home')->get(new Path('/'))->callback(function () {
             return new FakeResponse('home');
         });
 
@@ -102,33 +104,33 @@ class RoutingBuilderTest extends TestCase
         $users->endpoint('index')->get()->callback(function () {
             return new FakeResponse('users.index');
         });
-        $users->endpoint('profile')->get('{$id}')->callback(function (ServerRequestInterface $request) {
+        $users->endpoint('profile')->get(PathSegment::slug('id'))->callback(function (ServerRequestInterface $request) {
             return new FakeResponse('user.profile.' . $request->getAttribute('id'));
         });
         $users->endpoint('add')->post()->callback(function () {
             return new FakeResponse('user.add');
         });
-        $users->endpoint('delete')->delete('{$id}')->callback(function (ServerRequestInterface $request) {
+        $users->endpoint('delete')->delete(PathSegment::slug('id'))->callback(function (ServerRequestInterface $request) {
             return new FakeResponse('user.delete.' . $request->getAttribute('id'));
         });
-        $users->endpoint('update')->put('{$id}')->callback(function (ServerRequestInterface $request) {
+        $users->endpoint('update')->put(PathSegment::slug('id'))->callback(function (ServerRequestInterface $request) {
             return new FakeResponse('user.update.' . $request->getAttribute('id'));
         });
-        $users->endpoint('newInfo')->patch('{$id}')->callback(function (ServerRequestInterface $request) {
+        $users->endpoint('newInfo')->patch(PathSegment::slug('id'))->callback(function (ServerRequestInterface $request) {
             return new FakeResponse('user.newInfo.' . $request->getAttribute('id'));
         });
 
-        $path->endpoint('posts')->options('{#id}')->callback(function () { return new FakeResponse('paths.posts'); });
-        $path->endpoint('posts.ping')->head('{#id}')->callback(function () { return new FakeResponse('paths.posts.ping'); });
+        $path->endpoint('posts')->options(PathSegment::number())->callback(function () { return new FakeResponse('paths.posts'); });
+        $path->endpoint('posts.ping')->head(PathSegment::number())->callback(function () { return new FakeResponse('paths.posts.ping'); });
 
         $res    = $path->methodSwitch('resource');
         $resGET = $res->responseScan('GET');
-        $resGET->endpoint('index')->pattern('/resource')->callback(function () { return new FakeResponse('paths.resource.GET.index'); });
-        $resGET->endpoint('item')->pattern('{#id}')->callback(function (ServerRequestInterface $request) {
+        $resGET->endpoint('index')->pattern(new Path('/resource'))->callback(function () { return new FakeResponse('paths.resource.GET.index'); });
+        $resGET->endpoint('item')->pattern(PathSegment::number())->callback(function (ServerRequestInterface $request) {
             return new FakeResponse('paths.resource.GET.item.' . $request->getAttribute('id'));
         });
-        $res->endpoint('POST')->pattern('/resource')->callback(function () { return new FakeResponse('paths.resource.POST'); });
-        $res->endpoint('DELETE')->pattern('{#id}')->callback(function () { return new FakeResponse('paths.resource.DELETE'); });
+        $res->endpoint('POST')->pattern(new Path('/resource'))->callback(function () { return new FakeResponse('paths.resource.POST'); });
+        $res->endpoint('DELETE')->pattern(PathSegment::number())->callback(function () { return new FakeResponse('paths.resource.DELETE'); });
 
         return $routing;
     }
