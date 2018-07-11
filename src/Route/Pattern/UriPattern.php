@@ -66,7 +66,7 @@ class UriPattern implements Pattern
             case 'scheme':
                 return new Uri\Scheme($value);
             case 'host':
-                return new Uri\Host($value);
+                return ($value[0] === '*') ? new Uri\HostDomain(ltrim($value, '*')) : new Uri\Host($value);
             case 'port':
                 return new Uri\Port($value);
             case 'user':

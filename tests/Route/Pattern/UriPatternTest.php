@@ -226,6 +226,16 @@ class UriPatternTest extends TestCase
         $this->assertSame('/bar', (string) $pattern->uri($prototype, []));
     }
 
+    public function testHostStartingWithAsteriskIsResolvedAsDomainPattern()
+    {
+        $pattern = $this->pattern('//*example.com');
+        $request = $this->request('http://subdomain.example.com/foo');
+        $this->assertSame($request, $pattern->matchedRequest($request));
+
+        $request = $this->request('https://example.com/foo');
+        $this->assertSame($request, $pattern->matchedRequest($request));
+    }
+
     private function pattern(string $uri)
     {
         return UriPattern::fromUriString($uri);
