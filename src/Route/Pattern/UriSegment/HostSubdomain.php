@@ -46,18 +46,28 @@ class HostSubdomain implements Pattern
 
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
-        if (!isset($params[$this->id])) {
-            throw new InvalidUriParamsException();
-        }
+        $subdomain = $this->subdomainParameter($params);
 
         if (!$host = $prototype->getHost()) {
-            throw new UnreachableEndpointException();
+            $message = 'Cannot attach `%s` subdomain to prototype without host';
+            throw new UnreachableEndpointException(sprintf($message, $params[$this->id]));
+        }
+
+        return $prototype->withHost($subdomain . '.' . $host);
+    }
+
+    private function subdomainParameter(array $params): string
+    {
+        if (!isset($params[$this->id])) {
+            $message = 'Missing subdomain `%s` parameter';
+            throw new InvalidUriParamsException(sprintf($message, $this->id));
         }
 
         if (!in_array($params[$this->id], $this->values, true)) {
-            throw new UnreachableEndpointException();
+            $message = 'Invalid parameter value for `%s` subdomain (expected: `%s`)';
+            throw new UnreachableEndpointException(sprintf($message, $this->id, implode(', ', $this->values)));
         }
 
-        return $prototype->withHost($params[$this->id] . '.' . $host);
+        return $params[$this->id];
     }
 }

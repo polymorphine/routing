@@ -36,7 +36,8 @@ class HostDomain implements Pattern
     {
         $host = $prototype->getHost();
         if ($host && $host !== $this->domain) {
-            throw new UnreachableEndpointException();
+            $message = 'Cannot overwrite prototype domain `%s` with `%s`';
+            throw new UnreachableEndpointException(sprintf($message, $host, $this->domain));
         }
 
         return $prototype->withHost($this->domain);
