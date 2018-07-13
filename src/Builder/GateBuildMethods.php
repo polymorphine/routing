@@ -76,7 +76,7 @@ trait GateBuildMethods
 
     private function wrapGates(Route $route): Route
     {
-        foreach ($this->gates as $gate) {
+        while ($gate = array_pop($this->gates)) {
             $route = $gate($route);
         }
 
