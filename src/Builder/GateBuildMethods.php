@@ -39,6 +39,15 @@ trait GateBuildMethods
         return $this;
     }
 
+    public function link(&$routeId)
+    {
+        $this->gates[] = function (Route $route) use (&$routeId) {
+            $routeId = $route;
+            return $route;
+        };
+        return $this;
+    }
+
     public function get(Route\Pattern $pattern = null)
     {
         return $this->method('GET', $pattern);

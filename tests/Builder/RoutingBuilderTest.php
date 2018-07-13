@@ -89,17 +89,27 @@ class RoutingBuilderTest extends TestCase
         $this->assertSame('paths.resource.DELETE', (string) $routes->forward($request, $prototype)->getBody());
     }
 
+    public function testLinkedRoute()
+    {
+        $routes    = $this->structureExample()->build();
+        $prototype = new FakeResponse('proto');
+        $request   = $this->matchingRequest($routes, 'paths.index', [], 'GET');
+        $this->assertSame('home', (string) $routes->forward($request, $prototype)->getBody());
+    }
+
     private function structureExample()
     {
         if ($this->structure) { return $this->structure; }
 
         $routing = new ResponseScanSwitchBuilder();
 
-        $routing->endpoint('home')->get(new Path('/'))->callback(function () {
+        $routing->endpoint('home')->get(new Path('/'))->link($home)->callback(function () {
             return new FakeResponse('home');
         });
 
-        $path  = $routing->pathSwitch('paths');
+        $path = $routing->pathSwitch('paths');
+        $path->add('index', $home);
+
         $users = $path->responseScan('user');
         $users->endpoint('index')->get()->callback(function () {
             return new FakeResponse('users.index');
