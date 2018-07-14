@@ -11,6 +11,7 @@
 
 namespace Polymorphine\Routing\Builder;
 
+use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Endpoint\CallbackEndpoint;
 
 
@@ -30,5 +31,10 @@ class EndpointBuilder
     public function callback(callable $callback): void
     {
         $this->collector->add($this->name, $this->wrapGates(new CallbackEndpoint($callback)));
+    }
+
+    public function join(Route $route): void
+    {
+        $this->collector->add($this->name, $this->wrapGates($route));
     }
 }

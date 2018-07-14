@@ -91,10 +91,13 @@ class RoutingBuilderTest extends TestCase
 
     public function testLinkedRoute()
     {
-        $routes    = $this->structureExample()->build();
-        $prototype = new FakeResponse('proto');
-        $request   = $this->matchingRequest($routes, 'paths.index', [], 'GET');
-        $this->assertSame('home', (string) $routes->forward($request, $prototype)->getBody());
+        $routes  = $this->structureExample()->build();
+        $proto   = new FakeResponse('proto');
+        $paths   = ['paths.index2', 'paths.home', 'index'];
+        foreach ($paths as $path) {
+            $request = $this->matchingRequest($routes, $path, [], 'GET');
+            $this->assertSame('home', (string) $routes->forward($request, $proto)->getBody());
+        }
     }
 
     private function structureExample()
@@ -106,9 +109,11 @@ class RoutingBuilderTest extends TestCase
         $routing->endpoint('home')->get(new Path('/'))->link($home)->callback(function () {
             return new FakeResponse('home');
         });
+        $routing->endpoint('index')->pattern(new Path('/index.php'))->join($home);
 
         $path = $routing->pathSwitch('paths');
-        $path->add('index', $home);
+        $path->add('index2', $home);
+        $path->endpoint('home')->join($home);
 
         $users = $path->responseScan('user');
         $users->endpoint('index')->get()->callback(function () {
