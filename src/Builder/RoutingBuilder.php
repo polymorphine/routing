@@ -33,12 +33,12 @@ abstract class RoutingBuilder
 
     public function add(string $name, Route $route): void
     {
-        $this->routes[$name] = $route;
+        $this->routes[$this->validName($name)] = $route;
     }
 
     public function endpoint(string $name): EndpointBuilder
     {
-        return new EndpointBuilder($this->validName($name), $this);
+        return new EndpointBuilder($name, $this);
     }
 
     public function pathSwitch(string $name): RoutingBuilder
