@@ -13,7 +13,8 @@ namespace Polymorphine\Routing\Tests\Builder;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Builder\MethodSwitchBuilder;
-use Polymorphine\Routing\Builder\RoutingBuilder;
+use Polymorphine\Routing\Builder\RouteBuilder;
+use Polymorphine\Routing\Builder\RouteCollection;
 use Polymorphine\Routing\Builder\ResponseScanSwitchBuilder;
 use Polymorphine\Routing\Builder\PathSegmentSwitchBuilder;
 use Polymorphine\Routing\Route;
@@ -31,8 +32,8 @@ class RoutingBuilderTest extends TestCase
 
     public function testInstantiation()
     {
-        $this->assertInstanceOf(RoutingBuilder::class, new ResponseScanSwitchBuilder());
-        $this->assertInstanceOf(RoutingBuilder::class, new PathSegmentSwitchBuilder());
+        $this->assertInstanceOf(RouteCollection::class, new ResponseScanSwitchBuilder());
+        $this->assertInstanceOf(RouteCollection::class, new PathSegmentSwitchBuilder());
     }
 
     public function testBuild_ReturnsRouteSplitter()
@@ -50,14 +51,29 @@ class RoutingBuilderTest extends TestCase
     public function testAddingRouteWithAlreadyDefinedName_ThrowsException()
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->structureExample()->endpoint('home')->callback(function () { return new FakeResponse(); });
+        $this->structureExample()->route('home')->callback(function () { return new FakeResponse(); });
     }
 
     public function testAddingMethodSplitterWithUnknownHttpMethod_ThrowsException()
     {
         $this->expectException(\InvalidArgumentException::class);
         $builder = new MethodSwitchBuilder();
-        $builder->endpoint('INDEX')->callback(function () { return new FakeResponse(); });
+        $builder->route('INDEX')->callback(function () { return new FakeResponse(); });
+    }
+
+    public function testBuildUndefinedRoute_ThrowsException()
+    {
+        $builder = new RouteBuilder();
+        $this->expectException(\Exception::class);
+        $builder->build();
+    }
+
+    public function testSetRouteWhenAlreadyBuilt_ThrowsException()
+    {
+        $builder = new RouteBuilder();
+        $builder->callback(function () {});
+        $this->expectException(\Exception::class);
+        $builder->pathSwitch();
     }
 
     public function testStructureIntegrity()
@@ -91,9 +107,9 @@ class RoutingBuilderTest extends TestCase
 
     public function testLinkedRoute()
     {
-        $routes  = $this->structureExample()->build();
-        $proto   = new FakeResponse('proto');
-        $paths   = ['paths.index2', 'paths.home', 'index'];
+        $routes = $this->structureExample()->build();
+        $proto  = new FakeResponse('proto');
+        $paths  = ['paths.home', 'index'];
         foreach ($paths as $path) {
             $request = $this->matchingRequest($routes, $path, [], 'GET');
             $this->assertSame('home', (string) $routes->forward($request, $proto)->getBody());
@@ -106,46 +122,45 @@ class RoutingBuilderTest extends TestCase
 
         $routing = new ResponseScanSwitchBuilder();
 
-        $routing->endpoint('home')->get(new Path('/'))->link($home)->callback(function () {
+        $routing->route('home')->get(new Path('/'))->link($home)->callback(function () {
             return new FakeResponse('home');
         });
-        $routing->endpoint('index')->pattern(new Path('/index.php'))->join($home);
+        $routing->route('index')->pattern(new Path('/index.php'))->join($home);
 
-        $path = $routing->pathSwitch('paths');
-        $path->add('index2', $home);
-        $path->endpoint('home')->join($home);
+        $path = $routing->route('paths')->pathSwitch();
+        $path->route('home')->join($home);
 
-        $users = $path->responseScan('user');
-        $users->endpoint('index')->get()->callback(function () {
+        $users = $path->route('user')->responseScan();
+        $users->route('index')->get()->callback(function () {
             return new FakeResponse('users.index');
         });
-        $users->endpoint('profile')->get(PathSegment::slug('id'))->callback(function (ServerRequestInterface $request) {
+        $users->route('profile')->get(PathSegment::slug('id'))->callback(function (ServerRequestInterface $request) {
             return new FakeResponse('user.profile.' . $request->getAttribute('id'));
         });
-        $users->endpoint('add')->post()->callback(function () {
+        $users->route('add')->post()->callback(function () {
             return new FakeResponse('user.add');
         });
-        $users->endpoint('delete')->delete(PathSegment::slug('id'))->callback(function (ServerRequestInterface $request) {
+        $users->route('delete')->delete(PathSegment::slug('id'))->callback(function (ServerRequestInterface $request) {
             return new FakeResponse('user.delete.' . $request->getAttribute('id'));
         });
-        $users->endpoint('update')->put(PathSegment::slug('id'))->callback(function (ServerRequestInterface $request) {
+        $users->route('update')->put(PathSegment::slug('id'))->callback(function (ServerRequestInterface $request) {
             return new FakeResponse('user.update.' . $request->getAttribute('id'));
         });
-        $users->endpoint('newInfo')->patch(PathSegment::slug('id'))->callback(function (ServerRequestInterface $request) {
+        $users->route('newInfo')->patch(PathSegment::slug('id'))->callback(function (ServerRequestInterface $request) {
             return new FakeResponse('user.newInfo.' . $request->getAttribute('id'));
         });
 
-        $path->endpoint('posts')->options(PathSegment::number())->callback(function () { return new FakeResponse('paths.posts'); });
-        $path->endpoint('posts.ping')->head(PathSegment::number())->callback(function () { return new FakeResponse('paths.posts.ping'); });
+        $path->route('posts')->options(PathSegment::number())->callback(function () { return new FakeResponse('paths.posts'); });
+        $path->route('posts.ping')->head(PathSegment::number())->callback(function () { return new FakeResponse('paths.posts.ping'); });
 
-        $res    = $path->methodSwitch('resource');
-        $resGET = $res->responseScan('GET');
-        $resGET->endpoint('index')->pattern(new Path('/resource'))->callback(function () { return new FakeResponse('paths.resource.GET.index'); });
-        $resGET->endpoint('item')->pattern(PathSegment::number())->callback(function (ServerRequestInterface $request) {
+        $res    = $path->route('resource')->methodSwitch();
+        $resGET = $res->route('GET')->responseScan();
+        $resGET->route('index')->pattern(new Path('/resource'))->callback(function () { return new FakeResponse('paths.resource.GET.index'); });
+        $resGET->route('item')->pattern(PathSegment::number())->callback(function (ServerRequestInterface $request) {
             return new FakeResponse('paths.resource.GET.item.' . $request->getAttribute('id'));
         });
-        $res->endpoint('POST')->pattern(new Path('/resource'))->callback(function () { return new FakeResponse('paths.resource.POST'); });
-        $res->endpoint('DELETE')->pattern(PathSegment::number())->callback(function () { return new FakeResponse('paths.resource.DELETE'); });
+        $res->route('POST')->pattern(new Path('/resource'))->callback(function () { return new FakeResponse('paths.resource.POST'); });
+        $res->route('DELETE')->pattern(PathSegment::number())->callback(function () { return new FakeResponse('paths.resource.DELETE'); });
 
         return $routing;
     }

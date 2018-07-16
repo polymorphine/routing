@@ -15,7 +15,7 @@ use Polymorphine\Routing\Route;
 use InvalidArgumentException;
 
 
-class MethodSwitchBuilder extends RoutingBuilder
+class MethodSwitchBuilder extends RouteCollection
 {
     private $methods = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'];
 
