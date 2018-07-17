@@ -14,7 +14,7 @@ namespace Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Endpoint\CallbackEndpoint;
-use Exception;
+use Polymorphine\Routing\Exception\BuilderCallException;
 
 
 class RouteBuilder implements Builder
@@ -30,7 +30,7 @@ class RouteBuilder implements Builder
     public function build(): Route
     {
         if (!$this->route && !$this->builder) {
-            throw new Exception('Route type not selected');
+            throw new BuilderCallException('Route type not selected');
         }
 
         return $this->route ?: $this->wrapGates($this->builder->build());
@@ -76,6 +76,6 @@ class RouteBuilder implements Builder
     private function stateCheck(): void
     {
         if (!$this->route && !$this->builder) { return; }
-        throw new Exception('Route already built');
+        throw new BuilderCallException('Route already built');
     }
 }

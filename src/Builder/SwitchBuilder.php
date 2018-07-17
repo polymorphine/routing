@@ -18,7 +18,16 @@ use InvalidArgumentException;
 
 abstract class SwitchBuilder implements Builder
 {
-    private $builders = [];
+    private $builders;
+
+    /**
+     * SwitchBuilder constructor.
+     * @param Builder[] $builders
+     */
+    public function __construct(array $builders = [])
+    {
+        $this->builders = $builders;
+    }
 
     public function build(): Route
     {
