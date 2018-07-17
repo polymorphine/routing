@@ -14,7 +14,7 @@ namespace Polymorphine\Routing\Tests\Builder;
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Builder\MethodSwitchBuilder;
 use Polymorphine\Routing\Builder\RouteBuilder;
-use Polymorphine\Routing\Builder\RouteCollection;
+use Polymorphine\Routing\Builder\SwitchBuilder;
 use Polymorphine\Routing\Builder\ResponseScanSwitchBuilder;
 use Polymorphine\Routing\Builder\PathSegmentSwitchBuilder;
 use Polymorphine\Routing\Route;
@@ -32,8 +32,8 @@ class RoutingBuilderTest extends TestCase
 
     public function testInstantiation()
     {
-        $this->assertInstanceOf(RouteCollection::class, new ResponseScanSwitchBuilder());
-        $this->assertInstanceOf(RouteCollection::class, new PathSegmentSwitchBuilder());
+        $this->assertInstanceOf(SwitchBuilder::class, new ResponseScanSwitchBuilder());
+        $this->assertInstanceOf(SwitchBuilder::class, new PathSegmentSwitchBuilder());
     }
 
     public function testBuild_ReturnsRouteSplitter()

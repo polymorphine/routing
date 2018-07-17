@@ -14,7 +14,7 @@ namespace Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Route;
 
 
-class ResponseScanSwitchBuilder extends RouteCollection
+class ResponseScanSwitchBuilder extends SwitchBuilder
 {
     protected function router(array $routes): Route
     {

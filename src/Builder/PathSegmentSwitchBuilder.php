@@ -14,7 +14,7 @@ namespace Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Route;
 
 
-class PathSegmentSwitchBuilder extends RouteCollection
+class PathSegmentSwitchBuilder extends SwitchBuilder
 {
     protected function router(array $routes): Route
     {

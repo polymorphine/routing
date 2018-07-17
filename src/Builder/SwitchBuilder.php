@@ -16,7 +16,7 @@ use Polymorphine\Routing\Route;
 use InvalidArgumentException;
 
 
-abstract class RouteCollection implements Builder
+abstract class SwitchBuilder implements Builder
 {
     private $builders = [];
 
