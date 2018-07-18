@@ -16,8 +16,15 @@ use Polymorphine\Routing\Route;
 
 class PathSegmentSwitchBuilder extends SwitchBuilder
 {
+    private $rootRoute;
+
+    public function root(Route $root)
+    {
+        $this->rootRoute = $root;
+    }
+
     protected function router(array $routes): Route
     {
-        return new Route\Splitter\PathSegmentSwitch($routes);
+        return new Route\Splitter\PathSegmentSwitch($routes, $this->rootRoute);
     }
 }

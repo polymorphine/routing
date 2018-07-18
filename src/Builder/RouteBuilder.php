@@ -46,17 +46,17 @@ class RouteBuilder implements Builder
         $this->setRoute($route);
     }
 
-    public function pathSwitch(): SwitchBuilder
+    public function pathSwitch(): PathSegmentSwitchBuilder
     {
         return $this->routeSwitch(new PathSegmentSwitchBuilder());
     }
 
-    public function responseScan(): SwitchBuilder
+    public function responseScan(): ResponseScanSwitchBuilder
     {
         return $this->routeSwitch(new ResponseScanSwitchBuilder());
     }
 
-    public function methodSwitch(): SwitchBuilder
+    public function methodSwitch(): MethodSwitchBuilder
     {
         return $this->routeSwitch(new MethodSwitchBuilder());
     }
@@ -67,7 +67,7 @@ class RouteBuilder implements Builder
         $this->route = $this->wrapGates($route);
     }
 
-    protected function routeSwitch(SwitchBuilder $builder): SwitchBuilder
+    protected function routeSwitch(SwitchBuilder $builder)
     {
         $this->stateCheck();
         return $this->builder = $builder;

@@ -109,7 +109,7 @@ class RoutingBuilderTest extends TestCase
     {
         $routes = $this->structureExample()->build();
         $proto  = new FakeResponse('proto');
-        $paths  = ['paths.home', 'index'];
+        $paths  = ['paths', 'paths.home', 'index'];
         foreach ($paths as $path) {
             $request = $this->matchingRequest($routes, $path, [], 'GET');
             $this->assertSame('home', (string) $routes->forward($request, $proto)->getBody());
@@ -129,6 +129,7 @@ class RoutingBuilderTest extends TestCase
 
         $path = $routing->route('paths')->pathSwitch();
         $path->route('home')->join($home);
+        $path->root($home);
 
         $users = $path->route('user')->responseScan();
         $users->route('index')->get()->callback(function () {
