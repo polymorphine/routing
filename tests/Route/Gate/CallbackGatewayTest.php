@@ -72,8 +72,8 @@ class CallbackGatewayTest extends TestCase
 
     private function basicCallback()
     {
-        return function (ServerRequestInterface $request, Closure $forward) {
-            return $request->getMethod() === 'POST' ? $forward($request) : null;
+        return function (ServerRequestInterface $request) {
+            return $request->getMethod() === 'POST' ? $request : null;
         };
     }
 }

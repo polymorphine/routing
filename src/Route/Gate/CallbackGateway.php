@@ -27,17 +27,17 @@ class CallbackGateway implements Route
     private $route;
 
     /**
-     * $callback Closure takes two parameters: ServerRequestInterface
-     * and forwarding Closure - function that will pass request from
-     * $callback context to given routes.
+     * $callback callable takes ServerRequestInterface parameter and returns same
+     * type back if request should be forwarded to given Route or null if request
+     * should be blocked and $prototype response returned.
      *
-     * Warning: Forward function does not guarantee getting response
-     * back, because Route::forward($request) might return null.
+     * NOTE: If request uri is verified it will not be resembled by Uri built
+     * with this gate self::uri() method - use Pattern gate instead.
      *
-     * @param Closure $callback
-     * @param Route   $route
+     * @param callable $callback
+     * @param Route    $route
      */
-    public function __construct(Closure $callback, Route $route)
+    public function __construct(callable $callback, Route $route)
     {
         $this->callback = $callback;
         $this->route    = $route;
@@ -45,10 +45,8 @@ class CallbackGateway implements Route
 
     public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
     {
-        $forward = function (ServerRequestInterface $request) use ($prototype) {
-            return $this->route->forward($request, $prototype);
-        };
-        return $this->callback->__invoke($request, $forward) ?? $prototype;
+        $request = ($this->callback)($request);
+        return $request ? $this->route->forward($request, $prototype) : $prototype;
     }
 
     public function select(string $path): Route
