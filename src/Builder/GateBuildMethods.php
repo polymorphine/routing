@@ -12,8 +12,7 @@
 namespace Polymorphine\Routing\Builder;
 
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Route\Gate\MethodGate;
-use Polymorphine\Routing\Route\Gate\PatternGate;
+use Polymorphine\Routing\Route\Gate;
 
 
 trait GateBuildMethods
@@ -26,7 +25,7 @@ trait GateBuildMethods
     {
         if (isset($pattern)) { $this->pattern($pattern); }
         $this->gates[] = function (Route $route) use ($methods) {
-            return new MethodGate($methods, $route);
+            return new Gate\MethodGate($methods, $route);
         };
         return $this;
     }
@@ -34,7 +33,15 @@ trait GateBuildMethods
     public function pattern(Route\Pattern $pattern)
     {
         $this->gates[] = function (Route $route) use ($pattern) {
-            return new PatternGate($pattern, $route);
+            return new Gate\PatternGate($pattern, $route);
+        };
+        return $this;
+    }
+
+    public function callbackGate(callable $callback)
+    {
+        $this->gates[] = function (Route $route) use ($callback) {
+            return new Gate\CallbackGateway($callback, $route);
         };
         return $this;
     }

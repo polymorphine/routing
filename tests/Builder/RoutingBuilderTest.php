@@ -127,7 +127,9 @@ class RoutingBuilderTest extends TestCase
         });
         $routing->route('index')->pattern(new Path('/index.php'))->join($home);
 
-        $path = $routing->route('paths')->pathSwitch();
+        $path = $routing->route('paths')->callbackGate(function (ServerRequestInterface $request) {
+            return $request->withAttribute('Type', 'json');
+        })->pathSwitch();
         $path->route('home')->join($home);
         $path->root($home);
 
@@ -154,7 +156,10 @@ class RoutingBuilderTest extends TestCase
         $path->route('posts')->options(PathSegment::number())->callback(function () { return new FakeResponse('paths.posts'); });
         $path->route('posts.ping')->head(PathSegment::number())->callback(function () { return new FakeResponse('paths.posts.ping'); });
 
-        $res    = $path->route('resource')->methodSwitch();
+        $res = $path->route('resource')->callbackGate(function (ServerRequestInterface $request) {
+            return $request->getAttribute('Type') === 'json' ? $request : null;
+        })->methodSwitch();
+
         $resGET = $res->route('GET')->responseScan();
         $resGET->route('index')->pattern(new Path('/resource'))->callback(function () { return new FakeResponse('paths.resource.GET.index'); });
         $resGET->route('item')->pattern(PathSegment::number())->callback(function (ServerRequestInterface $request) {
