@@ -14,6 +14,7 @@ namespace Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Endpoint\CallbackEndpoint;
+use Polymorphine\Routing\Route\Gate\LazyRoute;
 use Polymorphine\Routing\Exception\BuilderCallException;
 
 
@@ -44,6 +45,11 @@ class RouteBuilder implements Builder
     public function join(Route $route): void
     {
         $this->setRoute($route);
+    }
+
+    public function lazy(callable $routeCallback)
+    {
+        $this->setRoute(new LazyRoute($routeCallback));
     }
 
     public function pathSwitch(): PathSegmentSwitchBuilder

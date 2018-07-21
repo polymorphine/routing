@@ -103,6 +103,9 @@ class RoutingBuilderTest extends TestCase
 
         $request = $this->matchingRequest($routes, 'paths.resource.DELETE', ['id' => 714], 'DELETE');
         $this->assertSame('paths.resource.DELETE', (string) $routes->forward($request, $prototype)->getBody());
+
+        $request = $this->matchingRequest($routes, 'paths.lazy', []);
+        $this->assertSame('paths.lazy', (string) $routes->forward($request, $prototype)->getBody());
     }
 
     public function testLinkedRoute()
@@ -132,6 +135,12 @@ class RoutingBuilderTest extends TestCase
         })->pathSwitch();
         $path->route('home')->join($home);
         $path->root($home);
+
+        $path->route('lazy')->lazy(function () {
+            return new Route\Endpoint\CallbackEndpoint(function (ServerRequestInterface $request) {
+                return new FakeResponse('paths.lazy');
+            });
+        });
 
         $users = $path->route('user')->responseScan();
         $users->route('index')->get()->callback(function () {
