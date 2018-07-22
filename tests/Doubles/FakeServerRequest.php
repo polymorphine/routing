@@ -105,6 +105,9 @@ class FakeServerRequest implements ServerRequestInterface
 
     public function withUri(UriInterface $uri, $preserveHost = false)
     {
+        $clone      = clone $this;
+        $clone->uri = $uri;
+        return $clone;
     }
 
     public function getServerParams()
