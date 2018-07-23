@@ -13,6 +13,7 @@ namespace Polymorphine\Routing\Builder;
 
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate;
+use Psr\Http\Server\MiddlewareInterface;
 
 
 trait GateBuildMethods
@@ -42,6 +43,14 @@ trait GateBuildMethods
     {
         $this->gates[] = function (Route $route) use ($callback) {
             return new Gate\CallbackGateway($callback, $route);
+        };
+        return $this;
+    }
+
+    public function middleware(MiddlewareInterface $middleware)
+    {
+        $this->gates[] = function (Route $route) use ($middleware) {
+            return new Gate\MiddlewareGateway($middleware, $route);
         };
         return $this;
     }

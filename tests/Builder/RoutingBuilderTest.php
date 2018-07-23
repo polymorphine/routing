@@ -24,6 +24,7 @@ use Polymorphine\Routing\Route\Pattern\UriSegment\Scheme;
 use Polymorphine\Routing\Route\Pattern\UriSegment\Path;
 use Polymorphine\Routing\Route\Pattern\UriSegment\PathSegment;
 use Polymorphine\Routing\Exception\BuilderCallException;
+use Polymorphine\Routing\Tests\Doubles\FakeMiddleware;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
@@ -64,6 +65,17 @@ class RoutingBuilderTest extends TestCase
         $requestBar = new FakeServerRequest('GET', FakeUri::fromString('bar'));
         $this->assertSame('foo matched', (string) $route->forward($requestFoo, new FakeResponse())->getBody());
         $this->assertSame('bar matched', (string) $route->forward($requestBar, new FakeResponse())->getBody());
+    }
+
+    public function testMiddlewareGate()
+    {
+        $builder = new RouteBuilder();
+        $builder->middleware(new FakeMiddleware('wrap'))->callback(function () { return new FakeResponse('response'); });
+        $route = $builder->build();
+
+        $request   = (new FakeServerRequest())->withAttribute('middleware', 'requestPassed');
+        $prototype = new FakeResponse();
+        $this->assertSame('requestPassed: wrap response wrap', (string) $route->forward($request, $prototype)->getBody());
     }
 
     public function testAddingRouteWithAlreadyDefinedName_ThrowsException()
