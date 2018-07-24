@@ -11,8 +11,8 @@
 
 namespace Polymorphine\Routing\Route\Splitter;
 
-use Polymorphine\Routing\Exception\SwitchCallException;
 use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Exception\SwitchCallException;
 use Polymorphine\Routing\Exception\UnreachableEndpointException;
 use Polymorphine\Routing\Exception\InvalidUriParamsException;
 use Psr\Http\Message\ServerRequestInterface;

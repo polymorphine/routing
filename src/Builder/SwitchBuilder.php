@@ -21,7 +21,6 @@ abstract class SwitchBuilder implements Builder
     private $builders;
 
     /**
-     * SwitchBuilder constructor.
      * @param Builder[] $builders
      */
     public function __construct(array $builders = [])

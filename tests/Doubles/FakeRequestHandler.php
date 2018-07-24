@@ -22,7 +22,7 @@ class FakeRequestHandler implements RequestHandlerInterface
 
     public function __construct(ResponseInterface $response)
     {
-        $this->response   = $response;
+        $this->response = $response;
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface

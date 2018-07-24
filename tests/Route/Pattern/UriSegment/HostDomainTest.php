@@ -21,11 +21,6 @@ use Polymorphine\Routing\Tests\Doubles\FakeUri;
 
 class HostDomainTest extends TestCase
 {
-    private function domain(string $domain)
-    {
-        return new HostDomain($domain);
-    }
-
     public function testInstantiation()
     {
         $this->assertInstanceOf(Pattern::class, $this->domain('example.com'));
@@ -55,5 +50,10 @@ class HostDomainTest extends TestCase
         $prototype = FakeUri::fromString('https://example.pl/foo/bar');
         $this->expectException(UnreachableEndpointException::class);
         $this->assertSame('https://example.com/foo/bar', $this->domain('example.com')->uri($prototype, []));
+    }
+
+    private function domain(string $domain)
+    {
+        return new HostDomain($domain);
     }
 }

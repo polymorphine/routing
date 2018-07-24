@@ -12,10 +12,10 @@
 namespace Polymorphine\Routing\Tests\Route\Splitter;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Exception\EndpointCallException;
-use Polymorphine\Routing\Exception\SwitchCallException;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Splitter\ResponseScanSwitch;
+use Polymorphine\Routing\Exception\EndpointCallException;
+use Polymorphine\Routing\Exception\SwitchCallException;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
 use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;

@@ -28,7 +28,7 @@ class CallbackEndpointTest extends TestCase
     public function testForward_ReturnsCallbackResponse()
     {
         $response = new FakeResponse();
-        $endpoint = new CallbackEndpoint(function ($request) use ($response) { return $response; });
+        $endpoint = new CallbackEndpoint(function () use ($response) { return $response; });
         $this->assertSame($response, $endpoint->forward(new FakeServerRequest(), new FakeResponse()));
     }
 }

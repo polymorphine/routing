@@ -218,6 +218,7 @@ class DynamicTargetMaskTest extends TestCase
 
     /**
      * @dataProvider prototypeSegmentMatch
+     *
      * @param $pattern
      * @param $proto
      * @param $params
