@@ -25,7 +25,7 @@ class MethodGate implements Route
     private $route;
 
     /**
-     * @param string $methods single http method or pipe separated methods (example: 'GET|POST|DELETE')
+     * @param string $methods single http method or pipe separated method set (example: 'GET|POST|DELETE')
      * @param Route  $route
      */
     public function __construct(string $methods, Route $route)

@@ -15,24 +15,20 @@ use Polymorphine\Routing\Route;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
-use Closure;
 
 
-/**
- * Route that forwards passed request in context of given Closure.
- */
 class CallbackGateway implements Route
 {
     private $callback;
     private $route;
 
     /**
-     * $callback callable takes ServerRequestInterface parameter and returns same
-     * type back if request should be forwarded to given Route or null if request
-     * should be blocked and $prototype response returned.
+     * $callback callable takes ServerRequestInterface parameter and returns either:
+     * - ServerRequestInterface - if request should be forwarded to given Route
+     * - null - if request should be blocked and $prototype response returned.
      *
      * NOTE: If request uri is verified it will not be resembled by Uri built
-     * with this gate self::uri() method - use Pattern gate instead.
+     * with gateway's self::uri() method - Pattern gate should be used instead.
      *
      * @param callable $callback
      * @param Route    $route
