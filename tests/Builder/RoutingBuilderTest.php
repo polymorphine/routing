@@ -25,6 +25,7 @@ use Polymorphine\Routing\Route\Pattern\UriSegment\Path;
 use Polymorphine\Routing\Route\Pattern\UriSegment\PathSegment;
 use Polymorphine\Routing\Exception\BuilderCallException;
 use Polymorphine\Routing\Tests\Doubles\FakeMiddleware;
+use Polymorphine\Routing\Tests\Doubles\FakeRequestHandler;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
@@ -65,6 +66,14 @@ class RoutingBuilderTest extends TestCase
         $requestBar = new FakeServerRequest('GET', FakeUri::fromString('bar'));
         $this->assertSame('foo matched', (string) $route->forward($requestFoo, new FakeResponse())->getBody());
         $this->assertSame('bar matched', (string) $route->forward($requestBar, new FakeResponse())->getBody());
+    }
+
+    public function testHandlerEndpoint()
+    {
+        $response = new FakeResponse('response');
+        $builder  = new RouteBuilder();
+        $builder->handler(new FakeRequestHandler($response));
+        $this->assertSame($response, $builder->build()->forward(new FakeServerRequest(), new FakeResponse()));
     }
 
     public function testMiddlewareGate()

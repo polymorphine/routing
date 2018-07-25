@@ -14,8 +14,10 @@ namespace Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Endpoint\CallbackEndpoint;
+use Polymorphine\Routing\Route\Endpoint\HandlerEndpoint;
 use Polymorphine\Routing\Route\Gate\LazyRoute;
 use Polymorphine\Routing\Exception\BuilderCallException;
+use Psr\Http\Server\RequestHandlerInterface;
 
 
 class RouteBuilder implements Builder
@@ -40,6 +42,11 @@ class RouteBuilder implements Builder
     public function callback(callable $callback): void
     {
         $this->setRoute(new CallbackEndpoint($callback));
+    }
+
+    public function handler(RequestHandlerInterface $handler): void
+    {
+        $this->setRoute(new HandlerEndpoint($handler));
     }
 
     public function join(Route $route): void
