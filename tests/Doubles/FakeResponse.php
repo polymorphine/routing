@@ -94,6 +94,8 @@ class FakeResponse implements ResponseInterface
 
     public function withStatus($code, $reasonPhrase = '')
     {
+        $this->status = $code;
+        return $this;
     }
 
     public function getReasonPhrase()
