@@ -16,15 +16,15 @@ use Psr\Container\ContainerInterface;
 
 class FakeContainer implements ContainerInterface
 {
-    public static $records = [];
+    public $records = [];
 
     public function get($id)
     {
-        return static::$records[$id] ?? null;
+        return $this->records[$id] ?? null;
     }
 
     public function has($id)
     {
-        return isset(static::$records[$id]);
+        return isset($this->records[$id]);
     }
 }

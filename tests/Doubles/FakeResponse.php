@@ -54,6 +54,7 @@ class FakeResponse implements ResponseInterface
 
     public function getHeader($name)
     {
+        return $this->headers[$name];
     }
 
     public function getHeaderLine($name)

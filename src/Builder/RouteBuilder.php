@@ -59,6 +59,16 @@ class RouteBuilder implements Builder
         $this->setRoute(new LazyRoute($routeCallback));
     }
 
+    public function redirect(string $path): void
+    {
+        throw new BuilderCallException('Required container aware builder to build redirect route');
+    }
+
+    public function factory(string $className): void
+    {
+        throw new BuilderCallException('Required container aware builder to build factory route');
+    }
+
     public function pathSwitch(): PathSegmentSwitchBuilder
     {
         return $this->routeBuilder(new PathSegmentSwitchBuilder($this->builderCallback()));

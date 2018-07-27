@@ -12,9 +12,10 @@
 namespace Polymorphine\Routing\Tests\Builder;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Builder\MethodSwitchBuilder;
 use Polymorphine\Routing\Builder\RouteBuilder;
+use Polymorphine\Routing\Builder\ContainerRouteBuilder;
 use Polymorphine\Routing\Builder\SwitchBuilder;
+use Polymorphine\Routing\Builder\MethodSwitchBuilder;
 use Polymorphine\Routing\Builder\ResponseScanSwitchBuilder;
 use Polymorphine\Routing\Builder\PathSegmentSwitchBuilder;
 use Polymorphine\Routing\Route;
@@ -24,11 +25,15 @@ use Polymorphine\Routing\Route\Pattern\UriSegment\Scheme;
 use Polymorphine\Routing\Route\Pattern\UriSegment\Path;
 use Polymorphine\Routing\Route\Pattern\UriSegment\PathSegment;
 use Polymorphine\Routing\Exception\BuilderCallException;
+use Polymorphine\Routing\Router;
+use Polymorphine\Routing\Tests\Doubles\FakeContainer;
+use Polymorphine\Routing\Tests\Doubles\FakeHandlerFactory;
 use Polymorphine\Routing\Tests\Doubles\FakeMiddleware;
 use Polymorphine\Routing\Tests\Doubles\FakeRequestHandler;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
+use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 use Psr\Http\Message\ServerRequestInterface;
 use InvalidArgumentException;
 
@@ -281,5 +286,48 @@ class RoutingBuilderTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $builder = new MethodSwitchBuilder();
         $builder->route('INDEX')->callback(function () { return new FakeResponse(); });
+    }
+
+    public function testRouteBuilderRedirectMethod_ThrowsException()
+    {
+        $builder = new RouteBuilder();
+        $this->expectException(BuilderCallException::class);
+        $builder->redirect('something');
+    }
+
+    public function testRedirectEndpoint()
+    {
+        $container = new FakeContainer();
+        $routerId  = 'ROUTER';
+        $builder   = new ContainerRouteBuilder($container, $routerId);
+        $path      = $builder->pathSwitch();
+
+        $path->route('admin')->pattern(new Path('redirected'))->join(new MockedRoute());
+        $path->route('redirect')->redirect('admin');
+
+        $router   = $container->records[$routerId] = new Router($builder->build(), new FakeUri(), new FakeResponse());
+        $response = $router->handle(new FakeServerRequest('GET', FakeUri::fromString('/redirect')));
+        $this->assertSame('/admin/redirected', $response->getHeader('Location'));
+        $this->assertSame(301, $response->getStatusCode());
+    }
+
+    public function testRouteBuilderFactoryMethod_ThrowsException()
+    {
+        $builder = new RouteBuilder();
+        $this->expectException(BuilderCallException::class);
+        $builder->factory('something');
+    }
+
+    public function testFactoryEndpoint()
+    {
+        $container = new FakeContainer();
+        $routerId  = 'ROUTER';
+        $builder   = new ContainerRouteBuilder($container, $routerId);
+
+        $builder->factory(FakeHandlerFactory::class);
+
+        $router   = $container->records[$routerId] = new Router($builder->build(), new FakeUri(), new FakeResponse());
+        $response = $router->handle(new FakeServerRequest());
+        $this->assertSame('handler response', (string) $response->getBody());
     }
 }
