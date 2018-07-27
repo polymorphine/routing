@@ -21,6 +21,13 @@ abstract class SwitchBuilder implements Builder
     /** @var Builder[] */
     protected $builders = [];
 
+    private $builderCallback;
+
+    public function __construct(callable $builderCallback = null)
+    {
+        $this->builderCallback = $builderCallback ?? function () { return new RouteBuilder(); };
+    }
+
     public function build(): Route
     {
         $routes = [];
@@ -33,7 +40,7 @@ abstract class SwitchBuilder implements Builder
 
     public function route(string $name): RouteBuilder
     {
-        return $this->builders[$this->validName($name)] = new RouteBuilder();
+        return $this->builders[$this->validName($name)] = ($this->builderCallback)();
     }
 
     abstract protected function router(array $routes): Route;

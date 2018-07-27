@@ -25,10 +25,10 @@ class RouteBuilder implements Builder
     use GateBuildMethods;
 
     /** @var Route $route */
-    private $route;
+    protected $route;
 
     /** @var Builder $builder */
-    private $builder;
+    protected $builder;
 
     public function build(): Route
     {
@@ -61,17 +61,17 @@ class RouteBuilder implements Builder
 
     public function pathSwitch(): PathSegmentSwitchBuilder
     {
-        return $this->routeBuilder(new PathSegmentSwitchBuilder());
+        return $this->routeBuilder(new PathSegmentSwitchBuilder($this->builderCallback()));
     }
 
     public function responseScan(): ResponseScanSwitchBuilder
     {
-        return $this->routeBuilder(new ResponseScanSwitchBuilder());
+        return $this->routeBuilder(new ResponseScanSwitchBuilder($this->builderCallback()));
     }
 
     public function methodSwitch(): MethodSwitchBuilder
     {
-        return $this->routeBuilder(new MethodSwitchBuilder());
+        return $this->routeBuilder(new MethodSwitchBuilder($this->builderCallback()));
     }
 
     protected function setRoute(Route $route): void
@@ -90,5 +90,19 @@ class RouteBuilder implements Builder
     {
         if (!$this->route && !$this->builder) { return; }
         throw new BuilderCallException('Route already built');
+    }
+
+    private function builderCallback(): callable
+    {
+        return function () {
+            return clone $this;
+        };
+    }
+
+    public function __clone()
+    {
+        $this->builder = null;
+        $this->route   = null;
+        $this->gates   = [];
     }
 }
