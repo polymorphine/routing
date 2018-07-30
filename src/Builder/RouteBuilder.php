@@ -32,11 +32,12 @@ class RouteBuilder implements Builder
 
     public function build(): Route
     {
-        if (!$this->route && !$this->builder) {
+        if ($this->route) { return $this->route; }
+        if (!$this->builder) {
             throw new BuilderCallException('Route type not selected');
         }
 
-        return $this->route ?: $this->wrapGates($this->builder->build());
+        return $this->route = $this->wrapGates($this->builder->build());
     }
 
     public function callback(callable $callback): void
@@ -71,17 +72,17 @@ class RouteBuilder implements Builder
 
     public function pathSwitch(): PathSegmentSwitchBuilder
     {
-        return $this->routeBuilder(new PathSegmentSwitchBuilder($this->builderCallback()));
+        return $this->switchBuilder(new PathSegmentSwitchBuilder($this->builderCallback()));
     }
 
     public function responseScan(): ResponseScanSwitchBuilder
     {
-        return $this->routeBuilder(new ResponseScanSwitchBuilder($this->builderCallback()));
+        return $this->switchBuilder(new ResponseScanSwitchBuilder($this->builderCallback()));
     }
 
     public function methodSwitch(): MethodSwitchBuilder
     {
-        return $this->routeBuilder(new MethodSwitchBuilder($this->builderCallback()));
+        return $this->switchBuilder(new MethodSwitchBuilder($this->builderCallback()));
     }
 
     protected function setRoute(Route $route): void
@@ -90,10 +91,17 @@ class RouteBuilder implements Builder
         $this->route = $this->wrapGates($route);
     }
 
-    protected function routeBuilder(Builder $builder)
+    protected function switchBuilder(Builder $builder)
     {
         $this->stateCheck();
         return $this->builder = $builder;
+    }
+
+    protected function __clone()
+    {
+        $this->builder = null;
+        $this->route   = null;
+        $this->gates   = [];
     }
 
     private function stateCheck(): void
@@ -107,12 +115,5 @@ class RouteBuilder implements Builder
         return function () {
             return clone $this;
         };
-    }
-
-    public function __clone()
-    {
-        $this->builder = null;
-        $this->route   = null;
-        $this->gates   = [];
     }
 }
