@@ -22,6 +22,14 @@ trait GateBuildMethods
 
     private $gates = [];
 
+    /**
+     * Creates MethodGate and (optionally) PatternGate wrapper for built route.
+     *
+     * @param string             $methods single http method or pipe separated method set (example: 'GET|POST|DELETE')
+     * @param null|Route\Pattern $pattern
+     *
+     * @return $this
+     */
     public function method(string $methods, Route\Pattern $pattern = null)
     {
         if (isset($pattern)) { $this->pattern($pattern); }
@@ -31,6 +39,13 @@ trait GateBuildMethods
         return $this;
     }
 
+    /**
+     * Creates PatternGate wrapper for built route.
+     *
+     * @param Route\Pattern $pattern
+     *
+     * @return $this
+     */
     public function pattern(Route\Pattern $pattern)
     {
         $this->gates[] = function (Route $route) use ($pattern) {
@@ -39,6 +54,13 @@ trait GateBuildMethods
         return $this;
     }
 
+    /**
+     * Creates CallbackGateway wrapper for built route.
+     *
+     * @param callable $callback
+     *
+     * @return $this
+     */
     public function callbackGate(callable $callback)
     {
         $this->gates[] = function (Route $route) use ($callback) {
@@ -47,6 +69,13 @@ trait GateBuildMethods
         return $this;
     }
 
+    /**
+     * Creates MiddlewareGateway wrapper for built route.
+     *
+     * @param MiddlewareInterface $middleware
+     *
+     * @return $this
+     */
     public function middleware(MiddlewareInterface $middleware)
     {
         $this->gates[] = function (Route $route) use ($middleware) {
@@ -55,10 +84,18 @@ trait GateBuildMethods
         return $this;
     }
 
-    public function link(&$routeId)
+    /**
+     * Takes reference variable that can be used to join built routing
+     * structure from this point from another routing structure context.
+     *
+     * @param $routeReference
+     *
+     * @return $this
+     */
+    public function link(&$routeReference)
     {
-        $this->gates[] = function (Route $route) use (&$routeId) {
-            $routeId = $route;
+        $this->gates[] = function (Route $route) use (&$routeReference) {
+            $routeReference = $route;
             return $route;
         };
         return $this;
