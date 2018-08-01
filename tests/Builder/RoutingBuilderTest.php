@@ -73,6 +73,27 @@ class RoutingBuilderTest extends TestCase
         $this->assertSame('bar matched', (string) $route->forward($requestBar, new FakeResponse())->getBody());
     }
 
+    public function testUnnamedRoutesCanBeAddedToResponseScanSwitch()
+    {
+        $response = new FakeResponse();
+        $endpoint = function () use ($response) { return $response; };
+        $attribute = function ($attribute) {
+            return function (ServerRequestInterface $request) use ($attribute) {
+                return $request->getAttribute('test') === $attribute ? $request : null;
+            };
+        };
+        $switch = new ResponseScanSwitchBuilder();
+        $switch->route()->callbackGate($attribute('A'))->callback($endpoint);
+        $switch->route()->callbackGate($attribute('B'))->callback($endpoint);
+        $route = $switch->build();
+
+        $prototype = new FakeResponse();
+        $request   = new FakeServerRequest();
+        $this->assertSame($prototype, $route->forward($request, $prototype));
+        $this->assertSame($response, $route->forward($request->withAttribute('test', 'A'), $prototype));
+        $this->assertSame($response, $route->forward($request->withAttribute('test', 'B'), $prototype));
+    }
+
     public function testHandlerEndpoint()
     {
         $response = new FakeResponse('response');
@@ -305,7 +326,7 @@ class RoutingBuilderTest extends TestCase
         $path->route('admin')->pattern(new Path('redirected'))->join(new MockedRoute());
         $path->route('redirect')->redirect('admin');
 
-        $router   = $container->records[$routerId] = new Router($builder->build(), new FakeUri(), new FakeResponse());
+        $router   = $container->records[$routerId]   = new Router($builder->build(), new FakeUri(), new FakeResponse());
         $response = $router->handle(new FakeServerRequest('GET', FakeUri::fromString('/redirect')));
         $this->assertSame('/admin/redirected', $response->getHeader('Location'));
         $this->assertSame(301, $response->getStatusCode());
@@ -326,7 +347,7 @@ class RoutingBuilderTest extends TestCase
 
         $builder->factory(FakeHandlerFactory::class);
 
-        $router   = $container->records[$routerId] = new Router($builder->build(), new FakeUri(), new FakeResponse());
+        $router   = $container->records[$routerId]   = new Router($builder->build(), new FakeUri(), new FakeResponse());
         $response = $router->handle(new FakeServerRequest());
         $this->assertSame('handler response', (string) $response->getBody());
     }

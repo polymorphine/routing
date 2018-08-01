@@ -21,7 +21,7 @@ abstract class SwitchBuilder implements Builder
     /** @var Builder[] */
     protected $builders = [];
 
-    private $builderCallback;
+    protected $builderCallback;
 
     public function __construct(callable $builderCallback = null)
     {
