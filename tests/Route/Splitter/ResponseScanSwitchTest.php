@@ -102,9 +102,32 @@ class ResponseScanSwitchTest extends TestCase
         $this->route()->select('NotDefined');
     }
 
-    private function route(array $routes = [])
+    public function testDefaultRouteIsScannedFirst()
+    {
+        $response = new FakeResponse();
+        $subRoute = new MockedRoute($response);
+        $router   = $this->route(['dummy' => MockedRoute::response('dummy')], $this->route(['nested' => $subRoute]));
+        $this->assertSame($response, $router->forward(new FakeServerRequest(), new FakeResponse()));
+    }
+
+    public function testSelectUnknownPathWhenDefaultRoutePresent_SelectsPathFromDefaultRoute()
+    {
+        $subRoute = new MockedRoute();
+        $router   = $this->route([], $this->route(['nested' => $subRoute]));
+        $this->assertSame($subRoute, $router->select('nested'));
+    }
+
+    public function testUriIsCalledFromDefaultRoute()
+    {
+        $router = $this->route([], MockedRoute::withUri('/foo/bar'));
+        $this->assertSame('http://example.com/foo/bar', (string) $router->uri(FakeUri::fromString('http://example.com'), []));
+    }
+
+    private function route(array $routes = [], Route $default = null)
     {
         $dummy = new MockedRoute();
-        return new ResponseScanSwitch(['example' => $dummy] + $routes);
+        return $default
+            ? new ResponseScanSwitch(['example' => $dummy] + $routes, $default)
+            : new ResponseScanSwitch(['example' => $dummy] + $routes);
     }
 }

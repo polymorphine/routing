@@ -23,16 +23,50 @@ class ResponseScanSwitch implements Route
     use RouteSelectMethods;
 
     protected $routes = [];
+    protected $defaultRoute;
 
     /**
      * @param Route[] $routes
+     * @param Route   $defaultRoute
      */
-    public function __construct(array $routes)
+    public function __construct(array $routes, Route $defaultRoute = null)
     {
-        $this->routes = $routes;
+        $this->routes       = $routes;
+        $this->defaultRoute = $defaultRoute;
     }
 
     public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
+    {
+        $response = $this->checkDefaultRoute($request, $prototype);
+        return ($response !== $prototype) ? $response : $this->scanRoutes($request, $prototype);
+    }
+
+    public function select(string $path): Route
+    {
+        [$id, $nextPath] = $this->splitPath($path);
+
+        if ($id && !isset($this->routes[$id]) && isset($this->defaultRoute)) {
+            return $this->defaultRoute->select($path);
+        }
+
+        return $this->getRoute($id, $nextPath);
+    }
+
+    public function uri(UriInterface $prototype, array $params): UriInterface
+    {
+        if ($this->defaultRoute) {
+            return $this->defaultRoute->uri($prototype, $params);
+        }
+
+        throw new EndpointCallException('Cannot resolve specific Uri for switch route');
+    }
+
+    private function checkDefaultRoute(ServerRequestInterface $request, ResponseInterface $prototype)
+    {
+        return $this->defaultRoute ? $this->defaultRoute->forward($request, $prototype) : $prototype;
+    }
+
+    private function scanRoutes(ServerRequestInterface $request, ResponseInterface $prototype)
     {
         $response = $prototype;
         foreach ($this->routes as $route) {
@@ -41,16 +75,5 @@ class ResponseScanSwitch implements Route
         }
 
         return $response;
-    }
-
-    public function select(string $path): Route
-    {
-        [$id, $path] = $this->splitPath($path);
-        return $this->getRoute($id, $path);
-    }
-
-    public function uri(UriInterface $prototype, array $params): UriInterface
-    {
-        throw new EndpointCallException('Cannot resolve specific Uri for switch route');
     }
 }
