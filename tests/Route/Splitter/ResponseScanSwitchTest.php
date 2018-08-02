@@ -117,6 +117,12 @@ class ResponseScanSwitchTest extends TestCase
         $this->assertSame($subRoute, $router->select('nested'));
     }
 
+    public function testSelectDefinedPathWhenDefaultRoutePresent_SelectsRouteForDefinedPath()
+    {
+        $router = $this->route(['route' => MockedRoute::response('defined')], $this->route(['route' => MockedRoute::response('default')]));
+        $this->assertSame('defined', (string) $router->select('route')->forward(new FakeServerRequest(), new FakeResponse())->getBody());
+    }
+
     public function testUriIsCalledFromDefaultRoute()
     {
         $router = $this->route([], MockedRoute::withUri('/foo/bar'));
