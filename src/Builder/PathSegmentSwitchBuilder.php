@@ -12,11 +12,21 @@
 namespace Polymorphine\Routing\Builder;
 
 use Polymorphine\Routing\Route;
+use InvalidArgumentException;
 
 
 class PathSegmentSwitchBuilder extends SwitchBuilder
 {
     private $rootRoute;
+
+    public function route(string $name = null): RouteBuilder
+    {
+        if (!$name) {
+            throw new InvalidArgumentException('Name is required for path segment route switch');
+        }
+
+        return parent::route($name);
+    }
 
     public function root(Route $root)
     {

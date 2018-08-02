@@ -9,10 +9,14 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing;
+namespace Polymorphine\Routing\Builder;
+
+use Polymorphine\Routing\Route;
 
 
-interface Builder
+interface BuilderContext
 {
     public function build(): Route;
+
+    public function route(string $name = null): RouteBuilder;
 }

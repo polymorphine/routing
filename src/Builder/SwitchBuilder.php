@@ -11,21 +11,19 @@
 
 namespace Polymorphine\Routing\Builder;
 
-use Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Route;
 use InvalidArgumentException;
 
 
-abstract class SwitchBuilder implements Builder
+abstract class SwitchBuilder implements BuilderContext
 {
-    /** @var Builder[] */
+    /** @var BuilderContext[] */
     protected $builders = [];
+    protected $context;
 
-    protected $builderCallback;
-
-    public function __construct(callable $builderCallback = null)
+    public function __construct(BuilderContext $context = null)
     {
-        $this->builderCallback = $builderCallback ?? function () { return new RouteBuilder(); };
+        $this->context = $context ?? new RouteBuilder();
     }
 
     public function build(): Route
@@ -38,12 +36,17 @@ abstract class SwitchBuilder implements Builder
         return $this->router($routes);
     }
 
-    public function route(string $name): RouteBuilder
+    public function route(string $name = null): RouteBuilder
     {
-        return $this->builders[$this->validName($name)] = ($this->builderCallback)();
+        return $this->addBuilder($this->context->route(), $name);
     }
 
     abstract protected function router(array $routes): Route;
+
+    protected function addBuilder(RouteBuilder $builder, ?string $name): RouteBuilder
+    {
+        return $name ? $this->builders[$this->validName($name)] = $builder : $this->builders[] = $builder;
+    }
 
     protected function validName(string $name): string
     {

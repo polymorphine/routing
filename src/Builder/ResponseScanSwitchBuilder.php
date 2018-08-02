@@ -11,20 +11,14 @@
 
 namespace Polymorphine\Routing\Builder;
 
-use Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Exception\BuilderCallException;
 
 
 class ResponseScanSwitchBuilder extends SwitchBuilder
 {
-    /** @var Builder */
-    protected $defaultRoute;
-
-    public function route(string $name = null): RouteBuilder
-    {
-        return ($name) ? parent::route($name) : $this->builders[] = ($this->builderCallback)();
-    }
+    /** @var BuilderContext */
+    private $defaultRoute;
 
     public function defaultRoute(): RouteBuilder
     {
@@ -32,7 +26,7 @@ class ResponseScanSwitchBuilder extends SwitchBuilder
             throw new BuilderCallException('Default route already set');
         }
 
-        return $this->defaultRoute = ($this->builderCallback)();
+        return $this->defaultRoute = $this->context->route();
     }
 
     protected function router(array $routes): Route

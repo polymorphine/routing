@@ -19,6 +19,15 @@ class MethodSwitchBuilder extends SwitchBuilder
 {
     private $methods = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'];
 
+    public function route(string $name = null): RouteBuilder
+    {
+        if (!$name) {
+            throw new InvalidArgumentException('Name is required for path segment route switch');
+        }
+
+        return parent::route($name);
+    }
+
     protected function router(array $routes): Route
     {
         return new Route\Splitter\MethodSwitch($routes);

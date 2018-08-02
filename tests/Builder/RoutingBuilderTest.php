@@ -94,6 +94,20 @@ class RoutingBuilderTest extends TestCase
         $this->assertSame($response, $route->forward($request->withAttribute('test', 'B'), $prototype));
     }
 
+    public function testUnnamedRouteForMethodSwitchBuilder_ThrowsException()
+    {
+        $builder = new MethodSwitchBuilder();
+        $this->expectException(InvalidArgumentException::class);
+        $builder->route();
+    }
+
+    public function testUnnamedRouteForPathSegmentSwitchBuilder_ThrowsException()
+    {
+        $builder = new PathSegmentSwitchBuilder();
+        $this->expectException(InvalidArgumentException::class);
+        $builder->route();
+    }
+
     public function testDefaultRouteInResponseScanSwitch()
     {
         $endpoint = function (string $body) {

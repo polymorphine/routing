@@ -11,24 +11,34 @@
 
 namespace Polymorphine\Routing\Builder;
 
-use Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Route\Gate\LazyRoute;
 use Polymorphine\Routing\Route\Endpoint\CallbackEndpoint;
 use Polymorphine\Routing\Route\Endpoint\HandlerEndpoint;
-use Polymorphine\Routing\Route\Gate\LazyRoute;
 use Polymorphine\Routing\Exception\BuilderCallException;
 use Psr\Http\Server\RequestHandlerInterface;
 
 
-class RouteBuilder implements Builder
+class RouteBuilder implements BuilderContext
 {
     use GateBuildMethods;
 
     /** @var Route $route */
     protected $route;
 
-    /** @var Builder $builder */
+    /** @var BuilderContext $builder */
     protected $builder;
+
+    public function route(string $name = null): RouteBuilder
+    {
+        $clone = clone $this;
+
+        $clone->builder = null;
+        $clone->route   = null;
+        $clone->gates   = [];
+
+        return $clone;
+    }
 
     public function build(): Route
     {
@@ -72,17 +82,17 @@ class RouteBuilder implements Builder
 
     public function pathSwitch(): PathSegmentSwitchBuilder
     {
-        return $this->switchBuilder(new PathSegmentSwitchBuilder($this->builderCallback()));
+        return $this->switchBuilder(new PathSegmentSwitchBuilder($this));
     }
 
     public function responseScan(): ResponseScanSwitchBuilder
     {
-        return $this->switchBuilder(new ResponseScanSwitchBuilder($this->builderCallback()));
+        return $this->switchBuilder(new ResponseScanSwitchBuilder($this));
     }
 
     public function methodSwitch(): MethodSwitchBuilder
     {
-        return $this->switchBuilder(new MethodSwitchBuilder($this->builderCallback()));
+        return $this->switchBuilder(new MethodSwitchBuilder($this));
     }
 
     protected function setRoute(Route $route): void
@@ -91,29 +101,15 @@ class RouteBuilder implements Builder
         $this->route = $this->wrapGates($route);
     }
 
-    protected function switchBuilder(Builder $builder)
+    protected function switchBuilder(BuilderContext $builder)
     {
         $this->stateCheck();
         return $this->builder = $builder;
-    }
-
-    protected function __clone()
-    {
-        $this->builder = null;
-        $this->route   = null;
-        $this->gates   = [];
     }
 
     private function stateCheck(): void
     {
         if (!$this->route && !$this->builder) { return; }
         throw new BuilderCallException('Route already built');
-    }
-
-    private function builderCallback(): callable
-    {
-        return function () {
-            return clone $this;
-        };
     }
 }
