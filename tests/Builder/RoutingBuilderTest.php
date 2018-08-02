@@ -94,6 +94,30 @@ class RoutingBuilderTest extends TestCase
         $this->assertSame($response, $route->forward($request->withAttribute('test', 'B'), $prototype));
     }
 
+    public function testDefaultRouteInResponseScanSwitch()
+    {
+        $endpoint = function (string $body) {
+            return function () use ($body) { return new FakeResponse($body); };
+        };
+
+        $switch = new ResponseScanSwitchBuilder();
+        $switch->route('dummy')->callback($endpoint('dummy'));
+        $switch->defaultRoute()->callback($endpoint('default'));
+        $route = $switch->build();
+
+        $prototype = new FakeResponse();
+        $request   = new FakeServerRequest();
+        $this->assertSame('default', (string) $route->forward($request, $prototype)->getBody());
+    }
+
+    public function testSettingDefaultRouteSecondTime_ThrowsException()
+    {
+        $switch = new ResponseScanSwitchBuilder();
+        $switch->defaultRoute()->callback(function () { return new FakeResponse(); });
+        $this->expectException(BuilderCallException::class);
+        $switch->defaultRoute();
+    }
+
     public function testHandlerEndpoint()
     {
         $response = new FakeResponse('response');
