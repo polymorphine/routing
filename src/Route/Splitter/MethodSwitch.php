@@ -25,7 +25,7 @@ class MethodSwitch implements Route
     private $routes;
 
     /**
-     * @param Route[] $routes
+     * @param Route[] $routes associative array with http method keys (GET, POST, PATCH... etc.)
      */
     public function __construct(array $routes)
     {

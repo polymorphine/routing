@@ -108,6 +108,32 @@ class RoutingBuilderTest extends TestCase
         $builder->route();
     }
 
+    public function testMultipleMethodsRouteForMethodSwitchBuilder()
+    {
+        $builder  = new MethodSwitchBuilder();
+        $endpoint = function (string $body) {
+            return function () use ($body) { return new FakeResponse($body); };
+        };
+
+        $builder->route('GET')->callback($endpoint('single'));
+        $builder->route('POST|PATCH')->callback($endpoint('multiple'));
+        $route = $builder->build();
+
+        $request   = new FakeServerRequest();
+        $prototype = new FakeResponse();
+        $this->assertSame('single', (string) $route->forward($request->withMethod('GET'), $prototype)->getBody());
+        $this->assertSame('multiple', (string) $route->forward($request->withMethod('POST'), $prototype)->getBody());
+        $this->assertSame('multiple', (string) $route->forward($request->withMethod('PATCH'), $prototype)->getBody());
+    }
+
+    public function testRepeatedMethodInMultipleMethodsParameter_ThrowsException()
+    {
+        $builder = new MethodSwitchBuilder();
+        $builder->route('POST')->callback(function () { return new FakeResponse(); });
+        $this->expectException(InvalidArgumentException::class);
+        $builder->route('GET|POST|PATCH');
+    }
+
     public function testDefaultRouteInResponseScanSwitch()
     {
         $endpoint = function (string $body) {

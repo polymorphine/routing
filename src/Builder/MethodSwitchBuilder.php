@@ -25,7 +25,13 @@ class MethodSwitchBuilder extends SwitchBuilder
             throw new InvalidArgumentException('Name is required for path segment route switch');
         }
 
-        return parent::route($name);
+        $builder = $this->context->route();
+        $names   = explode('|', $name);
+        foreach ($names as $name) {
+            $this->addBuilder($builder, $this->validMethod($name));
+        }
+
+        return $builder;
     }
 
     protected function router(array $routes): Route
@@ -33,13 +39,11 @@ class MethodSwitchBuilder extends SwitchBuilder
         return new Route\Splitter\MethodSwitch($routes);
     }
 
-    protected function validName(string $name): string
+    protected function validMethod(string $method): string
     {
-        if (in_array($name, $this->methods, true)) {
-            return parent::validName($name);
-        }
+        if (in_array($method, $this->methods, true)) { return $method; }
 
-        $message = 'Unknown http method `%s` for method splitter route';
-        throw new InvalidArgumentException(sprintf($message, $name));
+        $message = 'Unknown http method `%s` for method route switch';
+        throw new InvalidArgumentException(sprintf($message, $method));
     }
 }
