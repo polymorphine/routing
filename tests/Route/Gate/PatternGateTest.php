@@ -13,7 +13,7 @@ namespace Polymorphine\Routing\Tests\Route;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Route\Pattern\UriPattern;
+use Polymorphine\Routing\Route\Gate\Pattern\UriPattern;
 use Polymorphine\Routing\Route\Gate\PatternGate;
 use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;

@@ -9,21 +9,21 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Route\Pattern\UriSegment;
+namespace Polymorphine\Routing\Route\Gate\Pattern\UriSegment;
 
-use Polymorphine\Routing\Route\Pattern\UriSegment;
+use Polymorphine\Routing\Route;
 use Psr\Http\Message\UriInterface;
 
 
-class Scheme extends UriSegment
+class Host extends Route\Gate\Pattern\UriSegment
 {
     protected function getUriPart(UriInterface $uri): ?string
     {
-        return $uri->getScheme() ?: null;
+        return $uri->getHost() ?: null;
     }
 
     protected function setUriPart(UriInterface $uri): UriInterface
     {
-        return $uri->withScheme($this->pattern);
+        return $uri->withHost($this->pattern);
     }
 }

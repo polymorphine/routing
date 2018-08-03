@@ -21,7 +21,7 @@ use Psr\Http\Message\UriInterface;
 class PathSegmentSwitch implements Route
 {
     use RouteSelectMethods;
-    use Route\Pattern\PathContextMethods;
+    use Route\Gate\Pattern\PathContextMethods;
 
     const ROOT_PATH = 'HOME';
 

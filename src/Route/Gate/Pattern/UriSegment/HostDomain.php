@@ -9,15 +9,15 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Route\Pattern\UriSegment;
+namespace Polymorphine\Routing\Route\Gate\Pattern\UriSegment;
 
-use Polymorphine\Routing\Route\Pattern;
-use Polymorphine\Routing\Exception\UnreachableEndpointException;
+use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 
 
-class HostDomain implements Pattern
+class HostDomain implements Route\Gate\Pattern
 {
     private $domain;
 
@@ -37,7 +37,7 @@ class HostDomain implements Pattern
         $host = $prototype->getHost();
         if ($host && $host !== $this->domain) {
             $message = 'Cannot overwrite prototype domain `%s` with `%s`';
-            throw new UnreachableEndpointException(sprintf($message, $host, $this->domain));
+            throw new Exception\UnreachableEndpointException(sprintf($message, $host, $this->domain));
         }
 
         return $prototype->withHost($this->domain);

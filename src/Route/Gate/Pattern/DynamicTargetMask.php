@@ -9,16 +9,15 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Route\Pattern;
+namespace Polymorphine\Routing\Route\Gate\Pattern;
 
-use Polymorphine\Routing\Route\Pattern;
-use Polymorphine\Routing\Exception\InvalidUriParamsException;
-use Polymorphine\Routing\Exception\UnreachableEndpointException;
+use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 
 
-class DynamicTargetMask implements Pattern
+class DynamicTargetMask implements Route\Gate\Pattern
 {
     public const PARAM_DELIM_LEFT  = '{';
     public const PARAM_DELIM_RIGHT = '}';
@@ -135,7 +134,7 @@ class DynamicTargetMask implements Pattern
         if (count($params) < count($this->params)) {
             $message = 'Route requires %s params for `%s` path - %s provided';
             $message = sprintf($message, count($this->params), $this->parsedPath, count($params));
-            throw new InvalidUriParamsException($message);
+            throw new Exception\InvalidUriParamsException($message);
         }
 
         $placeholders = [];
@@ -154,7 +153,7 @@ class DynamicTargetMask implements Pattern
         $value = (string) $value;
         if (!preg_match('/^' . $type . '$/', $value)) {
             $message = 'Invalid param `%s` type for `%s` route path';
-            throw new InvalidUriParamsException(sprintf($message, $name, $this->parsedPath));
+            throw new Exception\InvalidUriParamsException(sprintf($message, $name, $this->parsedPath));
         }
 
         return $value;
@@ -219,7 +218,7 @@ class DynamicTargetMask implements Pattern
     {
         if ($prototypeSegment && strpos($routeSegment, $prototypeSegment) !== 0) {
             $message = 'Uri conflict detected prototype `%s` does not match route `%s`';
-            throw new UnreachableEndpointException(sprintf($message, $prototypeSegment, $routeSegment));
+            throw new Exception\UnreachableEndpointException(sprintf($message, $prototypeSegment, $routeSegment));
         }
     }
 }

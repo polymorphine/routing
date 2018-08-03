@@ -23,7 +23,7 @@ use Psr\Http\Message\UriInterface;
 class ResourceMethodSwitch implements Route
 {
     use RouteSelectMethods;
-    use Route\Pattern\PathContextMethods;
+    use Route\Gate\Pattern\PathContextMethods;
 
     public const INDEX  = 'INDEX'; //pseudo method
     public const GET    = 'GET';

@@ -12,8 +12,8 @@
 namespace Polymorphine\Routing\Tests\Route\Pattern\UriSegment;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Route\Pattern;
-use Polymorphine\Routing\Route\Pattern\UriSegment\HostSubdomain;
+use Polymorphine\Routing\Route\Gate\Pattern;
+use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\HostSubdomain;
 use Polymorphine\Routing\Exception\InvalidUriParamsException;
 use Polymorphine\Routing\Exception\UnreachableEndpointException;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;

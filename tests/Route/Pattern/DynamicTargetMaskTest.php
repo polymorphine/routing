@@ -12,8 +12,8 @@
 namespace Polymorphine\Routing\Tests\Route\Pattern;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Route\Pattern;
-use Polymorphine\Routing\Route\Pattern\DynamicTargetMask;
+use Polymorphine\Routing\Route\Gate\Pattern;
+use Polymorphine\Routing\Route\Gate\Pattern\DynamicTargetMask;
 use Polymorphine\Routing\Exception\UnreachableEndpointException;
 use Polymorphine\Routing\Exception\InvalidUriParamsException;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;

@@ -12,29 +12,29 @@
 namespace Polymorphine\Routing\Builder;
 
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Route\Gate;
+use Polymorphine\Routing\Route\Gate\Pattern;
 use Psr\Http\Server\MiddlewareInterface;
 
 
 trait GateBuildMethods
 {
-    use Route\Pattern\PatternSelection;
+    use Pattern\PatternSelection;
 
     private $gates = [];
 
     /**
      * Creates MethodGate and (optionally) PatternGate wrapper for built route.
      *
-     * @param string             $methods single http method or pipe separated method set (example: 'GET|POST|DELETE')
-     * @param null|Route\Pattern $pattern
+     * @param string       $methods single http method or pipe separated method set (example: 'GET|POST|DELETE')
+     * @param null|Pattern $pattern
      *
      * @return $this
      */
-    public function method(string $methods, Route\Pattern $pattern = null)
+    public function method(string $methods, Pattern $pattern = null)
     {
         if (isset($pattern)) { $this->pattern($pattern); }
         $this->gates[] = function (Route $route) use ($methods) {
-            return new Gate\MethodGate($methods, $route);
+            return new Route\Gate\MethodGate($methods, $route);
         };
         return $this;
     }
@@ -42,14 +42,14 @@ trait GateBuildMethods
     /**
      * Creates PatternGate wrapper for built route.
      *
-     * @param Route\Pattern $pattern
+     * @param Pattern $pattern
      *
      * @return $this
      */
-    public function pattern(Route\Pattern $pattern)
+    public function pattern(Pattern $pattern)
     {
         $this->gates[] = function (Route $route) use ($pattern) {
-            return new Gate\PatternGate($pattern, $route);
+            return new Route\Gate\PatternGate($pattern, $route);
         };
         return $this;
     }
@@ -64,7 +64,7 @@ trait GateBuildMethods
     public function callbackGate(callable $callback)
     {
         $this->gates[] = function (Route $route) use ($callback) {
-            return new Gate\CallbackGateway($callback, $route);
+            return new Route\Gate\CallbackGateway($callback, $route);
         };
         return $this;
     }
@@ -79,7 +79,7 @@ trait GateBuildMethods
     public function middleware(MiddlewareInterface $middleware)
     {
         $this->gates[] = function (Route $route) use ($middleware) {
-            return new Gate\MiddlewareGateway($middleware, $route);
+            return new Route\Gate\MiddlewareGateway($middleware, $route);
         };
         return $this;
     }
@@ -101,37 +101,37 @@ trait GateBuildMethods
         return $this;
     }
 
-    public function get(Route\Pattern $pattern = null)
+    public function get(Pattern $pattern = null)
     {
         return $this->method('GET', $pattern);
     }
 
-    public function post(Route\Pattern $pattern = null)
+    public function post(Pattern $pattern = null)
     {
         return $this->method('POST', $pattern);
     }
 
-    public function put(Route\Pattern $pattern = null)
+    public function put(Pattern $pattern = null)
     {
         return $this->method('PUT', $pattern);
     }
 
-    public function patch(Route\Pattern $pattern = null)
+    public function patch(Pattern $pattern = null)
     {
         return $this->method('PATCH', $pattern);
     }
 
-    public function delete(Route\Pattern $pattern = null)
+    public function delete(Pattern $pattern = null)
     {
         return $this->method('DELETE', $pattern);
     }
 
-    public function head(Route\Pattern $pattern = null)
+    public function head(Pattern $pattern = null)
     {
         return $this->method('HEAD', $pattern);
     }
 
-    public function options(Route\Pattern $pattern = null)
+    public function options(Pattern $pattern = null)
     {
         return $this->method('OPTIONS', $pattern);
     }

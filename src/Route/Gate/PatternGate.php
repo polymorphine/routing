@@ -19,12 +19,12 @@ use Psr\Http\Message\UriInterface;
 
 class PatternGate implements Route
 {
-    use Route\Pattern\PatternSelection;
+    use Pattern\PatternSelection;
 
     private $pattern;
     private $route;
 
-    public function __construct(Route\Pattern $pattern, Route $route)
+    public function __construct(Pattern $pattern, Route $route)
     {
         $this->pattern = $pattern;
         $this->route   = $route;

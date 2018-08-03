@@ -19,7 +19,7 @@ use Psr\Http\Message\UriInterface;
 
 class PathSegmentGate implements Route
 {
-    use Route\Pattern\PathContextMethods;
+    use Route\Gate\Pattern\PathContextMethods;
 
     private $segment;
     private $route;

@@ -9,9 +9,9 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Route\Pattern\UriSegment;
+namespace Polymorphine\Routing\Route\Gate\Pattern\UriSegment;
 
-use Polymorphine\Routing\Route\Pattern\UriSegment;
+use Polymorphine\Routing\Route\Gate\Pattern\UriSegment;
 use Psr\Http\Message\UriInterface;
 
 

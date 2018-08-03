@@ -9,10 +9,10 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Route\Pattern;
+namespace Polymorphine\Routing\Route\Gate\Pattern;
 
-use Polymorphine\Routing\Route\Pattern;
-use Polymorphine\Routing\Route\Pattern\UriSegment as Uri;
+use Polymorphine\Routing\Route\Gate\Pattern;
+use Polymorphine\Routing\Route\Gate\Pattern\UriSegment as Uri;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 use InvalidArgumentException;

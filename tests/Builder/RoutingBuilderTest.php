@@ -20,10 +20,10 @@ use Polymorphine\Routing\Builder\ResponseScanSwitchBuilder;
 use Polymorphine\Routing\Builder\PathSegmentSwitchBuilder;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Endpoint\CallbackEndpoint;
-use Polymorphine\Routing\Route\Pattern\UriPattern;
-use Polymorphine\Routing\Route\Pattern\UriSegment\Scheme;
-use Polymorphine\Routing\Route\Pattern\UriSegment\Path;
-use Polymorphine\Routing\Route\Pattern\UriSegment\PathSegment;
+use Polymorphine\Routing\Route\Gate\Pattern\UriPattern;
+use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\Scheme;
+use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\Path;
+use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\PathSegment;
 use Polymorphine\Routing\Exception\BuilderCallException;
 use Polymorphine\Routing\Router;
 use Polymorphine\Routing\Tests\Doubles\FakeContainer;
@@ -340,7 +340,7 @@ class RoutingBuilderTest extends TestCase
         $route = $builder->build();
 
         $builder = new MethodSwitchBuilder();
-        $builder->route('POST')->link($postRoute)->pattern(new Route\Pattern\UriSegment\Scheme('https'))->join($route);
+        $builder->route('POST')->link($postRoute)->pattern(new Scheme('https'))->join($route);
         $builder->route('GET')->join($route);
         $route = $builder->build();
 

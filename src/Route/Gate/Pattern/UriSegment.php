@@ -9,7 +9,7 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Route\Pattern;
+namespace Polymorphine\Routing\Route\Gate\Pattern;
 
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Exception;
@@ -17,7 +17,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 
 
-abstract class UriSegment implements Route\Pattern
+abstract class UriSegment implements Route\Gate\Pattern
 {
     protected $pattern;
 

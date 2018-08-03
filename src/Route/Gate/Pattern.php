@@ -9,7 +9,7 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Route;
+namespace Polymorphine\Routing\Route\Gate;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
