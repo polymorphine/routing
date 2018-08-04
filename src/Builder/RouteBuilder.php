@@ -11,25 +11,33 @@
 
 namespace Polymorphine\Routing\Builder;
 
+use Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Route\Gate\LazyRoute;
-use Polymorphine\Routing\Route\Endpoint\CallbackEndpoint;
-use Polymorphine\Routing\Route\Endpoint\HandlerEndpoint;
-use Polymorphine\Routing\Exception\BuilderCallException;
+use Polymorphine\Routing\Exception;
 use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Container\ContainerInterface;
 
 
-class RouteBuilder implements BuilderContext
+class RouteBuilder implements Builder
 {
     use GateBuildMethods;
 
     /** @var Route $route */
-    protected $route;
+    private $route;
 
-    /** @var BuilderContext $builder */
-    protected $builder;
+    /** @var Builder $builder */
+    private $builder;
 
-    public function route(string $name = null): RouteBuilder
+    private $container;
+    private $routerCallback;
+
+    public function __construct(?ContainerInterface $container = null, ?callable $routerCallback = null)
+    {
+        $this->container      = $container;
+        $this->routerCallback = $routerCallback;
+    }
+
+    public function route(): RouteBuilder
     {
         $clone = clone $this;
 
@@ -44,7 +52,7 @@ class RouteBuilder implements BuilderContext
     {
         if ($this->route) { return $this->route; }
         if (!$this->builder) {
-            throw new BuilderCallException('Route type not selected');
+            throw new Exception\BuilderCallException('Route type not selected');
         }
 
         return $this->route = $this->wrapGates($this->builder->build());
@@ -52,12 +60,12 @@ class RouteBuilder implements BuilderContext
 
     public function callback(callable $callback): void
     {
-        $this->setRoute(new CallbackEndpoint($callback));
+        $this->setRoute(new Route\Endpoint\CallbackEndpoint($callback));
     }
 
     public function handler(RequestHandlerInterface $handler): void
     {
-        $this->setRoute(new HandlerEndpoint($handler));
+        $this->setRoute(new Route\Endpoint\HandlerEndpoint($handler));
     }
 
     public function join(Route $route): void
@@ -65,19 +73,35 @@ class RouteBuilder implements BuilderContext
         $this->setRoute($route);
     }
 
-    public function lazy(callable $routeCallback)
+    public function lazy(callable $routeCallback): void
     {
-        $this->setRoute(new LazyRoute($routeCallback));
+        $this->setRoute(new Route\Gate\LazyRoute($routeCallback));
     }
 
-    public function redirect(string $path): void
+    public function redirect(string $path, int $code = 301): void
     {
-        throw new BuilderCallException('Required container aware builder to build redirect route');
+        if (!$this->routerCallback) {
+            throw new Exception\BuilderCallException('Required container aware builder to build redirect route');
+        }
+
+        $uriCallback = function () use ($path) {
+            return (string) ($this->routerCallback)()->uri($path);
+        };
+
+        $this->setRoute(new Route\Endpoint\RedirectEndpoint($uriCallback, $code));
     }
 
     public function factory(string $className): void
     {
-        throw new BuilderCallException('Required container aware builder to build factory route');
+        if (!$this->container) {
+            throw new Exception\BuilderCallException('Required container aware builder to build factory route');
+        }
+
+        $factoryCallback = function () use ($className) {
+            return new $className();
+        };
+
+        $this->setRoute(new Route\Endpoint\HandlerFactoryEndpoint($factoryCallback, $this->container));
     }
 
     public function pathSwitch(): PathSegmentSwitchBuilder
@@ -101,7 +125,7 @@ class RouteBuilder implements BuilderContext
         $this->route = $this->wrapGates($route);
     }
 
-    protected function switchBuilder(BuilderContext $builder)
+    protected function switchBuilder(Builder $builder)
     {
         $this->stateCheck();
         return $this->builder = $builder;
@@ -110,6 +134,6 @@ class RouteBuilder implements BuilderContext
     private function stateCheck(): void
     {
         if (!$this->route && !$this->builder) { return; }
-        throw new BuilderCallException('Route already built');
+        throw new Exception\BuilderCallException('Route already built');
     }
 }

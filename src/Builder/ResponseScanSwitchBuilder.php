@@ -17,7 +17,7 @@ use Polymorphine\Routing\Exception\BuilderCallException;
 
 class ResponseScanSwitchBuilder extends SwitchBuilder
 {
-    /** @var BuilderContext */
+    /** @var Builder */
     private $defaultRoute;
 
     public function defaultRoute(): RouteBuilder

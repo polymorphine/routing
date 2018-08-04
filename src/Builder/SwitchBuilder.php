@@ -12,16 +12,17 @@
 namespace Polymorphine\Routing\Builder;
 
 use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Builder;
 use InvalidArgumentException;
 
 
-abstract class SwitchBuilder implements BuilderContext
+abstract class SwitchBuilder implements Builder
 {
-    /** @var BuilderContext[] */
+    /** @var Builder[] */
     protected $builders = [];
     protected $context;
 
-    public function __construct(BuilderContext $context = null)
+    public function __construct(RouteBuilder $context = null)
     {
         $this->context = $context ?? new RouteBuilder();
     }

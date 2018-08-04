@@ -13,7 +13,6 @@ namespace Polymorphine\Routing\Tests\Builder;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Builder\RouteBuilder;
-use Polymorphine\Routing\Builder\ContainerRouteBuilder;
 use Polymorphine\Routing\Builder\SwitchBuilder;
 use Polymorphine\Routing\Builder\MethodSwitchBuilder;
 use Polymorphine\Routing\Builder\ResponseScanSwitchBuilder;
@@ -382,15 +381,17 @@ class RoutingBuilderTest extends TestCase
 
     public function testRedirectEndpoint()
     {
-        $container = new FakeContainer();
-        $routerId  = 'ROUTER';
-        $builder   = new ContainerRouteBuilder($container, $routerId);
-        $path      = $builder->pathSwitch();
+        $container      = new FakeContainer();
+        $routerCallback = function () use ($container) { return $container->get('ROUTER'); };
+
+        $builder = new RouteBuilder($container, $routerCallback);
+        $path    = $builder->pathSwitch();
 
         $path->route('admin')->pattern(new Path('redirected'))->join(new MockedRoute());
         $path->route('redirect')->redirect('admin');
 
-        $router   = $container->records[$routerId]   = new Router($builder->build(), new FakeUri(), new FakeResponse());
+        $container->records['ROUTER'] = $router = new Router($builder->build(), new FakeUri(), new FakeResponse());
+
         $response = $router->handle(new FakeServerRequest('GET', FakeUri::fromString('/redirect')));
         $this->assertSame('/admin/redirected', $response->getHeader('Location'));
         $this->assertSame(301, $response->getStatusCode());
@@ -405,13 +406,14 @@ class RoutingBuilderTest extends TestCase
 
     public function testFactoryEndpoint()
     {
-        $container = new FakeContainer();
-        $routerId  = 'ROUTER';
-        $builder   = new ContainerRouteBuilder($container, $routerId);
+        $container      = new FakeContainer();
+        $routerCallback = function () use ($container) { return $container->get('ROUTER'); };
 
+        $builder = new RouteBuilder($container, $routerCallback);
         $builder->factory(FakeHandlerFactory::class);
 
-        $router   = $container->records[$routerId]   = new Router($builder->build(), new FakeUri(), new FakeResponse());
+        $container->records['ROUTER'] = $router = new Router($builder->build(), new FakeUri(), new FakeResponse());
+
         $response = $router->handle(new FakeServerRequest());
         $this->assertSame('handler response', (string) $response->getBody());
     }
