@@ -119,6 +119,11 @@ class RouteBuilder implements Builder
         return $this->switchBuilder(new MethodSwitchBuilder($this));
     }
 
+    public function resource(string $name = null): ResourceSwitchBuilder
+    {
+        return $this->switchBuilder(new ResourceSwitchBuilder($name, $this));
+    }
+
     protected function setRoute(Route $route): void
     {
         $this->stateCheck();

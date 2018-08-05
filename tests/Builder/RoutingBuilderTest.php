@@ -12,6 +12,7 @@
 namespace Polymorphine\Routing\Tests\Builder;
 
 use PHPUnit\Framework\TestCase;
+use Polymorphine\Routing\Builder\ResourceSwitchBuilder;
 use Polymorphine\Routing\Builder\RouteBuilder;
 use Polymorphine\Routing\Builder\SwitchBuilder;
 use Polymorphine\Routing\Builder\MethodSwitchBuilder;
@@ -416,5 +417,79 @@ class RoutingBuilderTest extends TestCase
 
         $response = $router->handle(new FakeServerRequest());
         $this->assertSame('handler response', (string) $response->getBody());
+    }
+
+    public function testResourceSwitchBuilder()
+    {
+        $callback = function ($body) {
+            return function (ServerRequestInterface $request) use ($body) {
+                return new FakeResponse($body . ':' . $request->getAttribute('posts.id'));
+            };
+        };
+
+        $builder = new RouteBuilder();
+        $posts = $builder->resource('posts')->idRegexp('[0-9]{2}[1-9]');
+        $posts->route('INDEX')->callback($callback('INDEX'));
+        $posts->route('GET')->callback($callback('GET'));
+        $posts->route('POST')->callback($callback('POST'));
+        $route = $builder->build();
+
+        $prototype = new FakeResponse();
+        $request = new FakeServerRequest('GET', FakeUri::fromString('/posts'));
+        $this->assertSame('INDEX:', (string) $route->forward($request, $prototype)->getBody());
+        $this->assertSame('POST:', (string) $route->forward($request->withMethod('POST'), $prototype)->getBody());
+
+        $request = new FakeServerRequest('GET', FakeUri::fromString('/posts/003'));
+        $this->assertSame('GET:003', (string) $route->forward($request, $prototype)->getBody());
+
+        $request = new FakeServerRequest('GET', FakeUri::fromString('/posts/foo'));
+        $this->assertSame($prototype, $route->forward($request, $prototype));
+    }
+
+    public function testResourceSwitchBuilderWithoutGETMethod()
+    {
+        $callback = function ($body) {
+            return function (ServerRequestInterface $request) use ($body) {
+                return new FakeResponse($body . ':' . $request->getAttribute('resource.id'));
+            };
+        };
+
+        $builder = new RouteBuilder();
+        $posts = $builder->pattern(new Path('posts*'))->resource();
+        $posts->route('INDEX')->callback($callback('INDEX'));
+        $posts->route('PATCH')->callback($callback('PATCH'));
+        $route = $builder->build();
+
+        $prototype = new FakeResponse();
+        $request = new FakeServerRequest('GET', FakeUri::fromString('/posts'));
+        $this->assertSame('INDEX:', (string) $route->forward($request, $prototype)->getBody());
+
+        $request = new FakeServerRequest('PATCH', FakeUri::fromString('/posts/23'));
+        $this->assertSame('PATCH:23', (string) $route->forward($request, $prototype)->getBody());
+
+        $request = new FakeServerRequest('GET', FakeUri::fromString('/posts/23'));
+        $this->assertSame($prototype, $route->forward($request, $prototype));
+    }
+
+    public function testSettingIdRegexpOnBuiltResourceRoute_ThrowsException()
+    {
+        $builder = new ResourceSwitchBuilder(null);
+        $builder->route('GET')->join(new MockedRoute());
+        $this->expectException(BuilderCallException::class);
+        $builder->idRegexp('[a-z]+');
+    }
+
+    public function testUnnamedResourceRoute_ThrowsException()
+    {
+        $builder = new ResourceSwitchBuilder('foo');
+        $this->expectException(InvalidArgumentException::class);
+        $builder->route();
+    }
+
+    public function testInvalidMethodNameForResourceRoute_ThrowsException()
+    {
+        $builder = new ResourceSwitchBuilder('foo');
+        $this->expectException(InvalidArgumentException::class);
+        $builder->route('FOO');
     }
 }
