@@ -22,7 +22,7 @@ class MethodSwitchBuilder extends SwitchBuilder
     public function route(string $name = null): RouteBuilder
     {
         if (!$name) {
-            throw new InvalidArgumentException('Name is required for path segment route switch');
+            throw new InvalidArgumentException('Name is required for method route switch');
         }
 
         $builder = $this->context->route();
