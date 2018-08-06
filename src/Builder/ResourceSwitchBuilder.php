@@ -28,10 +28,10 @@ class ResourceSwitchBuilder extends SwitchBuilder
     private $name;
     private $idRegexp = '[1-9][0-9]*';
 
-    public function __construct(?string $name, RouteBuilder $context = null)
+    public function __construct(?string $name, ?RouteBuilder $context = null, array $routes = [])
     {
         $this->name = $name;
-        $context ? parent::__construct($context) : parent::__construct();
+        $context ? parent::__construct($context, $routes) : parent::__construct(null, $routes);
     }
 
     public function idRegexp(string $regexp)

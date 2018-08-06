@@ -20,21 +20,30 @@ abstract class SwitchBuilder implements Builder
 {
     /** @var Builder[] */
     protected $builders = [];
+
+    /** @var Route[] */
+    protected $routes;
+
+    /** @var Route */
+    protected $switch;
+
     protected $context;
 
-    public function __construct(RouteBuilder $context = null)
+    public function __construct(?RouteBuilder $context = null, array $routes = [])
     {
         $this->context = $context ?? new RouteBuilder();
+        $this->routes  = $routes;
     }
 
     public function build(): Route
     {
-        $routes = [];
+        if (isset ($this->switch)) { return $this->switch; }
+
         foreach ($this->builders as $name => $builder) {
-            $routes[$name] = $builder->build();
+            $this->routes[$name] = $builder->build();
         }
 
-        return $this->router($routes);
+        return $this->switch = $this->router($this->routes);
     }
 
     public function route(string $name = null): RouteBuilder
@@ -51,7 +60,7 @@ abstract class SwitchBuilder implements Builder
 
     protected function validName(string $name): string
     {
-        if (!isset($this->builders[$name])) { return $name; }
+        if (!isset($this->builders[$name]) && !isset($this->routes[$name])) { return $name; }
 
         $message = 'Route name `%s` already exists in this scope';
         throw new InvalidArgumentException(sprintf($message, $name));

@@ -104,24 +104,24 @@ class RouteBuilder implements Builder
         $this->setRoute(new Route\Endpoint\HandlerFactoryEndpoint($factoryCallback, $this->container));
     }
 
-    public function pathSwitch(): PathSegmentSwitchBuilder
+    public function pathSwitch(array $routes = []): PathSegmentSwitchBuilder
     {
-        return $this->switchBuilder(new PathSegmentSwitchBuilder($this));
+        return $this->switchBuilder(new PathSegmentSwitchBuilder($this, $routes));
     }
 
-    public function responseScan(): ResponseScanSwitchBuilder
+    public function responseScan(array $routes = []): ResponseScanSwitchBuilder
     {
-        return $this->switchBuilder(new ResponseScanSwitchBuilder($this));
+        return $this->switchBuilder(new ResponseScanSwitchBuilder($this, $routes));
     }
 
-    public function methodSwitch(): MethodSwitchBuilder
+    public function methodSwitch(array $routes = []): MethodSwitchBuilder
     {
-        return $this->switchBuilder(new MethodSwitchBuilder($this));
+        return $this->switchBuilder(new MethodSwitchBuilder($this, $routes));
     }
 
-    public function resource(string $name = null): ResourceSwitchBuilder
+    public function resource(string $name = null, array $routes = []): ResourceSwitchBuilder
     {
-        return $this->switchBuilder(new ResourceSwitchBuilder($name, $this));
+        return $this->switchBuilder(new ResourceSwitchBuilder($name, $this, $routes));
     }
 
     protected function setRoute(Route $route): void
