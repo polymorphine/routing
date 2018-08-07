@@ -12,11 +12,11 @@
 namespace Polymorphine\Routing\Builder;
 
 use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Route\Gate\PatternGate as Pattern;
 use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\Path;
 use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\PathSegment;
 use Polymorphine\Routing\Route\Splitter\MethodSwitch;
 use Polymorphine\Routing\Route\Splitter\ResponseScanSwitch;
-use Polymorphine\Routing\Exception\BuilderCallException;
 use InvalidArgumentException;
 
 
@@ -27,33 +27,29 @@ class ResourceSwitchBuilder extends SwitchBuilder
     private $idName   = 'resource.id';
     private $idRegexp = '[1-9][0-9]*';
 
-    public function id(string $name, string $regexp = null)
+    public function id(string $name, string $regexp = '[1-9][0-9]*')
     {
-        if (!empty($this->builders)) {
-            throw new BuilderCallException('Cannot change id if routes were added');
-        }
+        $this->idName   = $name;
+        $this->idRegexp = $regexp;
 
-        $this->idName = $name;
-        if ($regexp) {
-            $this->idRegexp = $regexp;
-        }
         return $this;
     }
 
     public function route(string $name = null): RouteBuilder
     {
         if (!$name) {
-            throw new InvalidArgumentException('Http method or `INDEX` is required as name for resource route switch');
+            $message = 'Route name is required as name for resource switch (allowed values `%s`)';
+            throw new InvalidArgumentException(sprintf($message, implode('`,`', $this->methods)));
         }
-
-        $builder = $this->addBuilder($this->context->route(), $this->validMethod($name));
-        return ($name === 'INDEX' || $name === 'POST')
-            ? $builder->pattern(new Path(''))
-            : $builder->pattern(new PathSegment($this->idName, $this->idRegexp));
+        return parent::route($this->validMethod($name));
     }
 
     protected function router(array $routes): Route
     {
+        foreach ($routes as $name => &$route) {
+            $route = $this->wrapRouteType($name, $route);
+        }
+
         $routes = $this->resolveIndexMethod($routes);
 
         return new MethodSwitch($routes);
@@ -67,15 +63,27 @@ class ResourceSwitchBuilder extends SwitchBuilder
         throw new InvalidArgumentException(sprintf($message, $method));
     }
 
+    private function wrapRouteType(string $type, Route $route): Route
+    {
+        return ($type === 'INDEX' || $type === 'POST')
+            ? new Pattern(new Path(''), $route)
+            : new Pattern(new PathSegment($this->idName, $this->idRegexp), $route);
+    }
+
     private function resolveIndexMethod(array $routes): array
     {
         if (!isset($routes['INDEX'])) { return $routes; }
         $routes['GET'] = isset($routes['GET'])
-            ? new ResponseScanSwitch(['item' => $routes['GET']], $routes['INDEX'])
-            : $routes['INDEX'];
-
-        unset($routes['INDEX']);
+            ? new ResponseScanSwitch(['index' => $this->pullRoute('INDEX', $routes)], $routes['GET'])
+            : $this->pullRoute('INDEX', $routes);
 
         return $routes;
+    }
+
+    private function pullRoute(string $name, array &$routes): Route
+    {
+        $route = $routes[$name] ?? null;
+        unset($routes[$name]);
+        return $route;
     }
 }

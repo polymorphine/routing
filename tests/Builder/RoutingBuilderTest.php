@@ -471,12 +471,23 @@ class RoutingBuilderTest extends TestCase
         $this->assertSame($prototype, $route->forward($request, $prototype));
     }
 
-    public function testSettingIdRegexpOnBuiltResourceRoute_ThrowsException()
+    public function testSettingIdPropertiesCanBeDeferred()
     {
-        $builder = new ResourceSwitchBuilder(null);
-        $builder->route('GET')->join(new MockedRoute());
-        $this->expectException(BuilderCallException::class);
-        $builder->id('id');
+        $builder = new ResourceSwitchBuilder();
+        $builder->route('GET')->join(MockedRoute::response('get'));
+        $builder->id('special.id', '[a-z0-9]{6}');
+        $builder->route('PATCH')->join(MockedRoute::response('patch'));
+        $route = $builder->build();
+
+        $prototype = new FakeResponse();
+        $request = new FakeServerRequest('GET', FakeUri::fromString('abc012'));
+        $this->assertSame('get', (string) $route->forward($request, $prototype)->getBody());
+
+        $request = new FakeServerRequest('PATCH', FakeUri::fromString('09a0bc'));
+        $this->assertSame('patch', (string) $route->forward($request, $prototype)->getBody());
+
+        $request = new FakeServerRequest('GET', FakeUri::fromString('abc'));
+        $this->assertSame($prototype, $route->forward($request, $prototype));
     }
 
     public function testUnnamedResourceRoute_ThrowsException()
