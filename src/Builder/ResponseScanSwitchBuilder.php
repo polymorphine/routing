@@ -12,6 +12,7 @@
 namespace Polymorphine\Routing\Builder;
 
 use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Exception\BuilderCallException;
 
 
@@ -27,6 +28,11 @@ class ResponseScanSwitchBuilder extends SwitchBuilder
         }
 
         return $this->defaultRoute = $this->context->route();
+    }
+
+    public function resource(string $name, array $routes = []): ResourceSwitchBuilder
+    {
+        return $this->route($name)->path($name)->resource($routes);
     }
 
     protected function router(array $routes): Route

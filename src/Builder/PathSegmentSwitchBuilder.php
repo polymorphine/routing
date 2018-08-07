@@ -28,6 +28,11 @@ class PathSegmentSwitchBuilder extends SwitchBuilder
         return parent::route($name);
     }
 
+    public function resource(string $name, array $routes = []): ResourceSwitchBuilder
+    {
+        return parent::route($name)->resource($routes);
+    }
+
     public function root(Route $root)
     {
         $this->rootRoute = $root;

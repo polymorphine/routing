@@ -423,12 +423,12 @@ class RoutingBuilderTest extends TestCase
     {
         $callback = function ($body) {
             return function (ServerRequestInterface $request) use ($body) {
-                return new FakeResponse($body . ':' . $request->getAttribute('posts.id'));
+                return new FakeResponse($body . ':' . $request->getAttribute('post.id'));
             };
         };
 
-        $builder = new RouteBuilder();
-        $posts = $builder->resource('posts')->idRegexp('[0-9]{2}[1-9]');
+        $builder = new ResponseScanSwitchBuilder();
+        $posts = $builder->resource('posts')->id('post.id', '[0-9]{2}[1-9]');
         $posts->route('INDEX')->callback($callback('INDEX'));
         $posts->route('GET')->callback($callback('GET'));
         $posts->route('POST')->callback($callback('POST'));
@@ -454,8 +454,8 @@ class RoutingBuilderTest extends TestCase
             };
         };
 
-        $builder = new RouteBuilder();
-        $posts = $builder->pattern(new Path('posts*'))->resource();
+        $builder = new PathSegmentSwitchBuilder();
+        $posts = $builder->resource('posts');
         $posts->route('INDEX')->callback($callback('INDEX'));
         $posts->route('PATCH')->callback($callback('PATCH'));
         $route = $builder->build();
@@ -476,19 +476,19 @@ class RoutingBuilderTest extends TestCase
         $builder = new ResourceSwitchBuilder(null);
         $builder->route('GET')->join(new MockedRoute());
         $this->expectException(BuilderCallException::class);
-        $builder->idRegexp('[a-z]+');
+        $builder->id('id');
     }
 
     public function testUnnamedResourceRoute_ThrowsException()
     {
-        $builder = new ResourceSwitchBuilder('foo');
+        $builder = new ResourceSwitchBuilder();
         $this->expectException(InvalidArgumentException::class);
         $builder->route();
     }
 
     public function testInvalidMethodNameForResourceRoute_ThrowsException()
     {
-        $builder = new ResourceSwitchBuilder('foo');
+        $builder = new ResourceSwitchBuilder();
         $this->expectException(InvalidArgumentException::class);
         $builder->route('FOO');
     }

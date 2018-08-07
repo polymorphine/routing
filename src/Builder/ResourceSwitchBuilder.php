@@ -12,7 +12,6 @@
 namespace Polymorphine\Routing\Builder;
 
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Route\Gate\PathSegmentGate;
 use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\Path;
 use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\PathSegment;
 use Polymorphine\Routing\Route\Splitter\MethodSwitch;
@@ -25,22 +24,19 @@ class ResourceSwitchBuilder extends SwitchBuilder
 {
     protected $methods = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'INDEX'];
 
-    private $name;
+    private $idName   = 'resource.id';
     private $idRegexp = '[1-9][0-9]*';
 
-    public function __construct(?string $name, ?RouteBuilder $context = null, array $routes = [])
-    {
-        $this->name = $name;
-        $context ? parent::__construct($context, $routes) : parent::__construct(null, $routes);
-    }
-
-    public function idRegexp(string $regexp)
+    public function id(string $name, string $regexp = null)
     {
         if (!empty($this->builders)) {
-            throw new BuilderCallException('Cannot change id pattern if routes were added');
+            throw new BuilderCallException('Cannot change id if routes were added');
         }
 
-        $this->idRegexp = $regexp;
+        $this->idName = $name;
+        if ($regexp) {
+            $this->idRegexp = $regexp;
+        }
         return $this;
     }
 
@@ -53,16 +49,14 @@ class ResourceSwitchBuilder extends SwitchBuilder
         $builder = $this->addBuilder($this->context->route(), $this->validMethod($name));
         return ($name === 'INDEX' || $name === 'POST')
             ? $builder->pattern(new Path(''))
-            : $builder->pattern(new PathSegment($this->idAttribute(), $this->idRegexp));
+            : $builder->pattern(new PathSegment($this->idName, $this->idRegexp));
     }
 
     protected function router(array $routes): Route
     {
         $routes = $this->resolveIndexMethod($routes);
 
-        return $this->name
-            ? new PathSegmentGate($this->name, new MethodSwitch($routes))
-            : new MethodSwitch($routes);
+        return new MethodSwitch($routes);
     }
 
     protected function validMethod(string $method): string
@@ -83,10 +77,5 @@ class ResourceSwitchBuilder extends SwitchBuilder
         unset($routes['INDEX']);
 
         return $routes;
-    }
-
-    private function idAttribute()
-    {
-        return $this->name ? $this->name . '.id' : 'resource.id';
     }
 }
