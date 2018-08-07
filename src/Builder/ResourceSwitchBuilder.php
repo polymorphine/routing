@@ -11,6 +11,7 @@
 
 namespace Polymorphine\Routing\Builder;
 
+use Polymorphine\Routing\Exception\BuilderCallException;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\PatternGate as Pattern;
 use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\Path;
@@ -22,16 +23,22 @@ use InvalidArgumentException;
 
 class ResourceSwitchBuilder extends SwitchBuilder
 {
-    protected $methods = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'INDEX'];
+    private $methods       = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'INDEX', 'NEW', 'EDIT'];
+    private $pseudoMethods = ['INDEX', 'NEW', 'EDIT'];
 
     private $idName   = 'resource.id';
     private $idRegexp = '[1-9][0-9]*';
 
     public function id(string $name, string $regexp = '[1-9][0-9]*')
     {
-        $this->idName   = $name;
-        $this->idRegexp = $regexp;
+        $this->idName = $name;
+        if (!$regexp) { return $this; }
 
+        if (preg_match('#' . $regexp . '#', 'new')) {
+            throw new BuilderCallException('Uri conflict: NEW pseudo method uri matches id regexp');
+        }
+
+        $this->idRegexp = $regexp;
         return $this;
     }
 
@@ -50,7 +57,7 @@ class ResourceSwitchBuilder extends SwitchBuilder
             $route = $this->wrapRouteType($name, $route);
         }
 
-        $routes = $this->resolveIndexMethod($routes);
+        $routes = $this->resolvePseudoMethods($routes);
 
         return new MethodSwitch($routes);
     }
@@ -63,21 +70,39 @@ class ResourceSwitchBuilder extends SwitchBuilder
         throw new InvalidArgumentException(sprintf($message, $method));
     }
 
-    private function wrapRouteType(string $type, Route $route): Route
+    private function wrapRouteType(string $name, Route $route): Route
     {
-        return ($type === 'INDEX' || $type === 'POST')
-            ? new Pattern(new Path(''), $route)
-            : new Pattern(new PathSegment($this->idName, $this->idRegexp), $route);
+        switch ($name) {
+            case 'INDEX':
+            case 'POST':
+                return new Pattern(new Path(''), $route);
+            case 'NEW':
+                return new Pattern(new Path('new/form'), $route);
+            case 'EDIT':
+                $route = new Pattern(new Path('form'), $route);
+                break;
+        }
+        return new Pattern(new PathSegment($this->idName, $this->idRegexp), $route);
     }
 
-    private function resolveIndexMethod(array $routes): array
+    private function resolvePseudoMethods(array $routes): array
     {
-        if (!isset($routes['INDEX'])) { return $routes; }
+        if (!$pseudoMethodRoutes = $this->extractPseudoMethodRoutes($routes)) { return $routes; }
         $routes['GET'] = isset($routes['GET'])
-            ? new ResponseScanSwitch(['index' => $this->pullRoute('INDEX', $routes)], $routes['GET'])
-            : $this->pullRoute('INDEX', $routes);
+            ? new ResponseScanSwitch($pseudoMethodRoutes, $routes['GET'])
+            : new ResponseScanSwitch($pseudoMethodRoutes);
 
         return $routes;
+    }
+
+    private function extractPseudoMethodRoutes(array &$routes): array
+    {
+        $pseudoRoutes = [];
+        foreach ($this->pseudoMethods as $name) {
+            if (!isset($routes[$name])) { continue; }
+            $pseudoRoutes[strtolower($name)] = $this->pullRoute($name, $routes);
+        }
+        return $pseudoRoutes;
     }
 
     private function pullRoute(string $name, array &$routes): Route
