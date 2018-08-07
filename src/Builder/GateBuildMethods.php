@@ -55,6 +55,25 @@ trait GateBuildMethods
     }
 
     /**
+     * Creates PathSegmentGate wrappers for built route.
+     *
+     * @param string $path
+     *
+     * @return $this
+     */
+    public function path(string $path)
+    {
+        $this->gates[] = function (Route $route) use ($path) {
+            $segments = explode('/', $path);
+            foreach ($segments as $segment) {
+                $route = new Route\Gate\PathSegmentGate($segment, $route);
+            }
+            return $route;
+        };
+        return $this;
+    }
+
+    /**
      * Creates CallbackGateway wrapper for built route.
      *
      * @param callable $callback
