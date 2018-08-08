@@ -59,7 +59,7 @@ class ResourceSwitchBuilder extends SwitchBuilder
 
         $routes = $this->resolvePseudoMethods($routes);
 
-        return new MethodSwitch($routes);
+        return new Route\Gate\ResourceGateway($this->idName, new MethodSwitch($routes));
     }
 
     protected function validMethod(string $method): string

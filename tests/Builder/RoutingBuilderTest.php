@@ -497,7 +497,7 @@ class RoutingBuilderTest extends TestCase
         $builder->id('special.id', '[a-z0-9]{3}');
     }
 
-    public function testUriPathsForBuiltResourceRoutes()
+    public function testUriPathsForBuiltResourceRoutesIgnoreHttpMethod()
     {
         $builder = new PathSegmentSwitchBuilder();
         $resource = $builder->resource('posts')->id('post.id');
@@ -509,11 +509,11 @@ class RoutingBuilderTest extends TestCase
         $route = $builder->build()->select('posts');
 
         $prototype = new FakeUri();
-        $this->assertEquals('/posts', (string) $route->select('POST')->uri($prototype, ['post.id' => 1234]));
-        $this->assertEquals('/posts', (string) $route->select('GET.index')->uri($prototype, ['post.id' => 1234]));
-        $this->assertEquals('/posts/1234', (string) $route->select('GET')->uri($prototype, ['post.id' => 1234]));
-        $this->assertEquals('/posts/1234/form', (string) $route->select('GET.edit')->uri($prototype, ['post.id' => 1234]));
-        $this->assertEquals('/posts/new/form', (string) $route->select('GET.new')->uri($prototype, ['post.id' => 1234]));
+        $this->assertEquals('/posts', (string) $route->uri($prototype, []));
+        $this->assertEquals('/posts/1234', (string) $route->uri($prototype, ['post.id' => 1234]));
+        $this->assertEquals('/posts/1234/form', (string) $route->select('edit')->uri($prototype, ['post.id' => 1234]));
+        $this->assertEquals('/posts/new/form', (string) $route->select('new')->uri($prototype, ['post.id' => 1234]));
+        $this->assertEquals('/posts', (string) $route->select('index')->uri($prototype, ['post.id' => 1234]));
     }
 
     public function testUnnamedResourceRoute_ThrowsException()
