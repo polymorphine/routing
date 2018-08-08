@@ -516,6 +516,23 @@ class RoutingBuilderTest extends TestCase
         $this->assertEquals('/posts', (string) $route->select('index')->uri($prototype, ['post.id' => 1234]));
     }
 
+    public function testUriCanBeGeneratedWithoutDefined_GET_or_INDEX_Routes()
+    {
+        $builder = new PathSegmentSwitchBuilder();
+        $resource = $builder->resource('posts')->id('post.id');
+        $resource->route('DELETE')->join(MockedRoute::response('delete'));
+        $resource->route('NEW')->join(MockedRoute::response('new'));
+        $resource->route('EDIT')->join(MockedRoute::response('edit'));
+        $route = $builder->build()->select('posts');
+
+        $prototype = new FakeUri();
+        $this->assertEquals('/posts', (string) $route->uri($prototype, []));
+        $this->assertEquals('/posts/1234', (string) $route->uri($prototype, ['post.id' => 1234]));
+        $this->assertEquals('/posts/1234/form', (string) $route->select('edit')->uri($prototype, ['post.id' => 1234]));
+        $this->assertEquals('/posts/new/form', (string) $route->select('new')->uri($prototype, ['post.id' => 1234]));
+        $this->assertEquals('/posts', (string) $route->select('index')->uri($prototype, ['post.id' => 1234]));
+    }
+
     public function testUnnamedResourceRoute_ThrowsException()
     {
         $builder = new ResourceSwitchBuilder();

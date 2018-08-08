@@ -11,13 +11,14 @@
 
 namespace Polymorphine\Routing\Builder;
 
-use Polymorphine\Routing\Exception\BuilderCallException;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Route\Gate\PatternGate as Pattern;
+use Polymorphine\Routing\Route\Gate\PatternGate;
 use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\Path;
 use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\PathSegment;
 use Polymorphine\Routing\Route\Splitter\MethodSwitch;
 use Polymorphine\Routing\Route\Splitter\ResponseScanSwitch;
+use Polymorphine\Routing\Route\Endpoint\NullEndpoint;
+use Polymorphine\Routing\Exception\BuilderCallException;
 use InvalidArgumentException;
 
 
@@ -53,11 +54,14 @@ class ResourceSwitchBuilder extends SwitchBuilder
 
     protected function router(array $routes): Route
     {
+        $routes['GET']   = $routes['GET'] ?? new NullEndpoint();
+        $routes['INDEX'] = $routes['INDEX'] ?? new NullEndpoint();
+
         foreach ($routes as $name => &$route) {
             $route = $this->wrapRouteType($name, $route);
         }
 
-        $routes = $this->resolvePseudoMethods($routes);
+        $routes['GET'] = new ResponseScanSwitch($this->extractPseudoMethodRoutes($routes), $routes['GET']);
 
         return new Route\Gate\ResourceGateway($this->idName, new MethodSwitch($routes));
     }
@@ -75,24 +79,14 @@ class ResourceSwitchBuilder extends SwitchBuilder
         switch ($name) {
             case 'INDEX':
             case 'POST':
-                return new Pattern(new Path(''), $route);
+                return new PatternGate(new Path(''), $route);
             case 'NEW':
-                return new Pattern(new Path('new/form'), $route);
+                return new PatternGate(new Path('new/form'), $route);
             case 'EDIT':
-                $route = new Pattern(new Path('form'), $route);
+                $route = new PatternGate(new Path('form'), $route);
                 break;
         }
-        return new Pattern(new PathSegment($this->idName, $this->idRegexp), $route);
-    }
-
-    private function resolvePseudoMethods(array $routes): array
-    {
-        if (!$pseudoMethodRoutes = $this->extractPseudoMethodRoutes($routes)) { return $routes; }
-        $routes['GET'] = isset($routes['GET'])
-            ? new ResponseScanSwitch($pseudoMethodRoutes, $routes['GET'])
-            : new ResponseScanSwitch($pseudoMethodRoutes);
-
-        return $routes;
+        return new PatternGate(new PathSegment($this->idName, $this->idRegexp), $route);
     }
 
     private function extractPseudoMethodRoutes(array &$routes): array
