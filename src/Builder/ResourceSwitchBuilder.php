@@ -43,13 +43,13 @@ class ResourceSwitchBuilder extends SwitchBuilder
         return $this;
     }
 
-    public function route(string $name = null): RouteBuilder
+    public function route(string $name): RouteBuilder
     {
         if (!$name) {
             $message = 'Route name is required as name for resource switch (allowed values `%s`)';
             throw new InvalidArgumentException(sprintf($message, implode('`,`', $this->methods)));
         }
-        return parent::route($this->validMethod($name));
+        return $this->addBuilder($this->context->route(), $this->validMethod($name));
     }
 
     protected function router(array $routes): Route

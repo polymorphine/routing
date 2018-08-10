@@ -30,6 +30,11 @@ class ResponseScanSwitchBuilder extends SwitchBuilder
         return $this->defaultRoute = $this->context->route();
     }
 
+    public function route(string $name = null): RouteBuilder
+    {
+        return $this->addBuilder($this->context->route(), $name);
+    }
+
     public function resource(string $name, array $routes = []): ResourceSwitchBuilder
     {
         return $this->route($name)->path($name)->resource($routes);

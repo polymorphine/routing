@@ -46,11 +46,6 @@ abstract class SwitchBuilder implements Builder
         return $this->switch = $this->router($this->routes);
     }
 
-    public function route(string $name = null): RouteBuilder
-    {
-        return $this->addBuilder($this->context->route(), $name);
-    }
-
     abstract protected function router(array $routes): Route;
 
     protected function addBuilder(RouteBuilder $builder, ?string $name): RouteBuilder

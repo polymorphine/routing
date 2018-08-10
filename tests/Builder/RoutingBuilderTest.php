@@ -94,18 +94,18 @@ class RoutingBuilderTest extends TestCase
         $this->assertSame($response, $route->forward($request->withAttribute('test', 'B'), $prototype));
     }
 
-    public function testUnnamedRouteForMethodSwitchBuilder_ThrowsException()
+    public function testEmptyNameRouteForMethodSwitchBuilder_ThrowsException()
     {
         $builder = new MethodSwitchBuilder();
         $this->expectException(InvalidArgumentException::class);
-        $builder->route();
+        $builder->route('');
     }
 
-    public function testUnnamedRouteForPathSegmentSwitchBuilder_ThrowsException()
+    public function testEmptyNameRouteForPathSegmentSwitchBuilder_ThrowsException()
     {
         $builder = new PathSegmentSwitchBuilder();
         $this->expectException(InvalidArgumentException::class);
-        $builder->route();
+        $builder->route('');
     }
 
     public function testMultipleMethodsRouteForMethodSwitchBuilder()
@@ -533,11 +533,11 @@ class RoutingBuilderTest extends TestCase
         $this->assertEquals('/posts', (string) $route->select('index')->uri($prototype, ['post.id' => 1234]));
     }
 
-    public function testUnnamedResourceRoute_ThrowsException()
+    public function testEmptyNameResourceRoute_ThrowsException()
     {
         $builder = new ResourceSwitchBuilder();
         $this->expectException(InvalidArgumentException::class);
-        $builder->route();
+        $builder->route('');
     }
 
     public function testInvalidMethodNameForResourceRoute_ThrowsException()

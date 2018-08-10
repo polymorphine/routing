@@ -19,7 +19,7 @@ class MethodSwitchBuilder extends SwitchBuilder
 {
     private $methods = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'];
 
-    public function route(string $name = null): RouteBuilder
+    public function route(string $name): RouteBuilder
     {
         if (!$name) {
             throw new InvalidArgumentException('Name is required for method route switch');

@@ -19,18 +19,18 @@ class PathSegmentSwitchBuilder extends SwitchBuilder
 {
     private $rootRoute;
 
-    public function route(string $name = null): RouteBuilder
+    public function route(string $name): RouteBuilder
     {
         if (!$name) {
             throw new InvalidArgumentException('Name is required for path segment route switch');
         }
 
-        return parent::route($name);
+        return $this->addBuilder($this->context->route(), $name);
     }
 
     public function resource(string $name, array $routes = []): ResourceSwitchBuilder
     {
-        return parent::route($name)->resource($routes);
+        return $this->route($name)->resource($routes);
     }
 
     public function root(Route $root)
