@@ -21,10 +21,6 @@ class MethodSwitchBuilder extends SwitchBuilder
 
     public function route(string $name): RouteBuilder
     {
-        if (!$name) {
-            throw new InvalidArgumentException('Name is required for method route switch');
-        }
-
         $builder = $this->context->route();
         $names   = explode('|', $name);
         foreach ($names as $name) {
