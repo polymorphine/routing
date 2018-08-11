@@ -15,12 +15,14 @@ use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Builder\ResourceSwitchBuilder;
 use Polymorphine\Routing\Builder\SwitchBuilder;
 use Polymorphine\Routing\Builder\PathSegmentSwitchBuilder;
+use Polymorphine\Routing\Exception\BuilderCallException;
 use Polymorphine\Routing\Route\Endpoint\CallbackEndpoint;
 use Polymorphine\Routing\Route\Splitter\PathSegmentSwitch;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
 use InvalidArgumentException;
+use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 
 
 class PathSegmentSwitchBuilderTest extends TestCase
@@ -68,7 +70,13 @@ class PathSegmentSwitchBuilderTest extends TestCase
         $this->assertSame($root, $route->forward($request->withUri(FakeUri::fromString('/')), $prototype));
     }
 
-    //TODO: testSettingRootRouteSecondTime_ThrowsException()
+    public function testSettingRootRouteSecondTime_ThrowsException()
+    {
+        $switch = $this->builder();
+        $switch->root(new MockedRoute());
+        $this->expectException(BuilderCallException::class);
+        $switch->root(new MockedRoute());
+    }
 
     public function testAddingRouteWithAlreadyDefinedName_ThrowsException()
     {
