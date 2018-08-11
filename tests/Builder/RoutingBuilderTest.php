@@ -12,12 +12,7 @@
 namespace Polymorphine\Routing\Tests\Builder;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Builder\ResourceSwitchBuilder;
-use Polymorphine\Routing\Builder\RouteBuilder;
-use Polymorphine\Routing\Builder\SwitchBuilder;
-use Polymorphine\Routing\Builder\MethodSwitchBuilder;
-use Polymorphine\Routing\Builder\ResponseScanSwitchBuilder;
-use Polymorphine\Routing\Builder\PathSegmentSwitchBuilder;
+use Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\Pattern\UriPattern;
 use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\Scheme;
@@ -34,27 +29,34 @@ use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
 use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 use Psr\Http\Message\ServerRequestInterface;
-use InvalidArgumentException;
+use Psr\Container\ContainerInterface;
 
 
 class RoutingBuilderTest extends TestCase
 {
     public function testInstantiation()
     {
-        $this->assertInstanceOf(RouteBuilder::class, $this->builder());
+        $this->assertInstanceOf(Builder\RouteBuilder::class, $this->builder());
     }
 
     public function testRouteCanBeSplit()
     {
-        $this->assertInstanceOf(ResponseScanSwitchBuilder::class, $this->builder()->responseScan());
-        $this->assertInstanceOf(MethodSwitchBuilder::class, $this->builder()->methodSwitch());
-        $this->assertInstanceOf(PathSegmentSwitchBuilder::class, $this->builder()->pathSwitch());
-        $this->assertInstanceOf(ResourceSwitchBuilder::class, $this->builder()->resource());
+        $this->assertInstanceOf(Builder\ResponseScanSwitchBuilder::class, $this->builder()->responseScan());
+        $this->assertInstanceOf(Builder\MethodSwitchBuilder::class, $this->builder()->methodSwitch());
+        $this->assertInstanceOf(Builder\PathSegmentSwitchBuilder::class, $this->builder()->pathSwitch());
+        $this->assertInstanceOf(Builder\ResourceSwitchBuilder::class, $this->builder()->resource());
+    }
+
+    public function testCallbackEndpoint()
+    {
+        $builder = $this->builder();
+        $builder->callback(function () {});
+        $this->assertInstanceOf(Route\Endpoint\CallbackEndpoint::class, $builder->build());
     }
 
     public function testHandlerEndpoint()
     {
-        $builder  = $this->builder();
+        $builder = $this->builder();
         $builder->handler(new FakeRequestHandler(new FakeResponse()));
         $this->assertInstanceOf(Route\Endpoint\HandlerEndpoint::class, $builder->build());
     }
@@ -64,17 +66,6 @@ class RoutingBuilderTest extends TestCase
         $builder = $this->builder();
         $builder->lazy(function () {});
         $this->assertInstanceOf(Route\Gate\LazyRoute::class, $builder->build());
-    }
-
-    public function testMiddlewareGate()
-    {
-        $builder = $this->builder();
-        $builder->middleware(new FakeMiddleware('wrap'))->callback(function () { return new FakeResponse('response'); });
-        $route = $builder->build();
-
-        $request   = (new FakeServerRequest())->withAttribute('middleware', 'requestPassed');
-        $prototype = new FakeResponse();
-        $this->assertSame('requestPassed: wrap response wrap', (string) $route->forward($request, $prototype)->getBody());
     }
 
     public function testSetRouteWhenAlreadyBuilt_ThrowsException()
@@ -99,10 +90,11 @@ class RoutingBuilderTest extends TestCase
         };
 
         $request = new FakeServerRequest('GET', FakeUri::fromString('http://example.com/foo'));
-        $https   = FakeUri::fromString('https:/example.com/foo');
+        $https   = FakeUri::fromString('https://example.com/foo/bar/baz');
 
         $cases = [
             [$this->builder()->pattern(new Scheme('https')), $request->withUri($https), $request],
+            [$this->builder()->path('foo/bar/baz'), $request->withUri($https), $request],
             [$this->builder()->callbackGate($attrCheckCallback), $request->withAttribute('test', true), $request],
             [$this->builder()->method('PATCH'), $request->withMethod('PATCH'), $request],
             [$this->builder()->get(), $request, $request->withMethod('POST')],
@@ -119,7 +111,7 @@ class RoutingBuilderTest extends TestCase
         }
     }
 
-    public function checkCase(RouteBuilder $builder, ServerRequestInterface $match, ServerRequestInterface $block)
+    public function checkCase(Builder\RouteBuilder $builder, ServerRequestInterface $match, ServerRequestInterface $block)
     {
         $blocked  = new FakeResponse('blocked');
         $passed   = new FakeResponse('matched');
@@ -131,9 +123,20 @@ class RoutingBuilderTest extends TestCase
         $this->assertSame($blocked, $route->forward($block, $blocked));
     }
 
+    public function testMiddlewareGate()
+    {
+        $builder = $this->builder();
+        $builder->middleware(new FakeMiddleware('wrap'))->callback(function () { return new FakeResponse('response'); });
+        $route = $builder->build();
+
+        $request   = (new FakeServerRequest())->withAttribute('middleware', 'requestPassed');
+        $prototype = new FakeResponse();
+        $this->assertSame('requestPassed: wrap response wrap', (string) $route->forward($request, $prototype)->getBody());
+    }
+
     public function testRouteWrappedWithMultipleGates()
     {
-        $builder = new RouteBuilder();
+        $builder = $this->builder();
         $builder->method('PATCH')
                 ->pattern(UriPattern::fromUriString('https:/foo*'))
                 ->pattern(new PathSegment('id', '[a-z]+'))
@@ -150,7 +153,7 @@ class RoutingBuilderTest extends TestCase
 
     public function testGatesAreEvaluatedInCorrectOrder()
     {
-        $builder = new RouteBuilder();
+        $builder = $this->builder();
         $builder->pattern(new Path('foo*'))
                 ->pattern(new Path('bar*'))
                 ->callback(function () { return new FakeResponse('passed'); });
@@ -170,7 +173,7 @@ class RoutingBuilderTest extends TestCase
         $endpoint = function (ServerRequestInterface $request) {
             return new FakeResponse('response:' . $request->getUri()->getPath());
         };
-        $builder = new RouteBuilder();
+        $builder = $this->builder();
         $split   = $builder->pattern(new Path('foo*'))->responseScan();
         $split->route('routeA')->pattern(new Path('bar*'))->callback($endpoint);
         $split->route('routeB')->pattern(new Path('baz*'))->callback($endpoint);
@@ -190,13 +193,13 @@ class RoutingBuilderTest extends TestCase
                 return new FakeResponse('response' . $name . ':' . $request->getMethod());
             };
         };
-        $builder = new RouteBuilder();
+        $builder = $this->builder();
         $split   = $builder->pattern(new Path('foo*'))->responseScan();
         $split->route('routeA')->pattern(new Path('bar*'))->callback($endpoint('A'));
         $split->route('routeB')->pattern(new Path('baz*'))->callback($endpoint('B'));
         $route = $builder->build();
 
-        $builder = new MethodSwitchBuilder();
+        $builder = new Builder\MethodSwitchBuilder();
         $builder->route('POST')->pattern(new Scheme('https'))->join($route);
         $builder->route('GET')->join($route);
         $route = $builder->build();
@@ -224,7 +227,7 @@ class RoutingBuilderTest extends TestCase
         $split->route('routeB')->pattern(new Path('baz*'))->join($endpoint);
         $route = $builder->build();
 
-        $builder = new MethodSwitchBuilder();
+        $builder = new Builder\MethodSwitchBuilder();
         $builder->route('POST')->link($postRoute)->pattern(new Scheme('https'))->join($route);
         $builder->route('GET')->join($route);
         $route = $builder->build();
@@ -233,7 +236,7 @@ class RoutingBuilderTest extends TestCase
         $this->assertSame($postRoute, $route->select('POST'));
     }
 
-    public function testRouteBuilderRedirectMethod_ThrowsException()
+    public function testRouteBuilderWithUndefinedRouterCallback_Redirect_ThrowsException()
     {
         $builder = $this->builder();
         $this->expectException(BuilderCallException::class);
@@ -242,23 +245,20 @@ class RoutingBuilderTest extends TestCase
 
     public function testRedirectEndpoint()
     {
-        $container      = new FakeContainer();
-        $routerCallback = function () use ($container) { return $container->get('ROUTER'); };
-
-        $builder = new RouteBuilder($container, $routerCallback);
+        $router  = null;
+        $builder = $this->builder(null, function () use (&$router) { return $router; });
         $path    = $builder->pathSwitch();
-
         $path->route('admin')->pattern(new Path('redirected'))->join(new MockedRoute());
         $path->route('redirect')->redirect('admin');
 
-        $container->records['ROUTER'] = $router = new Router($builder->build(), new FakeUri(), new FakeResponse());
-
-        $response = $router->handle(new FakeServerRequest('GET', FakeUri::fromString('/redirect')));
+        $router   = new Router($builder->build(), new FakeUri(), new FakeResponse());
+        $request  = new FakeServerRequest('GET', FakeUri::fromString('/redirect'));
+        $response = $router->handle($request);
         $this->assertSame('/admin/redirected', $response->getHeader('Location'));
         $this->assertSame(301, $response->getStatusCode());
     }
 
-    public function testRouteBuilderFactoryMethod_ThrowsException()
+    public function testRouteBuilderWithUndefinedContainer_Factory_ThrowsException()
     {
         $builder = $this->builder();
         $this->expectException(BuilderCallException::class);
@@ -267,148 +267,16 @@ class RoutingBuilderTest extends TestCase
 
     public function testFactoryEndpoint()
     {
-        $container      = new FakeContainer();
-        $routerCallback = function () use ($container) { return $container->get('ROUTER'); };
-
-        $builder = new RouteBuilder($container, $routerCallback);
+        $builder = $this->builder(new FakeContainer());
         $builder->factory(FakeHandlerFactory::class);
+        $route = $builder->build();
 
-        $container->records['ROUTER'] = $router = new Router($builder->build(), new FakeUri(), new FakeResponse());
-
-        $response = $router->handle(new FakeServerRequest());
+        $response = $route->forward(new FakeServerRequest(), new FakeResponse());
         $this->assertSame('handler response', (string) $response->getBody());
     }
 
-    public function testResourceSwitchBuilder()
+    private function builder(?ContainerInterface $container = null, ?callable $router = null): Builder\RouteBuilder
     {
-        $callback = function ($body) {
-            return function (ServerRequestInterface $request) use ($body) {
-                return new FakeResponse($body . ':' . $request->getAttribute('post.id'));
-            };
-        };
-
-        $builder = new ResponseScanSwitchBuilder();
-        $posts = $builder->resource('posts')->id('post.id', '[0-9]{2}[1-9]');
-        $posts->route('INDEX')->callback($callback('INDEX'));
-        $posts->route('GET')->callback($callback('GET'));
-        $posts->route('POST')->callback($callback('POST'));
-        $route = $builder->build();
-
-        $prototype = new FakeResponse();
-        $request = new FakeServerRequest('GET', FakeUri::fromString('/posts'));
-        $this->assertSame('INDEX:', (string) $route->forward($request, $prototype)->getBody());
-        $this->assertSame('POST:', (string) $route->forward($request->withMethod('POST'), $prototype)->getBody());
-
-        $request = new FakeServerRequest('GET', FakeUri::fromString('/posts/003'));
-        $this->assertSame('GET:003', (string) $route->forward($request, $prototype)->getBody());
-
-        $request = new FakeServerRequest('GET', FakeUri::fromString('/posts/foo'));
-        $this->assertSame($prototype, $route->forward($request, $prototype));
-    }
-
-    public function testResourceSwitchBuilderWithoutGETMethod()
-    {
-        $callback = function ($body) {
-            return function (ServerRequestInterface $request) use ($body) {
-                return new FakeResponse($body . ':' . $request->getAttribute('resource.id'));
-            };
-        };
-
-        $builder = new PathSegmentSwitchBuilder();
-        $posts = $builder->resource('posts');
-        $posts->route('INDEX')->callback($callback('INDEX'));
-        $posts->route('PATCH')->callback($callback('PATCH'));
-        $route = $builder->build();
-
-        $prototype = new FakeResponse();
-        $request = new FakeServerRequest('GET', FakeUri::fromString('/posts'));
-        $this->assertSame('INDEX:', (string) $route->forward($request, $prototype)->getBody());
-
-        $request = new FakeServerRequest('PATCH', FakeUri::fromString('/posts/23'));
-        $this->assertSame('PATCH:23', (string) $route->forward($request, $prototype)->getBody());
-
-        $request = new FakeServerRequest('GET', FakeUri::fromString('/posts/23'));
-        $this->assertSame($prototype, $route->forward($request, $prototype));
-    }
-
-    public function testSettingIdPropertiesCanBeDeferred()
-    {
-        $builder = new ResourceSwitchBuilder();
-        $builder->route('GET')->join(MockedRoute::response('get'));
-        $builder->id('special.id', '[a-z0-9]{6}');
-        $builder->route('PATCH')->join(MockedRoute::response('patch'));
-        $route = $builder->build();
-
-        $prototype = new FakeResponse();
-        $request = new FakeServerRequest('GET', FakeUri::fromString('abc012'));
-        $this->assertSame('get', (string) $route->forward($request, $prototype)->getBody());
-
-        $request = new FakeServerRequest('PATCH', FakeUri::fromString('09a0bc'));
-        $this->assertSame('patch', (string) $route->forward($request, $prototype)->getBody());
-
-        $request = new FakeServerRequest('GET', FakeUri::fromString('abc'));
-        $this->assertSame($prototype, $route->forward($request, $prototype));
-    }
-
-    public function testIdWithRegexpMatchingNEWPseudoMethod_ThrowsException()
-    {
-        $builder = new ResourceSwitchBuilder();
-        $this->expectException(BuilderCallException::class);
-        $builder->id('special.id', '[a-z0-9]{3}');
-    }
-
-    public function testUriPathsForBuiltResourceRoutesIgnoreHttpMethod()
-    {
-        $builder = new PathSegmentSwitchBuilder();
-        $resource = $builder->resource('posts')->id('post.id');
-        $resource->route('GET')->join(MockedRoute::response('get'));
-        $resource->route('POST')->join(MockedRoute::response('post'));
-        $resource->route('INDEX')->join(MockedRoute::response('index'));
-        $resource->route('NEW')->join(MockedRoute::response('new'));
-        $resource->route('EDIT')->join(MockedRoute::response('edit'));
-        $route = $builder->build()->select('posts');
-
-        $prototype = new FakeUri();
-        $this->assertEquals('/posts', (string) $route->uri($prototype, []));
-        $this->assertEquals('/posts/1234', (string) $route->uri($prototype, ['post.id' => 1234]));
-        $this->assertEquals('/posts/1234/form', (string) $route->select('edit')->uri($prototype, ['post.id' => 1234]));
-        $this->assertEquals('/posts/new/form', (string) $route->select('new')->uri($prototype, ['post.id' => 1234]));
-        $this->assertEquals('/posts', (string) $route->select('index')->uri($prototype, ['post.id' => 1234]));
-    }
-
-    public function testUriCanBeGeneratedWithoutDefined_GET_or_INDEX_Routes()
-    {
-        $builder = new PathSegmentSwitchBuilder();
-        $resource = $builder->resource('posts')->id('post.id');
-        $resource->route('DELETE')->join(MockedRoute::response('delete'));
-        $resource->route('NEW')->join(MockedRoute::response('new'));
-        $resource->route('EDIT')->join(MockedRoute::response('edit'));
-        $route = $builder->build()->select('posts');
-
-        $prototype = new FakeUri();
-        $this->assertEquals('/posts', (string) $route->uri($prototype, []));
-        $this->assertEquals('/posts/1234', (string) $route->uri($prototype, ['post.id' => 1234]));
-        $this->assertEquals('/posts/1234/form', (string) $route->select('edit')->uri($prototype, ['post.id' => 1234]));
-        $this->assertEquals('/posts/new/form', (string) $route->select('new')->uri($prototype, ['post.id' => 1234]));
-        $this->assertEquals('/posts', (string) $route->select('index')->uri($prototype, ['post.id' => 1234]));
-    }
-
-    public function testEmptyNameResourceRoute_ThrowsException()
-    {
-        $builder = new ResourceSwitchBuilder();
-        $this->expectException(InvalidArgumentException::class);
-        $builder->route('');
-    }
-
-    public function testInvalidMethodNameForResourceRoute_ThrowsException()
-    {
-        $builder = new ResourceSwitchBuilder();
-        $this->expectException(InvalidArgumentException::class);
-        $builder->route('FOO');
-    }
-
-    private function builder(): RouteBuilder
-    {
-        return new RouteBuilder();
+        return new Builder\RouteBuilder($container, $router);
     }
 }
