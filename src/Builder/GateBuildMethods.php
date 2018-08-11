@@ -64,8 +64,8 @@ trait GateBuildMethods
     public function path(string $path)
     {
         $this->gates[] = function (Route $route) use ($path) {
-            $segments = explode('/', $path);
-            foreach ($segments as $segment) {
+            $segments = explode('/', trim($path, '/'));
+            while ($segment = array_pop($segments)) {
                 $route = new Route\Gate\PathSegmentGate($segment, $route);
             }
             return $route;
