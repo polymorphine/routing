@@ -20,12 +20,14 @@ use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
-use Psr\Http\Message\ServerRequestInterface;
+use Polymorphine\Routing\Tests\EndpointTestMethods;
 use InvalidArgumentException;
 
 
 class ResourceSwitchBuilderTest extends TestCase
 {
+    use EndpointTestMethods;
+
     public function testInstantiation()
     {
         $this->assertInstanceOf(SwitchBuilder::class, $this->builder());
@@ -39,9 +41,9 @@ class ResourceSwitchBuilderTest extends TestCase
     public function testRoutesCanBeAdded()
     {
         $resource = $this->builder();
-        $resource->route('INDEX')->callback($this->responseCallback($index));
-        $resource->route('GET')->callback($this->responseCallback($get));
-        $resource->route('POST')->callback($this->responseCallback($post));
+        $resource->route('INDEX')->callback($this->callbackResponse($index));
+        $resource->route('GET')->callback($this->callbackResponse($get));
+        $resource->route('POST')->callback($this->callbackResponse($post));
         $route = $resource->build();
 
         $prototype = new FakeResponse();
@@ -110,9 +112,9 @@ class ResourceSwitchBuilderTest extends TestCase
     public function testSettingIdPropertiesAtAnyMoment()
     {
         $resource = $this->builder();
-        $resource->route('GET')->callback($this->responseCallback($get));
+        $resource->route('GET')->callback($this->callbackResponse($get));
         $resource->id('special.id', '[a-z0-9]{6}');
-        $resource->route('PATCH')->callback($this->responseCallback($patch));
+        $resource->route('PATCH')->callback($this->callbackResponse($patch));
         $route = $resource->build();
 
         $prototype = new FakeResponse();
@@ -133,15 +135,6 @@ class ResourceSwitchBuilderTest extends TestCase
         $resource = $this->builder();
         $this->expectException(BuilderCallException::class);
         $resource->id('foo.id', '[a-z0-9]{3}');
-    }
-
-    private function responseCallback(&$response)
-    {
-        $response = new FakeResponse();
-        return function (ServerRequestInterface $request) use (&$response) {
-            $response->fromRequest = $request;
-            return $response;
-        };
     }
 
     private function builder(): ResourceSwitchBuilder

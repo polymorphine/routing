@@ -15,18 +15,21 @@ use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Builder\ResourceSwitchBuilder;
 use Polymorphine\Routing\Builder\SwitchBuilder;
 use Polymorphine\Routing\Builder\PathSegmentSwitchBuilder;
-use Polymorphine\Routing\Exception\BuilderCallException;
 use Polymorphine\Routing\Route\Endpoint\CallbackEndpoint;
 use Polymorphine\Routing\Route\Splitter\PathSegmentSwitch;
+use Polymorphine\Routing\Exception\BuilderCallException;
+use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
+use Polymorphine\Routing\Tests\EndpointTestMethods;
 use InvalidArgumentException;
-use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 
 
 class PathSegmentSwitchBuilderTest extends TestCase
 {
+    use EndpointTestMethods;
+
     public function testInstantiation()
     {
         $this->assertInstanceOf(SwitchBuilder::class, $this->builder());
@@ -40,8 +43,8 @@ class PathSegmentSwitchBuilderTest extends TestCase
     public function testRoutesCanBeAdded()
     {
         $switch = $this->builder();
-        $switch->route('first')->callback($this->responseCallback($first));
-        $switch->route('second')->callback($this->responseCallback($second));
+        $switch->route('first')->callback($this->callbackResponse($first));
+        $switch->route('second')->callback($this->callbackResponse($second));
         $route = $switch->build();
 
         $request   = new FakeServerRequest();
@@ -60,8 +63,8 @@ class PathSegmentSwitchBuilderTest extends TestCase
     public function testRootRouteInPathSegmentSwitch()
     {
         $switch = $this->builder();
-        $switch->route('dummy')->callback($this->responseCallback($dummy));
-        $switch->root(new CallbackEndpoint($this->responseCallback($root)));
+        $switch->route('dummy')->callback($this->callbackResponse($dummy));
+        $switch->root(new CallbackEndpoint($this->callbackResponse($root)));
         $route = $switch->build();
 
         $prototype = new FakeResponse();
@@ -89,14 +92,6 @@ class PathSegmentSwitchBuilderTest extends TestCase
     public function testResourceBuilderCanBeAdded()
     {
         $this->assertInstanceOf(ResourceSwitchBuilder::class, $this->builder()->resource('res'));
-    }
-
-    private function responseCallback(&$response)
-    {
-        $response = new FakeResponse();
-        return function () use (&$response) {
-            return $response;
-        };
     }
 
     private function builder(): PathSegmentSwitchBuilder

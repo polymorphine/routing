@@ -17,11 +17,14 @@ use Polymorphine\Routing\Builder\MethodSwitchBuilder;
 use Polymorphine\Routing\Route\Splitter\MethodSwitch;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
+use Polymorphine\Routing\Tests\EndpointTestMethods;
 use InvalidArgumentException;
 
 
 class MethodSwitchBuilderTest extends TestCase
 {
+    use EndpointTestMethods;
+
     public function testInstantiation()
     {
         $this->assertInstanceOf(SwitchBuilder::class, $this->builder());
@@ -35,8 +38,8 @@ class MethodSwitchBuilderTest extends TestCase
     public function testRoutesCanBeAdded()
     {
         $switch = $this->builder();
-        $switch->route('POST')->callback($this->responseCallback($post));
-        $switch->route('GET')->callback($this->responseCallback($get));
+        $switch->route('POST')->callback($this->callbackResponse($post));
+        $switch->route('GET')->callback($this->callbackResponse($get));
         $route = $switch->build();
 
         $request   = new FakeServerRequest();
@@ -48,8 +51,8 @@ class MethodSwitchBuilderTest extends TestCase
     public function testRouteForMultipleMethodsCanBeAdded()
     {
         $switch = $this->builder();
-        $switch->route('GET')->callback($this->responseCallback($single));
-        $switch->route('POST|PATCH')->callback($this->responseCallback($multiple));
+        $switch->route('GET')->callback($this->callbackResponse($single));
+        $switch->route('POST|PATCH')->callback($this->callbackResponse($multiple));
         $route = $switch->build();
 
         $request   = new FakeServerRequest();
@@ -87,14 +90,6 @@ class MethodSwitchBuilderTest extends TestCase
         $switch->route('POST')->callback(function () {});
         $this->expectException(InvalidArgumentException::class);
         $switch->route('GET|POST|PATCH');
-    }
-
-    private function responseCallback(&$response)
-    {
-        $response = new FakeResponse();
-        return function () use (&$response) {
-            return $response;
-        };
     }
 
     private function builder(): MethodSwitchBuilder

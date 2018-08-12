@@ -28,12 +28,15 @@ use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
 use Polymorphine\Routing\Tests\Doubles\MockedRoute;
+use Polymorphine\Routing\Tests\EndpointTestMethods;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Container\ContainerInterface;
 
 
 class RoutingBuilderTest extends TestCase
 {
+    use EndpointTestMethods;
+
     public function testInstantiation()
     {
         $this->assertInstanceOf(Builder\RouteBuilder::class, $this->builder());
@@ -113,25 +116,25 @@ class RoutingBuilderTest extends TestCase
 
     public function checkCase(Builder\RouteBuilder $builder, ServerRequestInterface $match, ServerRequestInterface $block)
     {
-        $blocked  = new FakeResponse('blocked');
-        $passed   = new FakeResponse('matched');
-        $endpoint = function () use ($passed) { return $passed; };
-
-        $builder->callback($endpoint);
+        $builder->callback($this->callbackResponse($response));
         $route = $builder->build();
-        $this->assertSame($passed, $route->forward($match, $blocked));
-        $this->assertSame($blocked, $route->forward($block, $blocked));
+
+        $prototype = new FakeResponse();
+        $this->assertSame($response, $route->forward($match, $prototype));
+        $this->assertSame($prototype, $route->forward($block, $prototype));
     }
 
-    public function testMiddlewareGate()
+    public function testMiddlewareGateway()
     {
         $builder = $this->builder();
-        $builder->middleware(new FakeMiddleware('wrap'))->callback(function () { return new FakeResponse('response'); });
+        $builder->middleware(new FakeMiddleware('wrap'))->callback($this->callbackResponse($endpoint, 'body'));
         $route = $builder->build();
 
-        $request   = (new FakeServerRequest())->withAttribute('middleware', 'requestPassed');
+        $request   = new FakeServerRequest();
         $prototype = new FakeResponse();
-        $this->assertSame('requestPassed: wrap response wrap', (string) $route->forward($request, $prototype)->getBody());
+        $response  = $route->forward($request->withAttribute('middleware', 'requestPassed'), $prototype);
+        $this->assertSame($endpoint, $response);
+        $this->assertSame('requestPassed: wrap body wrap', (string) $response->getBody());
     }
 
     public function testRouteWrappedWithMultipleGates()
@@ -141,14 +144,15 @@ class RoutingBuilderTest extends TestCase
                 ->pattern(UriPattern::fromUriString('https:/foo*'))
                 ->pattern(new PathSegment('id', '[a-z]+'))
                 ->callbackGate(function (ServerRequestInterface $request) { return $request->getAttribute('pass') ? $request : null; })
-                ->callback(function (ServerRequestInterface $request) { return new FakeResponse('passed:' . $request->getAttribute('id')); });
-        $route     = $builder->build();
-        $prototype = new FakeResponse();
+                ->callback($this->callbackResponse($response));
+        $route = $builder->build();
 
-        $requestA = new FakeServerRequest('PATCH', FakeUri::fromString('https://example.com/foo/bar'));
-        $requestB = $requestA->withAttribute('pass', true);
-        $this->assertSame($prototype, $route->forward($requestA, $prototype));
-        $this->assertSame('passed:bar', (string) $route->forward($requestB, $prototype)->getBody());
+        $prototype = new FakeResponse();
+        $block     = new FakeServerRequest('PATCH', FakeUri::fromString('https://example.com/foo/bar'));
+        $pass      = $block->withAttribute('pass', true);
+        $this->assertSame($prototype, $route->forward($block, $prototype));
+        $this->assertSame($response, $route->forward($pass, $prototype));
+        $this->assertSame('bar', $response->fromRequest->getAttribute('id'));
     }
 
     public function testGatesAreEvaluatedInCorrectOrder()
@@ -156,16 +160,15 @@ class RoutingBuilderTest extends TestCase
         $builder = $this->builder();
         $builder->pattern(new Path('foo*'))
                 ->pattern(new Path('bar*'))
-                ->callback(function () { return new FakeResponse('passed'); });
+                ->callback($this->callbackResponse($response));
         $route = $builder->build();
 
         $this->assertSame('/foo/bar', (string) $route->uri(FakeUri::fromString(''), []));
 
         $prototype = new FakeResponse();
-        $requestA  = new FakeServerRequest('GET', FakeUri::fromString('https://example.com/bar/foo'));
-        $requestB  = new FakeServerRequest('GET', FakeUri::fromString('https://example.com/foo/bar'));
-        $this->assertSame($prototype, $route->forward($requestA, $prototype));
-        $this->assertNotSame($prototype, $route->forward($requestB, $prototype));
+        $request   = new FakeServerRequest();
+        $this->assertSame($prototype, $route->forward($request->withUri(FakeUri::fromString('/bar/foo')), $prototype));
+        $this->assertSame($response, $route->forward($request->withUri(FakeUri::fromString('/foo/bar')), $prototype));
     }
 
     public function testGatesCanWrapSplitterAndItsRoutes()
