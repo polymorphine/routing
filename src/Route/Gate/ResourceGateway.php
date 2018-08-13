@@ -41,7 +41,7 @@ class ResourceGateway implements Route
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
         return isset($params[$this->id])
-            ? $this->resource->uri($prototype, $params)
+            ? $this->resource->select('item')->uri($prototype, $params)
             : $this->resource->select('index')->uri($prototype, $params);
     }
 }

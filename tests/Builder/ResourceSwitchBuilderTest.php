@@ -109,6 +109,23 @@ class ResourceSwitchBuilderTest extends TestCase
         $this->assertEquals('/', (string) $route->select('index')->uri($prototype, ['resource.id' => 1234]));
     }
 
+    public function testRequestFormsForwardedToCorrectEndpoint()
+    {
+        $resource = $this->builder();
+        $resource->route('INDEX')->callback($this->callbackResponse($index));
+        $resource->route('GET')->callback($this->callbackResponse($get));
+        $resource->route('NEW')->callback($this->callbackResponse($new));
+        $resource->route('EDIT')->callback($this->callbackResponse($edit));
+        $route = $resource->build();
+
+        $prototype = new FakeResponse();
+        $request   = new FakeServerRequest('GET', FakeUri::fromString('/new/form'));
+        $this->assertSame($new, $route->forward($request, $prototype));
+
+        $request   = new FakeServerRequest('GET', FakeUri::fromString('/123/form'));
+        $this->assertSame($edit, $route->forward($request, $prototype));
+    }
+
     public function testSettingIdPropertiesAtAnyMoment()
     {
         $resource = $this->builder();

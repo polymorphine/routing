@@ -24,7 +24,6 @@ use InvalidArgumentException;
 class ResourceSwitchBuilder extends SwitchBuilder
 {
     private $methods       = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'INDEX', 'NEW', 'EDIT'];
-    private $pseudoMethods = ['INDEX', 'NEW', 'EDIT'];
 
     private $idName   = 'resource.id';
     private $idRegexp = '[1-9][0-9]*';
@@ -60,7 +59,7 @@ class ResourceSwitchBuilder extends SwitchBuilder
             $route = $this->wrapRouteType($name, $route);
         }
 
-        $routes['GET'] = new ResponseScanSwitch($this->extractPseudoMethodRoutes($routes), $routes['GET']);
+        $routes = $this->groupPseudoRoutes($routes);
 
         return new Route\Gate\ResourceGateway($this->idName, new MethodSwitch($routes, 'GET'));
     }
@@ -88,17 +87,20 @@ class ResourceSwitchBuilder extends SwitchBuilder
         return new PatternGate(new PathSegment($this->idName, $this->idRegexp), $route);
     }
 
-    private function extractPseudoMethodRoutes(array &$routes): array
+    private function groupPseudoRoutes(array $routes): array
     {
-        $pseudoRoutes = [];
-        foreach ($this->pseudoMethods as $name) {
-            if (!isset($routes[$name])) { continue; }
-            $pseudoRoutes[strtolower($name)] = $this->pullRoute($name, $routes);
-        }
-        return $pseudoRoutes;
+        $getMethodRoutes = array_filter([
+            'edit' => $this->pullRoute('EDIT', $routes),
+            'item' => $routes['GET'],
+            'index' => $this->pullRoute('INDEX', $routes),
+            'new' => $this->pullRoute('NEW', $routes)
+        ]);
+        $routes['GET'] = new ResponseScanSwitch($getMethodRoutes);
+
+        return $routes;
     }
 
-    private function pullRoute(string $name, array &$routes): Route
+    private function pullRoute(string $name, array &$routes): ?Route
     {
         $route = $routes[$name] ?? null;
         unset($routes[$name]);
