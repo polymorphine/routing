@@ -13,7 +13,6 @@ namespace Polymorphine\Routing\Builder;
 
 use Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Exception;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Container\ContainerInterface;
 
@@ -52,7 +51,7 @@ class RouteBuilder implements Builder
     {
         if ($this->route) { return $this->route; }
         if (!$this->builder) {
-            throw new Exception\BuilderCallException('Route type not selected');
+            throw new Exception\BuilderLogicException('Route type not selected');
         }
 
         return $this->route = $this->wrapGates($this->builder->build());
@@ -81,7 +80,7 @@ class RouteBuilder implements Builder
     public function redirect(string $path, int $code = 301): void
     {
         if (!$this->routerCallback) {
-            throw new Exception\BuilderCallException('Required container aware builder to build redirect route');
+            throw new Exception\BuilderLogicException('Required container aware builder to build redirect route');
         }
 
         $uriCallback = function () use ($path) {
@@ -94,7 +93,7 @@ class RouteBuilder implements Builder
     public function factory(string $className): void
     {
         if (!$this->container) {
-            throw new Exception\BuilderCallException('Required container aware builder to build factory route');
+            throw new Exception\BuilderLogicException('Required container aware builder to build factory route');
         }
 
         $factoryCallback = function () use ($className) {
@@ -139,6 +138,6 @@ class RouteBuilder implements Builder
     private function stateCheck(): void
     {
         if (!$this->route && !$this->builder) { return; }
-        throw new Exception\BuilderCallException('Route already built');
+        throw new Exception\BuilderLogicException('Route already built');
     }
 }

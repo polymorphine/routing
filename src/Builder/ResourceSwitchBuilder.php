@@ -18,7 +18,6 @@ use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\PathSegment;
 use Polymorphine\Routing\Route\Splitter\MethodSwitch;
 use Polymorphine\Routing\Route\Splitter\ResponseScanSwitch;
 use Polymorphine\Routing\Route\Endpoint\NullEndpoint;
-use Polymorphine\Routing\Exception\BuilderCallException;
 use InvalidArgumentException;
 
 
@@ -36,7 +35,7 @@ class ResourceSwitchBuilder extends SwitchBuilder
         if (!$regexp) { return $this; }
 
         if (preg_match('#' . $regexp . '#', 'new')) {
-            throw new BuilderCallException('Uri conflict: NEW pseudo method uri matches id regexp');
+            throw new Exception\BuilderLogicException('Uri conflict: NEW pseudo method uri matches id regexp');
         }
 
         $this->idRegexp = $regexp;

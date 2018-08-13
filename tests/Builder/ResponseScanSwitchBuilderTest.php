@@ -16,7 +16,7 @@ use Polymorphine\Routing\Builder\ResourceSwitchBuilder;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Builder\SwitchBuilder;
 use Polymorphine\Routing\Builder\ResponseScanSwitchBuilder;
-use Polymorphine\Routing\Exception\BuilderCallException;
+use Polymorphine\Routing\Builder\Exception\BuilderLogicException;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\EndpointTestMethods;
@@ -79,7 +79,7 @@ class ResponseScanSwitchBuilderTest extends TestCase
     {
         $switch = $this->builder();
         $switch->defaultRoute()->callback(function () {});
-        $this->expectException(BuilderCallException::class);
+        $this->expectException(BuilderLogicException::class);
         $switch->defaultRoute();
     }
 

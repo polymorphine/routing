@@ -18,7 +18,6 @@ use Polymorphine\Routing\Route\Gate\Pattern\UriPattern;
 use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\Scheme;
 use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\Path;
 use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\PathSegment;
-use Polymorphine\Routing\Exception\BuilderCallException;
 use Polymorphine\Routing\Router;
 use Polymorphine\Routing\Tests\Doubles\FakeContainer;
 use Polymorphine\Routing\Tests\Doubles\FakeHandlerFactory;
@@ -75,14 +74,14 @@ class RoutingBuilderTest extends TestCase
     {
         $route = $this->builder();
         $route->callback(function () {});
-        $this->expectException(BuilderCallException::class);
+        $this->expectException(Builder\Exception\BuilderLogicException::class);
         $route->pathSwitch();
     }
 
     public function testBuildUndefinedRoute_ThrowsException()
     {
         $builder = $this->builder();
-        $this->expectException(BuilderCallException::class);
+        $this->expectException(Builder\Exception\BuilderLogicException::class);
         $builder->build();
     }
 
@@ -242,7 +241,7 @@ class RoutingBuilderTest extends TestCase
     public function testRouteBuilderWithUndefinedRouterCallback_Redirect_ThrowsException()
     {
         $builder = $this->builder();
-        $this->expectException(BuilderCallException::class);
+        $this->expectException(Builder\Exception\BuilderLogicException::class);
         $builder->redirect('something');
     }
 
@@ -264,7 +263,7 @@ class RoutingBuilderTest extends TestCase
     public function testRouteBuilderWithUndefinedContainer_Factory_ThrowsException()
     {
         $builder = $this->builder();
-        $this->expectException(BuilderCallException::class);
+        $this->expectException(Builder\Exception\BuilderLogicException::class);
         $builder->factory('something');
     }
 

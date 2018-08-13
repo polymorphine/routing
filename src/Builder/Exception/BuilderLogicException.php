@@ -9,11 +9,11 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Exception;
+namespace Polymorphine\Routing\Builder\Exception;
 
-use RuntimeException;
+use LogicException;
 
 
-class BuilderCallException extends RuntimeException
+class BuilderLogicException extends LogicException
 {
 }

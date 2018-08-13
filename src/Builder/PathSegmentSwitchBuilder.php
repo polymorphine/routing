@@ -11,7 +11,6 @@
 
 namespace Polymorphine\Routing\Builder;
 
-use Polymorphine\Routing\Exception\BuilderCallException;
 use Polymorphine\Routing\Route;
 use InvalidArgumentException;
 
@@ -37,7 +36,7 @@ class PathSegmentSwitchBuilder extends SwitchBuilder
     public function root(Route $root): void
     {
         if ($this->rootRoute) {
-            throw new BuilderCallException('Root path route already defined');
+            throw new Exception\BuilderLogicException('Root path route already defined');
         }
         $this->rootRoute = $root;
     }

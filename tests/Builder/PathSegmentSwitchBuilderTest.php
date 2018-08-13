@@ -15,9 +15,9 @@ use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Builder\ResourceSwitchBuilder;
 use Polymorphine\Routing\Builder\SwitchBuilder;
 use Polymorphine\Routing\Builder\PathSegmentSwitchBuilder;
+use Polymorphine\Routing\Builder\Exception\BuilderLogicException;
 use Polymorphine\Routing\Route\Endpoint\CallbackEndpoint;
 use Polymorphine\Routing\Route\Splitter\PathSegmentSwitch;
-use Polymorphine\Routing\Exception\BuilderCallException;
 use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
@@ -77,7 +77,7 @@ class PathSegmentSwitchBuilderTest extends TestCase
     {
         $switch = $this->builder();
         $switch->root(new MockedRoute());
-        $this->expectException(BuilderCallException::class);
+        $this->expectException(BuilderLogicException::class);
         $switch->root(new MockedRoute());
     }
 

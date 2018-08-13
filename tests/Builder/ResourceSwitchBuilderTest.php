@@ -14,8 +14,8 @@ namespace Polymorphine\Routing\Tests\Builder;
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Builder\SwitchBuilder;
 use Polymorphine\Routing\Builder\ResourceSwitchBuilder;
+use Polymorphine\Routing\Builder\Exception\BuilderLogicException;
 use Polymorphine\Routing\Route\Gate\ResourceGateway;
-use Polymorphine\Routing\Exception\BuilderCallException;
 use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
@@ -133,7 +133,7 @@ class ResourceSwitchBuilderTest extends TestCase
     public function testIdWithRegexpMatchingNEWPseudoMethod_ThrowsException()
     {
         $resource = $this->builder();
-        $this->expectException(BuilderCallException::class);
+        $this->expectException(BuilderLogicException::class);
         $resource->id('foo.id', '[a-z0-9]{3}');
     }
 
