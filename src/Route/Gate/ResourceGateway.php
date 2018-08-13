@@ -35,13 +35,13 @@ class ResourceGateway implements Route
 
     public function select(string $path): Route
     {
-        return $this->resource->select('GET' . Route::PATH_SEPARATOR . $path);
+        return $this->resource->select($path);
     }
 
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
         return isset($params[$this->id])
-            ? $this->resource->select('GET')->uri($prototype, $params)
-            : $this->resource->select('GET.index')->uri($prototype, $params);
+            ? $this->resource->uri($prototype, $params)
+            : $this->resource->select('index')->uri($prototype, $params);
     }
 }

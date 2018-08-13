@@ -62,7 +62,7 @@ class ResourceSwitchBuilder extends SwitchBuilder
 
         $routes['GET'] = new ResponseScanSwitch($this->extractPseudoMethodRoutes($routes), $routes['GET']);
 
-        return new Route\Gate\ResourceGateway($this->idName, new MethodSwitch($routes));
+        return new Route\Gate\ResourceGateway($this->idName, new MethodSwitch($routes, 'GET'));
     }
 
     protected function validMethod(string $method): string

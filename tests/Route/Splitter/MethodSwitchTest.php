@@ -79,10 +79,38 @@ class MethodSwitchTest extends TestCase
         $this->assertSame('path.after.put', $routePut->path);
     }
 
-    public function testUriMethod_ThrowsException()
+    public function testSelectMatchingRouteWithImplicitPath_ReturnsRouteFromNextSwitches()
     {
+        $splitter = new MethodSwitch([
+            'GET' => $routeGet = new MockedRoute(),
+            'PUT' => $routePut = new MockedRoute()
+        ], 'GET');
+        $route = $splitter->select('implicit.path');
+        $this->assertSame($routeGet, $route);
+        $this->assertSame('implicit.path', $routeGet->path);
+
+        $route = $splitter->select('PUT.explicit.path');
+        $this->assertSame($routePut, $route);
+        $this->assertSame('explicit.path', $routePut->path);
+    }
+
+    public function testUriMethodWithoutImplicitMethod_ThrowsException()
+    {
+        $splitter = new MethodSwitch([
+            'GET' => MockedRoute::withUri('get'),
+            'POST' => MockedRoute::withUri('post')
+        ]);
         $this->expectException(EndpointCallException::class);
-        $this->splitter()->uri(new FakeUri(), []);
+        $splitter->uri(new FakeUri(), []);
+    }
+
+    public function testUriMethodWithImplicitMethod_ForwardsCallToImplicitRoute()
+    {
+        $splitter = new MethodSwitch([
+            'GET' => MockedRoute::withUri('get/implicit'),
+            'POST' => MockedRoute::withUri('post')
+        ], 'GET');
+        $this->assertSame('get/implicit', (string) $splitter->uri(new FakeUri(), []));
     }
 
     private function splitter(array $methods = ['POST', 'GET', 'PUT', 'PATCH', 'DELETE']): MethodSwitch
