@@ -19,6 +19,9 @@ use Psr\Http\Message\UriInterface;
 
 class ResourceGateway implements Route
 {
+    private $itemPath  = 'item';
+    private $indexPath = 'index';
+
     private $id;
     private $resource;
 
@@ -35,13 +38,19 @@ class ResourceGateway implements Route
 
     public function select(string $path): Route
     {
+        if ($path === 'form') {
+            $this->itemPath = 'edit';
+            $this->indexPath = 'new';
+            return $this;
+        }
+
         return $this->resource->select($path);
     }
 
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
         return isset($params[$this->id])
-            ? $this->resource->select('item')->uri($prototype, $params)
-            : $this->resource->select('index')->uri($prototype, $params);
+            ? $this->resource->select($this->itemPath)->uri($prototype, $params)
+            : $this->resource->select($this->indexPath)->uri($prototype, $params);
     }
 }

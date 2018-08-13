@@ -88,7 +88,9 @@ class ResourceSwitchBuilderTest extends TestCase
         $this->assertEquals('/', (string) $route->uri($prototype, []));
         $this->assertEquals('/1234', (string) $route->uri($prototype, ['resource.id' => 1234]));
         $this->assertEquals('/1234/form', (string) $route->select('edit')->uri($prototype, ['resource.id' => 1234]));
-        $this->assertEquals('/new/form', (string) $route->select('new')->uri($prototype, ['resource.id' => 1234]));
+        $this->assertEquals('/1234/form', (string) $route->select('form')->uri($prototype, ['resource.id' => 1234]));
+        $this->assertEquals('/new/form', (string) $route->select('new')->uri($prototype, []));
+        $this->assertEquals('/new/form', (string) $route->select('form')->uri($prototype, []));
         $this->assertEquals('/', (string) $route->select('index')->uri($prototype, ['resource.id' => 1234]));
     }
 
@@ -104,8 +106,8 @@ class ResourceSwitchBuilderTest extends TestCase
         $prototype = new FakeUri();
         $this->assertEquals('/', (string) $route->uri($prototype, []));
         $this->assertEquals('/1234', (string) $route->uri($prototype, ['resource.id' => 1234]));
-        $this->assertEquals('/1234/form', (string) $route->select('edit')->uri($prototype, ['resource.id' => 1234]));
-        $this->assertEquals('/new/form', (string) $route->select('new')->uri($prototype, ['resource.id' => 1234]));
+        $this->assertEquals('/1234/form', (string) $route->select('form')->uri($prototype, ['resource.id' => 1234]));
+        $this->assertEquals('/new/form', (string) $route->select('form')->uri($prototype, []));
         $this->assertEquals('/', (string) $route->select('index')->uri($prototype, ['resource.id' => 1234]));
     }
 
