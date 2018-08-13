@@ -12,7 +12,7 @@
 namespace Polymorphine\Routing\Route\Splitter;
 
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Exception\SwitchCallException;
+use Polymorphine\Routing\Exception\EndpointCallException;
 use Polymorphine\Routing\Exception\UnreachableEndpointException;
 use Polymorphine\Routing\Exception\InvalidUriParamsException;
 use Psr\Http\Message\ServerRequestInterface;
@@ -81,7 +81,7 @@ class ResourceMethodSwitch implements Route
         $method = $this->getUriMethod($path);
         if (!$route = $this->getMethodRoute($method, $path)) {
             $message = 'Default `%s` method not defined to resolve Uri for multiple methods route';
-            throw new SwitchCallException(sprintf($message, $method));
+            throw new EndpointCallException(sprintf($message, $method));
         }
         return $route->uri($uri, $params);
     }

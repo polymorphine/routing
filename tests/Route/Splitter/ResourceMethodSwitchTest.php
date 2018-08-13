@@ -15,6 +15,7 @@ use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Splitter\ResourceMethodSwitch;
 use Polymorphine\Routing\Exception\SwitchCallException;
+use Polymorphine\Routing\Exception\EndpointCallException;
 use Polymorphine\Routing\Exception\UnreachableEndpointException;
 use Polymorphine\Routing\Exception\InvalidUriParamsException;
 use Polymorphine\Routing\Tests\Doubles\MockedRoute;
@@ -199,14 +200,14 @@ class ResourceMethodSwitchTest extends TestCase
     public function testUriFromMultipleMethodSwitchWithUndefinedGETMethod_ThrowsException()
     {
         $resource = $this->resourceWithDistinctUris('/resources', ['GET']);
-        $this->expectException(SwitchCallException::class);
+        $this->expectException(EndpointCallException::class);
         $resource->uri(new FakeUri(), ['id' => 666]);
     }
 
     public function testUriFromMultipleMethodSwitchWithUndefinedINDEXMethod_ThrowsException()
     {
         $resource = $this->resourceWithDistinctUris('/resources', ['INDEX']);
-        $this->expectException(SwitchCallException::class);
+        $this->expectException(EndpointCallException::class);
         $resource->uri(new FakeUri(), []);
     }
 

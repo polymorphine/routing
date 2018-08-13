@@ -58,8 +58,8 @@ interface Route
      * If any Uri part defined in $prototype is overwritten with different
      * value UnreachableEndpointException SHOULD be thrown.
      *
-     * If Route is not an endpoint for any ServerRequestInterface
-     * EndpointCallException MUST be thrown
+     * If Route is not an endpoint for any ServerRequestInterface or cannot be
+     * resolved into endpoint's Uri EndpointCallException MUST be thrown
      *
      * Redundant $params SHOULD be ignored, but if Uri cannot be built with
      * given $params method MUST throw UriParamsException
