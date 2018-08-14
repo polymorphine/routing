@@ -21,7 +21,6 @@ use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
 use Polymorphine\Routing\Tests\EndpointTestMethods;
-use InvalidArgumentException;
 
 
 class ResourceSwitchBuilderTest extends TestCase
@@ -41,47 +40,43 @@ class ResourceSwitchBuilderTest extends TestCase
     public function testRoutesCanBeAdded()
     {
         $resource = $this->builder();
-        $resource->route('INDEX')->callback($this->callbackResponse($index));
-        $resource->route('GET')->callback($this->callbackResponse($get));
-        $resource->route('POST')->callback($this->callbackResponse($post));
+        $resource->index()->callback($this->callbackResponse($index));
+        $resource->get()->callback($this->callbackResponse($get));
+        $resource->post()->callback($this->callbackResponse($post));
+        $resource->put()->callback($this->callbackResponse($put));
+        $resource->patch()->callback($this->callbackResponse($patch));
+        $resource->delete()->callback($this->callbackResponse($delete));
+        $resource->add()->callback($this->callbackResponse($add));
+        $resource->edit()->callback($this->callbackResponse($edit));
         $route = $resource->build();
 
         $prototype = new FakeResponse();
         $request   = new FakeServerRequest('GET', FakeUri::fromString('/'));
         $this->assertSame($index, $route->forward($request, $prototype));
         $this->assertSame($post, $route->forward($request->withMethod('POST'), $prototype));
+        $this->assertSame($add, $route->forward($request->withUri(FakeUri::fromString('new/form')), $prototype));
 
         $request = new FakeServerRequest('GET', FakeUri::fromString('/3298'));
         $this->assertSame($get, $route->forward($request, $prototype));
         $this->assertSame('3298', $get->fromRequest->getAttribute('resource.id'));
+        $this->assertSame($put, $route->forward($request->withMethod('PUT'), $prototype));
+        $this->assertSame($patch, $route->forward($request->withMethod('PATCH'), $prototype));
+        $this->assertSame($delete, $route->forward($request->withMethod('DELETE'), $prototype));
+        $this->assertSame($edit, $route->forward($request->withUri(FakeUri::fromString('2398/form')), $prototype));
 
         $request = new FakeServerRequest('GET', FakeUri::fromString('/foo'));
         $this->assertSame($prototype, $route->forward($request, $prototype));
-    }
-
-    public function testEmptyRouteName_ThrowsException()
-    {
-        $resource = $this->builder();
-        $this->expectException(InvalidArgumentException::class);
-        $resource->route('');
-    }
-
-    public function testInvalidMethodNameForResourceRoute_ThrowsException()
-    {
-        $resource = $this->builder();
-        $this->expectException(InvalidArgumentException::class);
-        $resource->route('FOO');
     }
 
     public function testUriPathsForBuiltResourceRoutesIgnoreHttpMethod()
     {
         $forward  = new MockedRoute();
         $resource = $this->builder();
-        $resource->route('GET')->join($forward);
-        $resource->route('POST')->join($forward);
-        $resource->route('INDEX')->join($forward);
-        $resource->route('NEW')->join($forward);
-        $resource->route('EDIT')->join($forward);
+        $resource->get()->join($forward);
+        $resource->post()->join($forward);
+        $resource->index()->join($forward);
+        $resource->add()->join($forward);
+        $resource->edit()->join($forward);
         $route = $resource->build();
 
         $prototype = new FakeUri();
@@ -98,9 +93,9 @@ class ResourceSwitchBuilderTest extends TestCase
     {
         $forward  = new MockedRoute();
         $resource = $this->builder();
-        $resource->route('DELETE')->join($forward);
-        $resource->route('NEW')->join($forward);
-        $resource->route('EDIT')->join($forward);
+        $resource->delete()->join($forward);
+        $resource->add()->join($forward);
+        $resource->edit()->join($forward);
         $route = $resource->build();
 
         $prototype = new FakeUri();
@@ -111,29 +106,12 @@ class ResourceSwitchBuilderTest extends TestCase
         $this->assertEquals('/', (string) $route->select('index')->uri($prototype, ['resource.id' => 1234]));
     }
 
-    public function testRequestFormsForwardedToCorrectEndpoint()
-    {
-        $resource = $this->builder();
-        $resource->route('INDEX')->callback($this->callbackResponse($index));
-        $resource->route('GET')->callback($this->callbackResponse($get));
-        $resource->route('NEW')->callback($this->callbackResponse($new));
-        $resource->route('EDIT')->callback($this->callbackResponse($edit));
-        $route = $resource->build();
-
-        $prototype = new FakeResponse();
-        $request   = new FakeServerRequest('GET', FakeUri::fromString('/new/form'));
-        $this->assertSame($new, $route->forward($request, $prototype));
-
-        $request   = new FakeServerRequest('GET', FakeUri::fromString('/123/form'));
-        $this->assertSame($edit, $route->forward($request, $prototype));
-    }
-
     public function testSettingIdPropertiesAtAnyMoment()
     {
         $resource = $this->builder();
-        $resource->route('GET')->callback($this->callbackResponse($get));
+        $resource->get()->callback($this->callbackResponse($get));
         $resource->id('special.id', '[a-z0-9]{6}');
-        $resource->route('PATCH')->callback($this->callbackResponse($patch));
+        $resource->patch()->callback($this->callbackResponse($patch));
         $route = $resource->build();
 
         $prototype = new FakeResponse();

@@ -18,13 +18,10 @@ use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\PathSegment;
 use Polymorphine\Routing\Route\Splitter\MethodSwitch;
 use Polymorphine\Routing\Route\Splitter\ResponseScanSwitch;
 use Polymorphine\Routing\Route\Endpoint\NullEndpoint;
-use InvalidArgumentException;
 
 
 class ResourceSwitchBuilder extends SwitchBuilder
 {
-    private $methods       = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'INDEX', 'NEW', 'EDIT'];
-
     private $idName   = 'resource.id';
     private $idRegexp = '[1-9][0-9]*';
 
@@ -41,13 +38,44 @@ class ResourceSwitchBuilder extends SwitchBuilder
         return $this;
     }
 
-    public function route(string $name): RouteBuilder
+    public function index(): RouteBuilder
     {
-        if (!$name) {
-            $message = 'Route name is required as name for resource switch (allowed values `%s`)';
-            throw new InvalidArgumentException(sprintf($message, implode('`,`', $this->methods)));
-        }
-        return $this->addBuilder($this->context->route(), $this->validMethod($name));
+        return $this->route('INDEX');
+    }
+
+    public function get(): RouteBuilder
+    {
+        return $this->route('GET');
+    }
+
+    public function post(): RouteBuilder
+    {
+        return $this->route('POST');
+    }
+
+    public function delete(): RouteBuilder
+    {
+        return $this->route('DELETE');
+    }
+
+    public function patch(): RouteBuilder
+    {
+        return $this->route('PATCH');
+    }
+
+    public function put(): RouteBuilder
+    {
+        return $this->route('PUT');
+    }
+
+    public function add(): RouteBuilder
+    {
+        return $this->route('NEW');
+    }
+
+    public function edit(): RouteBuilder
+    {
+        return $this->route('EDIT');
     }
 
     protected function router(array $routes): Route
@@ -64,12 +92,9 @@ class ResourceSwitchBuilder extends SwitchBuilder
         return new Route\Gate\ResourceGateway($this->idName, new MethodSwitch($routes, 'GET'));
     }
 
-    protected function validMethod(string $method): string
+    private function route(string $name): RouteBuilder
     {
-        if (in_array($method, $this->methods, true)) { return $method; }
-
-        $message = 'Unknown http method `%s` for resource route switch';
-        throw new InvalidArgumentException(sprintf($message, $method));
+        return $this->addBuilder($this->context->route(), $name);
     }
 
     private function wrapRouteType(string $name, Route $route): Route
@@ -90,10 +115,10 @@ class ResourceSwitchBuilder extends SwitchBuilder
     private function groupPseudoRoutes(array $routes): array
     {
         $getMethodRoutes = array_filter([
-            'edit' => $this->pullRoute('EDIT', $routes),
-            'item' => $routes['GET'],
+            'edit'  => $this->pullRoute('EDIT', $routes),
+            'item'  => $routes['GET'],
             'index' => $this->pullRoute('INDEX', $routes),
-            'new' => $this->pullRoute('NEW', $routes)
+            'new'   => $this->pullRoute('NEW', $routes)
         ]);
         $routes['GET'] = new ResponseScanSwitch($getMethodRoutes);
 
