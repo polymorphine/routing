@@ -38,20 +38,26 @@ class MethodSwitchBuilderTest extends TestCase
     public function testRoutesCanBeAdded()
     {
         $switch = $this->builder();
-        $switch->route('POST')->callback($this->callbackResponse($post));
-        $switch->route('GET')->callback($this->callbackResponse($get));
+        $switch->get()->callback($this->callbackResponse($get));
+        $switch->post()->callback($this->callbackResponse($post));
+        $switch->patch()->callback($this->callbackResponse($patch));
+        $switch->put()->callback($this->callbackResponse($put));
+        $switch->delete()->callback($this->callbackResponse($delete));
         $route = $switch->build();
 
         $request   = new FakeServerRequest();
         $prototype = new FakeResponse();
-        $this->assertSame($post, $route->forward($request->withMethod('POST'), $prototype));
         $this->assertSame($get, $route->forward($request->withMethod('GET'), $prototype));
+        $this->assertSame($post, $route->forward($request->withMethod('POST'), $prototype));
+        $this->assertSame($patch, $route->forward($request->withMethod('PATCH'), $prototype));
+        $this->assertSame($put, $route->forward($request->withMethod('PUT'), $prototype));
+        $this->assertSame($delete, $route->forward($request->withMethod('DELETE'), $prototype));
     }
 
     public function testRouteForMultipleMethodsCanBeAdded()
     {
         $switch = $this->builder();
-        $switch->route('GET')->callback($this->callbackResponse($single));
+        $switch->get()->callback($this->callbackResponse($single));
         $switch->route('POST|PATCH')->callback($this->callbackResponse($multiple));
         $route = $switch->build();
 
@@ -79,7 +85,7 @@ class MethodSwitchBuilderTest extends TestCase
     public function testAddingRouteWithAlreadyDefinedMethod_ThrowsException()
     {
         $switch = $this->builder();
-        $switch->route('POST')->callback(function () {});
+        $switch->post()->callback(function () {});
         $this->expectException(InvalidArgumentException::class);
         $switch->route('POST');
     }
@@ -87,7 +93,7 @@ class MethodSwitchBuilderTest extends TestCase
     public function testRepeatedMethodInMultipleMethodsParameter_ThrowsException()
     {
         $switch = $this->builder();
-        $switch->route('POST')->callback(function () {});
+        $switch->post()->callback(function () {});
         $this->expectException(InvalidArgumentException::class);
         $switch->route('GET|POST|PATCH');
     }

@@ -19,6 +19,31 @@ class MethodSwitchBuilder extends SwitchBuilder
 {
     private $methods = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'];
 
+    public function get(): RouteBuilder
+    {
+        return $this->addBuilder($this->context->route(), 'GET');
+    }
+
+    public function post(): RouteBuilder
+    {
+        return $this->addBuilder($this->context->route(), 'POST');
+    }
+
+    public function patch(): RouteBuilder
+    {
+        return $this->addBuilder($this->context->route(), 'PATCH');
+    }
+
+    public function put(): RouteBuilder
+    {
+        return $this->addBuilder($this->context->route(), 'PUT');
+    }
+
+    public function delete(): RouteBuilder
+    {
+        return $this->addBuilder($this->context->route(), 'DELETE');
+    }
+
     public function route(string $name): RouteBuilder
     {
         $builder = $this->context->route();
