@@ -22,44 +22,48 @@ use Polymorphine\Routing\Tests\Doubles\FakeUri;
 
 class LazyRouteTest extends TestCase
 {
-    private $route;
+    private $invokedRoute;
 
     public function setUp()
     {
-        $this->route = null;
+        $this->invokedRoute = null;
     }
 
     public function testInstantiation()
     {
-        $this->assertInstanceOf(Route::class, $this->route());
-        $this->assertNull($this->route);
+        $this->assertInstanceOf(LazyRoute::class, $this->route());
+    }
+
+    public function testWrappedRouteInstantiationIsDeferred()
+    {
+        $route = $this->route();
+        $this->assertNull($this->invokedRoute);
+        $route->forward(new FakeServerRequest(), new FakeResponse());
+        $this->assertInstanceOf(Route::class, $this->invokedRoute);
     }
 
     public function testUriIsCalledOnInvokedRoute()
     {
         $uri = $this->route()->uri(new FakeUri(), []);
-        $this->assertInstanceOf(Route::class, $this->route);
         $this->assertSame('invoked', $uri->getPath());
     }
 
     public function testRequestIsPassedToInvokedRoute()
     {
         $response = $this->route()->forward(new FakeServerRequest(), new FakeResponse());
-        $this->assertInstanceOf(Route::class, $this->route);
         $this->assertSame('invoked', $response->body);
     }
 
     public function testSelectIsCalledOnInvokedRoute()
     {
         $route = $this->route()->select('invoked.route.path');
-        $this->assertInstanceOf(Route::class, $this->route);
         $this->assertSame('invoked.route.path', $route->path);
     }
 
     private function route()
     {
         return new LazyRoute(function () {
-            return $this->route = new MockedRoute(new FakeResponse('invoked'), FakeUri::fromString('invoked'));
+            return $this->invokedRoute = new MockedRoute(new FakeResponse('invoked'), FakeUri::fromString('invoked'));
         });
     }
 }
