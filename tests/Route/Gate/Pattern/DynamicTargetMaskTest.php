@@ -9,7 +9,7 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Tests\Route\Pattern;
+namespace Polymorphine\Routing\Tests\Route\Gate\Pattern;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route\Gate\Pattern;
