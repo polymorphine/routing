@@ -80,19 +80,17 @@ class PatternGateTest extends TestCase
 
     public function testSelectMethod_ReturnsRouteProducingUriWithDefinedSegments()
     {
-        $subRoute = MockedRoute::withUri('/foo/bar');
+        $route = $this->staticGate('https://example.com', MockedRoute::withUri('/foo/bar'));
+        $this->assertSame('https://example.com/foo/bar', (string) $route->select('some.path')->uri(new FakeUri(), []));
 
-        $uri = $this->staticGate('https://example.com', $subRoute)->select('some.path')->uri(new FakeUri(), []);
-        $this->assertSame('https://example.com/foo/bar', (string) $uri);
-        $uri = $this->staticGate('http:', $subRoute)->select('some.path')->uri(new FakeUri(), []);
-        $this->assertSame('http:/foo/bar', (string) $uri);
+        $route = $this->staticGate('http:', MockedRoute::withUri('/foo/bar'));
+        $this->assertSame('http:/foo/bar', (string) $route->select('some.path')->uri(new FakeUri(), []));
     }
 
     public function testComposedRoutesUriCall_ReturnsUriWithSegmentsDefinedInAllRoutes()
     {
-        $subRoute = $this->staticGate('//example.com', MockedRoute::withUri('/foo/bar'));
-        $uri      = $this->staticGate('https:', $subRoute)->select('some.path')->uri(new FakeUri(), []);
-        $this->assertSame('https://example.com/foo/bar', (string) $uri);
+        $route = $this->staticGate('https:', $this->staticGate('//example.com', MockedRoute::withUri('/foo/bar')));
+        $this->assertSame('https://example.com/foo/bar', (string) $route->select('some.path')->uri(new FakeUri(), []));
     }
 
     public function testComposedRelativePathsAreJoinedInCorrectOrder()
@@ -112,25 +110,18 @@ class PatternGateTest extends TestCase
     public function testComposedRelativePathsMatchesChangeContextForNextMatch()
     {
         $request = new FakeServerRequest('GET', FakeUri::fromString('/foo/bar/baz'));
-        $proto   = new FakeResponse('prototype');
-
-        $route = PatternGate::withPatternString('bar', PatternGate::withPatternString('bar', MockedRoute::response('endpoint')));
+        $proto   = new FakeResponse();
+        $route   = PatternGate::withPatternString('bar', PatternGate::withPatternString('bar', MockedRoute::response('endpoint')));
         $this->assertSame($proto, $route->forward($request, $proto));
     }
 
     private function staticGate(string $uriPattern = 'https:', $subRoute = null)
     {
-        return new PatternGate(
-            UriPattern::fromUriString($uriPattern),
-            $subRoute ?: MockedRoute::response('default')
-        );
+        return new PatternGate(UriPattern::fromUriString($uriPattern), $subRoute ?: MockedRoute::response('default'));
     }
 
     private function request($uri = 'http://example.com/foo/bar?query=string')
     {
-        $request      = new FakeServerRequest();
-        $request->uri = FakeUri::fromString($uri);
-
-        return $request;
+        return new FakeServerRequest('GET', FakeUri::fromString($uri));
     }
 }
