@@ -12,14 +12,12 @@
 namespace Polymorphine\Routing\Tests\Route\Gate;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\CallbackGateway;
 use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
 use Psr\Http\Message\ServerRequestInterface;
-use Closure;
 
 
 class CallbackGatewayTest extends TestCase
@@ -33,8 +31,7 @@ class CallbackGatewayTest extends TestCase
 
     public function testInstantiation()
     {
-        $this->assertInstanceOf(Route::class, $route = $this->middleware());
-        $this->assertInstanceOf(CallbackGateway::class, $route);
+        $this->assertInstanceOf(CallbackGateway::class, $this->middleware());
     }
 
     public function testClosurePreventsForwardingRequest()
@@ -51,7 +48,7 @@ class CallbackGatewayTest extends TestCase
 
     public function testSelectCallsWrappedRouteWithSameParameter()
     {
-        $this->assertInstanceOf(Route::class, $route = $this->middleware()->select('some.name'));
+        $route = $this->middleware()->select('some.name');
         $this->assertSame('some.name', $route->path);
     }
 
@@ -62,12 +59,9 @@ class CallbackGatewayTest extends TestCase
         $this->assertSame($uri, (string) $route->uri(new FakeUri(), []));
     }
 
-    private function middleware(Closure $callback = null)
+    private function middleware(callable $callback = null)
     {
-        if (!$callback) {
-            $callback = $this->basicCallback();
-        }
-        return new CallbackGateway($callback, MockedRoute::response('default'));
+        return new CallbackGateway($callback ?: $this->basicCallback(), MockedRoute::response('default'));
     }
 
     private function basicCallback()
