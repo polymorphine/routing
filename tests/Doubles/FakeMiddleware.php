@@ -22,7 +22,7 @@ class FakeMiddleware implements MiddlewareInterface
     public $bodyWrap;
     public $inContext = false;
 
-    public function __construct(string $bodyWrap = 'processed')
+    public function __construct(string $bodyWrap = 'wrap')
     {
         $this->bodyWrap = $bodyWrap;
     }
