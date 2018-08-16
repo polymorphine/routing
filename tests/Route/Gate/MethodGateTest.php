@@ -22,52 +22,53 @@ use Polymorphine\Routing\Tests\Doubles\FakeUri;
 
 class MethodGateTest extends TestCase
 {
+    private static $prototype;
+
+    public static function setUpBeforeClass()
+    {
+        self::$prototype = new FakeResponse();
+    }
+
     public function testInstantiation()
     {
-        $this->assertInstanceOf(Route::class, $this->gate());
+        $this->assertInstanceOf(MethodGate::class, $this->gate());
     }
 
     public function testNotMatchingGateMethodRequestForward_ReturnsPrototypeInstance()
     {
-        $prototype = new FakeResponse('prototype');
-        $response  = $this->gate('DELETE')->forward(new FakeServerRequest('POST'), $prototype);
-        $this->assertSame($prototype, $response);
+        $route = $this->gate('DELETE');
+        $this->assertSame(self::$prototype, $route->forward(new FakeServerRequest('POST'), self::$prototype));
     }
 
     public function testMatchingGateMethodRequestForward_ReturnsRouteResponse()
     {
-        $prototype = new FakeResponse('prototype');
-        $response  = $this->gate('POST')->forward(new FakeServerRequest('POST'), $prototype);
-        $this->assertNotSame($prototype, $response);
-        $this->assertSame('forwarded', (string) $response->getBody());
+        $route = $this->gate('POST');
+        $this->assertNotSame(self::$prototype, $route->forward(new FakeServerRequest('POST'), self::$prototype));
     }
 
     public function testNotMatchingAnyOfGateMethodsRequestForward_ReturnsPrototypeInstance()
     {
-        $prototype = new FakeResponse('prototype');
-        $response  = $this->gate('GET|POST|PUT')->forward(new FakeServerRequest('PATCH'), $prototype);
-        $this->assertSame($prototype, $response);
+        $route = $this->gate('GET|POST|PUT');
+        $this->assertSame(self::$prototype, $route->forward(new FakeServerRequest('PATCH'), self::$prototype));
     }
 
     public function testMatchingOneOfGateMethodsRequestForward_ReturnsRouteResponse()
     {
-        $prototype = new FakeResponse('prototype');
-        $response  = $this->gate('POST|PUT|PATCH|DELETE')->forward(new FakeServerRequest('PUT'), $prototype);
-        $this->assertNotSame($prototype, $response);
-        $this->assertSame('forwarded', (string) $response->getBody());
+        $route = $this->gate('POST|PUT|PATCH|DELETE');
+        $this->assertNotSame(self::$prototype, $route->forward(new FakeServerRequest('PUT'), self::$prototype));
     }
 
     public function testSelectCallIsPassedDirectlyToNextRoute()
     {
-        $route = MockedRoute::response('next');
-        $this->assertSame($route, $this->gate('GET', $route)->select('some.path'));
-        $this->assertSame('some.path', $route->path);
+        $route = $this->gate('GET', $next = MockedRoute::response('next'));
+        $this->assertSame($next, $route->select('some.path'));
+        $this->assertSame('some.path', $next->path);
     }
 
     public function testUriCallIsPassedDirectlyToNextRoute()
     {
-        $route = MockedRoute::withUri('next');
-        $this->assertSame('next', $this->gate('GET', $route)->uri(new FakeUri(), [])->getPath());
+        $route = $this->gate('GET', MockedRoute::withUri('next'));
+        $this->assertSame('next', $route->uri(new FakeUri(), [])->getPath());
     }
 
     private function gate(string $methods = 'GET', Route $route = null)
