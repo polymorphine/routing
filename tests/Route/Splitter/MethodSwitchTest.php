@@ -12,8 +12,10 @@
 namespace Polymorphine\Routing\Tests\Route\Splitter;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Exception\EndpointCallException;
+use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Splitter\MethodSwitch;
+use Polymorphine\Routing\Exception\EndpointCallException;
+use Polymorphine\Routing\Tests\RoutingTestMethods;
 use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
@@ -22,31 +24,37 @@ use Polymorphine\Routing\Tests\Doubles\FakeUri;
 
 class MethodSwitchTest extends TestCase
 {
+    use RoutingTestMethods;
+
     public function testInstantiation()
     {
-        $this->assertInstanceOf(MethodSwitch::class, $this->splitter());
+        $this->assertInstanceOf(Route::class, $this->splitter());
     }
 
     public function testRequestMatchingMethod_ReturnsResponseFromMatchedRoute()
     {
-        $splitter = $this->splitter();
-        $methods  = ['POST', 'GET', 'PUT', 'PATCH', 'DELETE'];
-        foreach ($methods as $method) {
-            $request = new FakeServerRequest($method);
-            $this->assertSame($method, (string) $splitter->forward($request, new FakeResponse())->getBody());
-        }
+        $splitter = new MethodSwitch([
+            'POST'   => $this->responseRoute($post),
+            'GET'    => $this->responseRoute($get),
+            'DELETE' => $this->responseRoute($delete),
+            'PUT'    => $this->responseRoute($put),
+            'PATCH'  => $this->responseRoute($patch)
+        ]);
+
+        $request   = new FakeServerRequest();
+        $prototype = new FakeResponse();
+        $this->assertSame($post, $splitter->forward($request->withMethod('POST'), $prototype));
+        $this->assertSame($get, $splitter->forward($request->withMethod('GET'), $prototype));
+        $this->assertSame($delete, $splitter->forward($request->withMethod('DELETE'), $prototype));
+        $this->assertSame($put, $splitter->forward($request->withMethod('PUT'), $prototype));
+        $this->assertSame($patch, $splitter->forward($request->withMethod('PATCH'), $prototype));
     }
 
     public function testRequestNotMatchingMethod_ReturnsPrototypeResponse()
     {
-        $methods = ['POST', 'GET', 'PUT', 'PATCH', 'DELETE'];
-        foreach ($methods as $idx => $method) {
-            $defined = $methods;
-            unset($defined[$idx]);
-            $splitter  = $this->splitter($defined);
-            $prototype = new FakeResponse();
-            $this->assertSame($prototype, $splitter->forward(new FakeServerRequest($method), $prototype), $method);
-        }
+        $splitter  = $this->splitter(['POST', 'GET', 'PATCH', 'DELETE']);
+        $prototype = new FakeResponse();
+        $this->assertSame($prototype, $splitter->forward(new FakeServerRequest('PUT'), $prototype));
     }
 
     public function testSelectMatchingRouteWithMethodName_ReturnsRouteForThisMethod()
@@ -97,7 +105,7 @@ class MethodSwitchTest extends TestCase
     public function testUriMethodWithoutImplicitMethod_ThrowsException()
     {
         $splitter = new MethodSwitch([
-            'GET' => MockedRoute::withUri('get'),
+            'GET'  => MockedRoute::withUri('get'),
             'POST' => MockedRoute::withUri('post')
         ]);
         $this->expectException(EndpointCallException::class);
@@ -107,7 +115,7 @@ class MethodSwitchTest extends TestCase
     public function testUriMethodWithImplicitMethod_ForwardsCallToImplicitRoute()
     {
         $splitter = new MethodSwitch([
-            'GET' => MockedRoute::withUri('get/implicit'),
+            'GET'  => MockedRoute::withUri('get/implicit'),
             'POST' => MockedRoute::withUri('post')
         ], 'GET');
         $this->assertSame('get/implicit', (string) $splitter->uri(new FakeUri(), []));
@@ -117,7 +125,7 @@ class MethodSwitchTest extends TestCase
     {
         $routes = [];
         foreach ($methods as $method) {
-            $routes[$method] = new MockedRoute(new FakeResponse($method), new FakeUri());
+            $routes[$method] = new MockedRoute(new FakeResponse($method));
         }
 
         return new MethodSwitch($routes);
