@@ -302,8 +302,6 @@ class DynamicTargetMaskTest extends TestCase
 
     private function request($path)
     {
-        $request      = new FakeServerRequest();
-        $request->uri = FakeUri::fromString('//example.com' . $path);
-        return $request;
+        return new FakeServerRequest('GET', FakeUri::fromString('//example.com' . $path));
     }
 }

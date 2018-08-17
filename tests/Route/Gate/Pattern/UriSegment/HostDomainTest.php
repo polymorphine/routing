@@ -12,9 +12,9 @@
 namespace Polymorphine\Routing\Tests\Route\Gate\Pattern\UriSegment;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Exception\UnreachableEndpointException;
 use Polymorphine\Routing\Route\Gate\Pattern;
 use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\HostDomain;
+use Polymorphine\Routing\Exception\UnreachableEndpointException;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
 
