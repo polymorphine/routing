@@ -16,7 +16,7 @@ use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 use Psr\Http\Message\ServerRequestInterface;
 
 
-trait EndpointTestMethods
+trait RoutingTestMethods
 {
     private static $prototype;
 

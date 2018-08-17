@@ -19,13 +19,13 @@ use Polymorphine\Routing\Builder\ResponseScanSwitchBuilder;
 use Polymorphine\Routing\Builder\Exception\BuilderLogicException;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
-use Polymorphine\Routing\Tests\EndpointTestMethods;
+use Polymorphine\Routing\Tests\RoutingTestMethods;
 use InvalidArgumentException;
 
 
 class ResponseScanSwitchBuilderTest extends TestCase
 {
-    use EndpointTestMethods;
+    use RoutingTestMethods;
 
     public function testInstantiation()
     {

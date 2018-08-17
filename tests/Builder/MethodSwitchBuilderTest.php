@@ -17,13 +17,13 @@ use Polymorphine\Routing\Builder\MethodSwitchBuilder;
 use Polymorphine\Routing\Route\Splitter\MethodSwitch;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
-use Polymorphine\Routing\Tests\EndpointTestMethods;
+use Polymorphine\Routing\Tests\RoutingTestMethods;
 use InvalidArgumentException;
 
 
 class MethodSwitchBuilderTest extends TestCase
 {
-    use EndpointTestMethods;
+    use RoutingTestMethods;
 
     public function testInstantiation()
     {

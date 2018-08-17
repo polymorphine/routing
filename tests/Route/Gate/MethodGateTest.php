@@ -14,7 +14,7 @@ namespace Polymorphine\Routing\Tests\Route\Gate;
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\MethodGate;
-use Polymorphine\Routing\Tests\EndpointTestMethods;
+use Polymorphine\Routing\Tests\RoutingTestMethods;
 use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
@@ -22,7 +22,7 @@ use Polymorphine\Routing\Tests\Doubles\FakeUri;
 
 class MethodGateTest extends TestCase
 {
-    use EndpointTestMethods;
+    use RoutingTestMethods;
 
     public function testInstantiation()
     {

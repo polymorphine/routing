@@ -27,14 +27,14 @@ use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
 use Polymorphine\Routing\Tests\Doubles\MockedRoute;
-use Polymorphine\Routing\Tests\EndpointTestMethods;
+use Polymorphine\Routing\Tests\RoutingTestMethods;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Container\ContainerInterface;
 
 
 class RoutingBuilderTest extends TestCase
 {
-    use EndpointTestMethods;
+    use RoutingTestMethods;
 
     public function testInstantiation()
     {
