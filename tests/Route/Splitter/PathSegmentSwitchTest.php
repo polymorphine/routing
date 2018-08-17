@@ -16,183 +16,180 @@ use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Splitter\PathSegmentSwitch;
 use Polymorphine\Routing\Route\Gate\PathSegmentGate;
 use Polymorphine\Routing\Exception\EndpointCallException;
+use Polymorphine\Routing\Tests\RoutingTestMethods;
 use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
-use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
+use Psr\Http\Message\ResponseInterface;
 
 
 class PathSegmentSwitchTest extends TestCase
 {
+    use RoutingTestMethods;
+
     public function testInstantiation()
     {
-        $this->assertInstanceOf(Route::class, new PathSegmentSwitch([]));
-    }
-
-    public function testWhenNoRootRoute_UriMethodCall_ThrowsException()
-    {
-        $route = new PathSegmentSwitch([]);
-        $this->expectException(EndpointCallException::class);
-        $route->uri(new FakeUri(), []);
-    }
-
-    public function testWithRootRoute_UriMethodCall_ReturnsRootUri()
-    {
-        $route = new PathSegmentSwitch([], MockedRoute::withUri('root'));
-        $this->assertSame('root', $route->uri(new FakeUri(), [])->getPath());
-    }
-
-    public function testUriFromSelectedRootRoute_ReturnsRootProducedUri()
-    {
-        $route = new PathSegmentSwitch([], MockedRoute::response('root'));
-        $uri   = $route->uri(new FakeUri(), []);
-        $this->assertEquals($uri, $route->select(PathSegmentSwitch::ROOT_PATH)->uri(new FakeUri(), []));
-    }
-
-    public function testWithRootRoute_UriOrForward_ReturnsResultsEquivalentToRootRouteCalls()
-    {
-        $route     = new PathSegmentSwitch([], MockedRoute::response('root'));
-        $structure = $this->createStructure($route, ['foo', 'bar']);
-        $wrapped   = new PathSegmentGate('foo', new PathSegmentGate('bar', $route));
-        $this->assertEquals($wrapped, $implicit = $structure->select('foo.bar'));
-        $this->assertNotEquals($implicit, $explicit = $structure->select('foo.bar.' . PathSegmentSwitch::ROOT_PATH));
-
-        $prototype = new FakeResponse();
-        $request   = new FakeServerRequest('GET', FakeUri::fromString('/foo/bar'));
-        $this->assertEquals('root', (string) $implicit->forward($request, $prototype)->getBody());
-        $this->assertEquals($implicit->forward($request, $prototype), $explicit->forward($request, $prototype));
-        $this->assertEquals($implicit->uri(new FakeUri(), []), $explicit->uri(new FakeUri(), []));
+        $this->assertInstanceOf(Route::class, $this->splitter());
     }
 
     public function testForwardNotMatchingPathSegment_ReturnsPrototypeInstance()
     {
-        $route     = new PathSegmentSwitch([]);
-        $prototype = new FakeResponse();
-        $this->assertSame($prototype, $route->forward(new FakeServerRequest(), $prototype));
-    }
-
-    public function testWhenNoRootRoute_ForwardNotExistingPathSegment_ReturnsPrototypeInstance()
-    {
-        $route     = new PathSegmentSwitch([]);
-        $prototype = new FakeResponse();
-        $request   = new FakeServerRequest('GET', FakeUri::fromString('//domain.com/'));
-        $this->assertSame($prototype, $route->forward($request, $prototype));
-    }
-
-    public function testWithRootRoute_ForwardNotExistingPathSegment_ReturnsRootResponse()
-    {
-        $route     = new PathSegmentSwitch([], MockedRoute::response('root'));
-        $prototype = new FakeResponse();
-        $request   = new FakeServerRequest('GET', FakeUri::fromString('//domain.com/'));
-        $this->assertSame('root', (string) $route->forward($request, $prototype)->getBody());
+        $splitter = $this->splitter();
+        $this->assertSame(self::$prototype, $splitter->forward(new FakeServerRequest(), self::$prototype));
     }
 
     public function testForwardMatchingPathSegment_ReturnsRouteResponse()
     {
-        $route     = new PathSegmentSwitch(['foo' => MockedRoute::response('response.body')]);
-        $prototype = new FakeResponse();
-        $request   = new FakeServerRequest('GET', FakeUri::fromString('/foo/bar'));
-        $response  = $route->forward($request, $prototype);
-        $this->assertNotSame($prototype, $response);
-        $this->assertSame('response.body', (string) $response->getBody());
+        $splitter = $this->splitter(['foo' => $this->responseRoute($foo)]);
+        $request  = new FakeServerRequest('GET', FakeUri::fromString('/foo/bar'));
+        $this->assertSame($foo, $splitter->forward($request, self::$prototype));
+    }
+
+    public function testWhenNoRootRoute_ForwardNotExistingPathSegment_ReturnsPrototypeInstance()
+    {
+        $splitter = $this->splitter();
+        $request  = new FakeServerRequest('GET', FakeUri::fromString('/'));
+        $this->assertSame(self::$prototype, $splitter->forward($request, self::$prototype));
+    }
+
+    public function testWithRootRoute_ForwardNotExistingPathSegment_ReturnsRootResponse()
+    {
+        $splitter = $this->splitter([], $this->responseRoute($response));
+        $request  = new FakeServerRequest('GET', FakeUri::fromString('/'));
+        $this->assertSame($response, $splitter->forward($request, self::$prototype));
     }
 
     public function testNestedSwitchForwardMatchingRequest_ReturnsEndpointRouteResponse()
     {
-        $route = new PathSegmentSwitch([
+        $splitter = new PathSegmentSwitch([
             'A' => new PathSegmentSwitch([
-                'A' => MockedRoute::response('responseAA'),
-                'B' => MockedRoute::response('responseAB')
+                'A' => $this->responseRoute($responseAA),
+                'B' => $this->responseRoute($responseAB)
             ]),
             'B' => new PathSegmentSwitch([
-                'A' => MockedRoute::response('responseBA'),
-                'B' => MockedRoute::response('responseBB')
+                'A' => $this->responseRoute($responseBA),
+                'B' => $this->responseRoute($responseBB)
             ])
         ]);
 
-        $this->assertSame('prototype', $this->routeForwardCall($route));
-        $this->assertSame('responseAB', $this->routeForwardCall($route, '/A/B/C/D'));
-        $this->assertSame('responseBA', $this->routeForwardCall($route, 'B/A/foo/bar'));
+        $this->assertSame(self::$prototype, $this->routeForwardCall($splitter, 'A/C/B'));
+        $this->assertSame($responseAB, $this->routeForwardCall($splitter, '/A/B/C/D'));
+        $this->assertSame($responseBA, $this->routeForwardCall($splitter, 'B/A/foo/bar'));
     }
 
-    public function testSelectEndpointCall_ReturnsMatchingRoute()
+    public function testSelect_ReturnsMatchingRouteWithPathWrapper()
     {
-        $route = new PathSegmentSwitch([
-            'A' => MockedRoute::response('responseA'),
-            'B' => MockedRoute::response('responseB')
+        $splitter = new PathSegmentSwitch([
+            'A' => $routeA = new MockedRoute(),
+            'B' => $routeB = new MockedRoute()
         ]);
-        $this->assertSame('responseA', $this->routeForwardCall($route->select('A'), 'http://example.com/A/foo'));
-        $this->assertSame('responseB', $this->routeForwardCall($route->select('B'), '/B/FizzBuzz'));
-        $this->assertSame('prototype', $this->routeForwardCall($route));
+        $this->assertEquals(new PathSegmentGate('A', $routeA), $splitter->select('A'));
+        $this->assertEquals(new PathSegmentGate('B', $routeB), $splitter->select('B'));
     }
 
-    public function testSelectNestedPathWithRoutePath_ReturnsSameRouteAsRepeatedRouteCall()
+    public function testSelectNestedPathWithRoutePath_ReturnsSameRouteAsRepeatedSelectCall()
     {
-        $route = $this->createStructure(MockedRoute::response('endpoint'), ['foo', 'bar', 'baz']);
-        $this->assertEquals($route->select('foo.bar.baz'), $route->select('foo')->select('bar')->select('baz'));
+        $splitter = $this->createStructure(MockedRoute::response('endpoint'), ['foo', 'bar', 'baz']);
+        $this->assertEquals($splitter->select('foo.bar.baz'), $splitter->select('foo')->select('bar')->select('baz'));
     }
 
     public function testSelectNestedRouteWithRoutePath_ReturnsRouteThatMatchesAllPathSegments()
     {
-        $route = new PathSegmentSwitch([
-            'A' => new PathSegmentSwitch([
-                'A' => MockedRoute::response('responseAA'),
-                'B' => MockedRoute::response('responseAB')
+        $splitter = $this->splitter([
+            'A' => $this->splitter([
+                'A' => $this->responseRoute($responseAA),
+                'B' => $this->responseRoute($responseAB)
             ]),
-            'B' => MockedRoute::response('responseB')
+            'B' => $this->responseRoute($responseB)
         ]);
-        $this->assertSame('prototype', $this->routeForwardCall($route->select('A'), 'http://example.com/B/A/123'));
-        $this->assertSame('responseB', $this->routeForwardCall($route->select('B'), 'http://example.com/B/A/123'));
-        $this->assertSame('responseAA', $this->routeForwardCall($route->select('A.A'), 'http://example.com/A/A/123'));
-        $this->assertSame('responseAB', $this->routeForwardCall($route->select('A.B'), 'A/B/foo/bar'));
+        $this->assertSame(self::$prototype, $this->routeForwardCall($splitter->select('A'), 'http://example.com/B/A/123'));
+        $this->assertSame($responseB, $this->routeForwardCall($splitter->select('B'), 'http://example.com/B/A/123'));
+        $this->assertSame($responseAA, $this->routeForwardCall($splitter->select('A.A'), 'http://example.com/A/A/123'));
+        $this->assertSame($responseAB, $this->routeForwardCall($splitter->select('A.B'), 'A/B/foo/bar'));
+    }
+
+    public function testWhenNoRootRoute_UriMethodCall_ThrowsException()
+    {
+        $this->expectException(EndpointCallException::class);
+        $this->splitter()->uri(new FakeUri(), []);
+    }
+
+    public function testWithRootRoute_UriMethodCall_ReturnsRootUri()
+    {
+        $splitter = $this->splitter([], MockedRoute::withUri('root'));
+        $this->assertSame('root', (string) $splitter->uri(new FakeUri(), []));
+    }
+
+    public function testRootRouteCanBeSelected()
+    {
+        $splitter = $this->splitter([], $root = new MockedRoute());
+        $this->assertEquals($root, $splitter->select(PathSegmentSwitch::ROOT_PATH));
+    }
+
+    public function testWithRootRoute_UriOrForward_ReturnsResultsEquivalentToRootRouteCalls()
+    {
+        $splitter  = $this->splitter([], $this->responseRoute($response));
+        $structure = $this->createStructure($splitter, ['foo', 'bar']);
+        $wrapped   = new PathSegmentGate('foo', new PathSegmentGate('bar', $splitter));
+        $implicit  = $structure->select('foo.bar');
+        $explicit  = $structure->select('foo.bar.' . PathSegmentSwitch::ROOT_PATH);
+        $request   = new FakeServerRequest('GET', FakeUri::fromString('/foo/bar'));
+
+        $this->assertEquals($wrapped, $implicit);
+        $this->assertNotEquals($implicit, $explicit);
+        $this->assertSame($response, $implicit->forward($request, self::$prototype));
+        $this->assertSame($response, $explicit->forward($request, self::$prototype));
+        $this->assertEquals('/foo/bar', (string) $implicit->uri(new FakeUri(), []));
+        $this->assertEquals('/foo/bar', (string) $explicit->uri(new FakeUri(), []));
     }
 
     /**
      * @dataProvider segmentCombinations
      *
      * @param array  $segments
-     * @param string $uri
+     * @param string $prototype
+     * @param string $expected
      */
-    public function testEndpointUri_ReturnsUriThatCanReachEndpoint(array $segments, string $uri)
+    public function testEndpointUri_ReturnsUriThatCanReachEndpoint(array $segments, string $prototype, string $expected)
     {
-        $prototype = FakeUri::fromString($uri);
-        $expected  = $prototype->withPath($prototype->getPath() . '/' . implode('/', $segments));
+        $prototype = FakeUri::fromString($prototype);
         $path      = implode(Route::PATH_SEPARATOR, $segments);
-        $endpoint  = MockedRoute::response('endpoint');
-        $route     = $this->createStructure($endpoint, $segments);
-        $this->assertSame((string) $expected, (string) $route->select($path)->uri($prototype, []));
+        $splitter  = $this->createStructure($this->responseRoute($endpointResponse), $segments);
+        $this->assertSame($expected, (string) $splitter->select($path)->uri($prototype, []));
 
-        $request = new FakeServerRequest('GET', $expected);
-        $this->assertSame('endpoint', (string) $route->forward($request, new FakeResponse('prototype'))->getBody());
+        $request = new FakeServerRequest('GET', FakeUri::fromString($expected));
+        $this->assertSame($endpointResponse, $splitter->forward($request, self::$prototype));
 
         $request = new FakeServerRequest('GET', $prototype);
-        $this->assertSame('prototype', (string) $route->forward($request, new FakeResponse('prototype'))->getBody());
+        $this->assertSame(self::$prototype, $splitter->forward($request, self::$prototype));
     }
 
     public function segmentCombinations()
     {
         return [
-            [['foo', 'bar'], 'http://example.com?query=string'],
-            [['foo', 'bar', 'baz'], 'http://example.com?query=string'],
-            [['foo'], 'http:?query']
+            [['foo', 'bar'], 'http://example.com?query=string', 'http://example.com/foo/bar?query=string'],
+            [['foo', 'bar', 'baz'], 'http://example.com?query=string', 'http://example.com/foo/bar/baz?query=string'],
+            [['foo'], 'http:?query', 'http:/foo?query']
         ];
     }
 
-    private function routeForwardCall(Route $route, string $requestUri = null): string
+    private function routeForwardCall(Route $route, string $requestUri = null): ResponseInterface
     {
-        $response = $route->forward(
-            new FakeServerRequest('GET', $requestUri ? FakeUri::fromString($requestUri) : new FakeUri()),
-            new FakeResponse('prototype')
-        );
-        return (string) $response->getBody();
+        $request = new FakeServerRequest('GET', $requestUri ? FakeUri::fromString($requestUri) : new FakeUri());
+        return $route->forward($request, self::$prototype);
     }
 
-    private function createStructure(Route $endpoint, array $segments)
+    private function createStructure(Route $route, array $segments)
     {
-        $route = $endpoint;
         while ($segment = array_pop($segments)) {
             $route = new PathSegmentSwitch([$segment => $route]);
         }
         return $route;
+    }
+
+    private function splitter(array $routes = [], Route $root = null)
+    {
+        $routes = $routes ?: ['dummy' => new MockedRoute()];
+        return $root ? new PathSegmentSwitch($routes, $root) : new PathSegmentSwitch($routes);
     }
 }
