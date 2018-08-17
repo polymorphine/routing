@@ -18,7 +18,6 @@ use Polymorphine\Routing\Exception\UnreachableEndpointException;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\UriInterface;
 use InvalidArgumentException;
 
 
@@ -38,13 +37,13 @@ class UriPatternTest extends TestCase
     /**
      * @dataProvider matchingPatterns
      *
-     * @param $pattern
-     * @param $uri
+     * @param $patternString
+     * @param $uriString
      */
-    public function testMatchAgainstDefinedUriParts($pattern, $uri)
+    public function testMatchAgainstDefinedUriParts($patternString, $uriString)
     {
-        $request = $this->request($uri);
-        $this->assertInstanceOf(ServerRequestInterface::class, $this->pattern($pattern)->matchedRequest($request));
+        $request = $this->request($uriString);
+        $this->assertInstanceOf(ServerRequestInterface::class, $this->pattern($patternString)->matchedRequest($request));
     }
 
     public function matchingPatterns()
@@ -63,13 +62,13 @@ class UriPatternTest extends TestCase
     /**
      * @dataProvider notMatchingPatterns
      *
-     * @param $pattern
-     * @param $uri
+     * @param $patternString
+     * @param $uriString
      */
-    public function testNotMatchAgainstDefinedUriParts($pattern, $uri)
+    public function testNotMatchAgainstDefinedUriParts($patternString, $uriString)
     {
-        $request = $this->request($uri);
-        $this->assertNull($this->pattern($pattern)->matchedRequest($request));
+        $request = $this->request($uriString);
+        $this->assertNull($this->pattern($patternString)->matchedRequest($request));
     }
 
     public function notMatchingPatterns()
@@ -87,23 +86,18 @@ class UriPatternTest extends TestCase
         ];
     }
 
-    public function testUriMethod_returnsUriInstance()
-    {
-        $this->assertInstanceOf(UriInterface::class, $this->pattern('//example.com')->uri(new FakeUri(), []));
-    }
-
     /**
      * @dataProvider patterns
      *
-     * @param $pattern
+     * @param $patternString
      * @param $uriString
      * @param $expected
      */
-    public function testUriIsReturnedWithDefinedUriParts($pattern, $uriString, $expected)
+    public function testUriIsReturnedWithDefinedUriParts($patternString, $uriString, $expected)
     {
-        $uri  = FakeUri::fromString($uriString);
-        $mask = $this->pattern($pattern);
-        $this->assertSame($expected, (string) $mask->uri($uri, []));
+        $prototype = FakeUri::fromString($uriString);
+        $pattern   = $this->pattern($patternString);
+        $this->assertSame($expected, (string) $pattern->uri($prototype, []));
     }
 
     public function patterns()
@@ -126,13 +120,13 @@ class UriPatternTest extends TestCase
     /**
      * @dataProvider prototypeConflict
      *
-     * @param $pattern
+     * @param $patternString
      * @param $uriString
      */
-    public function testUriOverwritingPrototypeSegment_ThrowsException($pattern, $uriString)
+    public function testUriOverwritingPrototypeSegment_ThrowsException($patternString, $uriString)
     {
         $this->expectException(UnreachableEndpointException::class);
-        $this->pattern($pattern)->uri(FakeUri::fromString($uriString), []);
+        $this->pattern($patternString)->uri(FakeUri::fromString($uriString), []);
     }
 
     public function prototypeConflict()
@@ -149,40 +143,39 @@ class UriPatternTest extends TestCase
 
     public function testUriMatchingPrototypeSegment_ReturnsUriWithMissingPartAppended()
     {
-        $pattern = $this->pattern('/foo/bar/baz');
-        $proto   = FakeUri::fromString('/foo/bar');
-        $this->assertSame('/foo/bar/baz', (string) $pattern->uri($proto, []));
+        $pattern   = $this->pattern('/foo/bar/baz');
+        $prototype = FakeUri::fromString('/foo/bar');
+        $this->assertSame('/foo/bar/baz', (string) $pattern->uri($prototype, []));
 
-        $pattern = $this->pattern('/foo/bar?fizz=buzz&other=param');
-        $proto   = FakeUri::fromString('/foo?fizz=buzz');
-        $this->assertSame('/foo/bar?fizz=buzz&other=param', (string) $pattern->uri($proto, []));
+        $pattern   = $this->pattern('/foo/bar?fizz=buzz&other=param');
+        $prototype = FakeUri::fromString('/foo?fizz=buzz');
+        $this->assertSame('/foo/bar?fizz=buzz&other=param', (string) $pattern->uri($prototype, []));
     }
 
     public function testRelativePathIsMatched()
     {
         $pattern = $this->pattern('bar');
-        $request = $pattern->matchedRequest($this->request('/foo/bar')->withAttribute(Route::PATH_ATTRIBUTE, 'bar'));
-        $this->assertInstanceOf(ServerRequestInterface::class, $request);
-        $this->assertSame([Route::PATH_ATTRIBUTE => ''], $request->getAttributes());
+        $matched = $pattern->matchedRequest($this->request('/foo/bar')->withAttribute(Route::PATH_ATTRIBUTE, 'bar'));
+        $this->assertInstanceOf(ServerRequestInterface::class, $matched);
+        $this->assertSame('', $matched->getAttribute(Route::PATH_ATTRIBUTE));
     }
 
     public function testEmptyRelativePathIsMatched()
     {
         $pattern = $this->pattern('');
-        $request = $pattern->matchedRequest($this->request('/foo/bar')->withAttribute(Route::PATH_ATTRIBUTE, 'bar'));
-        $this->assertNull($request);
+        $request = $this->request('/foo/bar')->withAttribute(Route::PATH_ATTRIBUTE, 'bar');
+        $this->assertNull($pattern->matchedRequest($request));
 
-        $pattern = $this->pattern('');
-        $request = $pattern->matchedRequest($this->request('/foo/bar')->withAttribute(Route::PATH_ATTRIBUTE, ''));
-        $this->assertInstanceOf(ServerRequestInterface::class, $request);
+        $request = $request->withAttribute(Route::PATH_ATTRIBUTE, '');
+        $this->assertInstanceOf(ServerRequestInterface::class, $pattern->matchedRequest($request));
     }
 
     public function testAbsolutePathWithAsteriskMatchesPathFragment()
     {
         $pattern = $this->pattern('/foo/bar*');
-        $request = $pattern->matchedRequest($this->request('/foo/bar/baz/and/anything'));
-        $this->assertInstanceOf(ServerRequestInterface::class, $request);
-        $this->assertSame([Route::PATH_ATTRIBUTE => 'baz/and/anything'], $request->getAttributes());
+        $matched = $pattern->matchedRequest($this->request('/foo/bar/baz/and/anything'));
+        $this->assertInstanceOf(ServerRequestInterface::class, $matched);
+        $this->assertSame('baz/and/anything', $matched->getAttribute(Route::PATH_ATTRIBUTE));
     }
 
     public function testPathWithAsteriskAndQueryCanBeMatched()
@@ -223,10 +216,10 @@ class UriPatternTest extends TestCase
     {
         $pattern   = $this->pattern('bar');
         $prototype = new FakeUri();
-        $this->assertSame('/bar', (string) $pattern->uri($prototype, []));
+        $this->assertSame('/bar', $pattern->uri($prototype, [])->getPath());
     }
 
-    public function testHostStartingWithAsteriskIsResolvedAsDomainPattern()
+    public function testHostStartingWithAsteriskMatchesDomainAndSubdomainRequests()
     {
         $pattern = $this->pattern('//*example.com');
         $request = $this->request('http://subdomain.example.com/foo');
@@ -243,8 +236,6 @@ class UriPatternTest extends TestCase
 
     private function request(string $uri)
     {
-        $request      = new FakeServerRequest();
-        $request->uri = FakeUri::fromString($uri);
-        return $request;
+        return new FakeServerRequest('GET', FakeUri::fromString($uri));
     }
 }
