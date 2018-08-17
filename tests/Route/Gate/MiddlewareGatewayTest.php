@@ -12,6 +12,7 @@
 namespace Polymorphine\Routing\Tests\Route\Gate;
 
 use PHPUnit\Framework\TestCase;
+use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\MiddlewareGateway;
 use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 use Polymorphine\Routing\Tests\Doubles\FakeMiddleware;
@@ -24,7 +25,7 @@ class MiddlewareGatewayTest extends TestCase
 {
     public function testInstantiation()
     {
-        $this->assertInstanceOf(MiddlewareGateway::class, $this->middleware());
+        $this->assertInstanceOf(Route::class, $this->middleware());
     }
 
     public function testMiddlewareForwardsRequest()

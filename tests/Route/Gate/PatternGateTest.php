@@ -15,35 +15,30 @@ use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\Pattern\UriPattern;
 use Polymorphine\Routing\Route\Gate\PatternGate;
+use Polymorphine\Routing\Tests\EndpointTestMethods;
 use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
-use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
 
 
 class PatternGateTest extends TestCase
 {
-    private static $prototype;
-
-    public static function setUpBeforeClass()
-    {
-        self::$prototype = new FakeResponse();
-    }
+    use EndpointTestMethods;
 
     public function testInstantiation()
     {
-        $this->assertInstanceOf(PatternGate::class, $default = $this->patternGate());
-        $this->assertInstanceOf(PatternGate::class, $https = $this->patternGate('https:'));
-        $this->assertInstanceOf(PatternGate::class, $http = $this->patternGate('http:'));
+        $this->assertInstanceOf(Route::class, $default = $this->patternGate());
+        $this->assertInstanceOf(Route::class, $https = $this->patternGate('https:'));
+        $this->assertInstanceOf(Route::class, $http = $this->patternGate('http:'));
 
         $this->assertEquals($default, $https);
         $this->assertNotEquals($default, $http);
 
-        $gateway = PatternGate::withPatternString('/test/{#testId}', MockedRoute::response('default'));
-        $this->assertInstanceOf(PatternGate::class, $gateway);
+        $gateway = PatternGate::withPatternString('/test/{#testId}', new MockedRoute());
+        $this->assertInstanceOf(Route::class, $gateway);
 
-        $gateway = PatternGate::withPatternString('//domain.com/test/foo', MockedRoute::response('default'));
-        $this->assertInstanceOf(PatternGate::class, $gateway);
+        $gateway = PatternGate::withPatternString('//domain.com/test/foo', new MockedRoute());
+        $this->assertInstanceOf(Route::class, $gateway);
     }
 
     public function testNotMatchingPattern_ReturnsPrototypeInstance()

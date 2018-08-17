@@ -12,17 +12,21 @@
 namespace Polymorphine\Routing\Tests\Route\Endpoint;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Route\Endpoint\NullEndpoint;
-use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
-use Polymorphine\Routing\Tests\Doubles\FakeResponse;
+use Polymorphine\Routing\Route\Endpoint;
+use Polymorphine\Routing\Tests\Doubles;
 
 
 class NullEndpointTest extends TestCase
 {
+    public function testInstantiation()
+    {
+        $this->assertInstanceOf(Endpoint::class, new Endpoint\NullEndpoint());
+    }
+
     public function testForward_ReturnsPrototype()
     {
-        $endpoint  = new NullEndpoint();
-        $prototype = new FakeResponse();
-        $this->assertSame($prototype, $endpoint->forward(new FakeServerRequest(), $prototype));
+        $endpoint  = new Endpoint\NullEndpoint();
+        $prototype = new Doubles\FakeResponse();
+        $this->assertSame($prototype, $endpoint->forward(new Doubles\FakeServerRequest(), $prototype));
     }
 }

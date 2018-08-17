@@ -21,15 +21,6 @@ use Polymorphine\Routing\Tests\Doubles\FakeUri;
 
 class RedirectEndpointTest extends TestCase
 {
-    private function redirect(string $uri)
-    {
-        $uriCallback = function () use ($uri) {
-            return (string) FakeUri::fromString($uri);
-        };
-
-        return new RedirectEndpoint($uriCallback);
-    }
-
     public function testInstantiation()
     {
         $this->assertInstanceOf(Route::class, $this->redirect('/foo/bar'));
@@ -40,5 +31,12 @@ class RedirectEndpointTest extends TestCase
         $response = $this->redirect('/foo/bar')->forward(new FakeServerRequest(), new FakeResponse());
         $this->assertSame(301, $response->getStatusCode());
         $this->assertSame('/foo/bar', $response->headers['Location']);
+    }
+
+    private function redirect(string $uri)
+    {
+        return new RedirectEndpoint(function () use ($uri) {
+            return (string) FakeUri::fromString($uri);
+        });
     }
 }

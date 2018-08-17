@@ -28,8 +28,7 @@ class HandlerEndpointTest extends TestCase
 
     public function testForward_ReturnsHandlerResponse()
     {
-        $response = new FakeResponse('processed');
-        $endpoint = new HandlerEndpoint(new FakeRequestHandler($response));
+        $endpoint = new HandlerEndpoint(new FakeRequestHandler($response = new FakeResponse()));
         $this->assertSame($response, $endpoint->forward(new FakeServerRequest(), new FakeResponse()));
     }
 }

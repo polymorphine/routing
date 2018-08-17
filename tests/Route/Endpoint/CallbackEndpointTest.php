@@ -14,12 +14,15 @@ namespace Polymorphine\Routing\Tests\Route\Endpoint;
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route\Endpoint;
 use Polymorphine\Routing\Route\Endpoint\CallbackEndpoint;
+use Polymorphine\Routing\Tests\EndpointTestMethods;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 
 
 class CallbackEndpointTest extends TestCase
 {
+    use EndpointTestMethods;
+
     public function testInstantiation()
     {
         $this->assertInstanceOf(Endpoint::class, new CallbackEndpoint(function () {}));
@@ -27,8 +30,7 @@ class CallbackEndpointTest extends TestCase
 
     public function testForward_ReturnsCallbackResponse()
     {
-        $response = new FakeResponse();
-        $endpoint = new CallbackEndpoint(function () use ($response) { return $response; });
+        $endpoint = new CallbackEndpoint($this->callbackResponse($response));
         $this->assertSame($response, $endpoint->forward(new FakeServerRequest(), new FakeResponse()));
     }
 }

@@ -14,24 +14,19 @@ namespace Polymorphine\Routing\Tests\Route\Gate;
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\MethodGate;
+use Polymorphine\Routing\Tests\EndpointTestMethods;
 use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
-use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
 
 
 class MethodGateTest extends TestCase
 {
-    private static $prototype;
-
-    public static function setUpBeforeClass()
-    {
-        self::$prototype = new FakeResponse();
-    }
+    use EndpointTestMethods;
 
     public function testInstantiation()
     {
-        $this->assertInstanceOf(MethodGate::class, $this->gate());
+        $this->assertInstanceOf(Route::class, $this->gate());
     }
 
     public function testNotMatchingGateMethodRequestForward_ReturnsPrototypeInstance()

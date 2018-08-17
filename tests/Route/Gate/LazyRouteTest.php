@@ -31,7 +31,7 @@ class LazyRouteTest extends TestCase
 
     public function testInstantiation()
     {
-        $this->assertInstanceOf(LazyRoute::class, $this->route());
+        $this->assertInstanceOf(Route::class, $this->route());
     }
 
     public function testWrappedRouteInstantiationIsDeferred()

@@ -12,8 +12,7 @@
 namespace Polymorphine\Routing\Tests\Route\Endpoint;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Route\Endpoint\HandlerFactoryEndpoint;
+use Polymorphine\Routing\Route\Endpoint;
 use Polymorphine\Routing\Tests\Doubles\FakeContainer;
 use Polymorphine\Routing\Tests\Doubles\FakeHandlerFactory;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
@@ -22,16 +21,9 @@ use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 
 class HandlerFactoryEndpointTest extends TestCase
 {
-    protected $container;
-
-    public function setUp()
-    {
-        $this->container = new FakeContainer();
-    }
-
     public function testInstantiation()
     {
-        $this->assertInstanceOf(Route::class, $this->endpoint('SomeClass'));
+        $this->assertInstanceOf(Endpoint::class, $this->endpoint('SomeClass'));
     }
 
     public function testHandlerFromFactoryIsCalled()
@@ -44,7 +36,7 @@ class HandlerFactoryEndpointTest extends TestCase
 
     private function endpoint(string $className)
     {
-        $callback = function () use ($className) { return new $className; };
-        return new HandlerFactoryEndpoint($callback, $this->container);
+        $callback = function () use ($className) { return new $className(); };
+        return new Endpoint\HandlerFactoryEndpoint($callback, new FakeContainer());
     }
 }
