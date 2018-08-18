@@ -16,6 +16,7 @@ use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Splitter\ResponseScanSwitch;
 use Polymorphine\Routing\Exception\EndpointCallException;
 use Polymorphine\Routing\Exception\SwitchCallException;
+use Polymorphine\Routing\Tests\RoutingTestMethods;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
 use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
@@ -24,51 +25,60 @@ use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 
 class ResponseScanSwitchTest extends TestCase
 {
-    private static $prototype;
-
-    public static function setUpBeforeClass()
-    {
-        self::$prototype = new FakeResponse();
-    }
+    use RoutingTestMethods;
 
     public function testInstantiation()
     {
-        $this->assertInstanceOf(Route::class, $this->route());
+        $this->assertInstanceOf(Route::class, $this->splitter());
     }
 
     public function testForwardingNotMatchingRequest_ReturnsPrototypeInstance()
     {
-        $route = $this->route();
-        $this->assertSame(self::$prototype, $route->forward(new FakeServerRequest(), self::$prototype));
+        $splitter = $this->splitter();
+        $this->assertSame(self::$prototype, $splitter->forward(new FakeServerRequest(), self::$prototype));
 
-        $route = $this->route(['name' => new MockedRoute()]);
-        $this->assertSame(self::$prototype, $route->forward(new FakeServerRequest(), self::$prototype));
+        $splitter = $this->splitter(['name' => new MockedRoute()]);
+        $this->assertSame(self::$prototype, $splitter->forward(new FakeServerRequest(), self::$prototype));
     }
 
     public function testForwardingMatchingRequest_ReturnsEndpointResponse()
     {
-        $route = $this->route(['name' => MockedRoute::response('endpoint')]);
-        $this->assertNotSame(self::$prototype, $route->forward(new FakeServerRequest(), self::$prototype));
-        $this->assertSame('endpoint', (string) $route->forward(new FakeServerRequest(), self::$prototype)->getBody());
+        $splitter = $this->splitter(['name' => $this->responseRoute($response)]);
+        $this->assertSame($response, $splitter->forward(new FakeServerRequest(), self::$prototype));
     }
 
     public function testForwardingRequest_ReturnsFirstMatchingEndpointResponse()
     {
-        $route = $this->route(['A' => MockedRoute::response('first'), 'B' => MockedRoute::response('second')]);
-        $this->assertSame('first', $route->forward(new FakeServerRequest(), self::$prototype)->body);
+        $routes = [
+            'block' => new MockedRoute(),
+            'match' => $this->responseRoute($firstMatch),
+            'last'  => $this->responseRoute($secondMatch)
+        ];
+
+        $splitter = $this->splitter($routes);
+        $request  = new FakeServerRequest();
+        $this->assertSame($firstMatch, $splitter->forward($request, self::$prototype));
+        $this->assertSame(self::$prototype, $routes['block']->forward($request, self::$prototype));
+        $this->assertSame($secondMatch, $routes['last']->forward($request, self::$prototype));
     }
 
-    public function testUriMethod_ThrowsException()
+    public function testUriMethodWithoutDefinedDefaultRoute_ThrowsException()
     {
         $this->expectException(EndpointCallException::class);
-        $this->route()->uri(new FakeUri(), []);
+        $this->splitter()->uri(new FakeUri(), []);
+    }
+
+    public function testUriIsCalledFromDefaultRoute()
+    {
+        $router = $this->splitter([], MockedRoute::withUri('/foo/bar'));
+        $this->assertSame('http://example.com/foo/bar', (string) $router->uri(FakeUri::fromString('http://example.com'), []));
     }
 
     public function testSelectEndpointCall_ReturnsFoundRoute()
     {
-        $route = $this->route([
-            'A' => $routeA = MockedRoute::response('A'),
-            'B' => $routeB = MockedRoute::response('B')
+        $route = $this->splitter([
+            'A' => $routeA = new MockedRoute(),
+            'B' => $routeB = new MockedRoute()
         ]);
         $this->assertSame($routeA, $route->select('A'));
         $this->assertSame($routeB, $route->select('B'));
@@ -76,64 +86,55 @@ class ResponseScanSwitchTest extends TestCase
 
     public function testSelectSwitchCallWithMorePathSegments_AsksNextSwitch()
     {
-        $route = $this->route([
-            'AFound' => $routeA = MockedRoute::response('A'),
-            'BFound' => $routeB = MockedRoute::response('B')
+        $splitter = $this->splitter([
+            'A' => $routeA = new MockedRoute(),
+            'B' => $routeB = new MockedRoute()
         ]);
-        $selected = $route->select('AFound.PathA');
-        $this->assertSame('PathA', $selected->path);
-        $this->assertSame('A', $selected->response->body);
+        $selected = $splitter->select('A.nextA');
+        $this->assertSame($routeA, $selected);
+        $this->assertSame('nextA', $selected->path);
 
-        $selected = $route->select('BFound.PathB.PathC');
-        $this->assertSame('PathB.PathC', $selected->path);
-        $this->assertSame('B', $selected->response->body);
+        $selected = $splitter->select('B.nextB.nextB2');
+        $this->assertSame($routeB, $selected);
+        $this->assertSame('nextB.nextB2', $selected->path);
     }
 
     public function testSelectWithEmptyPath_ThrowsException()
     {
         $this->expectException(SwitchCallException::class);
-        $this->route()->select('');
+        $this->splitter()->select('');
     }
 
     public function testSelectWithUnknownPathName_ThrowsException()
     {
-        $this->assertInstanceOf(Route::class, $this->route()->select('example'));
         $this->expectException(SwitchCallException::class);
-        $this->route()->select('NotDefined');
+        $this->splitter()->select('NotDefined');
     }
 
     public function testDefaultRouteIsScannedFirst()
     {
-        $response = new FakeResponse();
-        $subRoute = new MockedRoute($response);
-        $router   = $this->route(['dummy' => MockedRoute::response('dummy')], $this->route(['nested' => $subRoute]));
-        $this->assertSame($response, $router->forward(new FakeServerRequest(), new FakeResponse()));
+        $default  = $this->responseRoute($response);
+        $splitter = $this->splitter([], $default);
+        $this->assertSame($response, $splitter->forward(new FakeServerRequest(), new FakeResponse()));
     }
 
     public function testSelectUnknownPathWhenDefaultRoutePresent_SelectsPathFromDefaultRoute()
     {
-        $subRoute = new MockedRoute();
-        $router   = $this->route([], $this->route(['nested' => $subRoute]));
-        $this->assertSame($subRoute, $router->select('nested'));
+        $nested   = $this->splitter(['nested' => $subRoute = new MockedRoute()]);
+        $splitter = $this->splitter([], $nested);
+        $this->assertSame($subRoute, $splitter->select('nested'));
     }
 
     public function testSelectDefinedPathWhenDefaultRoutePresent_SelectsRouteForDefinedPath()
     {
-        $router = $this->route(['route' => MockedRoute::response('defined')], $this->route(['route' => MockedRoute::response('default')]));
-        $this->assertSame('defined', (string) $router->select('route')->forward(new FakeServerRequest(), new FakeResponse())->getBody());
+        $nested   = $this->splitter(['route' => $subRoute = new MockedRoute()]);
+        $splitter = $this->splitter(['route' => $topRoute = new MockedRoute()], $nested);
+        $this->assertSame($topRoute, $splitter->select('route'));
     }
 
-    public function testUriIsCalledFromDefaultRoute()
+    private function splitter(array $routes = [], Route $default = null)
     {
-        $router = $this->route([], MockedRoute::withUri('/foo/bar'));
-        $this->assertSame('http://example.com/foo/bar', (string) $router->uri(FakeUri::fromString('http://example.com'), []));
-    }
-
-    private function route(array $routes = [], Route $default = null)
-    {
-        $dummy = new MockedRoute();
-        return $default
-            ? new ResponseScanSwitch(['example' => $dummy] + $routes, $default)
-            : new ResponseScanSwitch(['example' => $dummy] + $routes);
+        $routes = $routes ?: ['dummy' => new MockedRoute()];
+        return $default ? new ResponseScanSwitch($routes, $default) : new ResponseScanSwitch($routes);
     }
 }
