@@ -25,7 +25,7 @@ class PathSegmentSwitchBuilder extends SwitchBuilder
             throw new InvalidArgumentException('Name is required for path segment route switch');
         }
 
-        return $this->addBuilder($this->context->route(), $name);
+        return $this->addBuilder($name);
     }
 
     public function resource(string $name, array $routes = []): ResourceSwitchBuilder

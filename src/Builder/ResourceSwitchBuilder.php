@@ -38,42 +38,42 @@ class ResourceSwitchBuilder extends SwitchBuilder
 
     public function index(): RouteBuilder
     {
-        return $this->route('INDEX');
+        return $this->addBuilder('INDEX');
     }
 
     public function get(): RouteBuilder
     {
-        return $this->route('GET');
+        return $this->addBuilder('GET');
     }
 
     public function post(): RouteBuilder
     {
-        return $this->route('POST');
+        return $this->addBuilder('POST');
     }
 
     public function delete(): RouteBuilder
     {
-        return $this->route('DELETE');
+        return $this->addBuilder('DELETE');
     }
 
     public function patch(): RouteBuilder
     {
-        return $this->route('PATCH');
+        return $this->addBuilder('PATCH');
     }
 
     public function put(): RouteBuilder
     {
-        return $this->route('PUT');
+        return $this->addBuilder('PUT');
     }
 
     public function add(): RouteBuilder
     {
-        return $this->route('NEW');
+        return $this->addBuilder('NEW');
     }
 
     public function edit(): RouteBuilder
     {
-        return $this->route('EDIT');
+        return $this->addBuilder('EDIT');
     }
 
     protected function router(array $routes): Route
@@ -83,11 +83,6 @@ class ResourceSwitchBuilder extends SwitchBuilder
         }
 
         return $this->composeLogicStructure($routes);
-    }
-
-    private function route(string $name): RouteBuilder
-    {
-        return $this->addBuilder($this->context->route(), $name);
     }
 
     private function wrapRouteType(string $name, Route $route): Route

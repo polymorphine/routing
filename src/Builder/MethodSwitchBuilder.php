@@ -17,39 +17,40 @@ use InvalidArgumentException;
 
 class MethodSwitchBuilder extends SwitchBuilder
 {
-    private $methods = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'];
+    private $methods = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'HEAD', 'OPTIONS'];
 
     public function get(): RouteBuilder
     {
-        return $this->addBuilder($this->context->route(), 'GET');
+        return $this->addBuilder('GET');
     }
 
     public function post(): RouteBuilder
     {
-        return $this->addBuilder($this->context->route(), 'POST');
+        return $this->addBuilder('POST');
     }
 
     public function patch(): RouteBuilder
     {
-        return $this->addBuilder($this->context->route(), 'PATCH');
+        return $this->addBuilder('PATCH');
     }
 
     public function put(): RouteBuilder
     {
-        return $this->addBuilder($this->context->route(), 'PUT');
+        return $this->addBuilder('PUT');
     }
 
     public function delete(): RouteBuilder
     {
-        return $this->addBuilder($this->context->route(), 'DELETE');
+        return $this->addBuilder('DELETE');
     }
 
     public function route(string $name): RouteBuilder
     {
         $builder = $this->context->route();
-        $names   = explode('|', $name);
+        $names = explode('|', $name);
         foreach ($names as $name) {
-            $this->addBuilder($builder, $this->validMethod($name));
+            $method = $this->validMethod($name);
+            $this->builders[$method] = $builder;
         }
 
         return $builder;
@@ -62,7 +63,7 @@ class MethodSwitchBuilder extends SwitchBuilder
 
     protected function validMethod(string $method): string
     {
-        if (in_array($method, $this->methods, true)) { return $method; }
+        if (in_array($method, $this->methods, true)) { return $this->validName($method); }
 
         $message = 'Unknown http method `%s` for method route switch';
         throw new InvalidArgumentException(sprintf($message, $method));
