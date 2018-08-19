@@ -25,17 +25,15 @@ class ResourceSwitchBuilder extends SwitchBuilder
     private $idName   = 'resource.id';
     private $idRegexp = '[1-9][0-9]*';
 
-    public function id(string $name, string $regexp = '[1-9][0-9]*')
+    public function __construct(?RouteBuilder $context = null, array $routes = [])
+    {
+        parent::__construct($context, $routes + ['GET' => null, 'INDEX' => null, 'NEW' => null, 'EDIT' => null]);
+    }
+
+    public function id(string $name, string $regexp = null)
     {
         $this->idName = $name;
-        if (!$regexp) { return $this; }
-
-        if (preg_match('#' . $regexp . '#', 'new')) {
-            throw new Exception\BuilderLogicException('Uri conflict: NEW pseudo method uri matches id regexp');
-        }
-
-        $this->idRegexp = $regexp;
-        return $this;
+        return $regexp ? $this->withIdRegexp($regexp) : $this;
     }
 
     public function index(): RouteBuilder
@@ -80,16 +78,11 @@ class ResourceSwitchBuilder extends SwitchBuilder
 
     protected function router(array $routes): Route
     {
-        $routes['GET']   = $routes['GET'] ?? new NullEndpoint();
-        $routes['INDEX'] = $routes['INDEX'] ?? new NullEndpoint();
-
         foreach ($routes as $name => &$route) {
-            $route = $this->wrapRouteType($name, $route);
+            $route = $this->wrapRouteType($name, $route ?: new NullEndpoint());
         }
 
-        $routes = $this->groupPseudoRoutes($routes);
-
-        return new Route\Gate\ResourceGateway($this->idName, new MethodSwitch($routes, 'GET'));
+        return $this->composeLogicStructure($routes);
     }
 
     private function route(string $name): RouteBuilder
@@ -112,17 +105,20 @@ class ResourceSwitchBuilder extends SwitchBuilder
         return new PatternGate(new PathSegment($this->idName, $this->idRegexp), $route);
     }
 
-    private function groupPseudoRoutes(array $routes): array
+    private function composeLogicStructure(array $routes): Route
     {
-        $getMethodRoutes = array_filter([
-            'edit'  => $this->pullRoute('EDIT', $routes),
-            'item'  => $routes['GET'],
-            'index' => $this->pullRoute('INDEX', $routes),
-            'new'   => $this->pullRoute('NEW', $routes)
+        $formRoutes = new ResponseScanSwitch([
+            'edit' => $this->pullRoute('EDIT', $routes),
+            'new'  => $this->pullRoute('NEW', $routes)
         ]);
-        $routes['GET'] = new ResponseScanSwitch($getMethodRoutes);
 
-        return $routes;
+        $routes['GET'] = new ResponseScanSwitch([
+            'form'  => new Route\Gate\UriAttributeSelect($formRoutes, $this->idName, 'edit', 'new'),
+            'item'  => $routes['GET'],
+            'index' => $this->pullRoute('INDEX', $routes)
+        ]);
+
+        return new Route\Gate\UriAttributeSelect(new MethodSwitch($routes, 'GET'), $this->idName, 'item', 'index');
     }
 
     private function pullRoute(string $name, array &$routes): ?Route
@@ -130,5 +126,15 @@ class ResourceSwitchBuilder extends SwitchBuilder
         $route = $routes[$name] ?? null;
         unset($routes[$name]);
         return $route;
+    }
+
+    private function withIdRegexp(string $regexp)
+    {
+        if (preg_match('#' . $regexp . '#', 'new')) {
+            throw new Exception\BuilderLogicException('Uri conflict: `resource/new` matches `resource/{id}` path');
+        }
+
+        $this->idRegexp = $regexp;
+        return $this;
     }
 }

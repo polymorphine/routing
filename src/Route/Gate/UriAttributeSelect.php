@@ -17,18 +17,19 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 
 
-class ResourceGateway implements Route
+class UriAttributeSelect implements Route
 {
-    private $itemPath  = 'item';
-    private $indexPath = 'index';
-
     private $id;
+    private $itemPath;
+    private $indexPath;
     private $resource;
 
-    public function __construct(string $id, Route $resource)
+    public function __construct(Route $resource, string $id, string $itemPath, string $indexPath)
     {
-        $this->id       = $id;
-        $this->resource = $resource;
+        $this->resource  = $resource;
+        $this->id        = $id;
+        $this->itemPath  = $itemPath;
+        $this->indexPath = $indexPath;
     }
 
     public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
@@ -38,12 +39,6 @@ class ResourceGateway implements Route
 
     public function select(string $path): Route
     {
-        if ($path === 'form') {
-            $this->itemPath = 'edit';
-            $this->indexPath = 'new';
-            return $this;
-        }
-
         return $this->resource->select($path);
     }
 

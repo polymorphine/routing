@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Builder\SwitchBuilder;
 use Polymorphine\Routing\Builder\ResourceSwitchBuilder;
 use Polymorphine\Routing\Builder\Exception\BuilderLogicException;
-use Polymorphine\Routing\Route\Gate\ResourceGateway;
+use Polymorphine\Routing\Route\Gate\UriAttributeSelect;
 use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
@@ -34,7 +34,7 @@ class ResourceSwitchBuilderTest extends TestCase
 
     public function testBuild_ReturnsResponseScanSwitch()
     {
-        $this->assertInstanceOf(ResourceGateway::class, $this->builder()->build());
+        $this->assertInstanceOf(UriAttributeSelect::class, $this->builder()->build());
     }
 
     public function testRoutesCanBeAdded()
@@ -82,9 +82,7 @@ class ResourceSwitchBuilderTest extends TestCase
         $prototype = new FakeUri();
         $this->assertEquals('/', (string) $route->uri($prototype, []));
         $this->assertEquals('/1234', (string) $route->uri($prototype, ['resource.id' => 1234]));
-        $this->assertEquals('/1234/form', (string) $route->select('edit')->uri($prototype, ['resource.id' => 1234]));
         $this->assertEquals('/1234/form', (string) $route->select('form')->uri($prototype, ['resource.id' => 1234]));
-        $this->assertEquals('/new/form', (string) $route->select('new')->uri($prototype, []));
         $this->assertEquals('/new/form', (string) $route->select('form')->uri($prototype, []));
         $this->assertEquals('/', (string) $route->select('index')->uri($prototype, ['resource.id' => 1234]));
     }
