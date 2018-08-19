@@ -13,7 +13,6 @@ namespace Polymorphine\Routing\Tests\Builder;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Builder\ResourceSwitchBuilder;
-use Polymorphine\Routing\Builder\SwitchBuilder;
 use Polymorphine\Routing\Builder\PathSegmentSwitchBuilder;
 use Polymorphine\Routing\Builder\Exception\BuilderLogicException;
 use Polymorphine\Routing\Route\Endpoint\CallbackEndpoint;
@@ -32,7 +31,7 @@ class PathSegmentSwitchBuilderTest extends TestCase
 
     public function testInstantiation()
     {
-        $this->assertInstanceOf(SwitchBuilder::class, $this->builder());
+        $this->assertInstanceOf(PathSegmentSwitchBuilder::class, $this->builder());
     }
 
     public function testBuild_ReturnsResponseScanSwitch()

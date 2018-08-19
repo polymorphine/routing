@@ -11,6 +11,7 @@
 
 namespace Polymorphine\Routing\Builder;
 
+use Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\PatternGate;
 use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\Path;
@@ -20,14 +21,17 @@ use Polymorphine\Routing\Route\Splitter\ResponseScanSwitch;
 use Polymorphine\Routing\Route\Endpoint\NullEndpoint;
 
 
-class ResourceSwitchBuilder extends SwitchBuilder
+class ResourceSwitchBuilder implements Builder
 {
+    use CompositeBuilderMethods;
+
     private $idName   = 'resource.id';
     private $idRegexp = '[1-9][0-9]*';
 
     public function __construct(?RouteBuilder $context = null, array $routes = [])
     {
-        parent::__construct($context, $routes + ['GET' => null, 'INDEX' => null, 'NEW' => null, 'EDIT' => null]);
+        $this->context = $context ?? new RouteBuilder();
+        $this->routes  = $routes + ['GET' => null, 'INDEX' => null, 'NEW' => null, 'EDIT' => null];
     }
 
     public function id(string $name, string $regexp = null)

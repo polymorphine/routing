@@ -11,14 +11,22 @@
 
 namespace Polymorphine\Routing\Builder;
 
-use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Builder;
+use Polymorphine\Routing\Route;
 
 
-class ResponseScanSwitchBuilder extends SwitchBuilder
+class ResponseScanSwitchBuilder implements Builder
 {
+    use CompositeBuilderMethods;
+
     /** @var Builder */
     private $defaultRoute;
+
+    public function __construct(?RouteBuilder $context = null, array $routes = [])
+    {
+        $this->context = $context ?? new RouteBuilder();
+        $this->routes  = $routes;
+    }
 
     public function defaultRoute(): RouteBuilder
     {

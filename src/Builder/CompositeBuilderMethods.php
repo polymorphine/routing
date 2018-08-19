@@ -16,24 +16,19 @@ use Polymorphine\Routing\Builder;
 use InvalidArgumentException;
 
 
-abstract class SwitchBuilder implements Builder
+trait CompositeBuilderMethods
 {
     /** @var Builder[] */
     protected $builders = [];
 
     /** @var Route[] */
-    protected $routes;
+    protected $routes = [];
 
     /** @var Route */
     protected $switch;
 
+    /** @var RouteBuilder */
     protected $context;
-
-    public function __construct(?RouteBuilder $context = null, array $routes = [])
-    {
-        $this->context = $context ?? new RouteBuilder();
-        $this->routes  = $routes;
-    }
 
     public function build(): Route
     {
@@ -48,14 +43,14 @@ abstract class SwitchBuilder implements Builder
 
     abstract protected function router(array $routes): Route;
 
-    protected function addBuilder(?string $name): RouteBuilder
+    private function addBuilder(?string $name): RouteBuilder
     {
         $builder = $this->context->route();
 
         return $name ? $this->builders[$this->validName($name)] = $builder : $this->builders[] = $builder;
     }
 
-    protected function validName(string $name): string
+    private function validName(string $name): string
     {
         if (isset($this->builders[$name]) || isset($this->routes[$name])) {
             $message = 'Route name `%s` already exists in this scope';

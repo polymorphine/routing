@@ -13,10 +13,9 @@ namespace Polymorphine\Routing\Tests\Builder;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Builder\ResourceSwitchBuilder;
-use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Builder\SwitchBuilder;
 use Polymorphine\Routing\Builder\ResponseScanSwitchBuilder;
 use Polymorphine\Routing\Builder\Exception\BuilderLogicException;
+use Polymorphine\Routing\Route\Splitter\ResponseScanSwitch;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\RoutingTestMethods;
@@ -29,12 +28,12 @@ class ResponseScanSwitchBuilderTest extends TestCase
 
     public function testInstantiation()
     {
-        $this->assertInstanceOf(SwitchBuilder::class, $this->builder());
+        $this->assertInstanceOf(ResponseScanSwitchBuilder::class, $this->builder());
     }
 
     public function testBuild_ReturnsResponseScanSwitch()
     {
-        $this->assertInstanceOf(Route\Splitter\ResponseScanSwitch::class, $this->builder()->build());
+        $this->assertInstanceOf(ResponseScanSwitch::class, $this->builder()->build());
     }
 
     public function testRoutesCanBeAdded()

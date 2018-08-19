@@ -11,13 +11,22 @@
 
 namespace Polymorphine\Routing\Builder;
 
+use Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Route;
 use InvalidArgumentException;
 
 
-class MethodSwitchBuilder extends SwitchBuilder
+class MethodSwitchBuilder implements Builder
 {
+    use CompositeBuilderMethods;
+
     private $methods = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'HEAD', 'OPTIONS'];
+
+    public function __construct(?RouteBuilder $context = null, array $routes = [])
+    {
+        $this->context = $context ?? new RouteBuilder();
+        $this->routes  = $routes;
+    }
 
     public function get(): RouteBuilder
     {
@@ -47,10 +56,9 @@ class MethodSwitchBuilder extends SwitchBuilder
     public function route(string $name): RouteBuilder
     {
         $builder = $this->context->route();
-        $names = explode('|', $name);
+        $names   = explode('|', $name);
         foreach ($names as $name) {
-            $method = $this->validMethod($name);
-            $this->builders[$method] = $builder;
+            $this->builders[$this->validMethod($name)] = $builder;
         }
 
         return $builder;
@@ -63,9 +71,11 @@ class MethodSwitchBuilder extends SwitchBuilder
 
     protected function validMethod(string $method): string
     {
-        if (in_array($method, $this->methods, true)) { return $this->validName($method); }
+        if (!in_array($method, $this->methods, true)) {
+            $message = 'Unknown http method `%s` for method route switch';
+            throw new InvalidArgumentException(sprintf($message, $method));
+        }
 
-        $message = 'Unknown http method `%s` for method route switch';
-        throw new InvalidArgumentException(sprintf($message, $method));
+        return $this->validName($method);
     }
 }

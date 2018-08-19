@@ -13,11 +13,13 @@ namespace Polymorphine\Routing\Tests\Builder;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Builder;
-use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Route\Gate\LazyRoute;
 use Polymorphine\Routing\Route\Gate\Pattern\UriPattern;
 use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\Scheme;
 use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\Path;
 use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\PathSegment;
+use Polymorphine\Routing\Route\Endpoint\CallbackEndpoint;
+use Polymorphine\Routing\Route\Endpoint\HandlerEndpoint;
 use Polymorphine\Routing\Router;
 use Polymorphine\Routing\Tests\Doubles\FakeContainer;
 use Polymorphine\Routing\Tests\Doubles\FakeHandlerFactory;
@@ -53,21 +55,21 @@ class RoutingBuilderTest extends TestCase
     {
         $builder = $this->builder();
         $builder->callback(function () {});
-        $this->assertInstanceOf(Route\Endpoint\CallbackEndpoint::class, $builder->build());
+        $this->assertInstanceOf(CallbackEndpoint::class, $builder->build());
     }
 
     public function testHandlerEndpoint()
     {
         $builder = $this->builder();
         $builder->handler(new FakeRequestHandler(new FakeResponse()));
-        $this->assertInstanceOf(Route\Endpoint\HandlerEndpoint::class, $builder->build());
+        $this->assertInstanceOf(HandlerEndpoint::class, $builder->build());
     }
 
     public function testLazyEndpoint()
     {
         $builder = $this->builder();
         $builder->lazy(function () {});
-        $this->assertInstanceOf(Route\Gate\LazyRoute::class, $builder->build());
+        $this->assertInstanceOf(LazyRoute::class, $builder->build());
     }
 
     public function testSetRouteWhenAlreadyBuilt_ThrowsException()
@@ -220,7 +222,7 @@ class RoutingBuilderTest extends TestCase
 
     public function testBuilderCanEstablishLinkInsideStructure()
     {
-        $endpoint = new Route\Endpoint\CallbackEndpoint(function (ServerRequestInterface $request) {
+        $endpoint = new CallbackEndpoint(function (ServerRequestInterface $request) {
             return new FakeResponse('response:' . $request->getMethod());
         });
         $builder = $this->builder();

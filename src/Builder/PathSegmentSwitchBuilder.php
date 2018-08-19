@@ -11,13 +11,22 @@
 
 namespace Polymorphine\Routing\Builder;
 
+use Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Route;
 use InvalidArgumentException;
 
 
-class PathSegmentSwitchBuilder extends SwitchBuilder
+class PathSegmentSwitchBuilder implements Builder
 {
+    use CompositeBuilderMethods;
+
     private $rootRoute;
+
+    public function __construct(?RouteBuilder $context = null, array $routes = [])
+    {
+        $this->context = $context ?? new RouteBuilder();
+        $this->routes  = $routes;
+    }
 
     public function route(string $name): RouteBuilder
     {
