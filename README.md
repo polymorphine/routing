@@ -17,10 +17,13 @@ building happens in endpoint routes.
 These routes composed in different ways will create unique routing logic, but since
 composition tree may be deep its instantiation using `new` operator may become
 hard to read by looking at large nested structure or its dependencies assembled
-together, but instantiated in order that is reversed to execution flow.
+together, but instantiated in order that is reversed to execution flow (nested
+structure instantiated first).
 
 [`RouteBuilder`](src/Builder/RouteBuilder.php) is a part of this package to help with
-the problem. It uses _fluent interface with concise method names_ - more concise than
+the problem. It uses _fluent interface with expressive method names_ - more concise than
 class names & their constructors that would be used in direct composition.
 It is also more readable due to the fact that builder method calls _resemble execution
 path_ in instantiated tree.
+
+![Routing diagram](https://user-images.githubusercontent.com/9908030/44315300-1c469b00-a423-11e8-87ec-7f21ce6df5e0.png)
