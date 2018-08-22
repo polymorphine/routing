@@ -222,11 +222,9 @@ class RoutingBuilderTest extends TestCase
 
     public function testBuilderCanEstablishLinkInsideStructure()
     {
-        $endpoint = new CallbackEndpoint(function (ServerRequestInterface $request) {
-            return new FakeResponse('response:' . $request->getMethod());
-        });
-        $builder = $this->builder();
-        $split   = $builder->pattern(new Path('foo*'))->responseScan();
+        $endpoint = $this->responseRoute($response);
+        $builder  = $this->builder();
+        $split    = $builder->pattern(new Path('foo*'))->responseScan();
         $split->route('routeA')->pattern(new Path('bar*'))->link($endpointA)->join($endpoint);
         $split->route('routeB')->pattern(new Path('baz*'))->join($endpoint);
         $route = $builder->build();
@@ -238,6 +236,30 @@ class RoutingBuilderTest extends TestCase
 
         $this->assertSame($endpointA, $endpoint);
         $this->assertSame($postRoute, $route->select('POST'));
+    }
+
+    public function testLinkMightBeUsedInStructureBeforeRouteIsBuilt()
+    {
+        $builder = new Builder\MethodSwitchBuilder();
+
+        $split = $builder->get()->link($link)->responseScan();
+        $split->route('first')->callback($this->callbackResponse($response));
+        $split->route('second')->join(new MockedRoute());
+
+        $builder->post()->joinBuilder($link);
+
+        $this->assertSame($response, $builder->build()->forward(new FakeServerRequest('POST'), self::$prototype));
+    }
+
+    public function testLinkBackwardsInStructure_ThrowsException()
+    {
+        $builder = new Builder\MethodSwitchBuilder();
+
+        $split = $builder->get()->link($link)->responseScan();
+        $split->route('first')->callback($this->callbackResponse($response));
+        $split->route('second')->joinBuilder($link);
+        $this->expectException(Builder\Exception\BuilderLogicException::class);
+        $builder->build();
     }
 
     public function testRouteBuilderWithUndefinedRouterCallback_Redirect_ThrowsException()

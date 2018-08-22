@@ -72,6 +72,12 @@ class RouteBuilder implements Builder
         $this->setRoute($route);
     }
 
+    public function joinBuilder(?Route &$route): void
+    {
+        $this->stateCheck();
+        $this->builder = new LinkedRouteBuilder($route);
+    }
+
     public function lazy(callable $routeCallback): void
     {
         $this->setRoute(new Route\Gate\LazyRoute($routeCallback));
