@@ -43,6 +43,11 @@ class RoutingBuilderTest extends TestCase
         $this->assertInstanceOf(Builder\RouteBuilder::class, $this->builder());
     }
 
+    public function testEndpointMethod_ReturnsEndpointSetupInstance()
+    {
+        $this->assertInstanceOf(Builder\EndpointSetup::class, $this->builder()->endpoint());
+    }
+
     public function testRouteCanBeSplit()
     {
         $this->assertInstanceOf(Builder\ResponseScanSwitchBuilder::class, $this->builder()->responseScan());

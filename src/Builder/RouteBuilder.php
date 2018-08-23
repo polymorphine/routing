@@ -20,6 +20,7 @@ use Psr\Container\ContainerInterface;
 class RouteBuilder implements Builder
 {
     use GateBuildMethods;
+    use EndpointBuilderMethods;
 
     /** @var Route $route */
     private $route;
@@ -47,6 +48,11 @@ class RouteBuilder implements Builder
         return $clone;
     }
 
+    public function endpoint(): EndpointSetup
+    {
+        return new EndpointSetup($this->container, $this->routerCallback);
+    }
+
     public function build(): Route
     {
         if ($this->route) { return $this->route; }
@@ -59,17 +65,17 @@ class RouteBuilder implements Builder
 
     public function callback(callable $callback): void
     {
-        $this->setRoute(new Route\Endpoint\CallbackEndpoint($callback));
+        $this->setRoute($this->wrapCallbackRoute($callback));
     }
 
     public function handler(RequestHandlerInterface $handler): void
     {
-        $this->setRoute(new Route\Endpoint\HandlerEndpoint($handler));
+        $this->setRoute($this->wrapHandlerRoute($handler));
     }
 
     public function join(Route $route): void
     {
-        $this->setRoute($route);
+        $this->setRoute($this->wrapJoinedRoute($route));
     }
 
     public function joinBuilder(?Route &$route): void
@@ -80,33 +86,17 @@ class RouteBuilder implements Builder
 
     public function lazy(callable $routeCallback): void
     {
-        $this->setRoute(new Route\Gate\LazyRoute($routeCallback));
+        $this->setRoute($this->wrapLazyRoute($routeCallback));
     }
 
     public function redirect(string $path, int $code = 301): void
     {
-        if (!$this->routerCallback) {
-            throw new Exception\BuilderLogicException('Required container aware builder to build redirect route');
-        }
-
-        $uriCallback = function () use ($path) {
-            return (string) ($this->routerCallback)()->uri($path);
-        };
-
-        $this->setRoute(new Route\Endpoint\RedirectEndpoint($uriCallback, $code));
+        $this->setRoute($this->wrapRedirectRoute($path, $code));
     }
 
     public function factory(string $className): void
     {
-        if (!$this->container) {
-            throw new Exception\BuilderLogicException('Required container aware builder to build factory route');
-        }
-
-        $factoryCallback = function () use ($className) {
-            return new $className();
-        };
-
-        $this->setRoute(new Route\Endpoint\HandlerFactoryEndpoint($factoryCallback, $this->container));
+        $this->setRoute($this->wrapFactoryRoute($className));
     }
 
     public function pathSwitch(array $routes = []): PathSegmentSwitchBuilder
@@ -132,7 +122,7 @@ class RouteBuilder implements Builder
     protected function setRoute(Route $route): void
     {
         $this->stateCheck();
-        $this->route = $this->wrapGates($route);
+        $this->route = $route;
     }
 
     protected function switchBuilder(Builder $builder)
