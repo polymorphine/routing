@@ -169,7 +169,7 @@ class DynamicTargetMask implements Route\Gate\Pattern
         $params = [];
         foreach ($segments as $segment) {
             [$name, $value] = explode('=', $segment, 2) + [false, null];
-            $params[$name]  = $value;
+            $params[$name] = $value;
         }
 
         return $params;

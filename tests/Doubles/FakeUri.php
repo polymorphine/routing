@@ -36,10 +36,10 @@ class FakeUri implements UriInterface
         isset($segments['scheme']) and $this->scheme = $segments['scheme'];
         isset($segments['user']) and $this->userInfo = $segments['user'];
         isset($segments['pass']) and $this->userInfo .= ':' . $segments['pass'];
-        isset($segments['host']) and $this->host         = $segments['host'];
-        isset($segments['port']) and $this->port         = (int) $segments['port'];
-        isset($segments['path']) and $this->path         = $segments['path'];
-        isset($segments['query']) and $this->query       = $segments['query'];
+        isset($segments['host']) and $this->host = $segments['host'];
+        isset($segments['port']) and $this->port = (int) $segments['port'];
+        isset($segments['path']) and $this->path = $segments['path'];
+        isset($segments['query']) and $this->query = $segments['query'];
         isset($segments['fragment']) and $this->fragment = $segments['fragment'];
     }
 
@@ -109,7 +109,7 @@ class FakeUri implements UriInterface
 
     public function withScheme($scheme): UriInterface
     {
-        $clone         = clone $this;
+        $clone = clone $this;
         $clone->scheme = $scheme;
         return $clone;
     }
@@ -118,42 +118,42 @@ class FakeUri implements UriInterface
     {
         empty($password) or $password = ':' . $password;
 
-        $clone           = clone $this;
+        $clone = clone $this;
         $clone->userInfo = $user . $password;
         return $clone;
     }
 
     public function withHost($host): UriInterface
     {
-        $clone       = clone $this;
+        $clone = clone $this;
         $clone->host = $host;
         return $clone;
     }
 
     public function withPort($port): UriInterface
     {
-        $clone       = clone $this;
+        $clone = clone $this;
         $clone->port = is_null($port) ? null : $port;
         return $clone;
     }
 
     public function withPath($path): UriInterface
     {
-        $clone       = clone $this;
+        $clone = clone $this;
         $clone->path = $path;
         return $clone;
     }
 
     public function withQuery($query): UriInterface
     {
-        $clone        = clone $this;
+        $clone = clone $this;
         $clone->query = $query;
         return $clone;
     }
 
     public function withFragment($fragment): UriInterface
     {
-        $clone           = clone $this;
+        $clone = clone $this;
         $clone->fragment = $fragment;
         return $clone;
     }

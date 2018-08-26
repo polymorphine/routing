@@ -12,7 +12,7 @@
         "psr/http-server-middleware": "^1.0"
     },
     "require-dev": {
-        "polymorphine/cs": "^1.1",
+        "polymorphine/cs": "@dev",
         "phpunit/phpunit": "7.0",
         "php-coveralls/php-coveralls": "^2.0"
     },

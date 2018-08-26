@@ -13,7 +13,6 @@ namespace Polymorphine\Routing\Tests\Builder;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Builder\EndpointSetup;
-use Polymorphine\Routing\Builder\RouteBuilder;
 use Polymorphine\Routing\Route\Endpoint\CallbackEndpoint;
 use Polymorphine\Routing\Route\Endpoint\HandlerEndpoint;
 use Polymorphine\Routing\Route\Endpoint\HandlerFactoryEndpoint;

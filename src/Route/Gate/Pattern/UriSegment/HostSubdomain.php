@@ -34,7 +34,7 @@ class HostSubdomain implements Route\Gate\Pattern
 
     public function matchedRequest(ServerRequestInterface $request): ?ServerRequestInterface
     {
-        $host          = $request->getUri()->getHost();
+        $host = $request->getUri()->getHost();
         [$subdomain, ] = explode('.', $host, 2) + [null, null];
 
         if (!$subdomain || !in_array($subdomain, $this->values, true)) {

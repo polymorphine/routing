@@ -98,14 +98,14 @@ class FakeServerRequest implements ServerRequestInterface
 
     public function withMethod($method)
     {
-        $clone         = clone $this;
+        $clone = clone $this;
         $clone->method = $method;
         return $clone;
     }
 
     public function withUri(UriInterface $uri, $preserveHost = false)
     {
-        $clone      = clone $this;
+        $clone = clone $this;
         $clone->uri = $uri;
         return $clone;
     }
@@ -160,7 +160,7 @@ class FakeServerRequest implements ServerRequestInterface
 
     public function withAttribute($name, $value)
     {
-        $clone              = clone $this;
+        $clone = clone $this;
         $clone->attr[$name] = $value;
         return $clone;
     }

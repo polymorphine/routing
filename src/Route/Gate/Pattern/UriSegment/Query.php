@@ -86,7 +86,7 @@ class Query implements Route\Gate\Pattern
 
         $segmentValues = [];
         foreach ($segments as $segment) {
-            [$name, $value]       = explode('=', $segment) + [false, null];
+            [$name, $value] = explode('=', $segment) + [false, null];
             $segmentValues[$name] = $value;
         }
 

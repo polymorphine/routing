@@ -70,7 +70,7 @@ class PathSegmentTest extends TestCase
 
     private function request(string $uri)
     {
-        $request      = new Doubles\FakeServerRequest();
+        $request = new Doubles\FakeServerRequest();
         $request->uri = $this->uri($uri);
         return $request;
     }
