@@ -24,37 +24,106 @@ class EndpointSetup
     private $container;
     private $routerCallback;
 
+    /**
+     * @param null|ContainerInterface $container      required to build endpoint using factory() method
+     * @param null|callable           $routerCallback should return Router instance and is required
+     *                                                only to build endpoint with redirect() method
+     */
     public function __construct(?ContainerInterface $container = null, ?callable $routerCallback = null)
     {
         $this->container      = $container;
         $this->routerCallback = $routerCallback;
     }
 
+    /**
+     * Creates wrapped CallbackEndpoint with given callback.
+     * Callback called with ServerRequestInterface parameter
+     * must return ResponseInterface.
+     *
+     * @see \Polymorphine\Routing\Route\Endpoint\CallbackEndpoint
+     *
+     * @param callable $callback
+     *
+     * @return Route
+     */
     public function callback(callable $callback): Route
     {
         return $this->wrapCallbackRoute($callback);
     }
 
+    /**
+     * Creates wrapped HandlerEndpoint with given handler.
+     *
+     * @see \Polymorphine\Routing\Route\Endpoint\HandlerEndpoint
+     *
+     * @param RequestHandlerInterface $handler
+     *
+     * @return Route
+     */
     public function handler(RequestHandlerInterface $handler): Route
     {
         return $this->wrapHandlerRoute($handler);
     }
 
+    /**
+     * Returns given Route wrapped with previously called gates.
+     *
+     * @param Route $route
+     *
+     * @return Route
+     */
     public function join(Route $route): Route
     {
         return $this->wrapJoinedRoute($route);
     }
 
+    /**
+     * Creates wrapped LazyRoute gate that invokes routes with given
+     * callback on forward request call.
+     *
+     * @see \Polymorphine\Routing\Route\Gate\LazyRoute
+     *
+     * @param callable $routeCallback Callback that returns Route instance
+     *
+     * @return Route
+     */
     public function lazy(callable $routeCallback): Route
     {
         return $this->wrapLazyRoute($routeCallback);
     }
 
-    public function redirect(string $path, int $code = 301): Route
+    /**
+     * Creates wrapped endpoint that returns redirect response to given
+     * routing path for any request being forwarded.
+     *
+     * To call this method EndpointSetup needs to be instantiated with
+     * Router callback dependency.
+     *
+     * @see \Polymorphine\Routing\Route\Endpoint\RedirectEndpoint
+     *
+     * @param string $routePath
+     * @param int    $code
+     *
+     * @return Route
+     */
+    public function redirect(string $routePath, int $code = 301): Route
     {
-        return $this->wrapRedirectRoute($path, $code);
+        return $this->wrapRedirectRoute($routePath, $code);
     }
 
+    /**
+     * Creates wrapped HandlerFactoryEndpoint with given Fully Qualified
+     * Name of class implementing RequestHandlerFactory.
+     *
+     * To call this method EndpointSetup needs to be instantiated with
+     * ContainerInterface dependency.
+     *
+     * @see \Polymorphine\Routing\Route\Endpoint\HandlerFactoryEndpoint
+     *
+     * @param string $className
+     *
+     * @return Route
+     */
     public function factory(string $className): Route
     {
         return $this->wrapFactoryRoute($className);
