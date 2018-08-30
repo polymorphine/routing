@@ -28,9 +28,9 @@ class ResourceSwitchBuilder implements Builder
     private $idName   = 'resource.id';
     private $idRegexp = '[1-9][0-9]*';
 
-    public function __construct(?RouteBuilder $context = null, array $routes = [])
+    public function __construct(?BuilderContext $context = null, array $routes = [])
     {
-        $this->context = $context ?? new RouteBuilder();
+        $this->context = $context ?? new BuilderContext();
         $this->routes  = $routes + ['GET' => null, 'INDEX' => null, 'NEW' => null, 'EDIT' => null];
     }
 

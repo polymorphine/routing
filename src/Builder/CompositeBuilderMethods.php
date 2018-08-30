@@ -27,12 +27,12 @@ trait CompositeBuilderMethods
     /** @var Route */
     protected $switch;
 
-    /** @var RouteBuilder */
+    /** @var BuilderContext */
     protected $context;
 
     public function build(): Route
     {
-        if (isset($this->switch)) { return $this->switch; }
+        if ($this->switch) { return $this->switch; }
 
         foreach ($this->builders as $name => $builder) {
             $this->routes[$name] = $builder->build();
@@ -45,9 +45,15 @@ trait CompositeBuilderMethods
 
     private function addBuilder(?string $name): RouteBuilder
     {
-        $builder = $this->context->route();
+        $context = $this->context->create();
 
-        return $name ? $this->builders[$this->validName($name)] = $builder : $this->builders[] = $builder;
+        if ($name) {
+            $this->builders[$this->validName($name)] = $context;
+        } else {
+            $this->builders[] = $context;
+        }
+
+        return new RouteBuilder($context);
     }
 
     private function validName(string $name): string

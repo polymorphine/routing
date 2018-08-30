@@ -14,126 +14,82 @@ namespace Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Route;
 use Psr\Http\Server\RequestHandlerInterface;
-use Psr\Container\ContainerInterface;
 
 
 class RouteBuilder implements Builder
 {
     use GateBuildMethods;
-    use EndpointBuilderMethods;
 
-    /** @var Route $route */
-    private $route;
+    private $context;
 
-    /** @var Builder $builder */
-    private $builder;
-
-    private $container;
-    private $routerCallback;
-
-    public function __construct(?ContainerInterface $container = null, ?callable $routerCallback = null)
+    public function __construct(BuilderContext $context)
     {
-        $this->container      = $container;
-        $this->routerCallback = $routerCallback;
-    }
-
-    public function route(): RouteBuilder
-    {
-        $clone = clone $this;
-
-        $clone->builder = null;
-        $clone->route   = null;
-        $clone->gates   = [];
-
-        return $clone;
-    }
-
-    public function endpoint(): EndpointSetup
-    {
-        return new EndpointSetup($this->container, $this->routerCallback);
+        $this->context = $context;
     }
 
     public function build(): Route
     {
-        if ($this->route) { return $this->route; }
-        if (!$this->builder) {
-            throw new Exception\BuilderLogicException('Route type not selected');
-        }
-
-        return $this->route = $this->wrapGates($this->builder->build());
+        return $this->context->build();
     }
 
     public function callback(callable $callback): void
     {
-        $this->setRoute($this->wrapCallbackRoute($callback));
+        $this->context->setCallbackRoute($callback);
     }
 
     public function handler(RequestHandlerInterface $handler): void
     {
-        $this->setRoute($this->wrapHandlerRoute($handler));
-    }
-
-    public function join(Route $route): void
-    {
-        $this->setRoute($this->wrapJoinedRoute($route));
-    }
-
-    public function joinBuilder(?Route &$route): void
-    {
-        $this->stateCheck();
-        $this->builder = new LinkedRouteBuilder($route);
+        $this->context->setHandlerRoute($handler);
     }
 
     public function lazy(callable $routeCallback): void
     {
-        $this->setRoute($this->wrapLazyRoute($routeCallback));
+        $this->context->setLazyRoute($routeCallback);
     }
 
-    public function redirect(string $path, int $code = 301): void
+    public function redirect(string $routingPath, int $code = 301): void
     {
-        $this->setRoute($this->wrapRedirectRoute($path, $code));
+        $this->context->setRedirectRoute($routingPath, $code);
     }
 
     public function factory(string $className): void
     {
-        $this->setRoute($this->wrapFactoryRoute($className));
+        $this->context->setFactoryRoute($className);
+    }
+
+    public function join(Route $route): void
+    {
+        $this->context->setRoute($route);
+    }
+
+    public function joinBuilder(?Route &$route): void
+    {
+        $this->context->setBuilder(new LinkedRouteBuilder($route));
     }
 
     public function pathSwitch(array $routes = []): PathSegmentSwitchBuilder
     {
-        return $this->switchBuilder(new PathSegmentSwitchBuilder($this, $routes));
+        return $this->contextBuilder(new PathSegmentSwitchBuilder($this->context, $routes));
     }
 
     public function responseScan(array $routes = []): ResponseScanSwitchBuilder
     {
-        return $this->switchBuilder(new ResponseScanSwitchBuilder($this, $routes));
+        return $this->contextBuilder(new ResponseScanSwitchBuilder($this->context, $routes));
     }
 
     public function methodSwitch(array $routes = []): MethodSwitchBuilder
     {
-        return $this->switchBuilder(new MethodSwitchBuilder($this, $routes));
+        return $this->contextBuilder(new MethodSwitchBuilder($this->context, $routes));
     }
 
     public function resource(array $routes = []): ResourceSwitchBuilder
     {
-        return $this->switchBuilder(new ResourceSwitchBuilder($this, $routes));
+        return $this->contextBuilder(new ResourceSwitchBuilder($this->context, $routes));
     }
 
-    protected function setRoute(Route $route): void
+    private function contextBuilder($builder)
     {
-        $this->stateCheck();
-        $this->route = $route;
-    }
-
-    protected function switchBuilder(Builder $builder)
-    {
-        $this->stateCheck();
-        return $this->builder = $builder;
-    }
-
-    private function stateCheck(): void
-    {
-        if (!$this->route && !$this->builder) { return; }
-        throw new Exception\BuilderLogicException('Route already built');
+        $this->context->setBuilder($builder);
+        return $builder;
     }
 }

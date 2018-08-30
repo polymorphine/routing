@@ -20,7 +20,8 @@ trait GateBuildMethods
 {
     use Pattern\PatternSelection;
 
-    private $gates = [];
+    /** @var BuilderContext */
+    private $context;
 
     /**
      * Creates MethodGate and (optionally) PatternGate wrapper for built route.
@@ -33,9 +34,9 @@ trait GateBuildMethods
     public function method(string $methods, Pattern $pattern = null)
     {
         if (isset($pattern)) { $this->pattern($pattern); }
-        $this->gates[] = function (Route $route) use ($methods) {
+        $this->context->addGate(function (Route $route) use ($methods) {
             return new Route\Gate\MethodGate($methods, $route);
-        };
+        });
         return $this;
     }
 
@@ -48,9 +49,9 @@ trait GateBuildMethods
      */
     public function pattern(Pattern $pattern)
     {
-        $this->gates[] = function (Route $route) use ($pattern) {
+        $this->context->addGate(function (Route $route) use ($pattern) {
             return new Route\Gate\PatternGate($pattern, $route);
-        };
+        });
         return $this;
     }
 
@@ -63,13 +64,13 @@ trait GateBuildMethods
      */
     public function path(string $path)
     {
-        $this->gates[] = function (Route $route) use ($path) {
+        $this->context->addGate(function (Route $route) use ($path) {
             $segments = explode('/', trim($path, '/'));
             while ($segment = array_pop($segments)) {
                 $route = new Route\Gate\PathSegmentGate($segment, $route);
             }
             return $route;
-        };
+        });
         return $this;
     }
 
@@ -82,9 +83,9 @@ trait GateBuildMethods
      */
     public function callbackGate(callable $callback)
     {
-        $this->gates[] = function (Route $route) use ($callback) {
+        $this->context->addGate(function (Route $route) use ($callback) {
             return new Route\Gate\CallbackGateway($callback, $route);
-        };
+        });
         return $this;
     }
 
@@ -97,9 +98,9 @@ trait GateBuildMethods
      */
     public function middleware(MiddlewareInterface $middleware)
     {
-        $this->gates[] = function (Route $route) use ($middleware) {
+        $this->context->addGate(function (Route $route) use ($middleware) {
             return new Route\Gate\MiddlewareGateway($middleware, $route);
-        };
+        });
         return $this;
     }
 
@@ -113,10 +114,10 @@ trait GateBuildMethods
      */
     public function link(&$routeReference)
     {
-        $this->gates[] = function (Route $route) use (&$routeReference) {
+        $this->context->addGate(function (Route $route) use (&$routeReference) {
             $routeReference = $route;
             return $route;
-        };
+        });
         return $this;
     }
 
@@ -153,14 +154,5 @@ trait GateBuildMethods
     public function options(Pattern $pattern = null)
     {
         return $this->method('OPTIONS', $pattern);
-    }
-
-    private function wrapGates(Route $route): Route
-    {
-        while ($gate = array_pop($this->gates)) {
-            $route = $gate($route);
-        }
-
-        return $route;
     }
 }

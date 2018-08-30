@@ -12,6 +12,7 @@
 namespace Polymorphine\Routing\Tests\Builder;
 
 use PHPUnit\Framework\TestCase;
+use Polymorphine\Routing\Builder\BuilderContext;
 use Polymorphine\Routing\Builder\EndpointSetup;
 use Polymorphine\Routing\Route\Endpoint\CallbackEndpoint;
 use Polymorphine\Routing\Route\Endpoint\HandlerEndpoint;
@@ -52,6 +53,6 @@ class EndpointSetupTest extends TestCase
 
     private function builder(?ContainerInterface $container = null, ?callable $router = null): EndpointSetup
     {
-        return new EndpointSetup($container, $router);
+        return new EndpointSetup(new BuilderContext($container, $router));
     }
 }

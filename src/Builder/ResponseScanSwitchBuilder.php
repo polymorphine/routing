@@ -22,9 +22,9 @@ class ResponseScanSwitchBuilder implements Builder
     /** @var Builder */
     private $defaultRoute;
 
-    public function __construct(?RouteBuilder $context = null, array $routes = [])
+    public function __construct(?BuilderContext $context = null, array $routes = [])
     {
-        $this->context = $context ?? new RouteBuilder();
+        $this->context = $context ?? new BuilderContext();
         $this->routes  = $routes;
     }
 
@@ -34,7 +34,7 @@ class ResponseScanSwitchBuilder implements Builder
             throw new Exception\BuilderLogicException('Default route already set');
         }
 
-        return $this->defaultRoute = $this->context->route();
+        return new RouteBuilder($this->defaultRoute = $this->context->create());
     }
 
     public function route(string $name = null): RouteBuilder

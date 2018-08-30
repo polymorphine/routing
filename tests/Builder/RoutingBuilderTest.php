@@ -30,8 +30,8 @@ use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
 use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 use Polymorphine\Routing\Tests\RoutingTestMethods;
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 
 class RoutingBuilderTest extends TestCase
@@ -41,11 +41,6 @@ class RoutingBuilderTest extends TestCase
     public function testInstantiation()
     {
         $this->assertInstanceOf(Builder\RouteBuilder::class, $this->builder());
-    }
-
-    public function testEndpointMethod_ReturnsEndpointSetupInstance()
-    {
-        $this->assertInstanceOf(Builder\EndpointSetup::class, $this->builder()->endpoint());
     }
 
     public function testRouteCanBeSplit()
@@ -308,6 +303,6 @@ class RoutingBuilderTest extends TestCase
 
     private function builder(?ContainerInterface $container = null, ?callable $router = null): Builder\RouteBuilder
     {
-        return new Builder\RouteBuilder($container, $router);
+        return new Builder\RouteBuilder(new Builder\BuilderContext($container, $router));
     }
 }

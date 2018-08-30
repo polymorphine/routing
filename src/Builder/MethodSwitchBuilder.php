@@ -22,9 +22,9 @@ class MethodSwitchBuilder implements Builder
 
     private $methods = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'HEAD', 'OPTIONS'];
 
-    public function __construct(?RouteBuilder $context = null, array $routes = [])
+    public function __construct(?BuilderContext $context = null, array $routes = [])
     {
-        $this->context = $context ?? new RouteBuilder();
+        $this->context = $context ?? new BuilderContext();
         $this->routes  = $routes;
     }
 
@@ -55,13 +55,13 @@ class MethodSwitchBuilder implements Builder
 
     public function route(string $name): RouteBuilder
     {
-        $builder = $this->context->route();
+        $context = $this->context->create();
         $names   = explode('|', $name);
         foreach ($names as $name) {
-            $this->builders[$this->validMethod($name)] = $builder;
+            $this->builders[$this->validMethod($name)] = $context;
         }
 
-        return $builder;
+        return new RouteBuilder($context);
     }
 
     protected function router(array $routes): Route

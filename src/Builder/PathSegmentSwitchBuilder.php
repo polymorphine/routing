@@ -22,9 +22,9 @@ class PathSegmentSwitchBuilder implements Builder
 
     private $rootRoute;
 
-    public function __construct(?RouteBuilder $context = null, array $routes = [])
+    public function __construct(?BuilderContext $context = null, array $routes = [])
     {
-        $this->context = $context ?? new RouteBuilder();
+        $this->context = $context ?? new BuilderContext();
         $this->routes  = $routes;
     }
 
