@@ -17,7 +17,7 @@ use Polymorphine\Routing\Route\Gate\PatternGate;
 use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\Path;
 use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\PathSegment;
 use Polymorphine\Routing\Route\Splitter\MethodSwitch;
-use Polymorphine\Routing\Route\Splitter\ResponseScanSwitch;
+use Polymorphine\Routing\Route\Splitter\RouteScan;
 use Polymorphine\Routing\Route\Endpoint\NullEndpoint;
 
 
@@ -40,42 +40,42 @@ class ResourceSwitchBuilder implements Builder
         return $regexp ? $this->withIdRegexp($regexp) : $this;
     }
 
-    public function index(): RouteBuilder
+    public function index(): ContextRouteBuilder
     {
         return $this->addBuilder('INDEX');
     }
 
-    public function get(): RouteBuilder
+    public function get(): ContextRouteBuilder
     {
         return $this->addBuilder('GET');
     }
 
-    public function post(): RouteBuilder
+    public function post(): ContextRouteBuilder
     {
         return $this->addBuilder('POST');
     }
 
-    public function delete(): RouteBuilder
+    public function delete(): ContextRouteBuilder
     {
         return $this->addBuilder('DELETE');
     }
 
-    public function patch(): RouteBuilder
+    public function patch(): ContextRouteBuilder
     {
         return $this->addBuilder('PATCH');
     }
 
-    public function put(): RouteBuilder
+    public function put(): ContextRouteBuilder
     {
         return $this->addBuilder('PUT');
     }
 
-    public function add(): RouteBuilder
+    public function add(): ContextRouteBuilder
     {
         return $this->addBuilder('NEW');
     }
 
-    public function edit(): RouteBuilder
+    public function edit(): ContextRouteBuilder
     {
         return $this->addBuilder('EDIT');
     }
@@ -106,12 +106,12 @@ class ResourceSwitchBuilder implements Builder
 
     private function composeLogicStructure(array $routes): Route
     {
-        $formRoutes = new ResponseScanSwitch([
+        $formRoutes = new RouteScan([
             'edit' => $this->pullRoute('EDIT', $routes),
             'new'  => $this->pullRoute('NEW', $routes)
         ]);
 
-        $routes['GET'] = new ResponseScanSwitch([
+        $routes['GET'] = new RouteScan([
             'form'  => new Route\Gate\UriAttributeSelect($formRoutes, $this->idName, 'edit', 'new'),
             'item'  => $routes['GET'],
             'index' => $this->pullRoute('INDEX', $routes)

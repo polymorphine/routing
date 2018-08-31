@@ -16,7 +16,7 @@ use Polymorphine\Routing\Route;
 use InvalidArgumentException;
 
 
-class PathSegmentSwitchBuilder implements Builder
+class PathSwitchBuilder implements Builder
 {
     use CompositeBuilderMethods;
 
@@ -28,7 +28,7 @@ class PathSegmentSwitchBuilder implements Builder
         $this->routes  = $routes;
     }
 
-    public function route(string $name): RouteBuilder
+    public function route(string $name): ContextRouteBuilder
     {
         if (!$name) {
             throw new InvalidArgumentException('Name is required for path segment route switch');
@@ -52,6 +52,6 @@ class PathSegmentSwitchBuilder implements Builder
 
     protected function router(array $routes): Route
     {
-        return new Route\Splitter\PathSegmentSwitch($routes, $this->rootRoute);
+        return new Route\Splitter\PathSwitch($routes, $this->rootRoute);
     }
 }

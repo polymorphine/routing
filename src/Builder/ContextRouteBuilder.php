@@ -23,7 +23,7 @@ use Psr\Http\Server\RequestHandlerInterface;
  *
  * Current context might be built as root with build() method.
  */
-class RouteBuilder implements Builder
+class ContextRouteBuilder implements Builder
 {
     use GateBuildMethods;
 
@@ -138,37 +138,37 @@ class RouteBuilder implements Builder
     }
 
     /**
-     * Creates PathSegmentSwitch node context builder.
+     * Creates PathSwitch node context builder.
      * Optionally already defined array of Routes with keys representing
      * Uri (and routing) path segment might be given as parameter.
      *
-     * @see \Polymorphine\Routing\Route\Splitter\PathSegmentSwitch
+     * @see \Polymorphine\Routing\Route\Splitter\PathSwitch
      *
      * @param Route[] $routes associated with Uri & routing path segment keys
      *
-     * @return PathSegmentSwitchBuilder
+     * @return PathSwitchBuilder
      */
-    public function pathSwitch(array $routes = []): PathSegmentSwitchBuilder
+    public function pathSwitch(array $routes = []): PathSwitchBuilder
     {
-        return $this->contextBuilder(new PathSegmentSwitchBuilder($this->context, $routes));
+        return $this->contextBuilder(new PathSwitchBuilder($this->context, $routes));
     }
 
     /**
-     * Creates ResponseScanSwitch node context builder.
+     * Creates RouteScan node context builder.
      * Optionally already defined array of Routes with (optional) keys
      * representing routing path segment might be given as parameter.
      * Anonymous Routes (without key) cannot be explicitly selected
      * (to produce Uri), but matched request would reach them.
      *
-     * @see \Polymorphine\Routing\Route\Splitter\ResponseScanSwitch
+     * @see \Polymorphine\Routing\Route\Splitter\RouteScan
      *
      * @param Route[] $routes associated with routing path segment keys
      *
-     * @return ResponseScanSwitchBuilder
+     * @return RouteScanBuilder
      */
-    public function responseScan(array $routes = []): ResponseScanSwitchBuilder
+    public function responseScan(array $routes = []): RouteScanBuilder
     {
-        return $this->contextBuilder(new ResponseScanSwitchBuilder($this->context, $routes));
+        return $this->contextBuilder(new RouteScanBuilder($this->context, $routes));
     }
 
     /**
@@ -199,13 +199,13 @@ class RouteBuilder implements Builder
      * NEW   - for GET requests to form producing new resource (without current id),
      * EDIT  - for GET requests to form editing resource with given id
      *
-     * WARNING: This method does not specify resource name (path) and should be used
-     * when resource route needs to be wrapped with additional gates. Otherwise it
-     * is recommended to build resource directly from PathSegmentSwitchBuilder or
-     * ResponseScanSwitchBuilder.
+     * WARNING: This method does not specify resource name (path) and should be
+     * used in case when resource route needs to be wrapped with additional gates.
+     * Otherwise it is recommended to build resource with method that defines its
+     * name directly in PathSwitchBuilder or RouteScanBuilder.
      *
-     * @see ResponseScanSwitchBuilder
-     * @see PathSegmentSwitchBuilder
+     * @see RouteScanBuilder::resource()
+     * @see PathSwitchBuilder::resource()
      *
      * @param array $routes associated with http method and pseudo method keys
      *

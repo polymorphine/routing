@@ -49,23 +49,23 @@ class BuilderRoot
         $this->routerCallback = $routerCallback;
     }
 
-    public function endpoint(): EndpointSetup
+    public function endpoint(): DiscreteRouteBuilder
     {
-        return new EndpointSetup(new BuilderContext($this->container, $this->routerCallback));
+        return new DiscreteRouteBuilder(new BuilderContext($this->container, $this->routerCallback));
     }
 
-    public function builder(): RouteBuilder
+    public function builder(): ContextRouteBuilder
     {
-        return new RouteBuilder(new BuilderContext($this->container, $this->routerCallback));
+        return new ContextRouteBuilder(new BuilderContext($this->container, $this->routerCallback));
     }
 
-    public function context(): RouteBuilder
+    public function context(): ContextRouteBuilder
     {
         if ($this->builder) {
             throw new Exception\BuilderLogicException('Root builder already defined');
         }
         $this->builder = new BuilderContext($this->container, $this->routerCallback);
-        return new RouteBuilder($this->builder);
+        return new ContextRouteBuilder($this->builder);
     }
 
     public function router(): Router

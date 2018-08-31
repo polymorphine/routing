@@ -11,14 +11,14 @@
 
 namespace Polymorphine\Routing\Tests\Builder;
 
-use Polymorphine\Routing\Builder\BuilderRoot;
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Builder\EndpointSetup;
+use Polymorphine\Routing\Builder\BuilderRoot;
+use Polymorphine\Routing\Builder\ContextRouteBuilder;
+use Polymorphine\Routing\Builder\DiscreteRouteBuilder;
 use Polymorphine\Routing\Builder\Exception\BuilderLogicException;
-use Polymorphine\Routing\Builder\RouteBuilder;
+use Polymorphine\Routing\Router;
 use Polymorphine\Routing\Route\Endpoint\HandlerFactoryEndpoint;
 use Polymorphine\Routing\Route\Endpoint\RedirectEndpoint;
-use Polymorphine\Routing\Router;
 use Polymorphine\Routing\Tests\Doubles\FakeContainer;
 use Polymorphine\Routing\Tests\Doubles\FakeHandlerFactory;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
@@ -56,13 +56,13 @@ class BuilderRootTest extends TestCase
     public function testEndpointMethod_ReturnsEndpointSetup()
     {
         $root = $this->root();
-        $this->assertInstanceOf(EndpointSetup::class, $root->endpoint());
+        $this->assertInstanceOf(DiscreteRouteBuilder::class, $root->endpoint());
     }
 
     public function testBuilderMethod_ReturnsRouteBuilder()
     {
         $root = $this->root();
-        $this->assertInstanceOf(RouteBuilder::class, $root->builder());
+        $this->assertInstanceOf(ContextRouteBuilder::class, $root->builder());
     }
 
     public function testWithoutContainerBuilderContextFactoryRoute_ThrowsException()

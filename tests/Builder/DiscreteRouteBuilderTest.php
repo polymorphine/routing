@@ -13,7 +13,7 @@ namespace Polymorphine\Routing\Tests\Builder;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Builder\BuilderContext;
-use Polymorphine\Routing\Builder\EndpointSetup;
+use Polymorphine\Routing\Builder\DiscreteRouteBuilder;
 use Polymorphine\Routing\Route\Endpoint\CallbackEndpoint;
 use Polymorphine\Routing\Route\Endpoint\HandlerEndpoint;
 use Polymorphine\Routing\Route\Endpoint\HandlerFactoryEndpoint;
@@ -27,11 +27,11 @@ use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Psr\Container\ContainerInterface;
 
 
-class EndpointSetupTest extends TestCase
+class DiscreteRouteBuilderTest extends TestCase
 {
     public function testInstantiation()
     {
-        $this->assertInstanceOf(EndpointSetup::class, $this->builder());
+        $this->assertInstanceOf(DiscreteRouteBuilder::class, $this->builder());
     }
 
     public function testRouteBuildingMethodsWithoutGateWrappers_ReturnConcreteRoutes()
@@ -51,8 +51,8 @@ class EndpointSetupTest extends TestCase
         $this->assertInstanceOf(HandlerFactoryEndpoint::class, $this->builder(new FakeContainer())->factory(FakeHandlerFactory::class));
     }
 
-    private function builder(?ContainerInterface $container = null, ?callable $router = null): EndpointSetup
+    private function builder(?ContainerInterface $container = null, ?callable $router = null): DiscreteRouteBuilder
     {
-        return new EndpointSetup(new BuilderContext($container, $router));
+        return new DiscreteRouteBuilder(new BuilderContext($container, $router));
     }
 }

@@ -13,27 +13,30 @@ namespace Polymorphine\Routing\Tests\Builder;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Builder\ResourceSwitchBuilder;
-use Polymorphine\Routing\Builder\ResponseScanSwitchBuilder;
+use Polymorphine\Routing\Builder\PathSwitchBuilder;
 use Polymorphine\Routing\Builder\Exception\BuilderLogicException;
-use Polymorphine\Routing\Route\Splitter\ResponseScanSwitch;
-use Polymorphine\Routing\Tests\Doubles\FakeResponse;
+use Polymorphine\Routing\Route\Endpoint\CallbackEndpoint;
+use Polymorphine\Routing\Route\Splitter\PathSwitch;
+use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
+use Polymorphine\Routing\Tests\Doubles\FakeResponse;
+use Polymorphine\Routing\Tests\Doubles\FakeUri;
 use Polymorphine\Routing\Tests\RoutingTestMethods;
 use InvalidArgumentException;
 
 
-class ResponseScanSwitchBuilderTest extends TestCase
+class PathSwitchBuilderTest extends TestCase
 {
     use RoutingTestMethods;
 
     public function testInstantiation()
     {
-        $this->assertInstanceOf(ResponseScanSwitchBuilder::class, $this->builder());
+        $this->assertInstanceOf(PathSwitchBuilder::class, $this->builder());
     }
 
     public function testBuild_ReturnsResponseScanSwitch()
     {
-        $this->assertInstanceOf(ResponseScanSwitch::class, $this->builder()->build());
+        $this->assertInstanceOf(PathSwitch::class, $this->builder()->build());
     }
 
     public function testRoutesCanBeAdded()
@@ -45,49 +48,44 @@ class ResponseScanSwitchBuilderTest extends TestCase
 
         $request   = new FakeServerRequest();
         $prototype = new FakeResponse();
-        $this->assertSame($first, $route->forward($request, $prototype));
-        $this->assertSame($second, $route->select('second')->forward($request, $prototype));
+        $this->assertSame($first, $route->forward($request->withUri(FakeUri::fromString('/first')), $prototype));
+        $this->assertSame($second, $route->forward($request->withUri(FakeUri::fromString('/second')), $prototype));
     }
 
-    public function testUnnamedRoutesCanBeAdded()
+    public function testEmptyRouteName_ThrowsException()
     {
         $switch = $this->builder();
-        $switch->route()->method('POST')->callback($this->callbackResponse($first));
-        $switch->route()->callback($this->callbackResponse($second));
-        $route = $switch->build();
-
-        $request   = new FakeServerRequest();
-        $prototype = new FakeResponse();
-        $this->assertSame($first, $route->forward($request->withMethod('POST'), $prototype));
-        $this->assertSame($second, $route->forward($request, $prototype));
+        $this->expectException(InvalidArgumentException::class);
+        $switch->route('');
     }
 
-    public function testDefaultRouteInResponseScanSwitch()
+    public function testRootRouteInPathSegmentSwitch()
     {
         $switch = $this->builder();
         $switch->route('dummy')->callback($this->callbackResponse($dummy));
-        $switch->defaultRoute()->callback($this->callbackResponse($default));
+        $switch->root(new CallbackEndpoint($this->callbackResponse($root)));
         $route = $switch->build();
 
         $prototype = new FakeResponse();
         $request   = new FakeServerRequest();
-        $this->assertSame($default, $route->forward($request, $prototype));
+        $this->assertSame($root, $route->forward($request->withUri(FakeUri::fromString('')), $prototype));
+        $this->assertSame($root, $route->forward($request->withUri(FakeUri::fromString('/')), $prototype));
     }
 
-    public function testSettingDefaultRouteSecondTime_ThrowsException()
+    public function testSettingRootRouteSecondTime_ThrowsException()
     {
         $switch = $this->builder();
-        $switch->defaultRoute()->callback(function () {});
+        $switch->root(new MockedRoute());
         $this->expectException(BuilderLogicException::class);
-        $switch->defaultRoute();
+        $switch->root(new MockedRoute());
     }
 
     public function testAddingRouteWithAlreadyDefinedName_ThrowsException()
     {
         $switch = $this->builder();
-        $switch->route('exists')->callback(function () {});
+        $switch->route('foo')->callback(function () {});
         $this->expectException(InvalidArgumentException::class);
-        $switch->route('exists');
+        $switch->route('foo');
     }
 
     public function testResourceBuilderCanBeAdded()
@@ -95,8 +93,8 @@ class ResponseScanSwitchBuilderTest extends TestCase
         $this->assertInstanceOf(ResourceSwitchBuilder::class, $this->builder()->resource('res'));
     }
 
-    private function builder(): ResponseScanSwitchBuilder
+    private function builder(): PathSwitchBuilder
     {
-        return new ResponseScanSwitchBuilder();
+        return new PathSwitchBuilder();
     }
 }

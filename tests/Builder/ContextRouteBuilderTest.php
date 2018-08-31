@@ -34,20 +34,20 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 
-class RoutingBuilderTest extends TestCase
+class ContextRouteBuilderTest extends TestCase
 {
     use RoutingTestMethods;
 
     public function testInstantiation()
     {
-        $this->assertInstanceOf(Builder\RouteBuilder::class, $this->builder());
+        $this->assertInstanceOf(Builder\ContextRouteBuilder::class, $this->builder());
     }
 
     public function testRouteCanBeSplit()
     {
-        $this->assertInstanceOf(Builder\ResponseScanSwitchBuilder::class, $this->builder()->responseScan());
+        $this->assertInstanceOf(Builder\RouteScanBuilder::class, $this->builder()->responseScan());
         $this->assertInstanceOf(Builder\MethodSwitchBuilder::class, $this->builder()->methodSwitch());
-        $this->assertInstanceOf(Builder\PathSegmentSwitchBuilder::class, $this->builder()->pathSwitch());
+        $this->assertInstanceOf(Builder\PathSwitchBuilder::class, $this->builder()->pathSwitch());
         $this->assertInstanceOf(Builder\ResourceSwitchBuilder::class, $this->builder()->resource());
     }
 
@@ -115,7 +115,7 @@ class RoutingBuilderTest extends TestCase
         }
     }
 
-    public function checkCase(Builder\RouteBuilder $builder, ServerRequestInterface $match, ServerRequestInterface $block)
+    public function checkCase(Builder\ContextRouteBuilder $builder, ServerRequestInterface $match, ServerRequestInterface $block)
     {
         $builder->callback($this->callbackResponse($response));
         $route = $builder->build();
@@ -301,8 +301,8 @@ class RoutingBuilderTest extends TestCase
         $this->assertSame('handler response', (string) $response->getBody());
     }
 
-    private function builder(?ContainerInterface $container = null, ?callable $router = null): Builder\RouteBuilder
+    private function builder(?ContainerInterface $container = null, ?callable $router = null): Builder\ContextRouteBuilder
     {
-        return new Builder\RouteBuilder(new Builder\BuilderContext($container, $router));
+        return new Builder\ContextRouteBuilder(new Builder\BuilderContext($container, $router));
     }
 }

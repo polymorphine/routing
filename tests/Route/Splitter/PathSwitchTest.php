@@ -13,7 +13,7 @@ namespace Polymorphine\Routing\Tests\Route\Splitter;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Route\Splitter\PathSegmentSwitch;
+use Polymorphine\Routing\Route\Splitter\PathSwitch;
 use Polymorphine\Routing\Route\Gate\PathSegmentGate;
 use Polymorphine\Routing\Exception\EndpointCallException;
 use Polymorphine\Routing\Tests\RoutingTestMethods;
@@ -23,7 +23,7 @@ use Polymorphine\Routing\Tests\Doubles\FakeUri;
 use Psr\Http\Message\ResponseInterface;
 
 
-class PathSegmentSwitchTest extends TestCase
+class PathSwitchTest extends TestCase
 {
     use RoutingTestMethods;
 
@@ -61,12 +61,12 @@ class PathSegmentSwitchTest extends TestCase
 
     public function testNestedSwitchForwardMatchingRequest_ReturnsEndpointRouteResponse()
     {
-        $splitter = new PathSegmentSwitch([
-            'A' => new PathSegmentSwitch([
+        $splitter = new PathSwitch([
+            'A' => new PathSwitch([
                 'A' => $this->responseRoute($responseAA),
                 'B' => $this->responseRoute($responseAB)
             ]),
-            'B' => new PathSegmentSwitch([
+            'B' => new PathSwitch([
                 'A' => $this->responseRoute($responseBA),
                 'B' => $this->responseRoute($responseBB)
             ])
@@ -79,7 +79,7 @@ class PathSegmentSwitchTest extends TestCase
 
     public function testSelect_ReturnsMatchingRouteWithPathWrapper()
     {
-        $splitter = new PathSegmentSwitch([
+        $splitter = new PathSwitch([
             'A' => $routeA = new MockedRoute(),
             'B' => $routeB = new MockedRoute()
         ]);
@@ -123,7 +123,7 @@ class PathSegmentSwitchTest extends TestCase
     public function testRootRouteCanBeSelected()
     {
         $splitter = $this->splitter([], $root = new MockedRoute());
-        $this->assertEquals($root, $splitter->select(PathSegmentSwitch::ROOT_PATH));
+        $this->assertEquals($root, $splitter->select(PathSwitch::ROOT_PATH));
     }
 
     public function testWithRootRoute_UriOrForward_ReturnsResultsEquivalentToRootRouteCalls()
@@ -132,7 +132,7 @@ class PathSegmentSwitchTest extends TestCase
         $structure = $this->createStructure($splitter, ['foo', 'bar']);
         $wrapped   = new PathSegmentGate('foo', new PathSegmentGate('bar', $splitter));
         $implicit  = $structure->select('foo.bar');
-        $explicit  = $structure->select('foo.bar.' . PathSegmentSwitch::ROOT_PATH);
+        $explicit  = $structure->select('foo.bar.' . PathSwitch::ROOT_PATH);
         $request   = new FakeServerRequest('GET', FakeUri::fromString('/foo/bar'));
 
         $this->assertEquals($wrapped, $implicit);
@@ -182,7 +182,7 @@ class PathSegmentSwitchTest extends TestCase
     private function createStructure(Route $route, array $segments)
     {
         while ($segment = array_pop($segments)) {
-            $route = new PathSegmentSwitch([$segment => $route]);
+            $route = new PathSwitch([$segment => $route]);
         }
         return $route;
     }
@@ -190,6 +190,6 @@ class PathSegmentSwitchTest extends TestCase
     private function splitter(array $routes = [], Route $root = null)
     {
         $routes = $routes ?: ['dummy' => new MockedRoute()];
-        return $root ? new PathSegmentSwitch($routes, $root) : new PathSegmentSwitch($routes);
+        return $root ? new PathSwitch($routes, $root) : new PathSwitch($routes);
     }
 }

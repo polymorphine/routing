@@ -18,7 +18,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 
 
-class PathSegmentSwitch implements Route
+class PathSwitch implements Route
 {
     use RouteSelectMethods;
     use Route\Gate\Pattern\PathContextMethods;

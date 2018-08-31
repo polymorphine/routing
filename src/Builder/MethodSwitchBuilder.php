@@ -28,32 +28,32 @@ class MethodSwitchBuilder implements Builder
         $this->routes  = $routes;
     }
 
-    public function get(): RouteBuilder
+    public function get(): ContextRouteBuilder
     {
         return $this->addBuilder('GET');
     }
 
-    public function post(): RouteBuilder
+    public function post(): ContextRouteBuilder
     {
         return $this->addBuilder('POST');
     }
 
-    public function patch(): RouteBuilder
+    public function patch(): ContextRouteBuilder
     {
         return $this->addBuilder('PATCH');
     }
 
-    public function put(): RouteBuilder
+    public function put(): ContextRouteBuilder
     {
         return $this->addBuilder('PUT');
     }
 
-    public function delete(): RouteBuilder
+    public function delete(): ContextRouteBuilder
     {
         return $this->addBuilder('DELETE');
     }
 
-    public function route(string $name): RouteBuilder
+    public function route(string $name): ContextRouteBuilder
     {
         $context = $this->context->create();
         $names   = explode('|', $name);
@@ -61,7 +61,7 @@ class MethodSwitchBuilder implements Builder
             $this->builders[$this->validMethod($name)] = $context;
         }
 
-        return new RouteBuilder($context);
+        return new ContextRouteBuilder($context);
     }
 
     protected function router(array $routes): Route

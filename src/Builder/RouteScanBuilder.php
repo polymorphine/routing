@@ -15,7 +15,7 @@ use Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Route;
 
 
-class ResponseScanSwitchBuilder implements Builder
+class RouteScanBuilder implements Builder
 {
     use CompositeBuilderMethods;
 
@@ -28,16 +28,16 @@ class ResponseScanSwitchBuilder implements Builder
         $this->routes  = $routes;
     }
 
-    public function defaultRoute(): RouteBuilder
+    public function defaultRoute(): ContextRouteBuilder
     {
         if (isset($this->defaultRoute)) {
             throw new Exception\BuilderLogicException('Default route already set');
         }
 
-        return new RouteBuilder($this->defaultRoute = $this->context->create());
+        return new ContextRouteBuilder($this->defaultRoute = $this->context->create());
     }
 
-    public function route(string $name = null): RouteBuilder
+    public function route(string $name = null): ContextRouteBuilder
     {
         return $this->addBuilder($name);
     }
@@ -50,7 +50,7 @@ class ResponseScanSwitchBuilder implements Builder
     protected function router(array $routes): Route
     {
         return $this->defaultRoute
-            ? new Route\Splitter\ResponseScanSwitch($routes, $this->defaultRoute->build())
-            : new Route\Splitter\ResponseScanSwitch($routes);
+            ? new Route\Splitter\RouteScan($routes, $this->defaultRoute->build())
+            : new Route\Splitter\RouteScan($routes);
     }
 }

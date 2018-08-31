@@ -43,7 +43,7 @@ trait CompositeBuilderMethods
 
     abstract protected function router(array $routes): Route;
 
-    private function addBuilder(?string $name): RouteBuilder
+    private function addBuilder(?string $name): ContextRouteBuilder
     {
         $context = $this->context->create();
 
@@ -53,7 +53,7 @@ trait CompositeBuilderMethods
             $this->builders[] = $context;
         }
 
-        return new RouteBuilder($context);
+        return new ContextRouteBuilder($context);
     }
 
     private function validName(string $name): string
