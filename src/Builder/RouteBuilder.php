@@ -16,6 +16,13 @@ use Polymorphine\Routing\Route;
 use Psr\Http\Server\RequestHandlerInterface;
 
 
+/**
+ * Builder that adds Route or given routing tree wrapped by gates
+ * to current BuilderContext or creates Builder where new contexts
+ * Routes are created (branched routes).
+ *
+ * Current context might be built as root with build() method.
+ */
 class RouteBuilder implements Builder
 {
     use GateBuildMethods;
@@ -32,56 +39,178 @@ class RouteBuilder implements Builder
         return $this->context->build();
     }
 
+    /**
+     * Adds CallbackEndpoint created with given callback.
+     *
+     * @see \Polymorphine\Routing\Route\Endpoint\CallbackEndpoint
+     *
+     * @param callable $callback takes ServerRequestInterface parameter and returns ResponseInterface
+     */
     public function callback(callable $callback): void
     {
         $this->context->setCallbackRoute($callback);
     }
 
+    /**
+     * Adds HandlerEndpoint created with given handler.
+     *
+     * @see \Polymorphine\Routing\Route\Endpoint\HandlerEndpoint
+     *
+     * @param RequestHandlerInterface $handler
+     */
     public function handler(RequestHandlerInterface $handler): void
     {
         $this->context->setHandlerRoute($handler);
     }
 
+    /**
+     * Adds LazyRoute gate that invokes routes with given
+     * callback on forward request call.
+     *
+     * @see \Polymorphine\Routing\Route\Gate\LazyRoute
+     *
+     * @param callable $routeCallback takes no parameter and returns Route instance
+     */
     public function lazy(callable $routeCallback): void
     {
         $this->context->setLazyRoute($routeCallback);
     }
 
+    /**
+     * Adds endpoint that returns redirect response to given routing
+     * path for any request being forwarded.
+     *
+     * To call this method BuilderContext the class was instantiated with
+     * needs to be able to provide Router callback that this endpoint
+     * depends on - otherwise BuilderLogicException will be thrown.
+     *
+     * @see \Polymorphine\Routing\Route\Endpoint\RedirectEndpoint
+     *
+     * @param string $routingPath
+     * @param int    $code
+     *
+     * @throws Exception\BuilderLogicException
+     */
     public function redirect(string $routingPath, int $code = 301): void
     {
         $this->context->setRedirectRoute($routingPath, $code);
     }
 
+    /**
+     * Adds HandlerFactoryEndpoint created with given Fully Qualified Name
+     * of the class that implements RequestHandlerFactory.
+     *
+     * To call this method BuilderContext the class was instantiated with
+     * needs to be able to provide ContainerInterface that this endpoint
+     * depends on - otherwise BuilderLogicException will be thrown.
+     *
+     * @see \Polymorphine\Routing\Route\Endpoint\HandlerFactoryEndpoint
+     *
+     * @param string $className FQN of class implementing RequestHandlerFactory
+     *
+     * @throws Exception\BuilderLogicException
+     */
     public function factory(string $className): void
     {
         $this->context->setFactoryRoute($className);
     }
 
+    /**
+     * Adds given Route wrapped with called gates.
+     *
+     * @param Route $route
+     */
     public function join(Route $route): void
     {
         $this->context->setRoute($route);
     }
 
+    /**
+     * Adds a link to another Builder context using reference variable.
+     * If Route in that context will not be created until this builder
+     * will attempt to build it BuilderLogicException will be thrown.
+     *
+     * @param null|Route &$route reference to current of future Route
+     */
     public function joinBuilder(?Route &$route): void
     {
         $this->context->setBuilder(new LinkedRouteBuilder($route));
     }
 
+    /**
+     * Creates PathSegmentSwitch node context builder.
+     * Optionally already defined array of Routes with keys representing
+     * Uri (and routing) path segment might be given as parameter.
+     *
+     * @see \Polymorphine\Routing\Route\Splitter\PathSegmentSwitch
+     *
+     * @param Route[] $routes associated with Uri & routing path segment keys
+     *
+     * @return PathSegmentSwitchBuilder
+     */
     public function pathSwitch(array $routes = []): PathSegmentSwitchBuilder
     {
         return $this->contextBuilder(new PathSegmentSwitchBuilder($this->context, $routes));
     }
 
+    /**
+     * Creates ResponseScanSwitch node context builder.
+     * Optionally already defined array of Routes with (optional) keys
+     * representing routing path segment might be given as parameter.
+     * Anonymous Routes (without key) cannot be explicitly selected
+     * (to produce Uri), but matched request would reach them.
+     *
+     * @see \Polymorphine\Routing\Route\Splitter\ResponseScanSwitch
+     *
+     * @param Route[] $routes associated with routing path segment keys
+     *
+     * @return ResponseScanSwitchBuilder
+     */
     public function responseScan(array $routes = []): ResponseScanSwitchBuilder
     {
         return $this->contextBuilder(new ResponseScanSwitchBuilder($this->context, $routes));
     }
 
+    /**
+     * Creates MethodSwitch node context builder.
+     * Optionally already defined array of Routes with keys representing
+     * http methods (and routing path segment) might be given as parameter.
+     *
+     * @see \Polymorphine\Routing\Route\Splitter\MethodSwitch
+     *
+     * @param Route[] $routes associated with http method keys
+     *
+     * @return MethodSwitchBuilder
+     */
     public function methodSwitch(array $routes = []): MethodSwitchBuilder
     {
         return $this->contextBuilder(new MethodSwitchBuilder($this->context, $routes));
     }
 
+    /**
+     * Creates node context builder producing composite routing logic
+     * for REST resource.
+     * Optionally already defined array of Routes with keys representing
+     * http methods and pseudo methods* (and routing path segment) might be
+     * given as parameter.
+     *
+     * Pseudo methods are:
+     * INDEX - for GET requests to all resources (unspecified id),
+     * NEW   - for GET requests to form producing new resource (without current id),
+     * EDIT  - for GET requests to form editing resource with given id
+     *
+     * WARNING: This method does not specify resource name (path) and should be used
+     * when resource route needs to be wrapped with additional gates. Otherwise it
+     * is recommended to build resource directly from PathSegmentSwitchBuilder or
+     * ResponseScanSwitchBuilder.
+     *
+     * @see ResponseScanSwitchBuilder
+     * @see PathSegmentSwitchBuilder
+     *
+     * @param array $routes associated with http method and pseudo method keys
+     *
+     * @return ResourceSwitchBuilder
+     */
     public function resource(array $routes = []): ResourceSwitchBuilder
     {
         return $this->contextBuilder(new ResourceSwitchBuilder($this->context, $routes));
