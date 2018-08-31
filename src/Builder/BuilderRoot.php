@@ -36,43 +36,48 @@ class BuilderRoot
         $this->nullResponse = $nullResponse;
     }
 
-    public function container(ContainerInterface $container, $routerId = null): void
+    public function useContainer(ContainerInterface $container, $routerId = null): void
     {
         $this->container = $container;
 
         if (!$routerId) { return; }
-        $this->routerCallback(function () use ($routerId) { return $this->container->get($routerId); });
+        $this->useRouterCallback(function () use ($routerId) { return $this->container->get($routerId); });
     }
 
-    public function routerCallback(callable $routerCallback): void
+    public function useRouterCallback(callable $routerCallback): void
     {
         $this->routerCallback = $routerCallback;
     }
 
-    public function endpoint(): DiscreteRouteBuilder
+    public function discreteBuilder(): DiscreteRouteBuilder
     {
-        return new DiscreteRouteBuilder(new BuilderContext($this->container, $this->routerCallback));
+        return new DiscreteRouteBuilder($this->createContext());
     }
 
-    public function builder(): ContextRouteBuilder
+    public function newContextBuilder(): ContextRouteBuilder
     {
-        return new ContextRouteBuilder(new BuilderContext($this->container, $this->routerCallback));
+        return new ContextRouteBuilder($this->createContext());
     }
 
-    public function context(): ContextRouteBuilder
+    public function rootContextBuilder(): ContextRouteBuilder
     {
         if ($this->builder) {
             throw new Exception\BuilderLogicException('Root builder already defined');
         }
-        $this->builder = new BuilderContext($this->container, $this->routerCallback);
+        $this->builder = $this->createContext();
         return new ContextRouteBuilder($this->builder);
     }
 
-    public function router(): Router
+    public function createRouter(): Router
     {
         if (!$this->builder) {
             throw new Exception\BuilderLogicException('Root builder not defined');
         }
         return new Router($this->builder->build(), $this->baseUri, $this->nullResponse);
+    }
+
+    private function createContext(): BuilderContext
+    {
+        return new BuilderContext($this->container, $this->routerCallback);
     }
 }
