@@ -189,7 +189,7 @@ class UriPatternTest extends TestCase
     {
         $pattern = $this->pattern('foo/bar*?query=foo');
         $request = $this->request('//example.com/fizz/foo/bar/baz?param=bar&query=foo')
-                        ->withAttribute(Route::PATH_ATTRIBUTE, 'foo/bar');
+                        ->withAttribute(Route::PATH_ATTRIBUTE, 'foo/bar/baz');
         $this->assertInstanceOf(ServerRequestInterface::class, $pattern->matchedRequest($request));
     }
 
@@ -227,6 +227,15 @@ class UriPatternTest extends TestCase
 
         $request = $this->request('https://example.com/foo');
         $this->assertSame($request, $pattern->matchedRequest($request));
+    }
+
+    public function testQueryPatternsArePartiallyMatched()
+    {
+        $patternA = $this->pattern('?foo');
+        $patternB = $this->pattern('?bar=buzz');
+        $request  = $this->request('http://subdomain.example.com/path?bar=buzz&foo=fizz');
+        $this->assertSame($request, $patternA->matchedRequest($request));
+        $this->assertSame($request, $patternB->matchedRequest($request));
     }
 
     private function pattern(string $uri)

@@ -109,6 +109,20 @@ class PatternGateTest extends TestCase
         $this->assertSame(self::$prototype, $route->forward($request, self::$prototype));
     }
 
+    public function testQueryPatternsAreJoinedTogetherOnCompositeRoute()
+    {
+        $prototype = FakeUri::fromString('http://example.com/path');
+        $route     = PatternGate::withPatternString('?foo=fizz', PatternGate::withPatternString('?bar=buzz', MockedRoute::response('endpoint')));
+        $this->assertSame('http://example.com/path?foo=fizz&bar=buzz', (string) $route->uri($prototype, []));
+    }
+
+    public function testCompositeQueryPatternsWithoutSpecifiedValueAreMatched()
+    {
+        $request = $this->request('http://example.com/path?foo=fizz&bar=buzz');
+        $route   = PatternGate::withPatternString('?foo', PatternGate::withPatternString('?bar', $this->responseRoute($response)));
+        $this->assertSame($response, $route->forward($request, self::$prototype));
+    }
+
     private function patternGate(string $uriPattern = 'https:', $subRoute = null)
     {
         return new PatternGate(UriPattern::fromUriString($uriPattern), $subRoute ?: MockedRoute::response('default'));
