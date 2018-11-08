@@ -95,7 +95,7 @@ class DynamicTargetMaskTest extends TestCase
             'no-params'  => ['/path/only', '/path/only', []],
             'id'         => ['/page/{#no}', '/page/4', ['no' => '4']],
             'id+slug'    => ['/page/{#no}/{$title}', '/page/576/foo-bar-45', ['no' => '576', 'title' => 'foo-bar-45']],
-            'literal-id' => ['/foo-{%name}', '/foo-bar5000', ['name' => 'bar5000']],
+            'literal-id' => ['/foo-{@name}', '/foo-bar5000', ['name' => 'bar5000']],
             'query'      => ['/path/and?user={#id}', '/path/and?user=938', ['id' => '938']],
             'query+path' => ['/path/user/{#id}?foo={$bar}', '/path/user/938?foo=bar-BAZ', ['id' => '938', 'bar' => 'bar-BAZ']]
         ];
@@ -126,7 +126,7 @@ class DynamicTargetMaskTest extends TestCase
 
     public function testQueryStringIsIgnoredWhenNotSpecifiedInRoute()
     {
-        $pattern = $this->pattern('/path/{%directory}');
+        $pattern = $this->pattern('/path/{@directory}');
         $request = $this->request('/path/something?foo=bar-BAZ&user=938');
         $matched = $pattern->matchedRequest($request);
         $this->assertInstanceOf(ServerRequestInterface::class, $matched);
@@ -151,7 +151,7 @@ class DynamicTargetMaskTest extends TestCase
 
     public function testPatternQueryKeyWithoutValue()
     {
-        $pattern = $this->pattern('/foo/{%bar}?name={$name}&fizz');
+        $pattern = $this->pattern('/foo/{@bar}?name={$name}&fizz');
 
         $request = $pattern->matchedRequest($this->request('/foo/bar?name=slug-example'));
         $this->assertNull($request);
@@ -169,7 +169,7 @@ class DynamicTargetMaskTest extends TestCase
 
     public function testEmptyQueryParamValueIsRequiredAsSpecified()
     {
-        $pattern = $this->pattern('/foo/{%bar}?name={$name}&fizz=');
+        $pattern = $this->pattern('/foo/{@bar}?name={$name}&fizz=');
 
         $request = $pattern->matchedRequest($this->request('/foo/bar?name=slug-example&fizz=something'));
         $this->assertNull($request);
@@ -183,7 +183,7 @@ class DynamicTargetMaskTest extends TestCase
 
     public function testUnusedUriParamsAreIgnored()
     {
-        $pattern = $this->pattern('/foo/{%bar}?name={$name}&fizz=buzz');
+        $pattern = $this->pattern('/foo/{@bar}?name={$name}&fizz=buzz');
 
         $params = ['something', 'slug-string', 'unused-param'];
         $uri    = $pattern->uri(FakeUri::fromString('https://www.example.com'), $params);
@@ -270,7 +270,7 @@ class DynamicTargetMaskTest extends TestCase
         $this->assertInstanceOf(ServerRequestInterface::class, $request);
         $this->assertSame(['id' => '234'], $request->getAttributes());
 
-        $pattern = $this->pattern('end/{%of}/{$path}');
+        $pattern = $this->pattern('end/{@of}/{$path}');
         $request = $pattern->matchedRequest($this->request('/root/end/of/path-slug'));
         $this->assertSame(['of' => 'of', 'path' => 'path-slug'], $request->getAttributes());
     }

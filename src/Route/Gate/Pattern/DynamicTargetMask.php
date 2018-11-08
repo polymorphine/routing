@@ -19,19 +19,6 @@ use Psr\Http\Message\UriInterface;
 
 class DynamicTargetMask implements Route\Gate\Pattern
 {
-    public const PARAM_DELIM_LEFT  = '{';
-    public const PARAM_DELIM_RIGHT = '}';
-
-    public const PARAM_TYPE_NUM  = '#';
-    public const PARAM_TYPE_NAME = '%';
-    public const PARAM_TYPE_SLUG = '$';
-
-    protected $paramTypeRegexp = [
-        self::PARAM_TYPE_NUM  => '[1-9][0-9]*',
-        self::PARAM_TYPE_NAME => '[a-zA-Z0-9]+',
-        self::PARAM_TYPE_SLUG => '[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9]'
-    ];
-
     private $pattern;
     private $params;
     private $parsedPath;
@@ -89,7 +76,7 @@ class DynamicTargetMask implements Route\Gate\Pattern
     {
         $pattern = preg_quote($this->parsedPath);
         foreach ($this->params as $name => $regexp) {
-            $placeholder = '\\' . self::PARAM_DELIM_LEFT . $name . '\\' . self::PARAM_DELIM_RIGHT;
+            $placeholder = '\\' . self::DELIM_LEFT . $name . '\\' . self::DELIM_RIGHT;
             $replace     = '(?P<' . $name . '>' . $regexp . ')';
             $pattern     = str_replace($placeholder, $replace, $pattern);
         }
@@ -103,7 +90,7 @@ class DynamicTargetMask implements Route\Gate\Pattern
 
     private function parsePattern(): string
     {
-        $types  = array_keys($this->paramTypeRegexp);
+        $types  = array_keys(self::TYPE_REGEXP);
         $regexp = $this->typeMarkersRegexp($types);
 
         $pos = strpos($this->pattern, '?');
@@ -113,12 +100,12 @@ class DynamicTargetMask implements Route\Gate\Pattern
 
         preg_match_all($regexp, $this->pattern, $matches, PREG_SET_ORDER);
         foreach ($matches as $match) {
-            $this->params[$match['id']] = $this->paramTypeRegexp[$match['type']];
+            $this->params[$match['id']] = self::TYPE_REGEXP[$match['type']];
         }
 
-        $replace = array_map(function ($type) { return self::PARAM_DELIM_LEFT . $type; }, $types);
+        $replace = array_map(function ($type) { return self::DELIM_LEFT . $type; }, $types);
 
-        return str_replace($replace, self::PARAM_DELIM_LEFT, $this->pattern);
+        return str_replace($replace, self::DELIM_LEFT, $this->pattern);
     }
 
     private function typeMarkersRegexp(array $types): string
@@ -126,7 +113,7 @@ class DynamicTargetMask implements Route\Gate\Pattern
         $regexpMarkers = array_map(function ($typeMarker) { return preg_quote($typeMarker, '/'); }, $types);
         $idPattern     = '(?P<type>' . implode('|', $regexpMarkers) . ')(?P<id>[a-zA-Z]+)';
 
-        return '/' . self::PARAM_DELIM_LEFT . $idPattern . self::PARAM_DELIM_RIGHT . '/';
+        return '/' . self::DELIM_LEFT . $idPattern . self::DELIM_RIGHT . '/';
     }
 
     private function uriPlaceholders(array $params): array
@@ -140,7 +127,7 @@ class DynamicTargetMask implements Route\Gate\Pattern
         $placeholders = [];
         foreach ($this->params as $name => $type) {
             $param = $params[$name] ?? array_shift($params);
-            $token = self::PARAM_DELIM_LEFT . $name . self::PARAM_DELIM_RIGHT;
+            $token = self::DELIM_LEFT . $name . self::DELIM_RIGHT;
 
             $placeholders[$token] = $this->validParam($name, $type, $param);
         }

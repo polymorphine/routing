@@ -11,12 +11,14 @@
 
 namespace Polymorphine\Routing\Route\Gate\Pattern;
 
+use Polymorphine\Routing\Route\Gate\Pattern;
+
 
 trait PatternSelection
 {
     protected static function selectPattern($pattern, $params)
     {
-        return strpos($pattern, DynamicTargetMask::PARAM_DELIM_RIGHT)
+        return strpos($pattern, Pattern::DELIM_RIGHT)
             ? new DynamicTargetMask($pattern, $params)
             : UriPattern::fromUriString($pattern);
     }

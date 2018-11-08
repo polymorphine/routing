@@ -17,6 +17,21 @@ use Psr\Http\Message\UriInterface;
 
 interface Pattern
 {
+    public const DELIM_LEFT  = '{';
+    public const DELIM_RIGHT = '}';
+
+    public const TYPE_NAME    = '@';
+    public const TYPE_NUMBER  = '#';
+    public const TYPE_SLUG    = '$';
+    public const TYPE_NUMERIC = '%';
+
+    public const TYPE_REGEXP = [
+        self::TYPE_NAME    => '[a-zA-Z0-9]+',
+        self::TYPE_NUMBER  => '[1-9][0-9]*',
+        self::TYPE_SLUG    => '[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9]',
+        self::TYPE_NUMERIC => '[0-9]+'
+    ];
+
     /**
      * When $request matches pattern it is returned back
      * Null is returned otherwise.
