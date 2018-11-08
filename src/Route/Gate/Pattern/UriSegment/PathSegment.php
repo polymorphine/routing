@@ -32,22 +32,22 @@ class PathSegment implements Route\Gate\Pattern
 
     public static function numeric(string $name = 'id')
     {
-        return new static($name, '[0-9]+');
+        return new static($name, self::TYPE_REGEXP[self::TYPE_NUMERIC]);
     }
 
     public static function number(string $name = 'id')
     {
-        return new static($name, '[1-9][0-9]*');
+        return new static($name, self::TYPE_REGEXP[self::TYPE_NUMBER]);
     }
 
     public static function slug(string $name = 'slug')
     {
-        return new static($name, '[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9]');
+        return new static($name, self::TYPE_REGEXP[self::TYPE_SLUG]);
     }
 
     public static function name(string $name = 'name')
     {
-        return new static($name, '[a-zA-Z0-9]+');
+        return new static($name, self::TYPE_REGEXP[self::TYPE_NAME]);
     }
 
     public function matchedRequest(ServerRequestInterface $request): ?ServerRequestInterface

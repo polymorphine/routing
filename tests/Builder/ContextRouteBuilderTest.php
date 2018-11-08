@@ -99,6 +99,8 @@ class ContextRouteBuilderTest extends TestCase
         $cases = [
             [$this->builder()->pattern(new Scheme('https')), $request->withUri($https), $request],
             [$this->builder()->path('foo/bar/baz'), $request->withUri($https), $request],
+            [$this->builder()->path('foo/{@name}/baz'), $request->withUri($https), $request],
+            [$this->builder()->path('foo/{name}/baz', ['name' => 'b.r']), $request->withUri($https), $request],
             [$this->builder()->callbackGate($attrCheckCallback), $request->withAttribute('test', true), $request],
             [$this->builder()->method('PATCH'), $request->withMethod('PATCH'), $request],
             [$this->builder()->get(), $request, $request->withMethod('POST')],

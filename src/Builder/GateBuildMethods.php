@@ -59,15 +59,19 @@ trait GateBuildMethods
      * Creates PathSegmentGate wrappers for built route.
      *
      * @param string $path
+     * @param array  $regexp
      *
      * @return $this
      */
-    public function path(string $path)
+    public function path(string $path, array $regexp = [])
     {
-        $this->context->addGate(function (Route $route) use ($path) {
+        $this->context->addGate(function (Route $route) use ($path, $regexp) {
             $segments = explode('/', trim($path, '/'));
             while ($segment = array_pop($segments)) {
-                $route = new Route\Gate\PathSegmentGate($segment, $route);
+                $pattern = $this->patternSegment($segment, $regexp);
+                $route = $pattern
+                    ? new Route\Gate\PatternGate($pattern, $route)
+                    : new Route\Gate\PathSegmentGate($segment, $route);
             }
             return $route;
         });
