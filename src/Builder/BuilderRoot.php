@@ -44,6 +44,9 @@ class BuilderRoot
         $this->useRouterCallback(function () use ($routerId) { return $this->container->get($routerId); });
     }
 
+    /**
+     * @param callable $routerCallback function(): Router
+     */
     public function useRouterCallback(callable $routerCallback): void
     {
         $this->routerCallback = $routerCallback;

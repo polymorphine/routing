@@ -34,6 +34,10 @@ class BuilderContext implements Builder
     /** @var callable[] */
     private $gates = [];
 
+    /**
+     * @param null|ContainerInterface $container
+     * @param null|callable           $routerCallback function(): Router
+     */
     public function __construct(?ContainerInterface $container = null, ?callable $routerCallback = null)
     {
         $this->container      = $container;
@@ -60,11 +64,17 @@ class BuilderContext implements Builder
         return $newContext;
     }
 
+    /**
+     * @param callable $routeWrapper function(Route): Route
+     */
     public function addGate(callable $routeWrapper)
     {
         $this->gates[] = $routeWrapper;
     }
 
+    /**
+     * @param callable $callback function(ServerRequestInterface): ResponseInterface
+     */
     public function setCallbackRoute(callable $callback): void
     {
         $this->setRoute(new Route\Endpoint\CallbackEndpoint($callback));
@@ -75,6 +85,9 @@ class BuilderContext implements Builder
         $this->setRoute(new Route\Endpoint\HandlerEndpoint($handler));
     }
 
+    /**
+     * @param callable $routeCallback function(): Route
+     */
     public function setLazyRoute(callable $routeCallback): void
     {
         $this->setRoute(new Route\Gate\LazyRoute($routeCallback));

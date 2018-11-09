@@ -23,6 +23,10 @@ class HandlerFactoryEndpoint extends Endpoint
     private $factoryCallback;
     private $container;
 
+    /**
+     * @param callable           $factoryCallback function(): RequestHandlerFactory
+     * @param ContainerInterface $container
+     */
     public function __construct(callable $factoryCallback, ContainerInterface $container)
     {
         $this->factoryCallback = $factoryCallback;

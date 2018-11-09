@@ -23,14 +23,14 @@ class CallbackGateway implements Route
     private $route;
 
     /**
-     * $callback callable takes ServerRequestInterface parameter and returns either:
+     * $callback returns either:
      * - ServerRequestInterface - if request should be forwarded to given Route
      * - null - if request should be blocked and $prototype response returned.
      *
      * NOTE: If request uri is verified it will not be resembled by Uri built
      * with gateway's self::uri() method - Pattern gate should be used instead.
      *
-     * @param callable $callback
+     * @param callable $callback function(ServerRequestInterface): ?ServerRequestInterface
      * @param Route    $route
      */
     public function __construct(callable $callback, Route $route)

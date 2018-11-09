@@ -30,7 +30,7 @@ class CallbackGatewayTest extends TestCase
         $this->assertInstanceOf(Route::class, $this->middleware());
     }
 
-    public function testClosurePreventsForwardingRequest()
+    public function testCallbackPreventsForwardingRequest()
     {
         $request = new FakeServerRequest();
         $this->assertSame(self::$prototype, $this->middleware()->forward($request, self::$prototype));

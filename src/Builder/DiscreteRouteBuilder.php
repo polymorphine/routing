@@ -36,7 +36,7 @@ class DiscreteRouteBuilder
      *
      * @see \Polymorphine\Routing\Route\Endpoint\CallbackEndpoint
      *
-     * @param callable $callback takes ServerRequestInterface parameter and returns ResponseInterface
+     * @param callable $callback function(ServerRequestInterface): ResponseInterface
      *
      * @return Route
      */
@@ -67,7 +67,7 @@ class DiscreteRouteBuilder
      *
      * @see \Polymorphine\Routing\Route\Gate\LazyRoute
      *
-     * @param callable $routeCallback takes no parameter and returns Route instance
+     * @param callable $routeCallback function(): Route
      *
      * @return Route
      */

@@ -20,6 +20,9 @@ class CallbackEndpoint extends Endpoint
 {
     private $callback;
 
+    /**
+     * @param callable $callback function(ServerRequestInterface): ResponseInterface
+     */
     public function __construct(callable $callback)
     {
         $this->callback = $callback;

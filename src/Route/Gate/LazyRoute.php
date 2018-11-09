@@ -23,7 +23,7 @@ class LazyRoute implements Route
     private $route;
 
     /**
-     * @param callable $routeCallback callback that returns Route
+     * @param callable $routeCallback function(): Route
      */
     public function __construct(callable $routeCallback)
     {

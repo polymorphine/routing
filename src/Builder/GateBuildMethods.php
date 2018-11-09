@@ -81,7 +81,7 @@ trait GateBuildMethods
     /**
      * Creates CallbackGateway wrapper for built route.
      *
-     * @param callable $callback
+     * @param callable $callback function(ServerRequestInterface): ?ServerRequestInterface
      *
      * @return $this
      */
