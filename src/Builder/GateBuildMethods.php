@@ -26,12 +26,12 @@ trait GateBuildMethods
     /**
      * Creates MethodGate and (optionally) PatternGate wrapper for built route.
      *
-     * @param string       $methods single http method or pipe separated method set (example: 'GET|POST|DELETE')
+     * @param string       $methods single http method or pipe separated method set like 'GET|POST|DELETE'
      * @param null|Pattern $pattern
      *
-     * @return $this
+     * @return static
      */
-    public function method(string $methods, Pattern $pattern = null)
+    public function method(string $methods, Pattern $pattern = null): self
     {
         if (isset($pattern)) { $this->pattern($pattern); }
         $this->context->addGate(function (Route $route) use ($methods) {
@@ -45,9 +45,9 @@ trait GateBuildMethods
      *
      * @param Pattern $pattern
      *
-     * @return $this
+     * @return static
      */
-    public function pattern(Pattern $pattern)
+    public function pattern(Pattern $pattern): self
     {
         $this->context->addGate(function (Route $route) use ($pattern) {
             return new Route\Gate\PatternGate($pattern, $route);
@@ -61,9 +61,9 @@ trait GateBuildMethods
      * @param string $path
      * @param array  $regexp
      *
-     * @return $this
+     * @return static
      */
-    public function path(string $path, array $regexp = [])
+    public function path(string $path, array $regexp = []): self
     {
         $this->context->addGate(function (Route $route) use ($path, $regexp) {
             $segments = explode('/', trim($path, '/'));
@@ -83,9 +83,9 @@ trait GateBuildMethods
      *
      * @param callable $callback function(ServerRequestInterface): ?ServerRequestInterface
      *
-     * @return $this
+     * @return static
      */
-    public function callbackGate(callable $callback)
+    public function callbackGate(callable $callback): self
     {
         $this->context->addGate(function (Route $route) use ($callback) {
             return new Route\Gate\CallbackGateway($callback, $route);
@@ -98,9 +98,9 @@ trait GateBuildMethods
      *
      * @param MiddlewareInterface $middleware
      *
-     * @return $this
+     * @return static
      */
-    public function middleware(MiddlewareInterface $middleware)
+    public function middleware(MiddlewareInterface $middleware): self
     {
         $this->context->addGate(function (Route $route) use ($middleware) {
             return new Route\Gate\MiddlewareGateway($middleware, $route);
@@ -114,9 +114,9 @@ trait GateBuildMethods
      *
      * @param $routeReference
      *
-     * @return $this
+     * @return static
      */
-    public function link(&$routeReference)
+    public function link(&$routeReference): self
     {
         $this->context->addGate(function (Route $route) use (&$routeReference) {
             $routeReference = $route;
@@ -125,37 +125,37 @@ trait GateBuildMethods
         return $this;
     }
 
-    public function get(Pattern $pattern = null)
+    public function get(Pattern $pattern = null): self
     {
         return $this->method('GET', $pattern);
     }
 
-    public function post(Pattern $pattern = null)
+    public function post(Pattern $pattern = null): self
     {
         return $this->method('POST', $pattern);
     }
 
-    public function put(Pattern $pattern = null)
+    public function put(Pattern $pattern = null): self
     {
         return $this->method('PUT', $pattern);
     }
 
-    public function patch(Pattern $pattern = null)
+    public function patch(Pattern $pattern = null): self
     {
         return $this->method('PATCH', $pattern);
     }
 
-    public function delete(Pattern $pattern = null)
+    public function delete(Pattern $pattern = null): self
     {
         return $this->method('DELETE', $pattern);
     }
 
-    public function head(Pattern $pattern = null)
+    public function head(Pattern $pattern = null): self
     {
         return $this->method('HEAD', $pattern);
     }
 
-    public function options(Pattern $pattern = null)
+    public function options(Pattern $pattern = null): self
     {
         return $this->method('OPTIONS', $pattern);
     }

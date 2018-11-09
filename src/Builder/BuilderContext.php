@@ -67,7 +67,7 @@ class BuilderContext implements Builder
     /**
      * @param callable $routeWrapper function(Route): Route
      */
-    public function addGate(callable $routeWrapper)
+    public function addGate(callable $routeWrapper): void
     {
         $this->gates[] = $routeWrapper;
     }
@@ -110,7 +110,7 @@ class BuilderContext implements Builder
         $this->route = $this->wrapRoute($route);
     }
 
-    public function setBuilder(Builder $builder)
+    public function setBuilder(Builder $builder): void
     {
         $this->stateCheck();
         $this->builder = $builder;

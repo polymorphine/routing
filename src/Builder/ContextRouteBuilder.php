@@ -216,7 +216,7 @@ class ContextRouteBuilder implements Builder
         return $this->contextBuilder(new ResourceSwitchBuilder($this->context, $routes));
     }
 
-    private function contextBuilder($builder)
+    private function contextBuilder(Builder $builder)
     {
         $this->context->setBuilder($builder);
         return $builder;

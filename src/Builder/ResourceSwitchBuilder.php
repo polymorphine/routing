@@ -34,7 +34,7 @@ class ResourceSwitchBuilder implements Builder
         $this->routes  = $routes + ['GET' => null, 'INDEX' => null, 'NEW' => null, 'EDIT' => null];
     }
 
-    public function id(string $name, string $regexp = null)
+    public function id(string $name, string $regexp = null): self
     {
         $this->idName = $name;
         return $regexp ? $this->withIdRegexp($regexp) : $this;
