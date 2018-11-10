@@ -63,14 +63,16 @@ class FakeResponse implements ResponseInterface
 
     public function withHeader($name, $value)
     {
-        $this->headers[$name] = $value;
-        return $this;
+        $clone = clone $this;
+        $clone->headers[$name] = [$value];
+        return $clone;
     }
 
     public function withAddedHeader($name, $value)
     {
-        $this->headers[$name][] = $value;
-        return $this;
+        $clone = clone $this;
+        $clone->headers[$name][] = $value;
+        return $clone;
     }
 
     public function withoutHeader($name)
@@ -84,8 +86,9 @@ class FakeResponse implements ResponseInterface
 
     public function withBody(StreamInterface $body)
     {
-        $this->body = $body;
-        return $this;
+        $clone = clone $this;
+        $clone->body = $body;
+        return $clone;
     }
 
     public function getStatusCode()
@@ -95,8 +98,9 @@ class FakeResponse implements ResponseInterface
 
     public function withStatus($code, $reasonPhrase = '')
     {
-        $this->status = $code;
-        return $this;
+        $clone = clone $this;
+        $clone->status = $code;
+        return $clone;
     }
 
     public function getReasonPhrase()

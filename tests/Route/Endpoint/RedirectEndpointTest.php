@@ -30,7 +30,7 @@ class RedirectEndpointTest extends TestCase
     {
         $response = $this->redirect('/foo/bar')->forward(new FakeServerRequest(), new FakeResponse());
         $this->assertSame(301, $response->getStatusCode());
-        $this->assertSame('/foo/bar', $response->headers['Location']);
+        $this->assertSame(['/foo/bar'], $response->headers['Location']);
     }
 
     private function redirect(string $uri)

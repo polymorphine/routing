@@ -136,7 +136,7 @@ class ContextRouteBuilderTest extends TestCase
         $request   = new FakeServerRequest();
         $prototype = new FakeResponse();
         $response  = $route->forward($request->withAttribute('middleware', 'requestPassed'), $prototype);
-        $this->assertSame($endpoint, $response);
+        $this->assertNotSame($response, $prototype);
         $this->assertSame('requestPassed: wrap body wrap', (string) $response->getBody());
     }
 
@@ -282,7 +282,7 @@ class ContextRouteBuilderTest extends TestCase
         $router   = new Router($builder->build(), new FakeUri(), new FakeResponse());
         $request  = new FakeServerRequest('GET', FakeUri::fromString('/redirect'));
         $response = $router->handle($request);
-        $this->assertSame('/admin/redirected', $response->getHeader('Location'));
+        $this->assertSame(['/admin/redirected'], $response->getHeader('Location'));
         $this->assertSame(301, $response->getStatusCode());
     }
 
