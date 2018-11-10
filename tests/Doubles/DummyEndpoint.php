@@ -20,6 +20,7 @@ class DummyEndpoint extends Endpoint
 {
     public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
     {
-        return $prototype->withStatus(200);
+        return parent::options($request, $prototype)
+            ?: $prototype->withStatus(200);
     }
 }

@@ -30,6 +30,7 @@ class CallbackEndpoint extends Endpoint
 
     public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
     {
-        return ($this->callback)($request);
+        return parent::options($request, $prototype)
+            ?: ($this->callback)($request);
     }
 }

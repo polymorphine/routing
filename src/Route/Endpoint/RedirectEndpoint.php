@@ -33,6 +33,7 @@ class RedirectEndpoint extends Endpoint
 
     public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
     {
-        return $prototype->withStatus($this->statusCode)->withHeader('Location', ($this->uriCallback)());
+        return parent::options($request, $prototype)
+            ?: $prototype->withStatus($this->statusCode)->withHeader('Location', ($this->uriCallback)());
     }
 }

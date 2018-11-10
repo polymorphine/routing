@@ -14,6 +14,8 @@ namespace Polymorphine\Routing\Tests\Route\Gate;
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\MethodGate;
+use Polymorphine\Routing\Tests\Doubles\DummyEndpoint;
+use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\RoutingTestMethods;
 use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
@@ -64,6 +66,16 @@ class MethodGateTest extends TestCase
     {
         $route = $this->gate('GET', MockedRoute::withUri('next'));
         $this->assertSame('next', $route->uri(new FakeUri(), [])->getPath());
+    }
+
+    public function testForwardedOptionsRequest_ReturnsResponseWithAllowedMethodFromTestedMethods()
+    {
+        $methodsAllowed = 'PATCH|PUT|DELETE';
+        $methodsTested  = ['GET', 'POST', 'PATCH', 'PUT'];
+
+        $request = (new FakeServerRequest('OPTIONS'))->withAttribute(Route::METHODS_ATTRIBUTE, $methodsTested);
+        $route   = $this->gate($methodsAllowed, new DummyEndpoint());
+        $this->assertSame(['PATCH, PUT'], $route->forward($request, new FakeResponse())->getHeader('Allow'));
     }
 
     private function gate(string $methods = 'GET', Route $route = null)

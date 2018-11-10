@@ -35,7 +35,8 @@ class HandlerFactoryEndpoint extends Endpoint
 
     public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
     {
-        return $this->factory()->createHandler($this->container)->handle($request);
+        return parent::options($request, $prototype)
+            ?: $this->factory()->createHandler($this->container)->handle($request);
     }
 
     private function factory(): RequestHandlerFactory

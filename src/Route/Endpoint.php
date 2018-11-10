@@ -31,4 +31,12 @@ abstract class Endpoint implements Route
     {
         return $prototype;
     }
+
+    protected function options(ServerRequestInterface $request, ResponseInterface $prototype): ?ResponseInterface
+    {
+        if ($request->getMethod() !== 'OPTIONS') { return null; }
+
+        $methods = $request->getAttribute(self::METHODS_ATTRIBUTE);
+        return $methods ? $prototype->withHeader('Allow', implode(', ', $methods)) : null;
+    }
 }

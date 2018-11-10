@@ -18,8 +18,9 @@ use Psr\Http\Message\UriInterface;
 
 interface Route
 {
-    public const PATH_SEPARATOR = '.';
-    public const PATH_ATTRIBUTE = 'route.path';
+    public const PATH_SEPARATOR    = '.';
+    public const PATH_ATTRIBUTE    = 'route.path';
+    public const METHODS_ATTRIBUTE = 'route.methods';
 
     /**
      * Forward $request and handle it from matching endpoint Route(s).

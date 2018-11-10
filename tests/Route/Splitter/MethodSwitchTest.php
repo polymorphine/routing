@@ -17,6 +17,7 @@ use Polymorphine\Routing\Route\Splitter\MethodSwitch;
 use Polymorphine\Routing\Exception\EndpointCallException;
 use Polymorphine\Routing\Tests\RoutingTestMethods;
 use Polymorphine\Routing\Tests\Doubles\MockedRoute;
+use Polymorphine\Routing\Tests\Doubles\DummyEndpoint;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
@@ -119,6 +120,16 @@ class MethodSwitchTest extends TestCase
             'POST' => MockedRoute::withUri('post')
         ], 'GET');
         $this->assertSame('get/implicit', (string) $splitter->uri(new FakeUri(), []));
+    }
+
+    public function testForwardedOptionsRequest_ReturnsResponseWithAllowedMethodFromTestedMethods()
+    {
+        $methodsAllowed = ['GET', 'POST', 'PUT', 'DELETE'];
+        $methodsTested  = ['GET', 'PUT', 'DELETE', 'PATCH'];
+
+        $splitter = new MethodSwitch(array_fill_keys($methodsAllowed, new DummyEndpoint()));
+        $request  = (new FakeServerRequest('OPTIONS'))->withAttribute(Route::METHODS_ATTRIBUTE, $methodsTested);
+        $this->assertSame(['GET, PUT, DELETE'], $splitter->forward($request, new FakeResponse())->getHeader('Allow'));
     }
 
     private function splitter(array $methods = ['POST', 'GET', 'PUT', 'PATCH', 'DELETE']): MethodSwitch

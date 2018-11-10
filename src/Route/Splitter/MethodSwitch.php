@@ -13,8 +13,8 @@ namespace Polymorphine\Routing\Route\Splitter;
 
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Exception;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\UriInterface;
 
 
@@ -35,10 +35,14 @@ class MethodSwitch implements Route
         $this->implicit = $this->routes[$implicit] ?? null;
     }
 
-    public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
+    public function forward(Request $request, Response $prototype): Response
     {
-        $route = $this->routes[$request->getMethod()] ?? null;
-        return ($route) ? $route->forward($request, $prototype) : $prototype;
+        $method = $request->getMethod();
+        if (!$route = $this->routes[$method] ?? null) {
+            return ($method === 'OPTIONS') ? $this->options($request, $prototype) : $prototype;
+        }
+
+        return $route->forward($request, $prototype);
     }
 
     public function select(string $path): Route
@@ -57,5 +61,24 @@ class MethodSwitch implements Route
             return $this->implicit->uri($prototype, $params);
         }
         throw new Exception\EndpointCallException('Cannot resolve specific Uri for switch route');
+    }
+
+    private function options(Request $request, Response $prototype): Response
+    {
+        $methods = array_filter(
+            $request->getAttribute(self::METHODS_ATTRIBUTE, []),
+            $this->checkEndpointCallback($request, $prototype)
+        );
+        return $methods ? $prototype->withHeader('Allow', implode(', ', $methods)) : $prototype;
+    }
+
+    private function checkEndpointCallback(Request $request, Response $prototype): callable
+    {
+        return function ($method) use ($request, $prototype) {
+            if (!isset($this->routes[$method])) { return false; }
+
+            $request = $request->withAttribute(self::METHODS_ATTRIBUTE, [$method]);
+            return $this->routes[$method]->forward($request, $prototype) !== $prototype;
+        };
     }
 }
