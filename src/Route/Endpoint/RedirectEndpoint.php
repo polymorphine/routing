@@ -31,9 +31,8 @@ class RedirectEndpoint extends Endpoint
         $this->statusCode  = $statusCode;
     }
 
-    public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
+    protected function execute(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
     {
-        return parent::options($request, $prototype)
-            ?: $prototype->withStatus($this->statusCode)->withHeader('Location', ($this->uriCallback)());
+        return $prototype->withStatus($this->statusCode)->withHeader('Location', ($this->uriCallback)());
     }
 }

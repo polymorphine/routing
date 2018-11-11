@@ -12,19 +12,22 @@
 namespace Polymorphine\Routing\Route;
 
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Exception\SwitchCallException;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use Polymorphine\Routing\Exception;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\UriInterface;
 
 
 abstract class Endpoint implements Route
 {
-    abstract public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface;
+    public function forward(Request $request, Response $prototype): Response
+    {
+        return $this->optionsResponse($request, $prototype) ?: $this->execute($request, $prototype);
+    }
 
     public function select(string $path): Route
     {
-        throw new SwitchCallException(sprintf('Gateway not found for path `%s`', $path));
+        throw new Exception\SwitchCallException(sprintf('Gateway not found for path `%s`', $path));
     }
 
     public function uri(UriInterface $prototype, array $params): UriInterface
@@ -32,7 +35,9 @@ abstract class Endpoint implements Route
         return $prototype;
     }
 
-    protected function options(ServerRequestInterface $request, ResponseInterface $prototype): ?ResponseInterface
+    abstract protected function execute(Request $request, Response $prototype): Response;
+
+    private function optionsResponse(Request $request, Response $prototype): ?Response
     {
         if ($request->getMethod() !== 'OPTIONS') { return null; }
 

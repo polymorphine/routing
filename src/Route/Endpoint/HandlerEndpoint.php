@@ -26,9 +26,8 @@ class HandlerEndpoint extends Endpoint
         $this->handler = $handler;
     }
 
-    public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
+    protected function execute(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
     {
-        return parent::options($request, $prototype)
-            ?: $this->handler->handle($request);
+        return $this->handler->handle($request);
     }
 }

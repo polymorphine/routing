@@ -18,9 +18,8 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class DummyEndpoint extends Endpoint
 {
-    public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
+    protected function execute(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
     {
-        return parent::options($request, $prototype)
-            ?: $prototype->withStatus(200);
+        return $prototype->withStatus(200);
     }
 }

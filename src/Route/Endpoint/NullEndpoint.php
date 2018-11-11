@@ -25,6 +25,11 @@ class NullEndpoint extends Endpoint
 {
     public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
     {
+        return $this->execute($request, $prototype);
+    }
+
+    protected function execute(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
+    {
         return $prototype;
     }
 }
