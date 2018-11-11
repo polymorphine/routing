@@ -30,14 +30,14 @@ class MethodGate implements Route
      */
     public function __construct(string $methods, Route $route)
     {
-        $this->methods = array_flip(explode(static::METHOD_SEPARATOR, $methods));
+        $this->methods = explode(static::METHOD_SEPARATOR, $methods);
         $this->route   = $route;
     }
 
     public function forward(Request $request, Response $prototype): Response
     {
         $method = $request->getMethod();
-        if (!isset($this->methods[$method])) {
+        if (!in_array($method, $this->methods)) {
             return ($method === 'OPTIONS') ? $this->options($request, $prototype) : $prototype;
         }
 
@@ -56,20 +56,10 @@ class MethodGate implements Route
 
     private function options(Request $request, Response $prototype): Response
     {
-        $methods = array_filter(
-            $request->getAttribute(self::METHODS_ATTRIBUTE, []),
-            $this->checkEndpointCallback($request, $prototype)
-        );
-        return $methods ? $prototype->withHeader('Allow', implode(', ', $methods)) : $prototype;
-    }
+        $methods = array_intersect($request->getAttribute(self::METHODS_ATTRIBUTE, []), $this->methods);
+        if (!$methods) { return $prototype; }
 
-    private function checkEndpointCallback(Request $request, Response $prototype): callable
-    {
-        return function ($method) use ($request, $prototype) {
-            if (!isset($this->methods[$method])) { return false; }
-
-            $request = $request->withAttribute(self::METHODS_ATTRIBUTE, [$method]);
-            return $this->route->forward($request, $prototype) !== $prototype;
-        };
+        $request = $request->withAttribute(self::METHODS_ATTRIBUTE, $methods);
+        return $this->route->forward($request, $prototype);
     }
 }
