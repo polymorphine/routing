@@ -38,11 +38,12 @@ class MethodSwitch implements Route
     public function forward(Request $request, Response $prototype): Response
     {
         $method = $request->getMethod();
-        if (!$route = $this->routes[$method] ?? null) {
-            return ($method === 'OPTIONS') ? $this->options($request, $prototype) : $prototype;
+        if ($method === 'OPTIONS') {
+            return $this->options($request, $prototype);
         }
 
-        return $route->forward($request, $prototype);
+        $route = $this->methodRoute($method);
+        return $route ? $route->forward($request, $prototype) : $prototype;
     }
 
     public function select(string $path): Route
@@ -65,6 +66,10 @@ class MethodSwitch implements Route
 
     private function options(Request $request, Response $prototype): Response
     {
+        if ($route = $this->methodRoute('OPTIONS')) {
+            return $route->forward($request->withoutAttribute(self::METHODS_ATTRIBUTE), $prototype);
+        }
+
         $methods = array_filter(
             $request->getAttribute(self::METHODS_ATTRIBUTE, []),
             $this->checkEndpointCallback($request, $prototype)
@@ -80,5 +85,10 @@ class MethodSwitch implements Route
             $request = $request->withAttribute(self::METHODS_ATTRIBUTE, [$method]);
             return $this->routes[$method]->forward($request, $prototype) !== $prototype;
         };
+    }
+
+    private function methodRoute(string $method): ?Route
+    {
+        return $this->routes[$method] ?? null;
     }
 }

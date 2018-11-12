@@ -167,5 +167,8 @@ class FakeServerRequest implements ServerRequestInterface
 
     public function withoutAttribute($name)
     {
+        $clone = clone $this;
+        unset($clone->attr[$name]);
+        return $clone;
     }
 }

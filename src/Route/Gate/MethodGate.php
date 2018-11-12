@@ -37,11 +37,11 @@ class MethodGate implements Route
     public function forward(Request $request, Response $prototype): Response
     {
         $method = $request->getMethod();
-        if (!in_array($method, $this->methods)) {
-            return ($method === 'OPTIONS') ? $this->options($request, $prototype) : $prototype;
+        if ($method === 'OPTIONS') {
+            return $this->options($request, $prototype);
         }
 
-        return $this->route->forward($request, $prototype);
+        return $this->isAllowed($method) ? $this->route->forward($request, $prototype) : $prototype;
     }
 
     public function select(string $path): Route
@@ -56,10 +56,19 @@ class MethodGate implements Route
 
     private function options(Request $request, Response $prototype): Response
     {
+        if ($this->isAllowed('OPTIONS')) {
+            return $this->route->forward($request->withoutAttribute(self::METHODS_ATTRIBUTE), $prototype);
+        }
+
         $methods = array_intersect($request->getAttribute(self::METHODS_ATTRIBUTE, []), $this->methods);
         if (!$methods) { return $prototype; }
 
         $request = $request->withAttribute(self::METHODS_ATTRIBUTE, $methods);
         return $this->route->forward($request, $prototype);
+    }
+
+    private function isAllowed(string $method): bool
+    {
+        return in_array($method, $this->methods, true);
     }
 }

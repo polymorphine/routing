@@ -122,7 +122,7 @@ class MethodSwitchTest extends TestCase
         $this->assertSame('get/implicit', (string) $splitter->uri(new FakeUri(), []));
     }
 
-    public function testForwardedOptionsRequest_ReturnsResponseWithAllowedMethodFromTestedMethods()
+    public function testWhenAnyOfTestedMethodsIsAllowed_ForwardedOptionsRequest_ReturnsResponseWithAllowedMethods()
     {
         $methodsAllowed = ['GET', 'POST', 'PUT', 'DELETE'];
         $methodsTested  = ['GET', 'PUT', 'DELETE', 'PATCH'];
@@ -130,6 +130,28 @@ class MethodSwitchTest extends TestCase
         $splitter = new MethodSwitch(array_fill_keys($methodsAllowed, new DummyEndpoint()));
         $request  = (new FakeServerRequest('OPTIONS'))->withAttribute(Route::METHODS_ATTRIBUTE, $methodsTested);
         $this->assertSame(['GET, PUT, DELETE'], $splitter->forward($request, new FakeResponse())->getHeader('Allow'));
+    }
+
+    public function testWhenNoneOfTestedMethodsIsAllowed_ForwardedOptionRequest_ReturnsPrototypeResponse()
+    {
+        $methodsAllowed = ['POST', 'PATCH'];
+        $methodsTested  = ['GET', 'PUT', 'DELETE'];
+
+        $splitter  = new MethodSwitch(array_fill_keys($methodsAllowed, new DummyEndpoint()));
+        $request   = (new FakeServerRequest('OPTIONS'))->withAttribute(Route::METHODS_ATTRIBUTE, $methodsTested);
+        $prototype = new FakeResponse();
+        $this->assertSame($prototype, $splitter->forward($request, $prototype));
+    }
+
+    public function testWhenOptionsRouteIsDefined_ForwardedOptionsRequest_ReturnsStandardEndpointResponse()
+    {
+        $methodsAllowed = ['GET', 'POST', 'OPTIONS', 'DELETE'];
+        $methodsTested  = ['GET', 'PUT', 'DELETE', 'PATCH'];
+
+        $response = new FakeResponse();
+        $splitter = new MethodSwitch(array_fill_keys($methodsAllowed, new MockedRoute($response)));
+        $request  = (new FakeServerRequest('OPTIONS'))->withAttribute(Route::METHODS_ATTRIBUTE, $methodsTested);
+        $this->assertSame($response, $splitter->forward($request, new FakeResponse()));
     }
 
     private function splitter(array $methods = ['POST', 'GET', 'PUT', 'PATCH', 'DELETE']): MethodSwitch

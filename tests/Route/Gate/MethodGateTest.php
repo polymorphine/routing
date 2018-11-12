@@ -89,6 +89,17 @@ class MethodGateTest extends TestCase
         $this->assertSame($prototype, $route->forward($request, $prototype));
     }
 
+    public function testWhenOptionsRouteIsDefined_ForwardedOptionsRequest_ReturnsStandardEndpointResponse()
+    {
+        $methodsAllowed = 'PATCH|PUT|OPTIONS';
+        $methodsTested  = ['PATCH', 'PUT'];
+
+        $request  = (new FakeServerRequest('OPTIONS'))->withAttribute(Route::METHODS_ATTRIBUTE, $methodsTested);
+        $response = new FakeResponse();
+        $route    = $this->gate($methodsAllowed, new MockedRoute($response));
+        $this->assertSame($response, $route->forward($request, new FakeResponse()));
+    }
+
     private function gate(string $methods = 'GET', Route $route = null)
     {
         return new MethodGate($methods, $route ?? MockedRoute::response('forwarded'));
