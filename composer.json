@@ -1,6 +1,6 @@
 {
     "name": "polymorphine/routing",
-    "description": "PHP Router for HTTP applications",
+    "description": "Composite routing library for HTTP applications",
     "type": "library",
     "minimum-stability": "dev",
     "prefer-stable": true,
