@@ -26,4 +26,4 @@ class names & their constructors that would be used in direct composition.
 It is also more readable due to the fact that builder method calls _resemble execution
 path_ in instantiated tree.
 
-![Routing diagram](https://user-images.githubusercontent.com/9908030/44315300-1c469b00-a423-11e8-87ec-7f21ce6df5e0.png)
+![Routing diagram](https://user-images.githubusercontent.com/9908030/48396602-47d3db80-e71b-11e8-9eca-d2cf2e773d37.png)
