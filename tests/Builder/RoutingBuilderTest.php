@@ -12,7 +12,7 @@
 namespace Polymorphine\Routing\Tests\Builder;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Builder\BuilderRoot;
+use Polymorphine\Routing\Builder\RoutingBuilder;
 use Polymorphine\Routing\Builder\ContextRouteBuilder;
 use Polymorphine\Routing\Builder\DiscreteRouteBuilder;
 use Polymorphine\Routing\Builder\Exception\BuilderLogicException;
@@ -25,49 +25,49 @@ use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
 
 
-class BuilderRootTest extends TestCase
+class RoutingBuilderTest extends TestCase
 {
     public function testInstantiation()
     {
-        $this->assertInstanceOf(BuilderRoot::class, $this->root());
+        $this->assertInstanceOf(RoutingBuilder::class, $this->root());
     }
 
     public function testRouterMethodWithoutSetup_ThrowsException()
     {
         $this->expectException(BuilderLogicException::class);
-        $this->root()->createRouter();
+        $this->root()->router();
     }
 
     public function testWithContextSetupRouterMethod_ReturnsRouter()
     {
         $root = $this->root();
-        $root->rootContextBuilder()->callback(function () {});
-        $this->assertInstanceOf(Router::class, $root->createRouter());
+        $root->rootNode()->callback(function () {});
+        $this->assertInstanceOf(Router::class, $root->router());
     }
 
     public function testSecondRootContext_ThrowsException()
     {
         $root = $this->root();
-        $root->rootContextBuilder();
+        $root->rootNode();
         $this->expectException(BuilderLogicException::class);
-        $root->rootContextBuilder();
+        $root->rootNode();
     }
 
     public function testEndpointMethod_ReturnsEndpointSetup()
     {
         $root = $this->root();
-        $this->assertInstanceOf(DiscreteRouteBuilder::class, $root->discreteBuilder());
+        $this->assertInstanceOf(DiscreteRouteBuilder::class, $root->route());
     }
 
     public function testBuilderMethod_ReturnsRouteBuilder()
     {
         $root = $this->root();
-        $this->assertInstanceOf(ContextRouteBuilder::class, $root->newContextBuilder());
+        $this->assertInstanceOf(ContextRouteBuilder::class, $root->detachedNode());
     }
 
     public function testWithoutContainerBuilderContextFactoryRoute_ThrowsException()
     {
-        $builder = $this->root()->rootContextBuilder();
+        $builder = $this->root()->rootNode();
         $this->expectException(BuilderLogicException::class);
         $builder->factory(FakeHandlerFactory::class);
     }
@@ -76,14 +76,14 @@ class BuilderRootTest extends TestCase
     {
         $root = $this->root();
         $root->useContainer(new FakeContainer());
-        $builder = $root->rootContextBuilder();
+        $builder = $root->rootNode();
         $builder->factory(FakeHandlerFactory::class);
         $this->assertInstanceOf(HandlerFactoryEndpoint::class, $builder->build());
     }
 
     public function testWithoutRouterCallbackBuilderContextRedirectRoute_ThrowsException()
     {
-        $builder = $this->root()->rootContextBuilder();
+        $builder = $this->root()->rootNode();
         $this->expectException(BuilderLogicException::class);
         $builder->redirect('routing.path');
     }
@@ -92,13 +92,13 @@ class BuilderRootTest extends TestCase
     {
         $root = $this->root();
         $root->useContainer(new FakeContainer(), 'container.routerId');
-        $builder = $root->rootContextBuilder();
+        $builder = $root->rootNode();
         $builder->redirect('routing.path');
         $this->assertInstanceOf(RedirectEndpoint::class, $builder->build());
     }
 
-    private function root(): BuilderRoot
+    private function root(): RoutingBuilder
     {
-        return new BuilderRoot(new FakeUri(), new FakeResponse());
+        return new RoutingBuilder(new FakeUri(), new FakeResponse());
     }
 }

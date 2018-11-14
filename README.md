@@ -22,7 +22,7 @@ hard to read by looking at large nested structure or its dependencies assembled
 together, but instantiated in order that is reversed to execution flow (nested
 structure instantiated first).
 
-[`RouteBuilder`](src/Builder/RouteBuilder.php) is a part of this package to help with
+[`RoutingBuilder`](src/Builder/RoutingBuilder.php) is a part of this package to help with
 the problem. It uses _fluent interface with expressive method names_ - more concise than
 class names & their constructors that would be used in direct composition.
 It is also more readable due to the fact that builder method calls _resemble execution

@@ -18,7 +18,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 
 
-class BuilderRoot
+class RoutingBuilder
 {
     private $baseUri;
     private $nullResponse;
@@ -52,17 +52,15 @@ class BuilderRoot
         $this->routerCallback = $routerCallback;
     }
 
-    public function discreteBuilder(): DiscreteRouteBuilder
+    public function router(): Router
     {
-        return new DiscreteRouteBuilder($this->createContext());
+        if (!$this->builder) {
+            throw new Exception\BuilderLogicException('Root builder not defined');
+        }
+        return new Router($this->builder->build(), $this->baseUri, $this->nullResponse);
     }
 
-    public function newContextBuilder(): ContextRouteBuilder
-    {
-        return new ContextRouteBuilder($this->createContext());
-    }
-
-    public function rootContextBuilder(): ContextRouteBuilder
+    public function rootNode(): ContextRouteBuilder
     {
         if ($this->builder) {
             throw new Exception\BuilderLogicException('Root builder already defined');
@@ -71,12 +69,14 @@ class BuilderRoot
         return new ContextRouteBuilder($this->builder);
     }
 
-    public function createRouter(): Router
+    public function detachedNode(): ContextRouteBuilder
     {
-        if (!$this->builder) {
-            throw new Exception\BuilderLogicException('Root builder not defined');
-        }
-        return new Router($this->builder->build(), $this->baseUri, $this->nullResponse);
+        return new ContextRouteBuilder($this->createContext());
+    }
+
+    public function route(): DiscreteRouteBuilder
+    {
+        return new DiscreteRouteBuilder($this->createContext());
     }
 
     private function createContext(): BuilderContext
