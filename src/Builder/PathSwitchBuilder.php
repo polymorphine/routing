@@ -42,16 +42,23 @@ class PathSwitchBuilder implements Builder
         return $this->route($name)->resource($routes);
     }
 
-    public function root(Route $root): void
+    public function root(): ContextRouteBuilder
     {
         if ($this->rootRoute) {
             throw new Exception\BuilderLogicException('Root path route already defined');
         }
-        $this->rootRoute = $root;
+
+        $this->rootRoute = Route\Splitter\PathSwitch::ROOT_PATH;
+        return $this->addBuilder($this->rootRoute);
     }
 
     protected function router(array $routes): Route
     {
-        return new Route\Splitter\PathSwitch($routes, $this->rootRoute);
+        if ($this->rootRoute && isset($routes[$this->rootRoute])) {
+            $rootRoute = $routes[$this->rootRoute];
+            unset($routes[$this->rootRoute]);
+        }
+
+        return new Route\Splitter\PathSwitch($routes, $rootRoute ?? null);
     }
 }

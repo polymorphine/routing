@@ -15,9 +15,7 @@ use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Builder\ResourceSwitchBuilder;
 use Polymorphine\Routing\Builder\PathSwitchBuilder;
 use Polymorphine\Routing\Builder\Exception\BuilderLogicException;
-use Polymorphine\Routing\Route\Endpoint\CallbackEndpoint;
 use Polymorphine\Routing\Route\Splitter\PathSwitch;
-use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
@@ -63,7 +61,7 @@ class PathSwitchBuilderTest extends TestCase
     {
         $switch = $this->builder();
         $switch->route('dummy')->callback($this->callbackResponse($dummy));
-        $switch->root(new CallbackEndpoint($this->callbackResponse($root)));
+        $switch->root()->callback($this->callbackResponse($root));
         $route = $switch->build();
 
         $prototype = new FakeResponse();
@@ -75,9 +73,9 @@ class PathSwitchBuilderTest extends TestCase
     public function testSettingRootRouteSecondTime_ThrowsException()
     {
         $switch = $this->builder();
-        $switch->root(new MockedRoute());
+        $switch->root();
         $this->expectException(BuilderLogicException::class);
-        $switch->root(new MockedRoute());
+        $switch->root();
     }
 
     public function testAddingRouteWithAlreadyDefinedName_ThrowsException()
