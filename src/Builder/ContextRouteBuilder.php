@@ -132,7 +132,7 @@ class ContextRouteBuilder implements Builder
      *
      * @param null|Route &$route reference to current of future Route
      */
-    public function joinBuilder(?Route &$route): void
+    public function joinLink(?Route &$route): void
     {
         $this->context->setBuilder(new LinkedRouteBuilder($route));
     }

@@ -248,7 +248,7 @@ class ContextRouteBuilderTest extends TestCase
         $split->route('first')->callback($this->callbackResponse($response));
         $split->route('second')->join(new MockedRoute());
 
-        $builder->post()->joinBuilder($link);
+        $builder->post()->joinLink($link);
 
         $this->assertSame($response, $builder->build()->forward(new FakeServerRequest('POST'), self::$prototype));
     }
@@ -259,7 +259,7 @@ class ContextRouteBuilderTest extends TestCase
 
         $split = $builder->get()->link($link)->responseScan();
         $split->route('first')->callback($this->callbackResponse($response));
-        $split->route('second')->joinBuilder($link);
+        $split->route('second')->joinLink($link);
         $this->expectException(Builder\Exception\BuilderLogicException::class);
         $builder->build();
     }
