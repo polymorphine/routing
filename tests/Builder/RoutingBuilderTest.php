@@ -81,17 +81,9 @@ class RoutingBuilderTest extends TestCase
         $this->assertInstanceOf(HandlerFactoryEndpoint::class, $builder->build());
     }
 
-    public function testWithoutRouterCallbackBuilderContextRedirectRoute_ThrowsException()
-    {
-        $builder = $this->root()->rootNode();
-        $this->expectException(BuilderLogicException::class);
-        $builder->redirect('routing.path');
-    }
-
     public function testRouterCallbackIsPassedToBuilderContext()
     {
         $root = $this->root();
-        $root->useContainer(new FakeContainer(), 'container.routerId');
         $builder = $root->rootNode();
         $builder->redirect('routing.path');
         $this->assertInstanceOf(RedirectEndpoint::class, $builder->build());

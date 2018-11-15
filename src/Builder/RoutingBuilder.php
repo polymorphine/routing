@@ -25,10 +25,12 @@ class RoutingBuilder
 
     /** @var ContainerInterface */
     private $container;
-    private $routerCallback;
 
     /** @var Builder */
     private $builder;
+
+    /** @var Router */
+    private $router;
 
     public function __construct(UriInterface $baseUri, ResponseInterface $nullResponse)
     {
@@ -36,28 +38,18 @@ class RoutingBuilder
         $this->nullResponse = $nullResponse;
     }
 
-    public function useContainer(ContainerInterface $container, $routerId = null): void
+    public function useContainer(ContainerInterface $container): void
     {
         $this->container = $container;
-
-        if (!$routerId) { return; }
-        $this->useRouterCallback(function () use ($routerId) { return $this->container->get($routerId); });
-    }
-
-    /**
-     * @param callable $routerCallback function(): Router
-     */
-    public function useRouterCallback(callable $routerCallback): void
-    {
-        $this->routerCallback = $routerCallback;
     }
 
     public function router(): Router
     {
+        if ($this->router) { return $this->router; }
         if (!$this->builder) {
             throw new Exception\BuilderLogicException('Root builder not defined');
         }
-        return new Router($this->builder->build(), $this->baseUri, $this->nullResponse);
+        return $this->router = new Router($this->builder->build(), $this->baseUri, $this->nullResponse);
     }
 
     public function rootNode(): ContextRouteBuilder
@@ -81,6 +73,6 @@ class RoutingBuilder
 
     private function createContext(): BuilderContext
     {
-        return new BuilderContext($this->container, $this->routerCallback);
+        return new BuilderContext($this->container, function () { return $this->router; });
     }
 }
