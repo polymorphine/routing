@@ -28,4 +28,25 @@ class names & their constructors that would be used in direct composition.
 It is also more readable due to the fact that builder method calls _resemble execution
 path_ in instantiated tree.
 
-![Routing diagram](https://user-images.githubusercontent.com/9908030/48396602-47d3db80-e71b-11e8-9eca-d2cf2e773d37.png)
+Diagram below shows control flow of the request passed to matching endpoint in simplified blog page example.
+
+![Routing diagram](https://user-images.githubusercontent.com/9908030/48569332-aeb2e980-e901-11e8-810e-4e447df49ce6.png)
+
+Let's start with it's routing logic description:
+1. Request is passed to the router (root)
+2. Forwarded request goes through CSRF and (if CSRF guard will allow) Authentication gates (let's assume that
+   there are no other registered user roles than admin)
+3. In ResponseScan request is forwarded sequentially through each route until response other than "nullResponse"
+   is returned.
+4. First (default) route will pass request forward only if Authentication marked request as coming from
+   page admin.
+5. If request was forwarded all meaningful endpoints are available, and if user has no authenticated account
+   routes dedicated for unregistered ("guest") user are tested.
+6. Of course "guest" user may access almost all pages in read-only mode, so we can forward
+   his request to the main tree after guest specific or forbidden options are excluded.
+   Next routes will check if user wants to log in, access logout page (which makes no sense so he is redirected)
+   or gain unauthorized access to `/admin` path. Beside these all endpoints should be accessible for guests.
+7. If none of previous routes returned meaningful response only GET requests are allowed to main endpoints tree.
+8. While some endpoint access makes sense from guest perspective it is pointless from admin's - for example admin
+   trying to log in will be redirected to home page. Guests won't be forwarded here, because this case was
+   already resolved for them.
