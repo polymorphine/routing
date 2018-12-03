@@ -108,6 +108,12 @@ trait GateBuildMethods
         return $this;
     }
 
+    public function containerMiddleware(string $middlewareContainerId): self
+    {
+        $this->context->addContainerMiddlewareGate($middlewareContainerId);
+        return $this;
+    }
+
     /**
      * Takes reference variable that can be used to join built routing
      * structure from this point from another routing structure context.

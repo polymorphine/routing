@@ -18,6 +18,11 @@ class FakeContainer implements ContainerInterface
 {
     public $records = [];
 
+    public function __construct(array $records = [])
+    {
+        $this->records = $records;
+    }
+
     public function get($id)
     {
         return $this->records[$id] ?? null;

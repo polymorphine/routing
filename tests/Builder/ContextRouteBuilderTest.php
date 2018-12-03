@@ -140,6 +140,19 @@ class ContextRouteBuilderTest extends TestCase
         $this->assertSame('requestPassed: wrap body wrap', (string) $response->getBody());
     }
 
+    public function testContainerMiddlewareGate()
+    {
+        $builder = $this->builder(new FakeContainer(['middleware.id' => new FakeMiddleware('wrap')]));
+        $builder->containerMiddleware('middleware.id')->callback($this->callbackResponse($endpoint, 'body'));
+        $route = $builder->build();
+
+        $request   = new FakeServerRequest();
+        $prototype = new FakeResponse();
+        $response  = $route->forward($request->withAttribute('middleware', 'requestPassed'), $prototype);
+        $this->assertNotSame($response, $prototype);
+        $this->assertSame('requestPassed: wrap body wrap', (string) $response->getBody());
+    }
+
     public function testRouteWrappedWithMultipleGates()
     {
         $builder = $this->builder();

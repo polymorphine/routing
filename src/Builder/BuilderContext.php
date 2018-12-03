@@ -104,6 +104,14 @@ class BuilderContext implements Builder
         $this->setRoute(new Route\Endpoint\HandlerFactoryEndpoint($factoryCallback, $this->container()));
     }
 
+    public function addContainerMiddlewareGate(string $middlewareContainerId)
+    {
+        $this->addGate(function (Route $route) use ($middlewareContainerId) {
+            $middleware = new ContainerMiddleware($this->container(), $middlewareContainerId);
+            return new Route\Gate\MiddlewareGateway($middleware, $route);
+        });
+    }
+
     public function setRoute(Route $route): void
     {
         $this->stateCheck();
