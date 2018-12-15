@@ -8,13 +8,13 @@
 #### Concept feature: *Tree structure finding matching route and resolving urls*
 Router may consist of individual routes (see [`Route`](src/Route.php) interface) from
 three main categories:
-* **Splitters** - Switches (php keyword) that split incoming single route into multiple
-route paths.
+* **Splitters** - Switches that branch single route into multiple route paths. I didn't
+  use `switch` name because it's a php keyword and IDE messed up formatting.
 * **Gates** - Routes that determine if current request should be forwarded or performs
-some preprocessing based on request passing through.
+  some preprocessing based on request passing through.
 * **Endpoints** - Use case entry points. Routes which only responsibility is to take
-(processed) request and return response. Neither routing path continuations nor uri
-building happens in endpoint routes.
+  (processed) request and return response. Neither routing path continuations nor uri
+  building happens in endpoint routes.
 
 These routes composed in different ways will create unique routing logic, but since
 composition tree may be deep its instantiation using `new` operator may become
@@ -45,8 +45,9 @@ Let's start with it's routing logic description:
 6. Of course "guest" user may access almost all pages in read-only mode, so we can forward
    his request to the main tree after guest specific or forbidden options are excluded.
    Next routes will check if user wants to log in, access logout page (which makes no sense so he is redirected)
-   or gain unauthorized access to `/admin` path. Beside these all endpoints should be accessible for guests.
-7. If none of previous routes returned meaningful response only GET requests are allowed to main endpoints tree.
+   or gain unauthorized access to `/admin` path. Beside these, all other read-only (`GET`) endpoints should be
+   accessible for guests.
+7. If none of previous routes returned meaningful response `GET` requests are allowed to main endpoints tree.
 8. While some endpoint access makes sense from guest perspective it is pointless from admin's - for example admin
    trying to log in will be redirected to home page. Guests won't be forwarded here, because this case was
    already resolved for them.
