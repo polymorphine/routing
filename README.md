@@ -51,3 +51,35 @@ Let's start with it's routing logic description:
 8. While some endpoint access makes sense from guest perspective it is pointless from admin's - for example admin
    trying to log in will be redirected to home page. Guests won't be forwarded here, because this case was
    already resolved for them.
+
+Here's an example showing how to create this structure using routing builder:
+
+    $builder = new RoutingBuilder(new UriPrototype(), new NullResponse());
+    $root    = $builder->rootNode()->middleware(new CsrfMiddleware())->middleware(new AuthMiddleware());
+    
+    $guest = $root->responseScan();
+    $main  = $guest->defaultRoute()->middleware(new UserRoleGate('Admin'))->link($filteredGuestRoute)->pathSwitch();
+    
+    $guest->route()->path('/login')->methodSwitch([
+        'GET'  => new CallbackEndpoint($callback),
+        'POST' => new CallbackEndpoint($callback)
+    ]);
+    $guest->route()->path('/logout')->redirect(Route\Splitter\PathSwitch::ROOT_PATH);
+    $guest->route()->path('/admin')->redirect('login');
+    $guest->route()->method('GET')->joinLink($filteredGuestRoute);
+    $guest->route()->callback(function () { return new NotFoundResponse(); });
+    
+    $main->root()->callback($callback);
+    $admin = $main->route('admin')->methodSwitch();
+    $admin->route('GET')->callback($callback);
+    $admin->route('POST')->callback($callback);
+    $main->route('login')->callback($callback);
+    $main->route('logout')->method('POST')->callback($callback);
+    $articles = $main->resource('articles');
+    $articles->index()->callback($callback);
+    $articles->get()->callback($callback);
+    $articles->post()->callback($callback);
+    $articles->patch()->callback($callback);
+    $articles->delete()->callback($callback);
+    $articles->add()->callback($callback);
+    $articles->edit()->callback($callback);
