@@ -55,10 +55,35 @@ Let's start with it's routing logic description:
 Here's an example showing how to create this structure using routing builder:
 
     $builder = new RoutingBuilder(new UriPrototype(), new NullResponse());
-    $root    = $builder->rootNode()->middleware(new CsrfMiddleware())->middleware(new AuthMiddleware());
+    $root    = $builder->rootNode()
+                       ->middleware(new CsrfMiddleware())
+                       ->middleware(new AuthMiddleware())
+                       ->responseScan();
     
-    $guest = $root->responseScan();
-    $main  = $guest->defaultRoute()->middleware(new UserRoleGate('Admin'))->link($filteredGuestRoute)->pathSwitch();
+    $main  = $root->defaultRoute()
+                  ->callbackGate($checkAdminRoleCallback)
+                  ->link($filteredGuestRoute)
+                  ->pathSwitch();
+    $guest = $root->route()
+                  ->responseScan();
+    
+    $main->root()->callback($callback);
+    
+    $admin = $main->route('admin')->methodSwitch();
+    $admin->route('GET')->callback($callback);
+    $admin->route('POST')->callback($callback);
+    
+    $main->route('login')->callback($callback);
+    $main->route('logout')->method('POST')->callback($callback);
+    
+    $articles = $main->resource('articles');
+    $articles->index()->callback($callback);
+    $articles->get()->callback($callback);
+    $articles->post()->callback($callback);
+    $articles->patch()->callback($callback);
+    $articles->delete()->callback($callback);
+    $articles->add()->callback($callback);
+    $articles->edit()->callback($callback);
     
     $guest->route()->path('/login')->methodSwitch([
         'GET'  => new CallbackEndpoint($callback),
@@ -69,17 +94,3 @@ Here's an example showing how to create this structure using routing builder:
     $guest->route()->method('GET')->joinLink($filteredGuestRoute);
     $guest->route()->callback(function () { return new NotFoundResponse(); });
     
-    $main->root()->callback($callback);
-    $admin = $main->route('admin')->methodSwitch();
-    $admin->route('GET')->callback($callback);
-    $admin->route('POST')->callback($callback);
-    $main->route('login')->callback($callback);
-    $main->route('logout')->method('POST')->callback($callback);
-    $articles = $main->resource('articles');
-    $articles->index()->callback($callback);
-    $articles->get()->callback($callback);
-    $articles->post()->callback($callback);
-    $articles->patch()->callback($callback);
-    $articles->delete()->callback($callback);
-    $articles->add()->callback($callback);
-    $articles->edit()->callback($callback);
