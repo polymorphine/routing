@@ -266,11 +266,58 @@ class ContextRouteBuilderTest extends TestCase
         $this->assertSame($response, $builder->build()->forward(new FakeServerRequest('POST'), self::$prototype));
     }
 
-    public function testLinkBackwardsInStructure_ThrowsException()
+    public function testRoutesCanBeJoinedAfterLinkIsDefined()
+    {
+        $builder = new Builder\RouteScanBuilder();
+        $builder->route('second')->method('POST')->link($link)->callback($this->callbackResponse($response));
+        $builder->route('first')->method('GET')->joinLink($link);
+        $route = $builder->build();
+        $this->assertSame($response, $route->forward(new FakeServerRequest('GET'), self::$prototype));
+        $this->assertSame(self::$prototype, $route->forward(new FakeServerRequest('DELETE'), self::$prototype));
+
+        $builder = new Builder\RouteScanBuilder();
+        $builder->defaultRoute()->method('POST')->link($link)->callback($this->callbackResponse($response));
+        $builder->route('other')->method('GET')->joinLink($link);
+        $route = $builder->build();
+        $this->assertSame($response, $route->forward(new FakeServerRequest('GET'), self::$prototype));
+        $this->assertSame(self::$prototype, $route->forward(new FakeServerRequest('DELETE'), self::$prototype));
+
+        $builder = new Builder\RouteScanBuilder();
+        $builder->route('other')->method('POST')->link($link)->callback($this->callbackResponse($response));
+        $builder->defaultRoute()->method('GET')->joinLink($link);
+        $route = $builder->build();
+        $this->assertSame($response, $route->forward(new FakeServerRequest('GET'), self::$prototype));
+        $this->assertSame(self::$prototype, $route->forward(new FakeServerRequest('DELETE'), self::$prototype));
+    }
+
+    public function testRoutesCanBeJoinedBeforeLinkIsDefined()
+    {
+        $builder = new Builder\RouteScanBuilder();
+        $builder->route('first')->method('GET')->joinLink($link);
+        $builder->route('second')->method('POST')->link($link)->callback($this->callbackResponse($response));
+        $route = $builder->build();
+        $this->assertSame($response, $route->forward(new FakeServerRequest('GET'), self::$prototype));
+        $this->assertSame(self::$prototype, $route->forward(new FakeServerRequest('DELETE'), self::$prototype));
+
+        $builder = new Builder\RouteScanBuilder();
+        $builder->route('other')->method('GET')->joinLink($link);
+        $builder->defaultRoute()->method('POST')->link($link)->callback($this->callbackResponse($response));
+        $route = $builder->build();
+        $this->assertSame($response, $route->forward(new FakeServerRequest('GET'), self::$prototype));
+        $this->assertSame(self::$prototype, $route->forward(new FakeServerRequest('DELETE'), self::$prototype));
+
+        $builder = new Builder\RouteScanBuilder();
+        $builder->route('other')->method('POST')->joinLink($link);
+        $builder->defaultRoute()->method('GET')->link($link)->callback($this->callbackResponse($response));
+        $route = $builder->build();
+        $this->assertSame($response, $route->forward(new FakeServerRequest('GET'), self::$prototype));
+        $this->assertSame(self::$prototype, $route->forward(new FakeServerRequest('DELETE'), self::$prototype));
+    }
+
+    public function testRouteJoinedBackToItsOwnPath_ThrowsException()
     {
         $builder = new Builder\MethodSwitchBuilder();
-
-        $split = $builder->get()->link($link)->responseScan();
+        $split   = $builder->get()->link($link)->responseScan();
         $split->route('first')->callback($this->callbackResponse($response));
         $split->route('second')->joinLink($link);
         $this->expectException(Builder\Exception\BuilderLogicException::class);

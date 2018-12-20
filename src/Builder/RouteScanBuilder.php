@@ -19,8 +19,8 @@ class RouteScanBuilder implements Builder
 {
     use CompositeBuilderMethods;
 
-    /** @var Builder */
-    private $defaultRoute;
+    /** @var bool */
+    private $hasDefaultRoute = false;
 
     public function __construct(?BuilderContext $context = null, array $routes = [])
     {
@@ -30,11 +30,13 @@ class RouteScanBuilder implements Builder
 
     public function defaultRoute(): ContextRouteBuilder
     {
-        if (isset($this->defaultRoute)) {
+        if ($this->hasDefaultRoute) {
             throw new Exception\BuilderLogicException('Default route already set');
         }
 
-        return new ContextRouteBuilder($this->defaultRoute = $this->context->create());
+        array_unshift($this->builders, $defaultRouteBuilder = $this->context->create());
+        $this->hasDefaultRoute = true;
+        return new ContextRouteBuilder($defaultRouteBuilder);
     }
 
     public function route(string $name = null): ContextRouteBuilder
@@ -49,8 +51,11 @@ class RouteScanBuilder implements Builder
 
     protected function router(array $routes): Route
     {
-        return $this->defaultRoute
-            ? new Route\Splitter\RouteScan($routes, $this->defaultRoute->build())
-            : new Route\Splitter\RouteScan($routes);
+        if (!$this->hasDefaultRoute) {
+            return new Route\Splitter\RouteScan($routes);
+        }
+
+        $defaultRoute = array_shift($routes);
+        return new Route\Splitter\RouteScan($routes, $defaultRoute);
     }
 }
