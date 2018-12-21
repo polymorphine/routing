@@ -27,9 +27,9 @@ class MethodSwitch implements Route
 
     /**
      * @param Route[] $routes   associative array with http method keys (GET, POST, PATCH... etc.)
-     * @param string  $implicit
+     * @param string  $implicit method which route will be used for uri build or non-method path selection
      */
-    public function __construct(array $routes, string $implicit = null)
+    public function __construct(array $routes, ?string $implicit = 'GET')
     {
         $this->routes   = $routes;
         $this->implicit = $this->routes[$implicit] ?? null;

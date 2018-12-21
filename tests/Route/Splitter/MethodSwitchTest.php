@@ -108,7 +108,7 @@ class MethodSwitchTest extends TestCase
         $splitter = new MethodSwitch([
             'GET'  => MockedRoute::withUri('get'),
             'POST' => MockedRoute::withUri('post')
-        ]);
+        ], null);
         $this->expectException(EndpointCallException::class);
         $splitter->uri(new FakeUri(), []);
     }
