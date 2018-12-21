@@ -14,8 +14,10 @@ namespace Polymorphine\Routing\Tests\Builder;
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Builder\MethodSwitchBuilder;
 use Polymorphine\Routing\Route\Splitter\MethodSwitch;
+use Polymorphine\Routing\Exception\EndpointCallException;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
+use Polymorphine\Routing\Tests\Doubles\FakeUri;
 use Polymorphine\Routing\Tests\RoutingTestMethods;
 use InvalidArgumentException;
 
@@ -65,6 +67,25 @@ class MethodSwitchBuilderTest extends TestCase
         $this->assertSame($single, $route->forward($request->withMethod('GET'), $prototype));
         $this->assertSame($multiple, $route->forward($request->withMethod('POST'), $prototype));
         $this->assertSame($multiple, $route->forward($request->withMethod('PATCH'), $prototype));
+    }
+
+    public function testImplicitRouteIsPassedToMethodSwitch()
+    {
+        $switch = $this->builder()->implicitPath('POST');
+        $switch->post()->path('routeIMPLICIT')->callback(function () {});
+        $route = $switch->build();
+        $this->assertSame('/routeIMPLICIT', (string) $route->uri(new FakeUri(), []));
+    }
+
+    public function testRemovingImplicitRoute()
+    {
+        $switch = $this->builder()->explicitPath();
+        $switch->post()->path('routePOST')->callback(function () {});
+        $route = $switch->build();
+        $this->assertSame('/routePOST', (string) $route->select('POST')->uri(new FakeUri(), []));
+
+        $this->expectException(EndpointCallException::class);
+        $route->uri(new FakeUri(), []);
     }
 
     public function testEmptyHttpMethodRouteName_ThrowsException()

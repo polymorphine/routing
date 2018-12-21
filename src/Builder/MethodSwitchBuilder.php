@@ -20,12 +20,25 @@ class MethodSwitchBuilder implements Builder
 {
     use CompositeBuilderMethods;
 
+    private $implicitMethod = 'GET';
     private $methods = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'HEAD', 'OPTIONS'];
 
     public function __construct(?BuilderContext $context = null, array $routes = [])
     {
         $this->context = $context ?? new BuilderContext();
         $this->routes  = $routes;
+    }
+
+    public function explicitPath(): self
+    {
+        $this->implicitMethod = null;
+        return $this;
+    }
+
+    public function implicitPath(string $method): self
+    {
+        $this->implicitMethod = $method;
+        return $this;
     }
 
     public function get(): ContextRouteBuilder
@@ -66,7 +79,7 @@ class MethodSwitchBuilder implements Builder
 
     protected function router(array $routes): Route
     {
-        return new Route\Splitter\MethodSwitch($routes);
+        return new Route\Splitter\MethodSwitch($routes, $this->implicitMethod);
     }
 
     protected function validMethod(string $method): string
