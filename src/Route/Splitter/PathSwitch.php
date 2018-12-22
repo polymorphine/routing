@@ -23,19 +23,22 @@ class PathSwitch implements Route
     use RouteSelectMethods;
     use Route\Gate\Pattern\PathContextMethods;
 
-    const ROOT_PATH = 'HOME';
+    public const ROOT_PATH = 'ROOT';
 
-    protected $routes = [];
-    protected $root;
+    private $routes = [];
+    private $root;
+    private $rootLabel;
 
     /**
      * @param Route[] $routes
      * @param Route   $root
+     * @param string  $rootLabel label used to select root path route (if defined)
      */
-    public function __construct(array $routes, ?Route $root = null)
+    public function __construct(array $routes, ?Route $root = null, string $rootLabel = self::ROOT_PATH)
     {
-        $this->routes = $routes;
-        $this->root   = $root;
+        $this->routes    = $routes;
+        $this->root      = $root;
+        $this->rootLabel = $rootLabel;
     }
 
     public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
@@ -54,7 +57,7 @@ class PathSwitch implements Route
 
     public function select(string $path): Route
     {
-        if ($path === static::ROOT_PATH && $this->root) { return $this->root; }
+        if ($path === $this->rootLabel && $this->root) { return $this->root; }
 
         [$id, $path] = $this->splitPath($path);
         return new Route\Gate\PathSegmentGate($id, $this->getRoute($id, $path));
