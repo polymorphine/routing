@@ -20,7 +20,7 @@ class PathSwitchBuilder implements Builder
 {
     use CompositeBuilderMethods;
 
-    private $rootRoute;
+    private $rootLabel;
 
     public function __construct(?BuilderContext $context = null, array $routes = [])
     {
@@ -42,23 +42,24 @@ class PathSwitchBuilder implements Builder
         return $this->route($name)->resource($routes);
     }
 
-    public function root(): ContextRouteBuilder
+    public function root(string $label = null): ContextRouteBuilder
     {
-        if ($this->rootRoute) {
+        if ($this->rootLabel) {
             throw new Exception\BuilderLogicException('Root path route already defined');
         }
 
-        $this->rootRoute = Route\Splitter\PathSwitch::ROOT_PATH;
-        return $this->addBuilder($this->rootRoute);
+        $this->rootLabel = $label ?: Route\Splitter\PathSwitch::ROOT_PATH;
+        return $this->addBuilder($this->rootLabel);
     }
 
     protected function router(array $routes): Route
     {
-        if ($this->rootRoute && isset($routes[$this->rootRoute])) {
-            $rootRoute = $routes[$this->rootRoute];
-            unset($routes[$this->rootRoute]);
+        $rootRoute = $routes[$this->rootLabel] ?? null;
+        if ($rootRoute) {
+            unset($routes[$this->rootLabel]);
+            return new Route\Splitter\PathSwitch($routes, $rootRoute, $this->rootLabel);
         }
 
-        return new Route\Splitter\PathSwitch($routes, $rootRoute ?? null);
+        return new Route\Splitter\PathSwitch($routes);
     }
 }

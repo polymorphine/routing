@@ -68,6 +68,19 @@ class PathSwitchBuilderTest extends TestCase
         $request   = new FakeServerRequest();
         $this->assertSame($root, $route->forward($request->withUri(FakeUri::fromString('')), $prototype));
         $this->assertSame($root, $route->forward($request->withUri(FakeUri::fromString('/')), $prototype));
+        $this->assertSame($root, $route->select(PathSwitch::ROOT_PATH)->forward($request, $prototype));
+    }
+
+    public function testRootRouteWithLabel()
+    {
+        $switch = $this->builder();
+        $switch->route('dummy')->callback($this->callbackResponse($dummy));
+        $switch->root('rootLabel')->callback($this->callbackResponse($root));
+        $route = $switch->build();
+
+        $prototype = new FakeResponse();
+        $request   = new FakeServerRequest();
+        $this->assertSame($root, $route->select('rootLabel')->forward($request->withUri(FakeUri::fromString('/anything')), $prototype));
     }
 
     public function testSettingRootRouteSecondTime_ThrowsException()
