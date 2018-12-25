@@ -64,11 +64,14 @@ class PathSwitchBuilderTest extends TestCase
         $switch->root()->callback($this->callbackResponse($root));
         $route = $switch->build();
 
-        $prototype = new FakeResponse();
-        $request   = new FakeServerRequest();
-        $this->assertSame($root, $route->forward($request->withUri(FakeUri::fromString('')), $prototype));
-        $this->assertSame($root, $route->forward($request->withUri(FakeUri::fromString('/')), $prototype));
-        $this->assertSame($root, $route->select(PathSwitch::ROOT_PATH)->forward($request, $prototype));
+        $prototype           = new FakeResponse();
+        $relativeRootRequest = new FakeServerRequest('GET', FakeUri::fromString(''));
+        $absoluteRootRequest = new FakeServerRequest('GET', FakeUri::fromString('/'));
+
+        $this->assertSame($root, $route->forward($relativeRootRequest, $prototype));
+        $this->assertSame($root, $route->forward($absoluteRootRequest, $prototype));
+        $this->assertSame($root, $route->select(PathSwitch::ROOT_PATH)->forward($relativeRootRequest, $prototype));
+        $this->assertSame($root, $route->select(PathSwitch::ROOT_PATH)->forward($absoluteRootRequest, $prototype));
     }
 
     public function testRootRouteWithLabel()
@@ -78,9 +81,14 @@ class PathSwitchBuilderTest extends TestCase
         $switch->root('rootLabel')->callback($this->callbackResponse($root));
         $route = $switch->build();
 
-        $prototype = new FakeResponse();
-        $request   = new FakeServerRequest();
-        $this->assertSame($root, $route->select('rootLabel')->forward($request->withUri(FakeUri::fromString('/anything')), $prototype));
+        $prototype           = new FakeResponse();
+        $relativeRootRequest = new FakeServerRequest('GET', FakeUri::fromString(''));
+        $absoluteRootRequest = new FakeServerRequest('GET', FakeUri::fromString('/'));
+
+        $this->assertSame($root, $route->forward($relativeRootRequest, $prototype));
+        $this->assertSame($root, $route->forward($absoluteRootRequest, $prototype));
+        $this->assertSame($root, $route->select('rootLabel')->forward($relativeRootRequest, $prototype));
+        $this->assertSame($root, $route->select('rootLabel')->forward($absoluteRootRequest, $prototype));
     }
 
     public function testSettingRootRouteSecondTime_ThrowsException()

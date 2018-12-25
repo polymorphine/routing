@@ -57,7 +57,9 @@ class PathSwitch implements Route
 
     public function select(string $path): Route
     {
-        if ($path === $this->rootLabel && $this->root) { return $this->root; }
+        if ($path === $this->rootLabel && $this->root) {
+            return new Route\Gate\PatternGate(new Route\Gate\Pattern\UriSegment\Path(''), $this->root);
+        }
 
         [$id, $path] = $this->splitPath($path);
         return new Route\Gate\PathSegmentGate($id, $this->getRoute($id, $path));
