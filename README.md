@@ -54,43 +54,44 @@ Let's start with it's routing logic description:
 
 Here's an example showing how to create this structure using routing builder:
 
-    $builder = new RoutingBuilder(new UriPrototype(), new NullResponse());
-    $root    = $builder->rootNode()
-                       ->middleware(new CsrfMiddleware())
-                       ->middleware(new AuthMiddleware())
-                       ->responseScan();
+    /**
+     * assume defined:
+     * UriInterface        $baseUri
+     * ResponseInterface   $nullResponse
+     * MiddlewareInterface $csrf
+     * MiddlewareInterface $auth
+     * callable            $adminGate
+     * callable            $notFound
+     * callable            $this->endpoint(string)
+     */
     
-    $main  = $root->defaultRoute()
-                  ->callbackGate($checkAdminRoleCallback)
-                  ->link($filteredGuestRoute)
-                  ->pathSwitch();
-    $guest = $root->route()
-                  ->responseScan();
+    $builder = new RoutingBuilder($baseUri, $nullResponse);
+    $root    = $builder->rootNode()->middleware($csrf)->middleware($auth)->responseScan();
     
-    $main->root()->callback($callback);
-    
+    $main = $root->defaultRoute()->callbackGate($adminGate)->link($filteredGuestRoute)->pathSwitch();
+    $main->root('home')->callback($this->endpoint('HomePage'));
     $admin = $main->route('admin')->methodSwitch();
-    $admin->route('GET')->callback($callback);
-    $admin->route('POST')->callback($callback);
+    $admin->route('GET')->callback($this->endpoint('AdminPanel'));
+    $admin->route('POST')->callback($this->endpoint('ApplySettings'));
+    $main->route('login')->redirect('home');
+    $main->route('logout')->method('POST')->callback($this->endpoint('Logout'));
+    $articles = $main->resource('articles')->id('id');
+    $articles->index()->callback($this->endpoint('ShowArticles'));
+    $articles->get()->callback($this->endpoint('ShowArticle'));
+    $articles->post()->callback($this->endpoint('AddArticle'));
+    $articles->patch()->callback($this->endpoint('UpdateArticle'));
+    $articles->delete()->callback($this->endpoint('DeleteArticle'));
+    $articles->add()->callback($this->endpoint('AddArticleForm'));
+    $articles->edit()->callback($this->endpoint('EditArticleForm'));
     
-    $main->route('login')->callback($callback);
-    $main->route('logout')->method('POST')->callback($callback);
-    
-    $articles = $main->resource('articles');
-    $articles->index()->callback($callback);
-    $articles->get()->callback($callback);
-    $articles->post()->callback($callback);
-    $articles->patch()->callback($callback);
-    $articles->delete()->callback($callback);
-    $articles->add()->callback($callback);
-    $articles->edit()->callback($callback);
-    
-    $guest->route()->path('/login')->methodSwitch([
-        'GET'  => new CallbackEndpoint($callback),
-        'POST' => new CallbackEndpoint($callback)
+    $root->route()->path('/login')->methodSwitch([
+        'GET'  => new CallbackEndpoint($this->endpoint('LoginPage')),
+        'POST' => new CallbackEndpoint($this->endpoint('Login'))
     ]);
-    $guest->route()->path('/logout')->redirect(Route\Splitter\PathSwitch::ROOT_PATH);
-    $guest->route()->path('/admin')->redirect('login');
-    $guest->route()->method('GET')->joinLink($filteredGuestRoute);
-    $guest->route()->callback(function () { return new NotFoundResponse(); });
-    
+    $root->route()->path('/logout')->redirect('home');
+    $root->route()->path('/admin')->redirect('login');
+    $root->route()->method('GET')->joinLink($filteredGuestRoute);
+    $root->route()->callback($notFound);
+
+    $router = $builder->router();
+
