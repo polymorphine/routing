@@ -18,8 +18,9 @@ use Polymorphine\Routing\Builder\RoutingBuilder;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest as Request;
 use Polymorphine\Routing\Tests\Doubles\FakeUri as Uri;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
@@ -105,26 +106,18 @@ class ReadmeExampleTest extends TestCase
     {
         if ($this->router) { return $this->router; }
 
-        $baseUri      = new Uri();
-        $nullResponse = new FakeResponse();
-        $notFound     = $this->notFound();
-        $csrf         = $this->csrfMiddleware();
-        $auth         = $this->authMiddleware();
-        $adminGate    = $this->adminGate();
+        $this->assertInstanceOf(UriInterface::class, $baseUri = new Uri());
+        $this->assertInstanceOf(ResponseInterface::class, $nullResponse = new FakeResponse());
+        $this->assertInstanceOf(MiddlewareInterface::class, $csrf = $this->csrfMiddleware());
+        $this->assertInstanceOf(MiddlewareInterface::class, $auth = $this->authMiddleware());
+        $this->assertTrue(is_callable($adminGate = $this->adminGate()));
+        $this->assertTrue(is_callable($notFound = $this->notFound()));
+        $this->assertTrue(is_callable($this->endpoint('body-text')));
 
         $builder = new RoutingBuilder($baseUri, $nullResponse);
         $root    = $builder->rootNode()->middleware($csrf)->middleware($auth)->responseScan();
-        $main    = $root->defaultRoute()->callbackGate($adminGate)->link($filteredGuestRoute)->pathSwitch();
 
-        $root->route()->path('/login')->methodSwitch([
-            'GET'  => new CallbackEndpoint($this->endpoint('LoginPage')),
-            'POST' => new CallbackEndpoint($this->endpoint('Login'))
-        ]);
-        $root->route()->path('/logout')->redirect('home');
-        $root->route()->path('/admin')->redirect('login');
-        $root->route()->method('GET')->joinLink($filteredGuestRoute);
-        $root->route()->callback($notFound);
-
+        $main = $root->defaultRoute()->callbackGate($adminGate)->link($filteredGuestRoute)->pathSwitch();
         $main->root('home')->callback($this->endpoint('HomePage'));
         $admin = $main->route('admin')->methodSwitch();
         $admin->route('GET')->callback($this->endpoint('AdminPanel'));
@@ -139,6 +132,15 @@ class ReadmeExampleTest extends TestCase
         $articles->delete()->callback($this->endpoint('DeleteArticle'));
         $articles->add()->callback($this->endpoint('AddArticleForm'));
         $articles->edit()->callback($this->endpoint('EditArticleForm'));
+
+        $root->route()->path('/login')->methodSwitch([
+            'GET'  => new CallbackEndpoint($this->endpoint('LoginPage')),
+            'POST' => new CallbackEndpoint($this->endpoint('Login'))
+        ]);
+        $root->route()->path('/logout')->redirect('home');
+        $root->route()->path('/admin')->redirect('login');
+        $root->route()->method('GET')->joinLink($filteredGuestRoute);
+        $root->route()->callback($notFound);
 
         return $this->router = $builder->router();
     }
