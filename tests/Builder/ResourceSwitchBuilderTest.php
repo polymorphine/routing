@@ -71,11 +71,11 @@ class ResourceSwitchBuilderTest extends TestCase
     {
         $forward  = new MockedRoute();
         $resource = $this->builder();
-        $resource->get()->join($forward);
-        $resource->post()->join($forward);
-        $resource->index()->join($forward);
-        $resource->add()->join($forward);
-        $resource->edit()->join($forward);
+        $resource->get()->joinRoute($forward);
+        $resource->post()->joinRoute($forward);
+        $resource->index()->joinRoute($forward);
+        $resource->add()->joinRoute($forward);
+        $resource->edit()->joinRoute($forward);
         $route = $resource->build();
 
         $prototype = new FakeUri();
@@ -90,9 +90,9 @@ class ResourceSwitchBuilderTest extends TestCase
     {
         $forward  = new MockedRoute();
         $resource = $this->builder();
-        $resource->delete()->join($forward);
-        $resource->add()->join($forward);
-        $resource->edit()->join($forward);
+        $resource->delete()->joinRoute($forward);
+        $resource->add()->joinRoute($forward);
+        $resource->edit()->joinRoute($forward);
         $route = $resource->build();
 
         $prototype = new FakeUri();

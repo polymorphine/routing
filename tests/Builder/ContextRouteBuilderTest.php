@@ -219,8 +219,8 @@ class ContextRouteBuilderTest extends TestCase
         $route = $builder->build();
 
         $builder = new Builder\MethodSwitchBuilder();
-        $builder->route('POST')->pattern(new Scheme('https'))->join($route);
-        $builder->route('GET')->join($route);
+        $builder->route('POST')->pattern(new Scheme('https'))->joinRoute($route);
+        $builder->route('GET')->joinRoute($route);
         $route = $builder->build();
 
         $prototype = new FakeResponse();
@@ -240,13 +240,13 @@ class ContextRouteBuilderTest extends TestCase
         $endpoint = $this->responseRoute($response);
         $builder  = $this->builder();
         $split    = $builder->pattern(new Path('foo*'))->responseScan();
-        $split->route('routeA')->pattern(new Path('bar*'))->link($endpointA)->join($endpoint);
-        $split->route('routeB')->pattern(new Path('baz*'))->join($endpoint);
+        $split->route('routeA')->pattern(new Path('bar*'))->link($endpointA)->joinRoute($endpoint);
+        $split->route('routeB')->pattern(new Path('baz*'))->joinRoute($endpoint);
         $route = $builder->build();
 
         $builder = new Builder\MethodSwitchBuilder();
-        $builder->route('POST')->link($postRoute)->pattern(new Scheme('https'))->join($route);
-        $builder->route('GET')->join($route);
+        $builder->route('POST')->link($postRoute)->pattern(new Scheme('https'))->joinRoute($route);
+        $builder->route('GET')->joinRoute($route);
         $route = $builder->build();
 
         $this->assertSame($endpointA, $endpoint);
@@ -259,7 +259,7 @@ class ContextRouteBuilderTest extends TestCase
 
         $split = $builder->get()->link($link)->responseScan();
         $split->route('first')->callback($this->callbackResponse($response));
-        $split->route('second')->join(new MockedRoute());
+        $split->route('second')->joinRoute(new MockedRoute());
 
         $builder->post()->joinLink($link);
 
@@ -336,7 +336,7 @@ class ContextRouteBuilderTest extends TestCase
         $router  = null;
         $builder = $this->builder(null, function () use (&$router) { return $router; });
         $path    = $builder->pathSwitch();
-        $path->route('admin')->pattern(new Path('redirected'))->join(new MockedRoute());
+        $path->route('admin')->pattern(new Path('redirected'))->joinRoute(new MockedRoute());
         $path->route('redirect')->redirect('admin');
 
         $router   = new Router($builder->build(), new FakeUri(), new FakeResponse());

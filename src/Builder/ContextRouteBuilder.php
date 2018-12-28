@@ -120,7 +120,7 @@ class ContextRouteBuilder implements Builder
      *
      * @param Route $route
      */
-    public function join(Route $route): void
+    public function joinRoute(Route $route): void
     {
         $this->context->setRoute($route);
     }
