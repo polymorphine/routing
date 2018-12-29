@@ -13,22 +13,19 @@ namespace Polymorphine\Routing\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Router;
-use Polymorphine\Routing\Route\Endpoint\CallbackEndpoint;
-use Polymorphine\Routing\Builder\RoutingBuilder;
-use Polymorphine\Routing\Tests\Doubles\FakeServerRequest as Request;
-use Polymorphine\Routing\Tests\Doubles\FakeUri as Uri;
+use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
+use Polymorphine\Routing\Tests\Doubles\FakeUri;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\UriInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
 
 
-class ReadmeExampleTest extends TestCase
+abstract class ReadmeExampleTest extends TestCase
 {
-    private $router;
+    protected $router;
 
     public function testInstantiation()
     {
@@ -38,14 +35,14 @@ class ReadmeExampleTest extends TestCase
     /**
      * @dataProvider endpointRequests
      *
-     * @param string  $expectedOutput
-     * @param Request $request
-     * @param string  $routePath
-     * @param array   $uriParams
+     * @param string            $expectedOutput
+     * @param FakeServerRequest $request
+     * @param string            $routePath
+     * @param array             $uriParams
      */
     public function testRequestReachItsEndpoint(
         string $expectedOutput,
-        Request $request,
+        FakeServerRequest $request,
         string $routePath,
         array $uriParams = []
     ) {
@@ -83,10 +80,10 @@ class ReadmeExampleTest extends TestCase
     /**
      * @dataProvider redirectedRequests
      *
-     * @param Request $request
-     * @param string  $locationRoutePath
+     * @param FakeServerRequest $request
+     * @param string            $locationRoutePath
      */
-    public function testRedirectedRequests(Request $request, string $locationRoutePath)
+    public function testRedirectedRequests(FakeServerRequest $request, string $locationRoutePath)
     {
         $router   = $this->router();
         $response = $router->handle($request);
@@ -102,50 +99,9 @@ class ReadmeExampleTest extends TestCase
         ];
     }
 
-    private function router(): Router
-    {
-        if ($this->router) { return $this->router; }
+    abstract protected function router(): Router;
 
-        $this->assertInstanceOf(UriInterface::class, $baseUri = new Uri());
-        $this->assertInstanceOf(ResponseInterface::class, $nullResponse = new FakeResponse());
-        $this->assertInstanceOf(MiddlewareInterface::class, $csrf = $this->csrfMiddleware());
-        $this->assertInstanceOf(MiddlewareInterface::class, $auth = $this->authMiddleware());
-        $this->assertTrue(is_callable($adminGate = $this->adminGate()));
-        $this->assertTrue(is_callable($notFound = $this->notFound()));
-        $this->assertTrue(is_callable($this->endpoint('body-text')));
-
-        $builder = new RoutingBuilder($baseUri, $nullResponse);
-        $root    = $builder->rootNode()->middleware($csrf)->middleware($auth)->responseScan();
-
-        $main = $root->defaultRoute()->callbackGate($adminGate)->link($filteredGuestRoute)->pathSwitch();
-        $main->root('home')->callback($this->endpoint('HomePage'));
-        $admin = $main->route('admin')->methodSwitch();
-        $admin->route('GET')->callback($this->endpoint('AdminPanel'));
-        $admin->route('POST')->callback($this->endpoint('ApplySettings'));
-        $main->route('login')->redirect('home');
-        $main->route('logout')->method('POST')->callback($this->endpoint('Logout'));
-        $articles = $main->resource('articles')->id('id');
-        $articles->index()->callback($this->endpoint('ShowArticles'));
-        $articles->get()->callback($this->endpoint('ShowArticle'));
-        $articles->post()->callback($this->endpoint('AddArticle'));
-        $articles->patch()->callback($this->endpoint('UpdateArticle'));
-        $articles->delete()->callback($this->endpoint('DeleteArticle'));
-        $articles->add()->callback($this->endpoint('AddArticleForm'));
-        $articles->edit()->callback($this->endpoint('EditArticleForm'));
-
-        $root->route()->path('/login')->methodSwitch([
-            'GET'  => new CallbackEndpoint($this->endpoint('LoginPage')),
-            'POST' => new CallbackEndpoint($this->endpoint('Login'))
-        ]);
-        $root->route()->path('/logout')->redirect('home');
-        $root->route()->path('/admin')->redirect('login');
-        $root->route()->method('GET')->joinLink($filteredGuestRoute);
-        $root->route()->callback($notFound);
-
-        return $this->router = $builder->router();
-    }
-
-    private function endpoint(string $id): callable
+    protected function endpoint(string $id): callable
     {
         return function (ServerRequestInterface $request) use ($id) {
             if ($resourceId = $request->getAttribute('id')) {
@@ -155,7 +111,7 @@ class ReadmeExampleTest extends TestCase
         };
     }
 
-    private function notFound(): callable
+    protected function notFound(): callable
     {
         return function () {
             $response = new FakeResponse();
@@ -163,7 +119,7 @@ class ReadmeExampleTest extends TestCase
         };
     }
 
-    private function csrfMiddleware(): MiddlewareInterface
+    protected function csrfMiddleware(): MiddlewareInterface
     {
         return new class() implements MiddlewareInterface {
             public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
@@ -177,7 +133,7 @@ class ReadmeExampleTest extends TestCase
         };
     }
 
-    private function authMiddleware(): MiddlewareInterface
+    protected function authMiddleware(): MiddlewareInterface
     {
         return new class() implements MiddlewareInterface {
             public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
@@ -189,16 +145,16 @@ class ReadmeExampleTest extends TestCase
         };
     }
 
-    private function adminGate(): callable
+    protected function adminGate(): callable
     {
         return function (ServerRequestInterface $request): ?ServerRequestInterface {
             return $request->getAttribute('userRole') === 'admin' ? $request : null;
         };
     }
 
-    private function request(string $method, string $uri, array $attributes = []): Request
+    private function request(string $method, string $uri, array $attributes = []): FakeServerRequest
     {
-        $request = new Request($method, Uri::fromString($uri));
+        $request = new FakeServerRequest($method, FakeUri::fromString($uri));
         $request->attr = $attributes;
         return $request;
     }
