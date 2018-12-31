@@ -95,3 +95,6 @@ Here's an example showing how to create this structure using routing builder:
 
     $router = $builder->router();
 
+Tests for this example structure can be found in [`ReadmeExampleTests.php`](tests/ReadmeExampleTest.php) both for
+one created as above using builder ([`BuilderTests.php`](tests/ReadmeExampleTest/BuilderTest.php)) and
+equivalent structure composed directly from components ([`CompositionTests.php`](tests/ReadmeExampleTest/CompositionTest.php))
