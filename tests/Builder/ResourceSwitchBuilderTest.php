@@ -12,7 +12,9 @@
 namespace Polymorphine\Routing\Tests\Builder;
 
 use PHPUnit\Framework\TestCase;
+use Polymorphine\Routing\Builder\BuilderContext;
 use Polymorphine\Routing\Builder\ResourceSwitchBuilder;
+use Polymorphine\Routing\Builder\ContextRouteBuilder;
 use Polymorphine\Routing\Builder\Exception\BuilderLogicException;
 use Polymorphine\Routing\Route\Gate\UriAttributeSelect;
 use Polymorphine\Routing\Tests\Doubles\MockedRoute;
@@ -124,6 +126,41 @@ class ResourceSwitchBuilderTest extends TestCase
         $this->assertSame($prototype, $route->forward($request, $prototype));
     }
 
+    public function testSeparateFormRoutesCanBeDefinedWithResourceBuilder()
+    {
+        $formsBuilder = new ContextRouteBuilder(new BuilderContext());
+        $resource     = $this->builder($formsBuilder);
+
+        $resource->add()->callback($this->callbackResponse($add));
+        $resource->edit()->callback($this->callbackResponse($edit));
+        $resource->get()->joinRoute(new MockedRoute());
+        $route = $resource->build();
+
+        $prototype = new FakeResponse();
+        $request   = new FakeServerRequest('GET', FakeUri::fromString('/new/form'));
+        $this->assertSame($prototype, $route->forward($request, $prototype));
+
+        $request = new FakeServerRequest('GET', FakeUri::fromString('/123/form'));
+        $this->assertSame($prototype, $route->forward($request, $prototype));
+
+        $forms = $formsBuilder->build();
+        $this->assertSame('/', (string) $forms->uri(FakeUri::fromString(''), []));
+        $this->assertSame('/123', (string) $forms->uri(FakeUri::fromString(''), ['resource.id' => '123']));
+
+        $request = new FakeServerRequest('GET', FakeUri::fromString('/'));
+        $this->assertSame($add, $forms->forward($request, $prototype));
+
+        $request = new FakeServerRequest('GET', FakeUri::fromString('/567'));
+        $this->assertSame($edit, $forms->forward($request, $prototype));
+        $this->assertSame('567', $edit->fromRequest->getAttribute('resource.id'));
+    }
+
+    public function testSeparateFormsRoutesWillAllowAnyIdFormat()
+    {
+        $resource = $this->builder(new ContextRouteBuilder(new BuilderContext()));
+        $this->assertInstanceOf(ResourceSwitchBuilder::class, $resource->id('foo.id', '[a-z0-9]{3}'));
+    }
+
     public function testIdWithRegexpMatchingNEWPseudoMethod_ThrowsException()
     {
         $resource = $this->builder();
@@ -131,8 +168,8 @@ class ResourceSwitchBuilderTest extends TestCase
         $resource->id('foo.id', '[a-z0-9]{3}');
     }
 
-    private function builder(): ResourceSwitchBuilder
+    private function builder(?ContextRouteBuilder $forms = null): ResourceSwitchBuilder
     {
-        return new ResourceSwitchBuilder();
+        return new ResourceSwitchBuilder(null, [], $forms);
     }
 }

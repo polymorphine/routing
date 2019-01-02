@@ -25,13 +25,19 @@ class ResourceSwitchBuilder implements Builder
 {
     use CompositeBuilderMethods;
 
+    private $forms;
+
     private $idName   = 'resource.id';
     private $idRegexp = '[1-9][0-9]*';
 
-    public function __construct(?BuilderContext $context = null, array $routes = [])
-    {
+    public function __construct(
+        ?BuilderContext $context = null,
+        array $routes = [],
+        ?ContextRouteBuilder $forms = null
+    ) {
         $this->context = $context ?? new BuilderContext();
         $this->routes  = $routes + ['GET' => null, 'INDEX' => null, 'NEW' => null, 'EDIT' => null];
+        $this->forms   = $forms;
     }
 
     public function id(string $name, string $regexp = null): self
@@ -96,9 +102,9 @@ class ResourceSwitchBuilder implements Builder
             case 'POST':
                 return new PatternGate(new Path(''), $route);
             case 'NEW':
-                return new PatternGate(new Path('new/form'), $route);
+                return $this->forms ? $route : new PatternGate(new Path('new/form'), $route);
             case 'EDIT':
-                $route = new PatternGate(new Path('form'), $route);
+                $route = $this->forms ? $route : new PatternGate(new Path('form'), $route);
                 break;
         }
         return new PatternGate(new PathSegment($this->idName, $this->idRegexp), $route);
@@ -111,11 +117,18 @@ class ResourceSwitchBuilder implements Builder
             'new'  => $this->pullRoute('NEW', $routes)
         ]);
 
-        $routes['GET'] = new RouteScan([
+        $getRoutes = [
             'form'  => new Route\Gate\UriAttributeSelect($formRoutes, $this->idName, 'edit', 'new'),
             'item'  => $routes['GET'],
             'index' => $this->pullRoute('INDEX', $routes)
-        ]);
+        ];
+
+        if ($this->forms) {
+            $route = $this->pullRoute('form', $getRoutes);
+            $this->forms->joinRoute($route);
+        }
+
+        $routes['GET'] = new RouteScan($getRoutes);
 
         return new Route\Gate\UriAttributeSelect(new MethodSwitch($routes, 'GET'), $this->idName, 'item', 'index');
     }
@@ -129,7 +142,7 @@ class ResourceSwitchBuilder implements Builder
 
     private function withIdRegexp(string $regexp)
     {
-        if (preg_match('#' . $regexp . '#', 'new')) {
+        if (!$this->forms && preg_match('#' . $regexp . '#', 'new')) {
             throw new Exception\BuilderLogicException('Uri conflict: `resource/new` matches `resource/{id}` path');
         }
 
