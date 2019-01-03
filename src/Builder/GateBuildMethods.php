@@ -24,6 +24,20 @@ trait GateBuildMethods
     private $context;
 
     /**
+     * Generic gate wrapper that creates gate Route with given callback
+     * that will wrap Route passed as its argument.
+     *
+     * @param callable $routeWrapper function(Route): Route
+     *
+     * @return GateBuildMethods
+     */
+    public function wrapRouteCallback(callable $routeWrapper): self
+    {
+        $this->context->addGate($routeWrapper);
+        return $this;
+    }
+
+    /**
      * Creates MethodGate and (optionally) PatternGate wrapper for built route.
      *
      * @param string       $methods single http method or pipe separated method set like 'GET|POST|DELETE'

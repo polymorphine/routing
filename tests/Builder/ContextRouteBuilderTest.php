@@ -13,6 +13,7 @@ namespace Polymorphine\Routing\Tests\Builder;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Builder;
+use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\LazyRoute;
 use Polymorphine\Routing\Route\Gate\Pattern\UriPattern;
 use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\Scheme;
@@ -169,6 +170,19 @@ class ContextRouteBuilderTest extends TestCase
         $this->assertSame($prototype, $route->forward($block, $prototype));
         $this->assertSame($response, $route->forward($pass, $prototype));
         $this->assertSame('bar', $response->fromRequest->getAttribute('id'));
+    }
+
+    public function testRouteCanBeWrappedWithCallbackInvokedWrapper()
+    {
+        $builder = $this->builder();
+        $builder->wrapRouteCallback(function (Route $route) {
+            return new Route\Gate\MethodGate('POST', $route);
+        })->callback($this->callbackResponse($response));
+        $route = $builder->build();
+
+        $prototype = new FakeResponse();
+        $this->assertSame($prototype, $route->forward(new FakeServerRequest('GET'), $prototype));
+        $this->assertSame($response, $route->forward(new FakeServerRequest('POST'), $prototype));
     }
 
     public function testGatesAreEvaluatedInCorrectOrder()
