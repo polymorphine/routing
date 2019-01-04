@@ -33,10 +33,10 @@ class ResourceSwitchBuilder implements Builder
     public function __construct(
         ?BuilderContext $context = null,
         array $routes = [],
-        ?ContextRouteBuilder $forms = null
+        ?ResourceFormsBuilder $forms = null
     ) {
         $this->context = $context ?? new BuilderContext();
-        $this->routes  = $routes + ['GET' => null, 'INDEX' => null, 'NEW' => null, 'EDIT' => null];
+        $this->routes  = $routes;
         $this->forms   = $forms;
     }
 
@@ -78,18 +78,24 @@ class ResourceSwitchBuilder implements Builder
 
     public function add(): ContextRouteBuilder
     {
-        return $this->addBuilder('NEW');
+        if (!$this->forms) { return $this->addBuilder('NEW'); }
+        return $this->forms->formSwitch($this->idName)
+                           ->route('new')
+                           ->pattern(new Path(''));
     }
 
     public function edit(): ContextRouteBuilder
     {
-        return $this->addBuilder('EDIT');
+        if (!$this->forms) { return $this->addBuilder('EDIT'); }
+        return $this->forms->formSwitch($this->idName)
+                           ->route('edit')
+                           ->pattern(new PathSegment($this->idName, $this->idRegexp));
     }
 
     protected function router(array $routes): Route
     {
         foreach ($routes as $name => &$route) {
-            $route = $this->wrapRouteType($name, $route ?: new NullEndpoint());
+            $route = $this->wrapRouteType($name, $route);
         }
 
         return $this->composeLogicStructure($routes);
@@ -102,9 +108,9 @@ class ResourceSwitchBuilder implements Builder
             case 'POST':
                 return new PatternGate(new Path(''), $route);
             case 'NEW':
-                return $this->forms ? $route : new PatternGate(new Path('new/form'), $route);
+                return new PatternGate(new Path('new/form'), $route);
             case 'EDIT':
-                $route = $this->forms ? $route : new PatternGate(new Path('form'), $route);
+                $route = new PatternGate(new Path('form'), $route);
                 break;
         }
         return new PatternGate(new PathSegment($this->idName, $this->idRegexp), $route);
@@ -112,30 +118,32 @@ class ResourceSwitchBuilder implements Builder
 
     private function composeLogicStructure(array $routes): Route
     {
-        $formRoutes = new RouteScan([
-            'edit' => $this->pullRoute('EDIT', $routes),
-            'new'  => $this->pullRoute('NEW', $routes)
-        ]);
-
-        $getRoutes = [
-            'form'  => new Route\Gate\UriAttributeSelect($formRoutes, $this->idName, 'edit', 'new'),
-            'item'  => $routes['GET'],
+        $getRoutes = $this->formsRoute($routes) + [
+            'item'  => $this->pullRoute('GET', $routes),
             'index' => $this->pullRoute('INDEX', $routes)
         ];
-
-        if ($this->forms) {
-            $route = $this->pullRoute('form', $getRoutes);
-            $this->forms->joinRoute($route);
-        }
 
         $routes['GET'] = new RouteScan($getRoutes);
 
         return new Route\Gate\UriAttributeSelect(new MethodSwitch($routes, 'GET'), $this->idName, 'item', 'index');
     }
 
+    private function formsRoute(array $routes): array
+    {
+        if ($this->forms) { return []; }
+        if (!isset($routes['EDIT']) && !isset($routes['NEW'])) { return []; }
+
+        $forms = new RouteScan([
+            'edit' => $this->pullRoute('EDIT', $routes),
+            'new'  => $this->pullRoute('NEW', $routes)
+        ]);
+
+        return ['form' => new Route\Gate\UriAttributeSelect($forms, $this->idName, 'edit', 'new')];
+    }
+
     private function pullRoute(string $name, array &$routes): ?Route
     {
-        $route = $routes[$name] ?? null;
+        $route = $routes[$name] ?? $this->wrapRouteType($name, new NullEndpoint());
         unset($routes[$name]);
         return $route;
     }
