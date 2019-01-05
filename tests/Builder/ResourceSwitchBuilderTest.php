@@ -155,6 +155,32 @@ class ResourceSwitchBuilderTest extends TestCase
         $this->assertSame('567', $edit->fromRequest->getAttribute('resource.id'));
     }
 
+    public function testArgumentFormRoutesArePassedToSeparateContext()
+    {
+        $route = $this->builderWithForms($formsBuilder = new PathSwitchBuilder(), [
+            'NEW'  => new Route\Endpoint\CallbackEndpoint($this->callbackResponse($add)),
+            'EDIT' => new Route\Endpoint\CallbackEndpoint($this->callbackResponse($edit))
+        ])->build();
+
+        $prototype = new FakeResponse();
+        $request   = new FakeServerRequest('GET', FakeUri::fromString('/new/form'));
+        $this->assertSame($prototype, $route->forward($request, $prototype));
+
+        $request = new FakeServerRequest('GET', FakeUri::fromString('/123/form'));
+        $this->assertSame($prototype, $route->forward($request, $prototype));
+
+        $forms = $formsBuilder->build();
+        $this->assertSame('/resource', (string) $forms->select('resource')->uri(FakeUri::fromString(''), []));
+        $this->assertSame('/resource/123', (string) $forms->select('resource')->uri(FakeUri::fromString(''), ['resource.id' => '123']));
+
+        $request = new FakeServerRequest('GET', FakeUri::fromString('/resource'));
+        $this->assertSame($add, $forms->forward($request, $prototype));
+
+        $request = new FakeServerRequest('GET', FakeUri::fromString('/resource/567'));
+        $this->assertSame($edit, $forms->forward($request, $prototype));
+        $this->assertSame('567', $edit->fromRequest->getAttribute('resource.id'));
+    }
+
     public function testFormsRouteCanBeBuiltBeforeResourceRoutes()
     {
         $resource = $this->builderWithForms($formsBuilder = new PathSwitchBuilder());
@@ -184,8 +210,8 @@ class ResourceSwitchBuilderTest extends TestCase
         return new ResourceSwitchBuilder(null, []);
     }
 
-    private function builderWithForms(PathSwitchBuilder $formsBuilder): ResourceSwitchBuilder
+    private function builderWithForms(PathSwitchBuilder $formsBuilder, array $routes = []): ResourceSwitchBuilder
     {
-        return new ResourceSwitchBuilder(null, [], new ResourceFormsBuilder('resource', $formsBuilder));
+        return new ResourceSwitchBuilder(null, $routes, new ResourceFormsBuilder('resource', $formsBuilder));
     }
 }

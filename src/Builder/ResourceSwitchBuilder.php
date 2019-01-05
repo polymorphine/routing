@@ -38,6 +38,8 @@ class ResourceSwitchBuilder implements Builder
         $this->context = $context ?? new BuilderContext();
         $this->routes  = $routes;
         $this->forms   = $forms;
+
+        if ($this->forms && $this->routes) { $this->moveFormRoutes(); }
     }
 
     public function id(string $name, string $regexp = null): self
@@ -126,6 +128,15 @@ class ResourceSwitchBuilder implements Builder
         $routes['GET'] = new RouteScan($getRoutes);
 
         return new Route\Gate\UriAttributeSelect(new MethodSwitch($routes, 'GET'), $this->idName, 'item', 'index');
+    }
+
+    private function moveFormRoutes(): void
+    {
+        foreach (['NEW' => 'add', 'EDIT' => 'edit'] as $formRoute => $method) {
+            if (!isset($this->routes[$formRoute])) { continue; }
+            $this->{$method}()->joinRoute($this->routes[$formRoute]);
+            unset($this->routes[$formRoute]);
+        }
     }
 
     private function formsRoute(array $routes): array
