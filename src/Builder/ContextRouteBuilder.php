@@ -199,6 +199,10 @@ class ContextRouteBuilder implements Builder
      * NEW   - for GET requests to form producing new resource (without current id),
      * EDIT  - for GET requests to form editing resource with given id
      *
+     * Optional ResourceFormsBuilder parameter will be used to define separate
+     * routing for forms built with add() and edit() methods or passed as array
+     * Route parameters with NEW|EDIT keys.
+     *
      * WARNING: This method does not specify resource name (path) and should be
      * used in case when resource route needs to be wrapped with additional gates.
      * Otherwise it is recommended to build resource with method that defines its
@@ -207,13 +211,14 @@ class ContextRouteBuilder implements Builder
      * @see RouteScanBuilder::resource()
      * @see PathSwitchBuilder::resource()
      *
-     * @param array $routes associated with http method and pseudo method keys
+     * @param array                     $routes
+     * @param ResourceFormsBuilder|null $formsBuilder
      *
      * @return ResourceSwitchBuilder
      */
-    public function resource(array $routes = []): ResourceSwitchBuilder
+    public function resource(array $routes = [], ?ResourceFormsBuilder $formsBuilder = null): ResourceSwitchBuilder
     {
-        return $this->contextBuilder(new ResourceSwitchBuilder($this->context, $routes));
+        return $this->contextBuilder(new ResourceSwitchBuilder($this->context, $routes, $formsBuilder));
     }
 
     private function contextBuilder(Builder $builder)
