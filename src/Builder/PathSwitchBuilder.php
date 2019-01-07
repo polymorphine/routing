@@ -20,6 +20,7 @@ class PathSwitchBuilder implements Builder
 {
     use CompositeBuilderMethods;
 
+    private $resourcesForms;
     private $rootLabel;
 
     public function __construct(?BuilderContext $context = null, array $routes = [])
@@ -39,7 +40,19 @@ class PathSwitchBuilder implements Builder
 
     public function resource(string $name, array $routes = []): ResourceSwitchBuilder
     {
-        return $this->route($name)->resource($routes);
+        return $this->resourcesForms
+            ? $this->route($name)->resource($routes, new ResourceFormsBuilder($name, $this->resourcesForms))
+            : $this->route($name)->resource($routes);
+    }
+
+    public function withResourcesFormsPath(string $name): self
+    {
+        if ($this->resourcesForms) {
+            throw new Exception\BuilderLogicException('Route path for resource forms already defined');
+        }
+
+        $this->resourcesForms = $this->route($name)->pathSwitch();
+        return $this;
     }
 
     public function root(string $label = null): ContextRouteBuilder
