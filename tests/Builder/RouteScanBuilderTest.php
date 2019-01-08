@@ -18,6 +18,7 @@ use Polymorphine\Routing\Builder\Exception\BuilderLogicException;
 use Polymorphine\Routing\Route\Splitter\RouteScan;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
+use Polymorphine\Routing\Tests\Doubles\FakeUri;
 use Polymorphine\Routing\Tests\RoutingTestMethods;
 use InvalidArgumentException;
 
@@ -93,6 +94,36 @@ class RouteScanBuilderTest extends TestCase
     public function testResourceBuilderCanBeAdded()
     {
         $this->assertInstanceOf(ResourceSwitchBuilder::class, $this->builder()->resource('res'));
+    }
+
+
+    public function testSeparateFormsPathForResourceBuilderCanBeSet()
+    {
+        $builder  = $this->builder()->withResourcesFormsPath('forms');
+        $resource = $builder->resource('resource');
+        $resource->add()->callback($this->callbackResponse($add));
+        $resource->edit()->callback($this->callbackResponse($edit));
+        $route = $builder->build();
+
+        $responsePrototype = new FakeResponse();
+        $uriPrototype      = new FakeUri();
+
+        $newFormUri     = FakeUri::fromString('/forms/resource');
+        $newFormRequest = new FakeServerRequest('GET', $newFormUri);
+        $this->assertSame($add, $route->forward($newFormRequest, $responsePrototype));
+        $this->assertSame((string) $newFormUri, (string) $route->select('forms.resource')->uri($uriPrototype, []));
+
+        $editFormUri     = FakeUri::fromString('/forms/resource/997');
+        $editFormRequest = new FakeServerRequest('GET', $editFormUri);
+        $this->assertSame($edit, $route->forward($editFormRequest, $responsePrototype));
+        $this->assertSame((string) $editFormUri, (string) $route->select('forms.resource')->uri($uriPrototype, ['resource.id' => 997]));
+    }
+
+    public function testResourceFormsPathOverwrite_ThrowsException()
+    {
+        $builder  = $this->builder()->withResourcesFormsPath('forms');
+        $this->expectException(BuilderLogicException::class);
+        $builder->withResourcesFormsPath('other');
     }
 
     private function builder(): RouteScanBuilder

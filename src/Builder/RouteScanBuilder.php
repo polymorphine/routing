@@ -21,6 +21,7 @@ class RouteScanBuilder implements Builder
 
     /** @var bool */
     private $hasDefaultRoute = false;
+    private $resourcesForms;
 
     public function __construct(?BuilderContext $context = null, array $routes = [])
     {
@@ -46,7 +47,22 @@ class RouteScanBuilder implements Builder
 
     public function resource(string $name, array $routes = []): ResourceSwitchBuilder
     {
+        if ($this->resourcesForms) {
+            $formsBuilder = new ResourceFormsBuilder($name, $this->resourcesForms);
+            return $this->route($name)->path($name)->resource($routes, $formsBuilder);
+        }
+
         return $this->route($name)->path($name)->resource($routes);
+    }
+
+    public function withResourcesFormsPath(string $name): self
+    {
+        if ($this->resourcesForms) {
+            throw new Exception\BuilderLogicException('Route path for resource forms already defined');
+        }
+
+        $this->resourcesForms = $this->route($name)->path($name)->pathSwitch();
+        return $this;
     }
 
     protected function router(array $routes): Route
