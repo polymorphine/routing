@@ -162,7 +162,8 @@ class ResourceSwitchBuilder implements Builder
     private function withIdRegexp(string $regexp)
     {
         if (!$this->forms && preg_match('#' . $regexp . '#', 'new')) {
-            throw new Exception\BuilderLogicException('Uri conflict: `resource/new` matches `resource/{id}` path');
+            $message = 'Uri keyword conflict: `resource/new/form` matches `resource/{id}/form` path';
+            throw new Exception\BuilderLogicException($message);
         }
 
         $this->idRegexp = $regexp;
