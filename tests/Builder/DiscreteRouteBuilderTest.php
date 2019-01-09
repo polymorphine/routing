@@ -41,7 +41,7 @@ class DiscreteRouteBuilderTest extends TestCase
         $this->assertInstanceOf(LazyRoute::class, $this->builder()->lazy(function () {}));
 
         $route = new MockedRoute();
-        $this->assertSame($route, $this->builder()->join($route));
+        $this->assertSame($route, $this->builder()->joinRoute($route));
 
         $this->assertInstanceOf(RedirectEndpoint::class, $this->builder(null, function () {})->redirect('some.route'));
 

@@ -129,7 +129,7 @@ class DiscreteRouteBuilder
      *
      * @return Route
      */
-    public function join(Route $route): Route
+    public function joinRoute(Route $route): Route
     {
         $this->context->setRoute($route);
         return $this->context->build();
