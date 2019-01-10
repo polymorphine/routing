@@ -13,6 +13,7 @@ namespace Polymorphine\Routing\Builder;
 
 use Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Route;
+use Polymorphine\Middleware\LazyMiddleware;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
@@ -107,7 +108,9 @@ class BuilderContext implements Builder
     public function addContainerMiddlewareGate(string $middlewareContainerId)
     {
         $this->addGate(function (Route $route) use ($middlewareContainerId) {
-            $middleware = new ContainerMiddleware($this->container(), $middlewareContainerId);
+            $middleware = new LazyMiddleware(function () use ($middlewareContainerId) {
+                return $this->container()->get($middlewareContainerId);
+            });
             return new Route\Gate\MiddlewareGateway($middleware, $route);
         });
     }
