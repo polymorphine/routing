@@ -81,17 +81,18 @@ class ResourceSwitchBuilder implements Builder
     public function add(): ContextRouteBuilder
     {
         if (!$this->forms) { return $this->addBuilder('NEW'); }
-        return $this->forms->formSwitch($this->idName)
-                           ->route('new')
-                           ->pattern(new Path(''));
+
+        return $this->forms->formSwitch($this->idName)->route('new')->wrapRouteCallback(function (Route $route) {
+            return new Route\Gate\PathEndGate($route);
+        });
     }
 
     public function edit(): ContextRouteBuilder
     {
         if (!$this->forms) { return $this->addBuilder('EDIT'); }
-        return $this->forms->formSwitch($this->idName)
-                           ->route('edit')
-                           ->pattern(new PathSegment($this->idName, $this->idRegexp));
+
+        $idPattern = new PathSegment($this->idName, $this->idRegexp);
+        return $this->forms->formSwitch($this->idName)->route('edit')->pattern($idPattern);
     }
 
     protected function router(array $routes): Route
@@ -108,7 +109,7 @@ class ResourceSwitchBuilder implements Builder
         switch ($name) {
             case 'INDEX':
             case 'POST':
-                return new PatternGate(new Path(''), $route);
+                return new Route\Gate\PathEndGate($route);
             case 'NEW':
                 return new PatternGate(new Path('new/form'), $route);
             case 'EDIT':

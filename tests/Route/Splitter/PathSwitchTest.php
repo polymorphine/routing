@@ -123,14 +123,14 @@ class PathSwitchTest extends TestCase
     public function testRootRouteCanBeSelected()
     {
         $splitter = $this->splitter([], $root = new MockedRoute());
-        $root     = new Route\Gate\PatternGate(new Route\Gate\Pattern\UriSegment\Path(''), $root);
+        $root     = new Route\Gate\PathEndGate($root);
         $this->assertEquals($root, $splitter->select(PathSwitch::ROOT_PATH));
     }
 
     public function testRootRouteLabelCanBeSetAtInstantiation()
     {
         $splitter = new PathSwitch(['dummy' => new MockedRoute()], $root = new MockedRoute(), 'rootLabel');
-        $root     = new Route\Gate\PatternGate(new Route\Gate\Pattern\UriSegment\Path(''), $root);
+        $root     = new Route\Gate\PathEndGate($root);
         $this->assertEquals($root, $splitter->select('rootLabel'));
     }
 
