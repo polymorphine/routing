@@ -22,16 +22,16 @@ hard to read by looking at large nested structure or its dependencies assembled
 together, but instantiated in order that is reversed to execution flow (nested
 structure instantiated first).
 
-### Installation with [Composer](https://getcomposer.org/)
-    php composer.phar require polymorphine/routing
-
-### Routing build example
 [`RoutingBuilder`](src/Builder/RoutingBuilder.php) is a part of this package to help with
 the problem. It uses _fluent interface with expressive method names_ - more concise than
 class names & their constructors that would be used in direct composition.
 It is also more readable due to the fact that builder method calls _resemble execution
 path_ in instantiated tree.
 
+### Installation with [Composer](https://getcomposer.org/)
+    php composer.phar require polymorphine/routing
+
+### Routing build example
 Diagram below shows control flow of the request passed to matching endpoint in simplified blog page example.
 
 ![Routing diagram](https://user-images.githubusercontent.com/9908030/48569332-aeb2e980-e901-11e8-810e-4e447df49ce6.png)
@@ -99,6 +99,8 @@ Here's an example showing how to create this structure using routing builder:
 
     $router = $builder->router();
 
-Tests for this example structure can be found in [`ReadmeExampleTests.php`](tests/ReadmeExampleTest.php) both for
-one created as above using builder ([`BuilderTests.php`](tests/ReadmeExampleTest/BuilderTest.php)) and
+Tests for this example structure can be found in [`ReadmeExampleTests.php`](tests/ReadmeExampleTest.php) - compare one
+created as above using builder ([`BuilderTests.php`](tests/ReadmeExampleTest/BuilderTest.php)) and
 equivalent structure composed directly from components ([`CompositionTests.php`](tests/ReadmeExampleTest/CompositionTest.php))
+which will be result of calling builder methods.
+ 
