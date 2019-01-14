@@ -212,6 +212,7 @@ class ResourceSwitchBuilderTest extends TestCase
 
     private function builderWithForms(PathSwitchBuilder $formsBuilder, array $routes = []): ResourceSwitchBuilder
     {
-        return new ResourceSwitchBuilder(null, $routes, new ResourceFormsBuilder('resource', $formsBuilder));
+        $forms = new ResourceFormsBuilder('resource', $formsBuilder);
+        return new ResourceSwitchBuilder\ResourceSwitchContextFormsBuilder($forms, null, $routes);
     }
 }

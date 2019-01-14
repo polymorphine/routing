@@ -212,13 +212,17 @@ class ContextRouteBuilder implements Builder
      * @see PathSwitchBuilder::resource()
      *
      * @param array                     $routes
-     * @param ResourceFormsBuilder|null $formsBuilder
+     * @param null|ResourceFormsBuilder $formsBuilder
      *
      * @return ResourceSwitchBuilder
      */
     public function resource(array $routes = [], ?ResourceFormsBuilder $formsBuilder = null): ResourceSwitchBuilder
     {
-        return $this->contextBuilder(new ResourceSwitchBuilder($this->context, $routes, $formsBuilder));
+        return $this->contextBuilder(
+            $formsBuilder
+            ? new ResourceSwitchBuilder\ResourceSwitchContextFormsBuilder($formsBuilder, $this->context, $routes)
+            : new ResourceSwitchBuilder($this->context, $routes)
+        );
     }
 
     private function contextBuilder(Builder $builder)

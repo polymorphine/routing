@@ -25,21 +25,13 @@ class ResourceSwitchBuilder implements Builder
 {
     use CompositeBuilderMethods;
 
-    private $forms;
+    protected $idName   = 'resource.id';
+    protected $idRegexp = '[1-9][0-9]*';
 
-    private $idName   = 'resource.id';
-    private $idRegexp = '[1-9][0-9]*';
-
-    public function __construct(
-        ?BuilderContext $context = null,
-        array $routes = [],
-        ?ResourceFormsBuilder $forms = null
-    ) {
+    public function __construct(?BuilderContext $context = null, array $routes = [])
+    {
         $this->context = $context ?? new BuilderContext();
         $this->routes  = $routes;
-        $this->forms   = $forms;
-
-        if ($this->forms && $this->routes) { $this->moveFormRoutes(); }
     }
 
     public function id(string $name, string $regexp = null): self
@@ -80,19 +72,12 @@ class ResourceSwitchBuilder implements Builder
 
     public function add(): ContextRouteBuilder
     {
-        if (!$this->forms) { return $this->addBuilder('NEW'); }
-
-        return $this->forms->formSwitch($this->idName)->route('new')->wrapRouteCallback(function (Route $route) {
-            return new Route\Gate\PathEndGate($route);
-        });
+        return $this->addBuilder('NEW');
     }
 
     public function edit(): ContextRouteBuilder
     {
-        if (!$this->forms) { return $this->addBuilder('EDIT'); }
-
-        $idPattern = new PathSegment($this->idName, $this->idRegexp);
-        return $this->forms->formSwitch($this->idName)->route('edit')->pattern($idPattern);
+        return $this->addBuilder('EDIT');
     }
 
     protected function router(array $routes): Route
@@ -102,6 +87,29 @@ class ResourceSwitchBuilder implements Builder
         }
 
         return $this->composeLogicStructure($routes);
+    }
+
+    protected function withIdRegexp(string $regexp)
+    {
+        if (preg_match('#' . $regexp . '#', 'new')) {
+            $message = 'Uri keyword conflict: `resource/new/form` matches `resource/{id}/form` path';
+            throw new Exception\BuilderLogicException($message);
+        }
+
+        $this->idRegexp = $regexp;
+        return $this;
+    }
+
+    protected function formsRoute(array $routes): array
+    {
+        if (!isset($routes['EDIT']) && !isset($routes['NEW'])) { return []; }
+
+        $forms = new RouteScan([
+            'edit' => $this->pullRoute('EDIT', $routes),
+            'new'  => $this->pullRoute('NEW', $routes)
+        ]);
+
+        return ['form' => new Route\Gate\UriAttributeSelect($forms, $this->idName, 'edit', 'new')];
     }
 
     private function wrapRouteType(string $name, Route $route): Route
@@ -131,43 +139,10 @@ class ResourceSwitchBuilder implements Builder
         return new Route\Gate\UriAttributeSelect(new MethodSwitch($routes, 'GET'), $this->idName, 'item', 'index');
     }
 
-    private function moveFormRoutes(): void
-    {
-        foreach (['NEW' => 'add', 'EDIT' => 'edit'] as $formRoute => $method) {
-            if (!isset($this->routes[$formRoute])) { continue; }
-            $this->{$method}()->joinRoute($this->routes[$formRoute]);
-            unset($this->routes[$formRoute]);
-        }
-    }
-
-    private function formsRoute(array $routes): array
-    {
-        if ($this->forms) { return []; }
-        if (!isset($routes['EDIT']) && !isset($routes['NEW'])) { return []; }
-
-        $forms = new RouteScan([
-            'edit' => $this->pullRoute('EDIT', $routes),
-            'new'  => $this->pullRoute('NEW', $routes)
-        ]);
-
-        return ['form' => new Route\Gate\UriAttributeSelect($forms, $this->idName, 'edit', 'new')];
-    }
-
     private function pullRoute(string $name, array &$routes): ?Route
     {
         $route = $routes[$name] ?? $this->wrapRouteType($name, new NullEndpoint());
         unset($routes[$name]);
         return $route;
-    }
-
-    private function withIdRegexp(string $regexp)
-    {
-        if (!$this->forms && preg_match('#' . $regexp . '#', 'new')) {
-            $message = 'Uri keyword conflict: `resource/new/form` matches `resource/{id}/form` path';
-            throw new Exception\BuilderLogicException($message);
-        }
-
-        $this->idRegexp = $regexp;
-        return $this;
     }
 }
