@@ -9,8 +9,9 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Builder;
+namespace Polymorphine\Routing\Builder\ResourceSwitchBuilder;
 
+use Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Route;
 
 
@@ -20,13 +21,13 @@ class ResourceFormsBuilder
     private $resourceName;
     private $formSwitch;
 
-    public function __construct(string $resourceName, PathSwitchBuilder $formsBuilder)
+    public function __construct(string $resourceName, Builder\PathSwitchBuilder $formsBuilder)
     {
         $this->resourceName = $resourceName;
         $this->formsBuilder = $formsBuilder;
     }
 
-    public function formSwitch(string $id): RouteScanBuilder
+    public function formSwitch(string $id): Builder\RouteScanBuilder
     {
         if ($this->formSwitch) { return $this->formSwitch; }
 

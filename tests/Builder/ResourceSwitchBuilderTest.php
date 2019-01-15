@@ -13,7 +13,7 @@ namespace Polymorphine\Routing\Tests\Builder;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Builder\ResourceSwitchBuilder;
-use Polymorphine\Routing\Builder\ResourceFormsBuilder;
+use Polymorphine\Routing\Builder\ResourceSwitchBuilder\ResourceFormsBuilder;
 use Polymorphine\Routing\Builder\PathSwitchBuilder;
 use Polymorphine\Routing\Builder\Exception\BuilderLogicException;
 use Polymorphine\Routing\Route;

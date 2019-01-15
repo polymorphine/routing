@@ -12,6 +12,7 @@
 namespace Polymorphine\Routing\Builder;
 
 use Polymorphine\Routing\Builder;
+use Polymorphine\Routing\Builder\ResourceSwitchBuilder\ResourceFormsBuilder;
 use Polymorphine\Routing\Route;
 
 

@@ -21,7 +21,7 @@ class ResourceSwitchContextFormsBuilder extends Builder\ResourceSwitchBuilder
     private $formSwitch;
 
     public function __construct(
-        Builder\ResourceFormsBuilder $forms,
+        ResourceFormsBuilder $forms,
         ?Builder\BuilderContext $context = null,
         array $routes = []
     ) {
