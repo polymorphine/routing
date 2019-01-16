@@ -9,13 +9,13 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Builder\ResourceSwitchBuilder;
+namespace Polymorphine\Routing\Builder\Resource;
 
 use Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Route;
 
 
-class ResourceFormsBuilder
+class FormsContext
 {
     private $formsBuilder;
     private $resourceName;

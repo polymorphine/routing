@@ -12,8 +12,8 @@
 namespace Polymorphine\Routing\Builder;
 
 use Polymorphine\Routing\Builder;
-use Polymorphine\Routing\Builder\ResourceSwitchBuilder\ResourceFormsBuilder;
-use Polymorphine\Routing\Builder\ResourceSwitchBuilder\ResourceSwitchContextFormsBuilder;
+use Polymorphine\Routing\Builder\Resource\FormsContext;
+use Polymorphine\Routing\Builder\Resource\ContextFormsResourceSwitchBuilder;
 use Polymorphine\Routing\Route;
 use Psr\Http\Server\RequestHandlerInterface;
 
@@ -214,15 +214,15 @@ class ContextRouteBuilder implements Builder
      * @see PathSwitchBuilder::resource()
      *
      * @param array                     $routes
-     * @param null|ResourceFormsBuilder $formsBuilder
+     * @param null|FormsContext $formsBuilder
      *
      * @return ResourceSwitchBuilder
      */
-    public function resource(array $routes = [], ?ResourceFormsBuilder $formsBuilder = null): ResourceSwitchBuilder
+    public function resource(array $routes = [], ?FormsContext $formsBuilder = null): ResourceSwitchBuilder
     {
         return $this->contextBuilder(
             $formsBuilder
-            ? new ResourceSwitchContextFormsBuilder($formsBuilder, $this->context, $routes)
+            ? new ContextFormsResourceSwitchBuilder($formsBuilder, $this->context, $routes)
             : new ResourceSwitchBuilder($this->context, $routes)
         );
     }

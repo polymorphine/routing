@@ -9,19 +9,19 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Builder\ResourceSwitchBuilder;
+namespace Polymorphine\Routing\Builder\Resource;
 
 use Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Route;
 
 
-class ResourceSwitchContextFormsBuilder extends Builder\ResourceSwitchBuilder
+class ContextFormsResourceSwitchBuilder extends Builder\ResourceSwitchBuilder
 {
     private $forms;
     private $formSwitch;
 
     public function __construct(
-        ResourceFormsBuilder $forms,
+        FormsContext $forms,
         ?Builder\BuilderContext $context = null,
         array $routes = []
     ) {

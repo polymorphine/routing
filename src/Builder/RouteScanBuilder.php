@@ -12,7 +12,6 @@
 namespace Polymorphine\Routing\Builder;
 
 use Polymorphine\Routing\Builder;
-use Polymorphine\Routing\Builder\ResourceSwitchBuilder\ResourceFormsBuilder;
 use Polymorphine\Routing\Route;
 
 
@@ -49,8 +48,8 @@ class RouteScanBuilder implements Builder
     public function resource(string $name, array $routes = []): ResourceSwitchBuilder
     {
         if ($this->resourcesForms) {
-            $formsBuilder = new ResourceFormsBuilder($name, $this->resourcesForms);
-            return $this->route($name)->path($name)->resource($routes, $formsBuilder);
+            $formsContext = new Builder\Resource\FormsContext($name, $this->resourcesForms);
+            return $this->route($name)->path($name)->resource($routes, $formsContext);
         }
 
         return $this->route($name)->path($name)->resource($routes);
