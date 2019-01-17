@@ -9,13 +9,17 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Builder;
+namespace Polymorphine\Routing\Builder\Resource;
 
 use Polymorphine\Routing\Builder;
+use Polymorphine\Routing\Builder\BuilderContext;
+use Polymorphine\Routing\Builder\ContextRouteBuilder;
 use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Route\Gate\PathEndGate;
 use Polymorphine\Routing\Route\Gate\PatternGate;
 use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\Path;
 use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\PathSegment;
+use Polymorphine\Routing\Route\Gate\UriAttributeSelect;
 use Polymorphine\Routing\Route\Splitter\MethodSwitch;
 use Polymorphine\Routing\Route\Splitter\RouteScan;
 use Polymorphine\Routing\Route\Endpoint\NullEndpoint;
@@ -23,7 +27,7 @@ use Polymorphine\Routing\Route\Endpoint\NullEndpoint;
 
 class ResourceSwitchBuilder implements Builder
 {
-    use CompositeBuilderMethods;
+    use Builder\CompositeBuilderMethods;
 
     protected $idName   = 'resource.id';
     protected $idRegexp = '[1-9][0-9]*';
@@ -93,7 +97,7 @@ class ResourceSwitchBuilder implements Builder
     {
         if (preg_match('#' . $regexp . '#', 'new')) {
             $message = 'Uri keyword conflict: `resource/new/form` matches `resource/{id}/form` path';
-            throw new Exception\BuilderLogicException($message);
+            throw new Builder\Exception\BuilderLogicException($message);
         }
 
         $this->idRegexp = $regexp;
@@ -109,7 +113,7 @@ class ResourceSwitchBuilder implements Builder
             'new'  => $this->pullRoute('NEW', $routes)
         ]);
 
-        return ['form' => new Route\Gate\UriAttributeSelect($forms, $this->idName, 'edit', 'new')];
+        return ['form' => new UriAttributeSelect($forms, $this->idName, 'edit', 'new')];
     }
 
     private function wrapRouteType(string $name, Route $route): Route
@@ -117,7 +121,7 @@ class ResourceSwitchBuilder implements Builder
         switch ($name) {
             case 'INDEX':
             case 'POST':
-                return new Route\Gate\PathEndGate($route);
+                return new PathEndGate($route);
             case 'NEW':
                 return new PatternGate(new Path('new/form'), $route);
             case 'EDIT':
@@ -136,7 +140,7 @@ class ResourceSwitchBuilder implements Builder
 
         $routes['GET'] = new RouteScan($getRoutes);
 
-        return new Route\Gate\UriAttributeSelect(new MethodSwitch($routes, 'GET'), $this->idName, 'item', 'index');
+        return new UriAttributeSelect(new MethodSwitch($routes, 'GET'), $this->idName, 'item', 'index');
     }
 
     private function pullRoute(string $name, array &$routes): ?Route

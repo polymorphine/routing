@@ -12,8 +12,9 @@
 namespace Polymorphine\Routing\Builder;
 
 use Polymorphine\Routing\Builder;
-use Polymorphine\Routing\Builder\Resource\FormsContext;
+use Polymorphine\Routing\Builder\Resource\ResourceSwitchBuilder;
 use Polymorphine\Routing\Builder\Resource\ContextFormsResourceSwitchBuilder;
+use Polymorphine\Routing\Builder\Resource\FormsContext;
 use Polymorphine\Routing\Route;
 use Psr\Http\Server\RequestHandlerInterface;
 
@@ -213,7 +214,7 @@ class ContextRouteBuilder implements Builder
      * @see RouteScanBuilder::resource()
      * @see PathSwitchBuilder::resource()
      *
-     * @param array                     $routes
+     * @param array             $routes
      * @param null|FormsContext $formsBuilder
      *
      * @return ResourceSwitchBuilder

@@ -49,7 +49,7 @@ class ContextRouteBuilderTest extends TestCase
         $this->assertInstanceOf(Builder\RouteScanBuilder::class, $this->builder()->responseScan());
         $this->assertInstanceOf(Builder\MethodSwitchBuilder::class, $this->builder()->methodSwitch());
         $this->assertInstanceOf(Builder\PathSwitchBuilder::class, $this->builder()->pathSwitch());
-        $this->assertInstanceOf(Builder\ResourceSwitchBuilder::class, $this->builder()->resource());
+        $this->assertInstanceOf(Builder\Resource\ResourceSwitchBuilder::class, $this->builder()->resource());
     }
 
     public function testCallbackEndpoint()

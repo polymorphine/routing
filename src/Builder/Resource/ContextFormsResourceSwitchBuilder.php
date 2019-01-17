@@ -11,34 +11,38 @@
 
 namespace Polymorphine\Routing\Builder\Resource;
 
-use Polymorphine\Routing\Builder;
+use Polymorphine\Routing\Builder\BuilderContext;
+use Polymorphine\Routing\Builder\ContextRouteBuilder;
+use Polymorphine\Routing\Builder\RouteScanBuilder;
 use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Route\Gate\PathEndGate;
+use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\PathSegment;
 
 
-class ContextFormsResourceSwitchBuilder extends Builder\ResourceSwitchBuilder
+class ContextFormsResourceSwitchBuilder extends ResourceSwitchBuilder
 {
     private $forms;
     private $formSwitch;
 
     public function __construct(
         FormsContext $forms,
-        ?Builder\BuilderContext $context = null,
+        ?BuilderContext $context = null,
         array $routes = []
     ) {
         $this->forms = $forms;
         parent::__construct($context, $this->removeFormRoutes($routes));
     }
 
-    public function add(): Builder\ContextRouteBuilder
+    public function add(): ContextRouteBuilder
     {
         return $this->formSwitch()->route('new')->wrapRouteCallback(function (Route $route) {
-            return new Route\Gate\PathEndGate($route);
+            return new PathEndGate($route);
         });
     }
 
-    public function edit(): Builder\ContextRouteBuilder
+    public function edit(): ContextRouteBuilder
     {
-        $idPattern = new Route\Gate\Pattern\UriSegment\PathSegment($this->idName, $this->idRegexp);
+        $idPattern = new PathSegment($this->idName, $this->idRegexp);
         return $this->formSwitch()->route('edit')->pattern($idPattern);
     }
 
@@ -53,7 +57,7 @@ class ContextFormsResourceSwitchBuilder extends Builder\ResourceSwitchBuilder
         return [];
     }
 
-    private function formSwitch(): Builder\RouteScanBuilder
+    private function formSwitch(): RouteScanBuilder
     {
         return $this->formSwitch ?: $this->formSwitch = $this->forms->formSwitch($this->idName);
     }

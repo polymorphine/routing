@@ -12,8 +12,8 @@
 namespace Polymorphine\Routing\Tests\Builder;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Builder\ResourceSwitchBuilder;
 use Polymorphine\Routing\Builder\PathSwitchBuilder;
+use Polymorphine\Routing\Builder\Resource\ResourceSwitchBuilder;
 use Polymorphine\Routing\Builder\Exception\BuilderLogicException;
 use Polymorphine\Routing\Route\Splitter\PathSwitch;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
@@ -136,7 +136,7 @@ class PathSwitchBuilderTest extends TestCase
 
     public function testResourceFormsPathOverwrite_ThrowsException()
     {
-        $builder  = $this->builder()->withResourcesFormsPath('forms');
+        $builder = $this->builder()->withResourcesFormsPath('forms');
         $this->expectException(BuilderLogicException::class);
         $builder->withResourcesFormsPath('other');
     }

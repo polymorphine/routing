@@ -12,8 +12,8 @@
 namespace Polymorphine\Routing\Tests\Builder;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Builder\ResourceSwitchBuilder;
 use Polymorphine\Routing\Builder\RouteScanBuilder;
+use Polymorphine\Routing\Builder\Resource\ResourceSwitchBuilder;
 use Polymorphine\Routing\Builder\Exception\BuilderLogicException;
 use Polymorphine\Routing\Route\Splitter\RouteScan;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
@@ -96,7 +96,6 @@ class RouteScanBuilderTest extends TestCase
         $this->assertInstanceOf(ResourceSwitchBuilder::class, $this->builder()->resource('res'));
     }
 
-
     public function testSeparateFormsPathForResourceBuilderCanBeSet()
     {
         $builder  = $this->builder()->withResourcesFormsPath('forms');
@@ -121,7 +120,7 @@ class RouteScanBuilderTest extends TestCase
 
     public function testResourceFormsPathOverwrite_ThrowsException()
     {
-        $builder  = $this->builder()->withResourcesFormsPath('forms');
+        $builder = $this->builder()->withResourcesFormsPath('forms');
         $this->expectException(BuilderLogicException::class);
         $builder->withResourcesFormsPath('other');
     }

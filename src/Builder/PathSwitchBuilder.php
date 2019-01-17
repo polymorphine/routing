@@ -12,6 +12,8 @@
 namespace Polymorphine\Routing\Builder;
 
 use Polymorphine\Routing\Builder;
+use Polymorphine\Routing\Builder\Resource\ResourceSwitchBuilder;
+use Polymorphine\Routing\Builder\Resource\FormsContext;
 use Polymorphine\Routing\Route;
 use InvalidArgumentException;
 
@@ -41,7 +43,7 @@ class PathSwitchBuilder implements Builder
     public function resource(string $name, array $routes = []): ResourceSwitchBuilder
     {
         if ($this->resourcesForms) {
-            $formsContext = new Builder\Resource\FormsContext($name, $this->resourcesForms);
+            $formsContext = new FormsContext($name, $this->resourcesForms);
             return $this->route($name)->path($name)->resource($routes, $formsContext);
         }
 
