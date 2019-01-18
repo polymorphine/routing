@@ -19,7 +19,6 @@ class FormsContext
 {
     private $formsBuilder;
     private $resourceName;
-    private $formSwitch;
 
     public function __construct(string $resourceName, Builder\PathSwitchBuilder $formsBuilder)
     {
@@ -29,15 +28,13 @@ class FormsContext
 
     public function formSwitch(string $id): Builder\RouteScanBuilder
     {
-        if ($this->formSwitch) { return $this->formSwitch; }
-
         $routeWrapper = function (Route $route) use ($id) {
             return new Route\Gate\UriAttributeSelect($route, $id, 'edit', 'new');
         };
 
-        return $this->formSwitch = $this->formsBuilder
-                                        ->route($this->resourceName)
-                                        ->wrapRouteCallback($routeWrapper)
-                                        ->responseScan();
+        return $this->formsBuilder
+                    ->route($this->resourceName)
+                    ->wrapRouteCallback($routeWrapper)
+                    ->responseScan();
     }
 }
