@@ -8,8 +8,9 @@
 #### Concept feature: *Tree structure finding matching route and resolving urls*
 Router may consist of individual routes (see [`Route`](src/Route.php) interface) from
 three main categories:
-* **Splitters** - Switches that branch single route into multiple route paths. I didn't
-  use `switch` name because it's a php keyword and IDE messed up formatting.
+* **Splitters** - Switches that branch single route into multiple route paths.
+  `Switch` would be more accurate name, but it's a php keyword and it would require
+  some additional prefix/postfix description.
 * **Gates** - Routes that determine if current request should be forwarded or performs
   some preprocessing based on request passing through.
 * **Endpoints** - Use case entry points. Routes which only responsibility is to take
