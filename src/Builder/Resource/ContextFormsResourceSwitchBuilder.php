@@ -59,7 +59,7 @@ class ContextFormsResourceSwitchBuilder extends ResourceSwitchBuilder
 
     private function formSwitch(): RouteScanBuilder
     {
-        return $this->formSwitch ?: $this->formSwitch = $this->forms->formSwitch($this->idName);
+        return $this->formSwitch ?: $this->formSwitch = $this->forms->builder($this->idName);
     }
 
     private function removeFormRoutes(array $routes): array
