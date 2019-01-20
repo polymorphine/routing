@@ -113,11 +113,11 @@ Endpoints are responsible for handling incoming server requests with procedures 
 Beside that, endpoints can can handle types of requests that can be resolved in generic way (`OPTIONS`, `HEAD`).
 There are several ways to define endpoint behaviour:
 
-1. [`CallbackEndpoint`](src/Route/Endpoint/CallbackEndpoint.php) ([`RouteBuilder::callback($callable)](src/Builder/ContextRouteBuilder.php#L52))
+1. [`CallbackEndpoint`](src/Route/Endpoint/CallbackEndpoint.php) ([`RouteBuilder::callback($callable)`](src/Builder/ContextRouteBuilder.php#L52))
   will handle forwarded request with given callback function having following signature:
 
        $callable = function (ServerRequestInterface $request): ResponseInterface { ... }
 
-2. [`HandlerEndpoint`](src/Route/Endpoint/HandlerEndpoint.php) ([`RouteBuilder::handler(RequestHandlerInterface $handler)](src/Builder/ContextRouteBuilder.php#L64))
+2. [`HandlerEndpoint`](src/Route/Endpoint/HandlerEndpoint.php) ([`RouteBuilder::handler(RequestHandlerInterface $handler)`](src/Builder/ContextRouteBuilder.php#L64))
   will handle forwarded request with given class implementing RequestHandlerInterface.
 
