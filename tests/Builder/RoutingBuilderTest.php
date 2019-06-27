@@ -12,7 +12,7 @@
 namespace Polymorphine\Routing\Tests\Builder;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Builder\RoutingBuilder;
+use Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Builder\Node\ContextRouteNode;
 use Polymorphine\Routing\Builder\DiscreteRouteBuilder;
 use Polymorphine\Routing\Builder\Exception\BuilderLogicException;
@@ -30,7 +30,7 @@ class RoutingBuilderTest extends TestCase
 {
     public function testInstantiation()
     {
-        $this->assertInstanceOf(RoutingBuilder::class, $this->root());
+        $this->assertInstanceOf(Builder::class, $this->root());
     }
 
     public function testRouterMethodWithoutSetup_ThrowsException()
@@ -89,10 +89,10 @@ class RoutingBuilderTest extends TestCase
         $this->assertInstanceOf(RedirectEndpoint::class, $builder->build());
     }
 
-    private function root(ContainerInterface $container = null): RoutingBuilder
+    private function root(ContainerInterface $container = null): Builder
     {
         return $container
-            ? new RoutingBuilder(new FakeUri(), new FakeResponse(), $container)
-            : new RoutingBuilder(new FakeUri(), new FakeResponse());
+            ? new Builder(new FakeUri(), new FakeResponse(), $container)
+            : new Builder(new FakeUri(), new FakeResponse());
     }
 }
