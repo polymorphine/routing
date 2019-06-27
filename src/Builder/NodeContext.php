@@ -12,7 +12,6 @@
 namespace Polymorphine\Routing\Builder;
 
 use Polymorphine\Routing\Route;
-use Polymorphine\Middleware\LazyMiddleware;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
@@ -107,10 +106,10 @@ class NodeContext implements Node
     public function addContainerMiddlewareGate(string $middlewareContainerId)
     {
         $this->addGate(function (Route $route) use ($middlewareContainerId) {
-            $middleware = new LazyMiddleware(function () use ($middlewareContainerId) {
-                return $this->container()->get($middlewareContainerId);
+            return new Route\Gate\LazyRoute(function () use ($middlewareContainerId, $route) {
+                $middleware = $this->container()->get($middlewareContainerId);
+                return new Route\Gate\MiddlewareGateway($middleware, $route);
             });
-            return new Route\Gate\MiddlewareGateway($middleware, $route);
         });
     }
 
