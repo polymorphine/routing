@@ -13,7 +13,7 @@ namespace Polymorphine\Routing\Tests\Builder;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Builder\RoutingBuilder;
-use Polymorphine\Routing\Builder\Node\ContextRouteBuilder;
+use Polymorphine\Routing\Builder\Node\ContextRouteNode;
 use Polymorphine\Routing\Builder\DiscreteRouteBuilder;
 use Polymorphine\Routing\Builder\Exception\BuilderLogicException;
 use Polymorphine\Routing\Router;
@@ -63,7 +63,7 @@ class RoutingBuilderTest extends TestCase
     public function testBuilderMethod_ReturnsRouteBuilder()
     {
         $root = $this->root();
-        $this->assertInstanceOf(ContextRouteBuilder::class, $root->detachedNode());
+        $this->assertInstanceOf(ContextRouteNode::class, $root->detachedNode());
     }
 
     public function testWithoutContainerBuilderContextFactoryRoute_ThrowsException()

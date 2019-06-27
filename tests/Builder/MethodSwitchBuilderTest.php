@@ -12,7 +12,7 @@
 namespace Polymorphine\Routing\Tests\Builder;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Builder\Node\MethodSwitchBuilder;
+use Polymorphine\Routing\Builder\Node\MethodSwitchNode;
 use Polymorphine\Routing\Route\Splitter\MethodSwitch;
 use Polymorphine\Routing\Exception\EndpointCallException;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
@@ -28,7 +28,7 @@ class MethodSwitchBuilderTest extends TestCase
 
     public function testInstantiation()
     {
-        $this->assertInstanceOf(MethodSwitchBuilder::class, $this->builder());
+        $this->assertInstanceOf(MethodSwitchNode::class, $this->builder());
     }
 
     public function testBuild_ReturnsResponseScanSwitch()
@@ -118,8 +118,8 @@ class MethodSwitchBuilderTest extends TestCase
         $switch->route('GET|POST|PATCH');
     }
 
-    private function builder(): MethodSwitchBuilder
+    private function builder(): MethodSwitchNode
     {
-        return new MethodSwitchBuilder();
+        return new MethodSwitchNode();
     }
 }

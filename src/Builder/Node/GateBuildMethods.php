@@ -13,7 +13,7 @@ namespace Polymorphine\Routing\Builder\Node;
 
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\Pattern;
-use Polymorphine\Routing\Builder\BuilderContext;
+use Polymorphine\Routing\Builder\NodeContext;
 use Psr\Http\Server\MiddlewareInterface;
 
 
@@ -21,7 +21,7 @@ trait GateBuildMethods
 {
     use Pattern\PatternSelection;
 
-    /** @var BuilderContext */
+    /** @var NodeContext */
     private $context;
 
     /**

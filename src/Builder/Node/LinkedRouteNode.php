@@ -11,12 +11,12 @@
 
 namespace Polymorphine\Routing\Builder\Node;
 
-use Polymorphine\Routing\Builder;
+use Polymorphine\Routing\Node;
 use Polymorphine\Routing\Builder\Exception;
 use Polymorphine\Routing\Route;
 
 
-class LinkedRouteBuilder implements Builder
+class LinkedRouteNode implements Node
 {
     private $futureRoute;
 

@@ -14,7 +14,7 @@ namespace Polymorphine\Routing\Tests\Builder;
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Builder\Node;
 use Polymorphine\Routing\Builder\Exception;
-use Polymorphine\Routing\Builder\BuilderContext;
+use Polymorphine\Routing\Builder\NodeContext;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\LazyRoute;
 use Polymorphine\Routing\Route\Gate\Pattern\UriPattern;
@@ -43,15 +43,15 @@ class ContextRouteBuilderTest extends TestCase
 
     public function testInstantiation()
     {
-        $this->assertInstanceOf(Node\ContextRouteBuilder::class, $this->builder());
+        $this->assertInstanceOf(Node\ContextRouteNode::class, $this->builder());
     }
 
     public function testRouteCanBeSplit()
     {
-        $this->assertInstanceOf(Node\RouteScanBuilder::class, $this->builder()->responseScan());
-        $this->assertInstanceOf(Node\MethodSwitchBuilder::class, $this->builder()->methodSwitch());
-        $this->assertInstanceOf(Node\PathSwitchBuilder::class, $this->builder()->pathSwitch());
-        $this->assertInstanceOf(Node\Resource\ResourceSwitchBuilder::class, $this->builder()->resource());
+        $this->assertInstanceOf(Node\RouteScanNode::class, $this->builder()->responseScan());
+        $this->assertInstanceOf(Node\MethodSwitchNode::class, $this->builder()->methodSwitch());
+        $this->assertInstanceOf(Node\PathSwitchNode::class, $this->builder()->pathSwitch());
+        $this->assertInstanceOf(Node\Resource\ResourceSwitchNode::class, $this->builder()->resource());
     }
 
     public function testCallbackEndpoint()
@@ -120,7 +120,7 @@ class ContextRouteBuilderTest extends TestCase
         }
     }
 
-    public function checkCase(Node\ContextRouteBuilder $builder, ServerRequestInterface $match, ServerRequestInterface $block)
+    public function checkCase(Node\ContextRouteNode $builder, ServerRequestInterface $match, ServerRequestInterface $block)
     {
         $builder->callback($this->callbackResponse($response));
         $route = $builder->build();
@@ -234,7 +234,7 @@ class ContextRouteBuilderTest extends TestCase
         $split->route('routeB')->pattern(new Path('baz*'))->callback($endpoint('B'));
         $route = $builder->build();
 
-        $builder = new Node\MethodSwitchBuilder();
+        $builder = new Node\MethodSwitchNode();
         $builder->route('POST')->pattern(new Scheme('https'))->joinRoute($route);
         $builder->route('GET')->joinRoute($route);
         $route = $builder->build();
@@ -260,7 +260,7 @@ class ContextRouteBuilderTest extends TestCase
         $split->route('routeB')->pattern(new Path('baz*'))->joinRoute($endpoint);
         $route = $builder->build();
 
-        $builder = new Node\MethodSwitchBuilder();
+        $builder = new Node\MethodSwitchNode();
         $builder->route('POST')->link($postRoute)->pattern(new Scheme('https'))->joinRoute($route);
         $builder->route('GET')->joinRoute($route);
         $route = $builder->build();
@@ -271,7 +271,7 @@ class ContextRouteBuilderTest extends TestCase
 
     public function testLinkMightBeUsedInStructureBeforeRouteIsBuilt()
     {
-        $builder = new Node\MethodSwitchBuilder();
+        $builder = new Node\MethodSwitchNode();
 
         $split = $builder->get()->link($link)->responseScan();
         $split->route('first')->callback($this->callbackResponse($response));
@@ -284,21 +284,21 @@ class ContextRouteBuilderTest extends TestCase
 
     public function testRoutesCanBeJoinedAfterLinkIsDefined()
     {
-        $builder = new Node\RouteScanBuilder();
+        $builder = new Node\RouteScanNode();
         $builder->route('second')->method('POST')->link($link)->callback($this->callbackResponse($response));
         $builder->route('first')->method('GET')->joinLink($link);
         $route = $builder->build();
         $this->assertSame($response, $route->forward(new FakeServerRequest('GET'), self::$prototype));
         $this->assertSame(self::$prototype, $route->forward(new FakeServerRequest('DELETE'), self::$prototype));
 
-        $builder = new Node\RouteScanBuilder();
+        $builder = new Node\RouteScanNode();
         $builder->defaultRoute()->method('POST')->link($link)->callback($this->callbackResponse($response));
         $builder->route('other')->method('GET')->joinLink($link);
         $route = $builder->build();
         $this->assertSame($response, $route->forward(new FakeServerRequest('GET'), self::$prototype));
         $this->assertSame(self::$prototype, $route->forward(new FakeServerRequest('DELETE'), self::$prototype));
 
-        $builder = new Node\RouteScanBuilder();
+        $builder = new Node\RouteScanNode();
         $builder->route('other')->method('POST')->link($link)->callback($this->callbackResponse($response));
         $builder->defaultRoute()->method('GET')->joinLink($link);
         $route = $builder->build();
@@ -308,21 +308,21 @@ class ContextRouteBuilderTest extends TestCase
 
     public function testRoutesCanBeJoinedBeforeLinkIsDefined()
     {
-        $builder = new Node\RouteScanBuilder();
+        $builder = new Node\RouteScanNode();
         $builder->route('first')->method('GET')->joinLink($link);
         $builder->route('second')->method('POST')->link($link)->callback($this->callbackResponse($response));
         $route = $builder->build();
         $this->assertSame($response, $route->forward(new FakeServerRequest('GET'), self::$prototype));
         $this->assertSame(self::$prototype, $route->forward(new FakeServerRequest('DELETE'), self::$prototype));
 
-        $builder = new Node\RouteScanBuilder();
+        $builder = new Node\RouteScanNode();
         $builder->route('other')->method('GET')->joinLink($link);
         $builder->defaultRoute()->method('POST')->link($link)->callback($this->callbackResponse($response));
         $route = $builder->build();
         $this->assertSame($response, $route->forward(new FakeServerRequest('GET'), self::$prototype));
         $this->assertSame(self::$prototype, $route->forward(new FakeServerRequest('DELETE'), self::$prototype));
 
-        $builder = new Node\RouteScanBuilder();
+        $builder = new Node\RouteScanNode();
         $builder->route('other')->method('POST')->joinLink($link);
         $builder->defaultRoute()->method('GET')->link($link)->callback($this->callbackResponse($response));
         $route = $builder->build();
@@ -332,7 +332,7 @@ class ContextRouteBuilderTest extends TestCase
 
     public function testRouteJoinedBackToItsOwnPath_ThrowsException()
     {
-        $builder = new Node\MethodSwitchBuilder();
+        $builder = new Node\MethodSwitchNode();
         $split   = $builder->get()->link($link)->responseScan();
         $split->route('first')->callback($this->callbackResponse($response));
         $split->route('second')->joinLink($link);
@@ -379,8 +379,8 @@ class ContextRouteBuilderTest extends TestCase
         $this->assertSame('handler response', (string) $response->getBody());
     }
 
-    private function builder(?ContainerInterface $container = null, ?callable $router = null): Node\ContextRouteBuilder
+    private function builder(?ContainerInterface $container = null, ?callable $router = null): Node\ContextRouteNode
     {
-        return new Node\ContextRouteBuilder(new BuilderContext($container, $router));
+        return new Node\ContextRouteNode(new NodeContext($container, $router));
     }
 }

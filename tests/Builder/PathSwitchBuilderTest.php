@@ -12,8 +12,8 @@
 namespace Polymorphine\Routing\Tests\Builder;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Builder\Node\PathSwitchBuilder;
-use Polymorphine\Routing\Builder\Node\Resource\ResourceSwitchBuilder;
+use Polymorphine\Routing\Builder\Node\PathSwitchNode;
+use Polymorphine\Routing\Builder\Node\Resource\ResourceSwitchNode;
 use Polymorphine\Routing\Builder\Exception\BuilderLogicException;
 use Polymorphine\Routing\Route\Splitter\PathSwitch;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
@@ -29,7 +29,7 @@ class PathSwitchBuilderTest extends TestCase
 
     public function testInstantiation()
     {
-        $this->assertInstanceOf(PathSwitchBuilder::class, $this->builder());
+        $this->assertInstanceOf(PathSwitchNode::class, $this->builder());
     }
 
     public function testBuild_ReturnsResponseScanSwitch()
@@ -109,7 +109,7 @@ class PathSwitchBuilderTest extends TestCase
 
     public function testResourceBuilderCanBeAdded()
     {
-        $this->assertInstanceOf(ResourceSwitchBuilder::class, $this->builder()->resource('res'));
+        $this->assertInstanceOf(ResourceSwitchNode::class, $this->builder()->resource('res'));
     }
 
     public function testSeparateFormsPathForResourceBuilderCanBeSet()
@@ -141,8 +141,8 @@ class PathSwitchBuilderTest extends TestCase
         $builder->withResourcesFormsPath('other');
     }
 
-    private function builder(): PathSwitchBuilder
+    private function builder(): PathSwitchNode
     {
-        return new PathSwitchBuilder();
+        return new PathSwitchNode();
     }
 }

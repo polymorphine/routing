@@ -12,7 +12,7 @@
 namespace Polymorphine\Routing;
 
 
-interface Builder
+interface Node
 {
     public function build(): Route;
 }

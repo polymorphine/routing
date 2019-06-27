@@ -11,29 +11,29 @@
 
 namespace Polymorphine\Routing\Builder\Node;
 
-use Polymorphine\Routing\Builder;
-use Polymorphine\Routing\Builder\BuilderContext;
+use Polymorphine\Routing\Node;
+use Polymorphine\Routing\Builder\NodeContext;
 use Polymorphine\Routing\Builder\Exception;
-use Polymorphine\Routing\Builder\Node\Resource\ResourceSwitchBuilder;
+use Polymorphine\Routing\Builder\Node\Resource\ResourceSwitchNode;
 use Polymorphine\Routing\Builder\Node\Resource\FormsContext;
 use Polymorphine\Routing\Route;
 use InvalidArgumentException;
 
 
-class PathSwitchBuilder implements Builder
+class PathSwitchNode implements Node
 {
     use CompositeBuilderMethods;
 
     private $resourcesForms;
     private $rootLabel;
 
-    public function __construct(?BuilderContext $context = null, array $routes = [])
+    public function __construct(?NodeContext $context = null, array $routes = [])
     {
-        $this->context = $context ?? new BuilderContext();
+        $this->context = $context ?? new NodeContext();
         $this->routes  = $routes;
     }
 
-    public function route(string $name): ContextRouteBuilder
+    public function route(string $name): ContextRouteNode
     {
         if (!$name) {
             throw new InvalidArgumentException('Name is required for path segment route switch');
@@ -42,7 +42,7 @@ class PathSwitchBuilder implements Builder
         return $this->addBuilder($name);
     }
 
-    public function resource(string $name, array $routes = []): ResourceSwitchBuilder
+    public function resource(string $name, array $routes = []): ResourceSwitchNode
     {
         if ($this->resourcesForms) {
             $formsContext = new FormsContext($name, $this->resourcesForms);
@@ -62,7 +62,7 @@ class PathSwitchBuilder implements Builder
         return $this;
     }
 
-    public function root(string $label = null): ContextRouteBuilder
+    public function root(string $label = null): ContextRouteNode
     {
         if ($this->rootLabel) {
             throw new Exception\BuilderLogicException('Root path route already defined');

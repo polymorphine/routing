@@ -11,14 +11,14 @@
 
 namespace Polymorphine\Routing\Builder;
 
-use Polymorphine\Routing\Builder;
+use Polymorphine\Routing\Node;
 use Polymorphine\Routing\Route;
 use Polymorphine\Middleware\LazyMiddleware;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
 
-class BuilderContext implements Builder
+class NodeContext implements Node
 {
     /** @var null|ContainerInterface */
     private $container;
@@ -29,7 +29,7 @@ class BuilderContext implements Builder
     /** @var null|Route */
     private $route;
 
-    /** @var null|Builder */
+    /** @var null|Node */
     private $builder;
 
     /** @var callable[] */
@@ -54,7 +54,7 @@ class BuilderContext implements Builder
         return $this->route = $this->wrapRoute($this->builder->build());
     }
 
-    public function create(): BuilderContext
+    public function create(): NodeContext
     {
         $newContext = clone $this;
 
@@ -121,7 +121,7 @@ class BuilderContext implements Builder
         $this->route = $this->wrapRoute($route);
     }
 
-    public function setBuilder(Builder $builder): void
+    public function setBuilder(Node $builder): void
     {
         $this->stateCheck();
         $this->builder = $builder;

@@ -20,13 +20,13 @@ class FormsContext
     private $formsBuilder;
     private $resourceName;
 
-    public function __construct(string $resourceName, Node\PathSwitchBuilder $formsBuilder)
+    public function __construct(string $resourceName, Node\PathSwitchNode $formsBuilder)
     {
         $this->resourceName = $resourceName;
         $this->formsBuilder = $formsBuilder;
     }
 
-    public function builder(string $id): Node\RouteScanBuilder
+    public function builder(string $id): Node\RouteScanNode
     {
         $routeWrapper = function (Route $route) use ($id) {
             return new Route\Gate\UriAttributeSelect($route, $id, 'edit', 'new');

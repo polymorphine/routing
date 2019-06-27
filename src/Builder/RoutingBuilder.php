@@ -11,8 +11,8 @@
 
 namespace Polymorphine\Routing\Builder;
 
-use Polymorphine\Routing\Builder;
-use Polymorphine\Routing\Builder\Node\ContextRouteBuilder;
+use Polymorphine\Routing\Node;
+use Polymorphine\Routing\Builder\Node\ContextRouteNode;
 use Polymorphine\Routing\Router;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -27,7 +27,7 @@ class RoutingBuilder
     /** @var ContainerInterface */
     private $container;
 
-    /** @var Builder */
+    /** @var Node */
     private $builder;
 
     /** @var Router */
@@ -52,18 +52,18 @@ class RoutingBuilder
         return $this->router = new Router($this->builder->build(), $this->baseUri, $this->nullResponse);
     }
 
-    public function rootNode(): ContextRouteBuilder
+    public function rootNode(): ContextRouteNode
     {
         if ($this->builder) {
             throw new Exception\BuilderLogicException('Root builder already defined');
         }
         $this->builder = $this->createContext();
-        return new ContextRouteBuilder($this->builder);
+        return new ContextRouteNode($this->builder);
     }
 
-    public function detachedNode(): ContextRouteBuilder
+    public function detachedNode(): ContextRouteNode
     {
-        return new ContextRouteBuilder($this->createContext());
+        return new ContextRouteNode($this->createContext());
     }
 
     public function route(): DiscreteRouteBuilder
@@ -71,8 +71,8 @@ class RoutingBuilder
         return new DiscreteRouteBuilder($this->createContext());
     }
 
-    private function createContext(): BuilderContext
+    private function createContext(): NodeContext
     {
-        return new BuilderContext($this->container, function () { return $this->router; });
+        return new NodeContext($this->container, function () { return $this->router; });
     }
 }
