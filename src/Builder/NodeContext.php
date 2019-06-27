@@ -11,7 +11,6 @@
 
 namespace Polymorphine\Routing\Builder;
 
-use Polymorphine\Routing\Node;
 use Polymorphine\Routing\Route;
 use Polymorphine\Middleware\LazyMiddleware;
 use Psr\Container\ContainerInterface;

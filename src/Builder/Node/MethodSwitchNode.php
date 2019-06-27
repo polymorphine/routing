@@ -11,7 +11,7 @@
 
 namespace Polymorphine\Routing\Builder\Node;
 
-use Polymorphine\Routing\Node;
+use Polymorphine\Routing\Builder\Node;
 use Polymorphine\Routing\Builder\NodeContext;
 use Polymorphine\Routing\Route;
 use InvalidArgumentException;

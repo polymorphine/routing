@@ -9,7 +9,9 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing;
+namespace Polymorphine\Routing\Builder;
+
+use Polymorphine\Routing\Route;
 
 
 interface Node
