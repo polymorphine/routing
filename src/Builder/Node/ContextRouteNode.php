@@ -147,11 +147,11 @@ class ContextRouteNode implements Node
      * Optionally already defined array of Routes with keys representing
      * Uri (and routing) path segment might be given as parameter.
      *
+     * @see \Polymorphine\Routing\Route\Splitter\PathSwitch
+     *
      * @param Route[] $routes associated with Uri & routing path segment keys
      *
      * @return PathSwitchNode
-     *@see \Polymorphine\Routing\Route\Splitter\PathSwitch
-     *
      */
     public function pathSwitch(array $routes = []): PathSwitchNode
     {
@@ -168,8 +168,8 @@ class ContextRouteNode implements Node
      * @param Route[] $routes associated with routing path segment keys
      *
      * @return RouteScanNode
-     *@see \Polymorphine\Routing\Route\Splitter\RouteScan
      *
+     *@see \Polymorphine\Routing\Route\Splitter\RouteScan
      */
     public function responseScan(array $routes = []): RouteScanNode
     {
@@ -184,8 +184,8 @@ class ContextRouteNode implements Node
      * @param Route[] $routes associated with http method keys
      *
      * @return MethodSwitchNode
-     *@see \Polymorphine\Routing\Route\Splitter\MethodSwitch
      *
+     *@see \Polymorphine\Routing\Route\Splitter\MethodSwitch
      */
     public function methodSwitch(array $routes = []): MethodSwitchNode
     {
@@ -213,12 +213,12 @@ class ContextRouteNode implements Node
      * Otherwise it is recommended to build resource with method that defines its
      * name directly in PathSwitchBuilder or RouteScanBuilder.
      *
-     * @param array $routes
+     * @param array             $routes
      * @param null|FormsContext $formsBuilder
      *
      * @return ResourceSwitchNode
-     *@see PathSwitchNode::resource()
      *
+     *@see PathSwitchNode::resource()
      * @see RouteScanNode::resource()
      */
     public function resource(array $routes = [], ?FormsContext $formsBuilder = null): ResourceSwitchNode

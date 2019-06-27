@@ -75,7 +75,7 @@ class RoutingBuilderTest extends TestCase
 
     public function testContainerIsPassedToBuilderContext()
     {
-        $root = $this->root(new FakeContainer());
+        $root    = $this->root(new FakeContainer());
         $builder = $root->rootNode();
         $builder->factory(FakeHandlerFactory::class);
         $this->assertInstanceOf(HandlerFactoryEndpoint::class, $builder->build());
@@ -83,7 +83,7 @@ class RoutingBuilderTest extends TestCase
 
     public function testRouterCallbackIsPassedToBuilderContext()
     {
-        $root = $this->root();
+        $root    = $this->root();
         $builder = $root->rootNode();
         $builder->redirect('routing.path');
         $this->assertInstanceOf(RedirectEndpoint::class, $builder->build());
