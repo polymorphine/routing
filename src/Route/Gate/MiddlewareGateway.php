@@ -12,7 +12,6 @@
 namespace Polymorphine\Routing\Route\Gate;
 
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\RouteHandler;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;

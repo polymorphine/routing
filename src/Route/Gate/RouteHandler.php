@@ -9,11 +9,12 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing;
+namespace Polymorphine\Routing\Route\Gate;
 
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Polymorphine\Routing\Route;
 
 
 class RouteHandler implements RequestHandlerInterface
