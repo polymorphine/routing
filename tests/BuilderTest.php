@@ -9,7 +9,7 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Tests\Builder;
+namespace Polymorphine\Routing\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Builder;
@@ -26,7 +26,7 @@ use Polymorphine\Routing\Tests\Doubles\FakeUri;
 use Psr\Container\ContainerInterface;
 
 
-class RoutingBuilderTest extends TestCase
+class BuilderTest extends TestCase
 {
     public function testInstantiation()
     {

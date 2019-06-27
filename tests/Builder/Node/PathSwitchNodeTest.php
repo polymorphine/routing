@@ -9,7 +9,7 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Tests\Builder;
+namespace Polymorphine\Routing\Tests\Builder\Node;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Builder\Node\PathSwitchNode;
@@ -23,7 +23,7 @@ use Polymorphine\Routing\Tests\RoutingTestMethods;
 use InvalidArgumentException;
 
 
-class PathSwitchBuilderTest extends TestCase
+class PathSwitchNodeTest extends TestCase
 {
     use RoutingTestMethods;
 

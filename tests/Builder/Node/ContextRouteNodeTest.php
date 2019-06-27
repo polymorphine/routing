@@ -9,7 +9,7 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Tests\Builder;
+namespace Polymorphine\Routing\Tests\Builder\Node;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Builder\Node;
@@ -37,7 +37,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 
-class ContextRouteBuilderTest extends TestCase
+class ContextRouteNodeTest extends TestCase
 {
     use RoutingTestMethods;
 
