@@ -9,12 +9,14 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Builder;
+namespace Polymorphine\Routing\Builder\Node;
 
 use Polymorphine\Routing\Builder;
-use Polymorphine\Routing\Builder\Resource\ResourceSwitchBuilder;
-use Polymorphine\Routing\Builder\Resource\ContextFormsResourceSwitchBuilder;
-use Polymorphine\Routing\Builder\Resource\FormsContext;
+use Polymorphine\Routing\Builder\BuilderContext;
+use Polymorphine\Routing\Builder\Exception;
+use Polymorphine\Routing\Builder\Node\Resource\ResourceSwitchBuilder;
+use Polymorphine\Routing\Builder\Node\Resource\ContextFormsResourceSwitchBuilder;
+use Polymorphine\Routing\Builder\Node\Resource\FormsContext;
 use Polymorphine\Routing\Route;
 use Psr\Http\Server\RequestHandlerInterface;
 

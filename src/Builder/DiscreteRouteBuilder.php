@@ -22,7 +22,7 @@ use Psr\Http\Server\RequestHandlerInterface;
  */
 class DiscreteRouteBuilder
 {
-    use GateBuildMethods;
+    use Node\GateBuildMethods;
 
     private $context;
 

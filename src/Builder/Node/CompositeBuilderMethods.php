@@ -9,10 +9,11 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Builder;
+namespace Polymorphine\Routing\Builder\Node;
 
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Builder;
+use Polymorphine\Routing\Builder\BuilderContext;
 use InvalidArgumentException;
 
 

@@ -9,9 +9,9 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Builder\Resource;
+namespace Polymorphine\Routing\Builder\Node\Resource;
 
-use Polymorphine\Routing\Builder;
+use Polymorphine\Routing\Builder\Node;
 use Polymorphine\Routing\Route;
 
 
@@ -20,13 +20,13 @@ class FormsContext
     private $formsBuilder;
     private $resourceName;
 
-    public function __construct(string $resourceName, Builder\PathSwitchBuilder $formsBuilder)
+    public function __construct(string $resourceName, Node\PathSwitchBuilder $formsBuilder)
     {
         $this->resourceName = $resourceName;
         $this->formsBuilder = $formsBuilder;
     }
 
-    public function builder(string $id): Builder\RouteScanBuilder
+    public function builder(string $id): Node\RouteScanBuilder
     {
         $routeWrapper = function (Route $route) use ($id) {
             return new Route\Gate\UriAttributeSelect($route, $id, 'edit', 'new');

@@ -9,11 +9,11 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Builder\Resource;
+namespace Polymorphine\Routing\Builder\Node\Resource;
 
 use Polymorphine\Routing\Builder\BuilderContext;
-use Polymorphine\Routing\Builder\ContextRouteBuilder;
-use Polymorphine\Routing\Builder\RouteScanBuilder;
+use Polymorphine\Routing\Builder\Node\ContextRouteBuilder;
+use Polymorphine\Routing\Builder\Node\RouteScanBuilder;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\PathEndGate;
 use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\PathSegment;

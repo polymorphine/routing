@@ -9,11 +9,11 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Builder;
+namespace Polymorphine\Routing\Builder\Node;
 
 use Polymorphine\Routing\Builder;
-use Polymorphine\Routing\Builder\Resource\ResourceSwitchBuilder;
-use Polymorphine\Routing\Builder\Resource\FormsContext;
+use Polymorphine\Routing\Builder\BuilderContext;
+use Polymorphine\Routing\Builder\Exception;
 use Polymorphine\Routing\Route;
 
 
@@ -47,10 +47,10 @@ class RouteScanBuilder implements Builder
         return $this->addBuilder($name);
     }
 
-    public function resource(string $name, array $routes = []): ResourceSwitchBuilder
+    public function resource(string $name, array $routes = []): Resource\ResourceSwitchBuilder
     {
         if ($this->resourcesForms) {
-            $formsContext = new FormsContext($name, $this->resourcesForms);
+            $formsContext = new Resource\FormsContext($name, $this->resourcesForms);
             return $this->route($name)->path($name)->resource($routes, $formsContext);
         }
 

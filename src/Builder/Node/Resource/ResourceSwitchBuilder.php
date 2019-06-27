@@ -9,11 +9,12 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Builder\Resource;
+namespace Polymorphine\Routing\Builder\Node\Resource;
 
 use Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Builder\BuilderContext;
-use Polymorphine\Routing\Builder\ContextRouteBuilder;
+use Polymorphine\Routing\Builder\Node\ContextRouteBuilder;
+use Polymorphine\Routing\Builder\Node\CompositeBuilderMethods;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\PathEndGate;
 use Polymorphine\Routing\Route\Gate\PatternGate;
@@ -27,7 +28,7 @@ use Polymorphine\Routing\Route\Endpoint\NullEndpoint;
 
 class ResourceSwitchBuilder implements Builder
 {
-    use Builder\CompositeBuilderMethods;
+    use CompositeBuilderMethods;
 
     protected $idName   = 'resource.id';
     protected $idRegexp = '[1-9][0-9]*';

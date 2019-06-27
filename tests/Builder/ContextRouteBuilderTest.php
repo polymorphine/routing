@@ -12,7 +12,9 @@
 namespace Polymorphine\Routing\Tests\Builder;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Builder;
+use Polymorphine\Routing\Builder\Node;
+use Polymorphine\Routing\Builder\Exception;
+use Polymorphine\Routing\Builder\BuilderContext;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\LazyRoute;
 use Polymorphine\Routing\Route\Gate\Pattern\UriPattern;
@@ -41,15 +43,15 @@ class ContextRouteBuilderTest extends TestCase
 
     public function testInstantiation()
     {
-        $this->assertInstanceOf(Builder\ContextRouteBuilder::class, $this->builder());
+        $this->assertInstanceOf(Node\ContextRouteBuilder::class, $this->builder());
     }
 
     public function testRouteCanBeSplit()
     {
-        $this->assertInstanceOf(Builder\RouteScanBuilder::class, $this->builder()->responseScan());
-        $this->assertInstanceOf(Builder\MethodSwitchBuilder::class, $this->builder()->methodSwitch());
-        $this->assertInstanceOf(Builder\PathSwitchBuilder::class, $this->builder()->pathSwitch());
-        $this->assertInstanceOf(Builder\Resource\ResourceSwitchBuilder::class, $this->builder()->resource());
+        $this->assertInstanceOf(Node\RouteScanBuilder::class, $this->builder()->responseScan());
+        $this->assertInstanceOf(Node\MethodSwitchBuilder::class, $this->builder()->methodSwitch());
+        $this->assertInstanceOf(Node\PathSwitchBuilder::class, $this->builder()->pathSwitch());
+        $this->assertInstanceOf(Node\Resource\ResourceSwitchBuilder::class, $this->builder()->resource());
     }
 
     public function testCallbackEndpoint()
@@ -77,14 +79,14 @@ class ContextRouteBuilderTest extends TestCase
     {
         $route = $this->builder();
         $route->callback(function () {});
-        $this->expectException(Builder\Exception\BuilderLogicException::class);
+        $this->expectException(Exception\BuilderLogicException::class);
         $route->pathSwitch();
     }
 
     public function testBuildUndefinedRoute_ThrowsException()
     {
         $builder = $this->builder();
-        $this->expectException(Builder\Exception\BuilderLogicException::class);
+        $this->expectException(Exception\BuilderLogicException::class);
         $builder->build();
     }
 
@@ -118,7 +120,7 @@ class ContextRouteBuilderTest extends TestCase
         }
     }
 
-    public function checkCase(Builder\ContextRouteBuilder $builder, ServerRequestInterface $match, ServerRequestInterface $block)
+    public function checkCase(Node\ContextRouteBuilder $builder, ServerRequestInterface $match, ServerRequestInterface $block)
     {
         $builder->callback($this->callbackResponse($response));
         $route = $builder->build();
@@ -232,7 +234,7 @@ class ContextRouteBuilderTest extends TestCase
         $split->route('routeB')->pattern(new Path('baz*'))->callback($endpoint('B'));
         $route = $builder->build();
 
-        $builder = new Builder\MethodSwitchBuilder();
+        $builder = new Node\MethodSwitchBuilder();
         $builder->route('POST')->pattern(new Scheme('https'))->joinRoute($route);
         $builder->route('GET')->joinRoute($route);
         $route = $builder->build();
@@ -258,7 +260,7 @@ class ContextRouteBuilderTest extends TestCase
         $split->route('routeB')->pattern(new Path('baz*'))->joinRoute($endpoint);
         $route = $builder->build();
 
-        $builder = new Builder\MethodSwitchBuilder();
+        $builder = new Node\MethodSwitchBuilder();
         $builder->route('POST')->link($postRoute)->pattern(new Scheme('https'))->joinRoute($route);
         $builder->route('GET')->joinRoute($route);
         $route = $builder->build();
@@ -269,7 +271,7 @@ class ContextRouteBuilderTest extends TestCase
 
     public function testLinkMightBeUsedInStructureBeforeRouteIsBuilt()
     {
-        $builder = new Builder\MethodSwitchBuilder();
+        $builder = new Node\MethodSwitchBuilder();
 
         $split = $builder->get()->link($link)->responseScan();
         $split->route('first')->callback($this->callbackResponse($response));
@@ -282,21 +284,21 @@ class ContextRouteBuilderTest extends TestCase
 
     public function testRoutesCanBeJoinedAfterLinkIsDefined()
     {
-        $builder = new Builder\RouteScanBuilder();
+        $builder = new Node\RouteScanBuilder();
         $builder->route('second')->method('POST')->link($link)->callback($this->callbackResponse($response));
         $builder->route('first')->method('GET')->joinLink($link);
         $route = $builder->build();
         $this->assertSame($response, $route->forward(new FakeServerRequest('GET'), self::$prototype));
         $this->assertSame(self::$prototype, $route->forward(new FakeServerRequest('DELETE'), self::$prototype));
 
-        $builder = new Builder\RouteScanBuilder();
+        $builder = new Node\RouteScanBuilder();
         $builder->defaultRoute()->method('POST')->link($link)->callback($this->callbackResponse($response));
         $builder->route('other')->method('GET')->joinLink($link);
         $route = $builder->build();
         $this->assertSame($response, $route->forward(new FakeServerRequest('GET'), self::$prototype));
         $this->assertSame(self::$prototype, $route->forward(new FakeServerRequest('DELETE'), self::$prototype));
 
-        $builder = new Builder\RouteScanBuilder();
+        $builder = new Node\RouteScanBuilder();
         $builder->route('other')->method('POST')->link($link)->callback($this->callbackResponse($response));
         $builder->defaultRoute()->method('GET')->joinLink($link);
         $route = $builder->build();
@@ -306,21 +308,21 @@ class ContextRouteBuilderTest extends TestCase
 
     public function testRoutesCanBeJoinedBeforeLinkIsDefined()
     {
-        $builder = new Builder\RouteScanBuilder();
+        $builder = new Node\RouteScanBuilder();
         $builder->route('first')->method('GET')->joinLink($link);
         $builder->route('second')->method('POST')->link($link)->callback($this->callbackResponse($response));
         $route = $builder->build();
         $this->assertSame($response, $route->forward(new FakeServerRequest('GET'), self::$prototype));
         $this->assertSame(self::$prototype, $route->forward(new FakeServerRequest('DELETE'), self::$prototype));
 
-        $builder = new Builder\RouteScanBuilder();
+        $builder = new Node\RouteScanBuilder();
         $builder->route('other')->method('GET')->joinLink($link);
         $builder->defaultRoute()->method('POST')->link($link)->callback($this->callbackResponse($response));
         $route = $builder->build();
         $this->assertSame($response, $route->forward(new FakeServerRequest('GET'), self::$prototype));
         $this->assertSame(self::$prototype, $route->forward(new FakeServerRequest('DELETE'), self::$prototype));
 
-        $builder = new Builder\RouteScanBuilder();
+        $builder = new Node\RouteScanBuilder();
         $builder->route('other')->method('POST')->joinLink($link);
         $builder->defaultRoute()->method('GET')->link($link)->callback($this->callbackResponse($response));
         $route = $builder->build();
@@ -330,18 +332,18 @@ class ContextRouteBuilderTest extends TestCase
 
     public function testRouteJoinedBackToItsOwnPath_ThrowsException()
     {
-        $builder = new Builder\MethodSwitchBuilder();
+        $builder = new Node\MethodSwitchBuilder();
         $split   = $builder->get()->link($link)->responseScan();
         $split->route('first')->callback($this->callbackResponse($response));
         $split->route('second')->joinLink($link);
-        $this->expectException(Builder\Exception\BuilderLogicException::class);
+        $this->expectException(Exception\BuilderLogicException::class);
         $builder->build();
     }
 
     public function testRouteBuilderWithUndefinedRouterCallback_Redirect_ThrowsException()
     {
         $builder = $this->builder();
-        $this->expectException(Builder\Exception\BuilderLogicException::class);
+        $this->expectException(Exception\BuilderLogicException::class);
         $builder->redirect('something');
     }
 
@@ -363,7 +365,7 @@ class ContextRouteBuilderTest extends TestCase
     public function testRouteBuilderWithUndefinedContainer_Factory_ThrowsException()
     {
         $builder = $this->builder();
-        $this->expectException(Builder\Exception\BuilderLogicException::class);
+        $this->expectException(Exception\BuilderLogicException::class);
         $builder->factory('something');
     }
 
@@ -377,8 +379,8 @@ class ContextRouteBuilderTest extends TestCase
         $this->assertSame('handler response', (string) $response->getBody());
     }
 
-    private function builder(?ContainerInterface $container = null, ?callable $router = null): Builder\ContextRouteBuilder
+    private function builder(?ContainerInterface $container = null, ?callable $router = null): Node\ContextRouteBuilder
     {
-        return new Builder\ContextRouteBuilder(new Builder\BuilderContext($container, $router));
+        return new Node\ContextRouteBuilder(new BuilderContext($container, $router));
     }
 }

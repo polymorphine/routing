@@ -12,7 +12,7 @@
 namespace Polymorphine\Routing\Tests\Builder;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Builder\MethodSwitchBuilder;
+use Polymorphine\Routing\Builder\Node\MethodSwitchBuilder;
 use Polymorphine\Routing\Route\Splitter\MethodSwitch;
 use Polymorphine\Routing\Exception\EndpointCallException;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
