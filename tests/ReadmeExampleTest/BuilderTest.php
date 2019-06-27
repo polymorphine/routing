@@ -12,8 +12,8 @@
 namespace Polymorphine\Routing\Tests\ReadmeExampleTest;
 
 use Polymorphine\Routing\Tests\ReadmeExampleTest;
+use Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Router;
-use Polymorphine\Routing\Builder\RoutingBuilder;
 use Polymorphine\Routing\Route\Endpoint\CallbackEndpoint;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
@@ -32,7 +32,7 @@ class BuilderTest extends ReadmeExampleTest
         $adminGate    = $this->adminGate();
         $notFound     = $this->notFound();
 
-        $builder = new RoutingBuilder($baseUri, $nullResponse);
+        $builder = new Builder($baseUri, $nullResponse);
         $root    = $builder->rootNode()->middleware($csrf)->middleware($auth)->responseScan();
 
         $main = $root->defaultRoute()->callbackGate($adminGate)->link($filteredGuestRoute)->pathSwitch();

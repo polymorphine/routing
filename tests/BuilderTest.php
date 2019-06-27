@@ -9,11 +9,11 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Tests\Builder;
+namespace Polymorphine\Routing\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Builder\RoutingBuilder;
-use Polymorphine\Routing\Builder\ContextRouteBuilder;
+use Polymorphine\Routing\Builder;
+use Polymorphine\Routing\Builder\Node\ContextRouteNode;
 use Polymorphine\Routing\Builder\DiscreteRouteBuilder;
 use Polymorphine\Routing\Builder\Exception\BuilderLogicException;
 use Polymorphine\Routing\Router;
@@ -26,11 +26,11 @@ use Polymorphine\Routing\Tests\Doubles\FakeUri;
 use Psr\Container\ContainerInterface;
 
 
-class RoutingBuilderTest extends TestCase
+class BuilderTest extends TestCase
 {
     public function testInstantiation()
     {
-        $this->assertInstanceOf(RoutingBuilder::class, $this->root());
+        $this->assertInstanceOf(Builder::class, $this->root());
     }
 
     public function testRouterMethodWithoutSetup_ThrowsException()
@@ -63,7 +63,7 @@ class RoutingBuilderTest extends TestCase
     public function testBuilderMethod_ReturnsRouteBuilder()
     {
         $root = $this->root();
-        $this->assertInstanceOf(ContextRouteBuilder::class, $root->detachedNode());
+        $this->assertInstanceOf(ContextRouteNode::class, $root->detachedNode());
     }
 
     public function testWithoutContainerBuilderContextFactoryRoute_ThrowsException()
@@ -75,7 +75,7 @@ class RoutingBuilderTest extends TestCase
 
     public function testContainerIsPassedToBuilderContext()
     {
-        $root = $this->root(new FakeContainer());
+        $root    = $this->root(new FakeContainer());
         $builder = $root->rootNode();
         $builder->factory(FakeHandlerFactory::class);
         $this->assertInstanceOf(HandlerFactoryEndpoint::class, $builder->build());
@@ -83,16 +83,16 @@ class RoutingBuilderTest extends TestCase
 
     public function testRouterCallbackIsPassedToBuilderContext()
     {
-        $root = $this->root();
+        $root    = $this->root();
         $builder = $root->rootNode();
         $builder->redirect('routing.path');
         $this->assertInstanceOf(RedirectEndpoint::class, $builder->build());
     }
 
-    private function root(ContainerInterface $container = null): RoutingBuilder
+    private function root(ContainerInterface $container = null): Builder
     {
         return $container
-            ? new RoutingBuilder(new FakeUri(), new FakeResponse(), $container)
-            : new RoutingBuilder(new FakeUri(), new FakeResponse());
+            ? new Builder(new FakeUri(), new FakeResponse(), $container)
+            : new Builder(new FakeUri(), new FakeResponse());
     }
 }

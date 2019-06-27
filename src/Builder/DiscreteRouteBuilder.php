@@ -22,11 +22,11 @@ use Psr\Http\Server\RequestHandlerInterface;
  */
 class DiscreteRouteBuilder
 {
-    use GateBuildMethods;
+    use Node\GateBuildMethods;
 
     private $context;
 
-    public function __construct(BuilderContext $context)
+    public function __construct(NodeContext $context)
     {
         $this->context = $context;
     }

@@ -9,11 +9,11 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Tests\Builder;
+namespace Polymorphine\Routing\Tests\Builder\Node;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Builder\RouteScanBuilder;
-use Polymorphine\Routing\Builder\Resource\ResourceSwitchBuilder;
+use Polymorphine\Routing\Builder\Node\RouteScanNode;
+use Polymorphine\Routing\Builder\Node\Resource\ResourceSwitchNode;
 use Polymorphine\Routing\Builder\Exception\BuilderLogicException;
 use Polymorphine\Routing\Route\Splitter\RouteScan;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
@@ -23,13 +23,13 @@ use Polymorphine\Routing\Tests\RoutingTestMethods;
 use InvalidArgumentException;
 
 
-class RouteScanBuilderTest extends TestCase
+class RouteScanNodeTest extends TestCase
 {
     use RoutingTestMethods;
 
     public function testInstantiation()
     {
-        $this->assertInstanceOf(RouteScanBuilder::class, $this->builder());
+        $this->assertInstanceOf(RouteScanNode::class, $this->builder());
     }
 
     public function testBuild_ReturnsResponseScanSwitch()
@@ -93,7 +93,7 @@ class RouteScanBuilderTest extends TestCase
 
     public function testResourceBuilderCanBeAdded()
     {
-        $this->assertInstanceOf(ResourceSwitchBuilder::class, $this->builder()->resource('res'));
+        $this->assertInstanceOf(ResourceSwitchNode::class, $this->builder()->resource('res'));
     }
 
     public function testSeparateFormsPathForResourceBuilderCanBeSet()
@@ -125,8 +125,8 @@ class RouteScanBuilderTest extends TestCase
         $builder->withResourcesFormsPath('other');
     }
 
-    private function builder(): RouteScanBuilder
+    private function builder(): RouteScanNode
     {
-        return new RouteScanBuilder();
+        return new RouteScanNode();
     }
 }

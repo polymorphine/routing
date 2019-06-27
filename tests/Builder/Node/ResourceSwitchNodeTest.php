@@ -9,13 +9,13 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Tests\Builder;
+namespace Polymorphine\Routing\Tests\Builder\Node;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Builder\Resource\ResourceSwitchBuilder;
-use Polymorphine\Routing\Builder\Resource\ContextFormsResourceSwitchBuilder;
-use Polymorphine\Routing\Builder\Resource\FormsContext;
-use Polymorphine\Routing\Builder\PathSwitchBuilder;
+use Polymorphine\Routing\Builder\Node\Resource\ResourceSwitchNode;
+use Polymorphine\Routing\Builder\Node\Resource\ContextFormsResourceSwitchBuilder;
+use Polymorphine\Routing\Builder\Node\Resource\FormsContext;
+use Polymorphine\Routing\Builder\Node\PathSwitchNode;
 use Polymorphine\Routing\Builder\Exception\BuilderLogicException;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\UriAttributeSelect;
@@ -26,13 +26,13 @@ use Polymorphine\Routing\Tests\Doubles\FakeUri;
 use Polymorphine\Routing\Tests\RoutingTestMethods;
 
 
-class ResourceSwitchBuilderTest extends TestCase
+class ResourceSwitchNodeTest extends TestCase
 {
     use RoutingTestMethods;
 
     public function testInstantiation()
     {
-        $this->assertInstanceOf(ResourceSwitchBuilder::class, $this->builder());
+        $this->assertInstanceOf(ResourceSwitchNode::class, $this->builder());
     }
 
     public function testBuild_ReturnsResponseScanSwitch()
@@ -130,7 +130,7 @@ class ResourceSwitchBuilderTest extends TestCase
 
     public function testSeparateFormRoutesCanBeDefinedWithResourceBuilder()
     {
-        $resource = $this->builderWithForms($formsBuilder = new PathSwitchBuilder());
+        $resource = $this->builderWithForms($formsBuilder = new PathSwitchNode());
 
         $resource->add()->callback($this->callbackResponse($add));
         $resource->edit()->callback($this->callbackResponse($edit));
@@ -158,7 +158,7 @@ class ResourceSwitchBuilderTest extends TestCase
 
     public function testArgumentFormRoutesArePassedToSeparateContext()
     {
-        $route = $this->builderWithForms($formsBuilder = new PathSwitchBuilder(), [
+        $route = $this->builderWithForms($formsBuilder = new PathSwitchNode(), [
             'NEW'  => new Route\Endpoint\CallbackEndpoint($this->callbackResponse($add)),
             'EDIT' => new Route\Endpoint\CallbackEndpoint($this->callbackResponse($edit))
         ])->build();
@@ -184,7 +184,7 @@ class ResourceSwitchBuilderTest extends TestCase
 
     public function testFormsRouteCanBeBuiltBeforeResourceRoutes()
     {
-        $resource = $this->builderWithForms($formsBuilder = new PathSwitchBuilder());
+        $resource = $this->builderWithForms($formsBuilder = new PathSwitchNode());
 
         $resource->add()->callback($this->callbackResponse($add));
         $resource->edit()->callback($this->callbackResponse($edit));
@@ -195,8 +195,8 @@ class ResourceSwitchBuilderTest extends TestCase
 
     public function testSeparateFormsRoutesWillAllowAnyIdFormat()
     {
-        $resource = $this->builderWithForms(new PathSwitchBuilder());
-        $this->assertInstanceOf(ResourceSwitchBuilder::class, $resource->id('foo.id', '[a-z0-9]{3}'));
+        $resource = $this->builderWithForms(new PathSwitchNode());
+        $this->assertInstanceOf(ResourceSwitchNode::class, $resource->id('foo.id', '[a-z0-9]{3}'));
     }
 
     public function testIdWithRegexpMatchingNEWPseudoMethod_ThrowsException()
@@ -206,12 +206,12 @@ class ResourceSwitchBuilderTest extends TestCase
         $resource->id('foo.id', '[a-z0-9]{3}');
     }
 
-    private function builder(): ResourceSwitchBuilder
+    private function builder(): ResourceSwitchNode
     {
-        return new ResourceSwitchBuilder(null, []);
+        return new ResourceSwitchNode(null, []);
     }
 
-    private function builderWithForms(PathSwitchBuilder $formsBuilder, array $routes = []): ResourceSwitchBuilder
+    private function builderWithForms(PathSwitchNode $formsBuilder, array $routes = []): ResourceSwitchNode
     {
         $forms = new FormsContext('resource', $formsBuilder);
         return new ContextFormsResourceSwitchBuilder($forms, null, $routes);

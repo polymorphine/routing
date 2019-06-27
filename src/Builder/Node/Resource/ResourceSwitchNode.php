@@ -9,11 +9,13 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Builder\Resource;
+namespace Polymorphine\Routing\Builder\Node\Resource;
 
-use Polymorphine\Routing\Builder;
-use Polymorphine\Routing\Builder\BuilderContext;
-use Polymorphine\Routing\Builder\ContextRouteBuilder;
+use Polymorphine\Routing\Builder\Node;
+use Polymorphine\Routing\Builder\NodeContext;
+use Polymorphine\Routing\Builder\Exception;
+use Polymorphine\Routing\Builder\Node\ContextRouteNode;
+use Polymorphine\Routing\Builder\Node\CompositeBuilderMethods;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\PathEndGate;
 use Polymorphine\Routing\Route\Gate\PatternGate;
@@ -25,16 +27,16 @@ use Polymorphine\Routing\Route\Splitter\RouteScan;
 use Polymorphine\Routing\Route\Endpoint\NullEndpoint;
 
 
-class ResourceSwitchBuilder implements Builder
+class ResourceSwitchNode implements Node
 {
-    use Builder\CompositeBuilderMethods;
+    use CompositeBuilderMethods;
 
     protected $idName   = 'resource.id';
     protected $idRegexp = '[1-9][0-9]*';
 
-    public function __construct(?BuilderContext $context = null, array $routes = [])
+    public function __construct(?NodeContext $context = null, array $routes = [])
     {
-        $this->context = $context ?? new BuilderContext();
+        $this->context = $context ?? new NodeContext();
         $this->routes  = $routes;
     }
 
@@ -44,42 +46,42 @@ class ResourceSwitchBuilder implements Builder
         return $regexp ? $this->withIdRegexp($regexp) : $this;
     }
 
-    public function index(): ContextRouteBuilder
+    public function index(): ContextRouteNode
     {
         return $this->addBuilder('INDEX');
     }
 
-    public function get(): ContextRouteBuilder
+    public function get(): ContextRouteNode
     {
         return $this->addBuilder('GET');
     }
 
-    public function post(): ContextRouteBuilder
+    public function post(): ContextRouteNode
     {
         return $this->addBuilder('POST');
     }
 
-    public function delete(): ContextRouteBuilder
+    public function delete(): ContextRouteNode
     {
         return $this->addBuilder('DELETE');
     }
 
-    public function patch(): ContextRouteBuilder
+    public function patch(): ContextRouteNode
     {
         return $this->addBuilder('PATCH');
     }
 
-    public function put(): ContextRouteBuilder
+    public function put(): ContextRouteNode
     {
         return $this->addBuilder('PUT');
     }
 
-    public function add(): ContextRouteBuilder
+    public function add(): ContextRouteNode
     {
         return $this->addBuilder('NEW');
     }
 
-    public function edit(): ContextRouteBuilder
+    public function edit(): ContextRouteNode
     {
         return $this->addBuilder('EDIT');
     }
@@ -97,7 +99,7 @@ class ResourceSwitchBuilder implements Builder
     {
         if (preg_match('#' . $regexp . '#', 'new')) {
             $message = 'Uri keyword conflict: `resource/new/form` matches `resource/{id}/form` path';
-            throw new Builder\Exception\BuilderLogicException($message);
+            throw new Exception\BuilderLogicException($message);
         }
 
         $this->idRegexp = $regexp;

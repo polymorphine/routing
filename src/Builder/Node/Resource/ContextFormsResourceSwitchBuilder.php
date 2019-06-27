@@ -9,38 +9,38 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Builder\Resource;
+namespace Polymorphine\Routing\Builder\Node\Resource;
 
-use Polymorphine\Routing\Builder\BuilderContext;
-use Polymorphine\Routing\Builder\ContextRouteBuilder;
-use Polymorphine\Routing\Builder\RouteScanBuilder;
+use Polymorphine\Routing\Builder\NodeContext;
+use Polymorphine\Routing\Builder\Node\ContextRouteNode;
+use Polymorphine\Routing\Builder\Node\RouteScanNode;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\PathEndGate;
 use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\PathSegment;
 
 
-class ContextFormsResourceSwitchBuilder extends ResourceSwitchBuilder
+class ContextFormsResourceSwitchBuilder extends ResourceSwitchNode
 {
     private $forms;
     private $formSwitch;
 
     public function __construct(
         FormsContext $forms,
-        ?BuilderContext $context = null,
+        ?NodeContext $context = null,
         array $routes = []
     ) {
         $this->forms = $forms;
         parent::__construct($context, $this->removeFormRoutes($routes));
     }
 
-    public function add(): ContextRouteBuilder
+    public function add(): ContextRouteNode
     {
         return $this->formSwitch()->route('new')->wrapRouteCallback(function (Route $route) {
             return new PathEndGate($route);
         });
     }
 
-    public function edit(): ContextRouteBuilder
+    public function edit(): ContextRouteNode
     {
         $idPattern = new PathSegment($this->idName, $this->idRegexp);
         return $this->formSwitch()->route('edit')->pattern($idPattern);
@@ -57,7 +57,7 @@ class ContextFormsResourceSwitchBuilder extends ResourceSwitchBuilder
         return [];
     }
 
-    private function formSwitch(): RouteScanBuilder
+    private function formSwitch(): RouteScanNode
     {
         return $this->formSwitch ?: $this->formSwitch = $this->forms->builder($this->idName);
     }

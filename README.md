@@ -23,7 +23,7 @@ hard to read by looking at large nested structure or its dependencies assembled
 together, but instantiated in order that is reversed to execution flow (nested
 structure instantiated first).
 
-[`RoutingBuilder`](src/Builder/RoutingBuilder.php) is a part of this package to help with
+[`Builder`](src/Builder.php) is a part of this package to help with
 the problem. It uses _fluent interface with expressive method names_ - more concise than
 class names & their constructors that would be used in direct composition.
 It is also more readable due to the fact that builder method calls _resemble execution
@@ -70,7 +70,7 @@ Here's an example showing how to create this structure using routing builder:
      * callable            $this->endpoint(string)
      */
     
-    $builder = new RoutingBuilder($baseUri, $nullResponse);
+    $builder = new Builder($baseUri, $nullResponse);
     $root    = $builder->rootNode()->middleware($csrf)->middleware($auth)->responseScan();
     
     $main = $root->defaultRoute()->callbackGate($adminGate)->link($filteredGuestRoute)->pathSwitch();
@@ -113,11 +113,11 @@ Endpoints are responsible for handling incoming server requests with procedures 
 Beside that, endpoints can can handle types of requests that can be resolved in generic way (`OPTIONS`, `HEAD`).
 There are several ways to define endpoint behaviour:
 
-1. [`CallbackEndpoint`](src/Route/Endpoint/CallbackEndpoint.php) ([`RouteBuilder::callback($callable)`](src/Builder/ContextRouteBuilder.php#L52))
+1. [`CallbackEndpoint`](src/Route/Endpoint/CallbackEndpoint.php) ([`RouteBuilder::callback($callable)`](src/Builder/Node/ContextRouteNode.php#L54))
   will handle forwarded request with given callback function having following signature:
 
        $callable = function (ServerRequestInterface $request): ResponseInterface { ... }
 
-2. [`HandlerEndpoint`](src/Route/Endpoint/HandlerEndpoint.php) ([`RouteBuilder::handler(RequestHandlerInterface $handler)`](src/Builder/ContextRouteBuilder.php#L64))
+2. [`HandlerEndpoint`](src/Route/Endpoint/HandlerEndpoint.php) ([`RouteBuilder::handler(RequestHandlerInterface $handler)`](src/Builder/Node/ContextRouteNode.php#L66))
   will handle forwarded request with given class implementing RequestHandlerInterface.
 

@@ -9,10 +9,10 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Tests\Builder;
+namespace Polymorphine\Routing\Tests\Builder\Node;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Builder\MethodSwitchBuilder;
+use Polymorphine\Routing\Builder\Node\MethodSwitchNode;
 use Polymorphine\Routing\Route\Splitter\MethodSwitch;
 use Polymorphine\Routing\Exception\EndpointCallException;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
@@ -22,13 +22,13 @@ use Polymorphine\Routing\Tests\RoutingTestMethods;
 use InvalidArgumentException;
 
 
-class MethodSwitchBuilderTest extends TestCase
+class MethodSwitchNodeTest extends TestCase
 {
     use RoutingTestMethods;
 
     public function testInstantiation()
     {
-        $this->assertInstanceOf(MethodSwitchBuilder::class, $this->builder());
+        $this->assertInstanceOf(MethodSwitchNode::class, $this->builder());
     }
 
     public function testBuild_ReturnsResponseScanSwitch()
@@ -118,8 +118,8 @@ class MethodSwitchBuilderTest extends TestCase
         $switch->route('GET|POST|PATCH');
     }
 
-    private function builder(): MethodSwitchBuilder
+    private function builder(): MethodSwitchNode
     {
-        return new MethodSwitchBuilder();
+        return new MethodSwitchNode();
     }
 }

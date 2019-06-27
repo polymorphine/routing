@@ -9,12 +9,14 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Builder;
+namespace Polymorphine\Routing\Builder\Node;
 
-use Polymorphine\Routing\Builder;
-use Polymorphine\Routing\Builder\Resource\ResourceSwitchBuilder;
-use Polymorphine\Routing\Builder\Resource\ContextFormsResourceSwitchBuilder;
-use Polymorphine\Routing\Builder\Resource\FormsContext;
+use Polymorphine\Routing\Builder\Node;
+use Polymorphine\Routing\Builder\NodeContext;
+use Polymorphine\Routing\Builder\Exception;
+use Polymorphine\Routing\Builder\Node\Resource\ResourceSwitchNode;
+use Polymorphine\Routing\Builder\Node\Resource\ContextFormsResourceSwitchBuilder;
+use Polymorphine\Routing\Builder\Node\Resource\FormsContext;
 use Polymorphine\Routing\Route;
 use Psr\Http\Server\RequestHandlerInterface;
 
@@ -26,13 +28,13 @@ use Psr\Http\Server\RequestHandlerInterface;
  *
  * Current context might be built as root with build() method.
  */
-class ContextRouteBuilder implements Builder
+class ContextRouteNode implements Node
 {
     use GateBuildMethods;
 
     private $context;
 
-    public function __construct(BuilderContext $context)
+    public function __construct(NodeContext $context)
     {
         $this->context = $context;
     }
@@ -137,7 +139,7 @@ class ContextRouteBuilder implements Builder
      */
     public function joinLink(?Route &$route): void
     {
-        $this->context->setBuilder(new LinkedRouteBuilder($route));
+        $this->context->setBuilder(new LinkedRouteNode($route));
     }
 
     /**
@@ -149,11 +151,11 @@ class ContextRouteBuilder implements Builder
      *
      * @param Route[] $routes associated with Uri & routing path segment keys
      *
-     * @return PathSwitchBuilder
+     * @return PathSwitchNode
      */
-    public function pathSwitch(array $routes = []): PathSwitchBuilder
+    public function pathSwitch(array $routes = []): PathSwitchNode
     {
-        return $this->contextBuilder(new PathSwitchBuilder($this->context, $routes));
+        return $this->contextBuilder(new PathSwitchNode($this->context, $routes));
     }
 
     /**
@@ -163,15 +165,15 @@ class ContextRouteBuilder implements Builder
      * Anonymous Routes (without key) cannot be explicitly selected
      * (to produce Uri), but matched request would reach them.
      *
-     * @see \Polymorphine\Routing\Route\Splitter\RouteScan
-     *
      * @param Route[] $routes associated with routing path segment keys
      *
-     * @return RouteScanBuilder
+     * @return RouteScanNode
+     *
+     *@see \Polymorphine\Routing\Route\Splitter\RouteScan
      */
-    public function responseScan(array $routes = []): RouteScanBuilder
+    public function responseScan(array $routes = []): RouteScanNode
     {
-        return $this->contextBuilder(new RouteScanBuilder($this->context, $routes));
+        return $this->contextBuilder(new RouteScanNode($this->context, $routes));
     }
 
     /**
@@ -179,15 +181,15 @@ class ContextRouteBuilder implements Builder
      * Optionally already defined array of Routes with keys representing
      * http methods (and routing path segment) might be given as parameter.
      *
-     * @see \Polymorphine\Routing\Route\Splitter\MethodSwitch
-     *
      * @param Route[] $routes associated with http method keys
      *
-     * @return MethodSwitchBuilder
+     * @return MethodSwitchNode
+     *
+     *@see \Polymorphine\Routing\Route\Splitter\MethodSwitch
      */
-    public function methodSwitch(array $routes = []): MethodSwitchBuilder
+    public function methodSwitch(array $routes = []): MethodSwitchNode
     {
-        return $this->contextBuilder(new MethodSwitchBuilder($this->context, $routes));
+        return $this->contextBuilder(new MethodSwitchNode($this->context, $routes));
     }
 
     /**
@@ -211,24 +213,24 @@ class ContextRouteBuilder implements Builder
      * Otherwise it is recommended to build resource with method that defines its
      * name directly in PathSwitchBuilder or RouteScanBuilder.
      *
-     * @see RouteScanBuilder::resource()
-     * @see PathSwitchBuilder::resource()
-     *
      * @param array             $routes
      * @param null|FormsContext $formsBuilder
      *
-     * @return ResourceSwitchBuilder
+     * @return ResourceSwitchNode
+     *
+     *@see PathSwitchNode::resource()
+     * @see RouteScanNode::resource()
      */
-    public function resource(array $routes = [], ?FormsContext $formsBuilder = null): ResourceSwitchBuilder
+    public function resource(array $routes = [], ?FormsContext $formsBuilder = null): ResourceSwitchNode
     {
         return $this->contextBuilder(
             $formsBuilder
             ? new ContextFormsResourceSwitchBuilder($formsBuilder, $this->context, $routes)
-            : new ResourceSwitchBuilder($this->context, $routes)
+            : new ResourceSwitchNode($this->context, $routes)
         );
     }
 
-    private function contextBuilder(Builder $builder)
+    private function contextBuilder(Node $builder)
     {
         $this->context->setBuilder($builder);
         return $builder;

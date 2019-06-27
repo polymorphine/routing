@@ -9,15 +9,15 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Builder;
+namespace Polymorphine\Routing\Builder\Node;
 
-use Polymorphine\Routing\Builder;
-use Polymorphine\Routing\Builder\Resource\ResourceSwitchBuilder;
-use Polymorphine\Routing\Builder\Resource\FormsContext;
+use Polymorphine\Routing\Builder\Node;
+use Polymorphine\Routing\Builder\NodeContext;
+use Polymorphine\Routing\Builder\Exception;
 use Polymorphine\Routing\Route;
 
 
-class RouteScanBuilder implements Builder
+class RouteScanNode implements Node
 {
     use CompositeBuilderMethods;
 
@@ -25,13 +25,13 @@ class RouteScanBuilder implements Builder
     private $hasDefaultRoute = false;
     private $resourcesForms;
 
-    public function __construct(?BuilderContext $context = null, array $routes = [])
+    public function __construct(?NodeContext $context = null, array $routes = [])
     {
-        $this->context = $context ?? new BuilderContext();
+        $this->context = $context ?? new NodeContext();
         $this->routes  = $routes;
     }
 
-    public function defaultRoute(): ContextRouteBuilder
+    public function defaultRoute(): ContextRouteNode
     {
         if ($this->hasDefaultRoute) {
             throw new Exception\BuilderLogicException('Default route already set');
@@ -39,18 +39,18 @@ class RouteScanBuilder implements Builder
 
         array_unshift($this->builders, $defaultRouteBuilder = $this->context->create());
         $this->hasDefaultRoute = true;
-        return new ContextRouteBuilder($defaultRouteBuilder);
+        return new ContextRouteNode($defaultRouteBuilder);
     }
 
-    public function route(string $name = null): ContextRouteBuilder
+    public function route(string $name = null): ContextRouteNode
     {
         return $this->addBuilder($name);
     }
 
-    public function resource(string $name, array $routes = []): ResourceSwitchBuilder
+    public function resource(string $name, array $routes = []): Resource\ResourceSwitchNode
     {
         if ($this->resourcesForms) {
-            $formsContext = new FormsContext($name, $this->resourcesForms);
+            $formsContext = new Resource\FormsContext($name, $this->resourcesForms);
             return $this->route($name)->path($name)->resource($routes, $formsContext);
         }
 
