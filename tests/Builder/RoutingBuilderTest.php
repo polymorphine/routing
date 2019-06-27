@@ -23,6 +23,7 @@ use Polymorphine\Routing\Tests\Doubles\FakeContainer;
 use Polymorphine\Routing\Tests\Doubles\FakeHandlerFactory;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
+use Psr\Container\ContainerInterface;
 
 
 class RoutingBuilderTest extends TestCase
@@ -74,8 +75,7 @@ class RoutingBuilderTest extends TestCase
 
     public function testContainerIsPassedToBuilderContext()
     {
-        $root = $this->root();
-        $root->useContainer(new FakeContainer());
+        $root = $this->root(new FakeContainer());
         $builder = $root->rootNode();
         $builder->factory(FakeHandlerFactory::class);
         $this->assertInstanceOf(HandlerFactoryEndpoint::class, $builder->build());
@@ -89,8 +89,10 @@ class RoutingBuilderTest extends TestCase
         $this->assertInstanceOf(RedirectEndpoint::class, $builder->build());
     }
 
-    private function root(): RoutingBuilder
+    private function root(ContainerInterface $container = null): RoutingBuilder
     {
-        return new RoutingBuilder(new FakeUri(), new FakeResponse());
+        return $container
+            ? new RoutingBuilder(new FakeUri(), new FakeResponse(), $container)
+            : new RoutingBuilder(new FakeUri(), new FakeResponse());
     }
 }

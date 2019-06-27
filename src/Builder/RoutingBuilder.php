@@ -32,15 +32,14 @@ class RoutingBuilder
     /** @var Router */
     private $router;
 
-    public function __construct(UriInterface $baseUri, ResponseInterface $nullResponse)
-    {
+    public function __construct(
+        UriInterface $baseUri,
+        ResponseInterface $nullResponse,
+        ContainerInterface $container = null
+    ) {
         $this->baseUri      = $baseUri;
         $this->nullResponse = $nullResponse;
-    }
-
-    public function useContainer(ContainerInterface $container): void
-    {
-        $this->container = $container;
+        $this->container    = $container;
     }
 
     public function router(): Router
