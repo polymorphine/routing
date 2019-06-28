@@ -14,7 +14,7 @@ namespace Polymorphine\Routing\Tests;
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Builder\Node\RouteNode;
-use Polymorphine\Routing\Builder\DiscreteRouteBuilder;
+use Polymorphine\Routing\Builder\EndpointRouteBuilder;
 use Polymorphine\Routing\Builder\Exception\BuilderLogicException;
 use Polymorphine\Routing\Router;
 use Polymorphine\Routing\Route\Endpoint\HandlerFactoryEndpoint;
@@ -57,7 +57,7 @@ class BuilderTest extends TestCase
     public function testEndpointMethod_ReturnsEndpointSetup()
     {
         $root = $this->builder();
-        $this->assertInstanceOf(DiscreteRouteBuilder::class, $root->route());
+        $this->assertInstanceOf(EndpointRouteBuilder::class, $root->route());
     }
 
     public function testBuilderMethod_ReturnsRouteBuilder()

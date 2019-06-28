@@ -20,7 +20,7 @@ use Psr\Http\Server\RequestHandlerInterface;
  * wrapped by gates in its own (root) context that is not attached to any
  * node builder in composition tree.
  */
-class DiscreteRouteBuilder
+class EndpointRouteBuilder
 {
     use Node\GateBuildMethods;
 

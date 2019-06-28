@@ -219,7 +219,7 @@ class ResourceSwitchNodeTest extends TestCase
     private function builderWithForms(?PathSwitchNode &$formsBuilder, array $routes = []): ResourceSwitchNode
     {
         $formsBuilder = new PathSwitchNode($this->context());
-        $forms = new FormsContext('resource', $formsBuilder);
+        $forms        = new FormsContext('resource', $formsBuilder);
         return new LinkedFormsResourceSwitchNode($forms, $this->context(), $routes);
     }
 }

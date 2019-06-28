@@ -57,9 +57,9 @@ class Builder
         return new Node\RouteNode($this->createContext());
     }
 
-    public function route(): Builder\DiscreteRouteBuilder
+    public function route(): Builder\EndpointRouteBuilder
     {
-        return new Builder\DiscreteRouteBuilder($this->createContext());
+        return new Builder\EndpointRouteBuilder($this->createContext());
     }
 
     private function createContext(): Builder\Context
