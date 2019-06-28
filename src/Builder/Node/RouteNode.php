@@ -15,7 +15,7 @@ use Polymorphine\Routing\Builder\Node;
 use Polymorphine\Routing\Builder\NodeContext;
 use Polymorphine\Routing\Builder\Exception;
 use Polymorphine\Routing\Builder\Node\Resource\ResourceSwitchNode;
-use Polymorphine\Routing\Builder\Node\Resource\ContextFormsResourceSwitchBuilder;
+use Polymorphine\Routing\Builder\Node\Resource\LinkedFormsResourceSwitchNode;
 use Polymorphine\Routing\Builder\Node\Resource\FormsContext;
 use Polymorphine\Routing\Route;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -225,7 +225,7 @@ class RouteNode implements Node
     {
         return $this->contextBuilder(
             $formsBuilder
-            ? new ContextFormsResourceSwitchBuilder($formsBuilder, $this->context, $routes)
+            ? new LinkedFormsResourceSwitchNode($formsBuilder, $this->context, $routes)
             : new ResourceSwitchNode($this->context, $routes)
         );
     }

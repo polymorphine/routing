@@ -13,7 +13,7 @@ namespace Polymorphine\Routing\Tests\Builder\Node;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Builder\Node\Resource\ResourceSwitchNode;
-use Polymorphine\Routing\Builder\Node\Resource\ContextFormsResourceSwitchBuilder;
+use Polymorphine\Routing\Builder\Node\Resource\LinkedFormsResourceSwitchNode;
 use Polymorphine\Routing\Builder\Node\Resource\FormsContext;
 use Polymorphine\Routing\Builder\Node\PathSwitchNode;
 use Polymorphine\Routing\Builder\Exception\BuilderLogicException;
@@ -214,6 +214,6 @@ class ResourceSwitchNodeTest extends TestCase
     private function builderWithForms(PathSwitchNode $formsBuilder, array $routes = []): ResourceSwitchNode
     {
         $forms = new FormsContext('resource', $formsBuilder);
-        return new ContextFormsResourceSwitchBuilder($forms, null, $routes);
+        return new LinkedFormsResourceSwitchNode($forms, null, $routes);
     }
 }

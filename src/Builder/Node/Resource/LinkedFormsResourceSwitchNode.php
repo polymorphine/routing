@@ -19,7 +19,7 @@ use Polymorphine\Routing\Route\Gate\PathEndGate;
 use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\PathSegment;
 
 
-class ContextFormsResourceSwitchBuilder extends ResourceSwitchNode
+class LinkedFormsResourceSwitchNode extends ResourceSwitchNode
 {
     private $forms;
     private $formSwitch;
