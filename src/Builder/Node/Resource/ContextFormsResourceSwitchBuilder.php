@@ -13,7 +13,7 @@ namespace Polymorphine\Routing\Builder\Node\Resource;
 
 use Polymorphine\Routing\Builder\NodeContext;
 use Polymorphine\Routing\Builder\Node\RouteNode;
-use Polymorphine\Routing\Builder\Node\RouteScanNode;
+use Polymorphine\Routing\Builder\Node\ScanSwitchNode;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\PathEndGate;
 use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\PathSegment;
@@ -57,7 +57,7 @@ class ContextFormsResourceSwitchBuilder extends ResourceSwitchNode
         return [];
     }
 
-    private function formSwitch(): RouteScanNode
+    private function formSwitch(): ScanSwitchNode
     {
         return $this->formSwitch ?: $this->formSwitch = $this->forms->builder($this->idName);
     }

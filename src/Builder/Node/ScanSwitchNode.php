@@ -17,7 +17,7 @@ use Polymorphine\Routing\Builder\Exception;
 use Polymorphine\Routing\Route;
 
 
-class RouteScanNode implements Node
+class ScanSwitchNode implements Node
 {
     use CompositeBuilderMethods;
 
@@ -70,10 +70,10 @@ class RouteScanNode implements Node
     protected function router(array $routes): Route
     {
         if (!$this->hasDefaultRoute) {
-            return new Route\Splitter\RouteScan($routes);
+            return new Route\Splitter\ScanSwitch($routes);
         }
 
         $defaultRoute = array_shift($routes);
-        return new Route\Splitter\RouteScan($routes, $defaultRoute);
+        return new Route\Splitter\ScanSwitch($routes, $defaultRoute);
     }
 }

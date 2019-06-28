@@ -167,13 +167,13 @@ class RouteNode implements Node
      *
      * @param Route[] $routes associated with routing path segment keys
      *
-     * @return RouteScanNode
+     * @return ScanSwitchNode
      *
-     *@see \Polymorphine\Routing\Route\Splitter\RouteScan
+     *@see \Polymorphine\Routing\Route\Splitter\ScanSwitch
      */
-    public function responseScan(array $routes = []): RouteScanNode
+    public function responseScan(array $routes = []): ScanSwitchNode
     {
-        return $this->contextBuilder(new RouteScanNode($this->context, $routes));
+        return $this->contextBuilder(new ScanSwitchNode($this->context, $routes));
     }
 
     /**
@@ -219,7 +219,7 @@ class RouteNode implements Node
      * @return ResourceSwitchNode
      *
      *@see PathSwitchNode::resource()
-     * @see RouteScanNode::resource()
+     * @see ScanSwitchNode::resource()
      */
     public function resource(array $routes = [], ?FormsContext $formsBuilder = null): ResourceSwitchNode
     {

@@ -26,7 +26,7 @@ class FormsContext
         $this->formsBuilder = $formsBuilder;
     }
 
-    public function builder(string $id): Node\RouteScanNode
+    public function builder(string $id): Node\ScanSwitchNode
     {
         $routeWrapper = function (Route $route) use ($id) {
             return new Route\Gate\UriAttributeSelect($route, $id, 'edit', 'new');

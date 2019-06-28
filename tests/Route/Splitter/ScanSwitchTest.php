@@ -13,7 +13,7 @@ namespace Polymorphine\Routing\Tests\Route\Splitter;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Route\Splitter\RouteScan;
+use Polymorphine\Routing\Route\Splitter\ScanSwitch;
 use Polymorphine\Routing\Exception\EndpointCallException;
 use Polymorphine\Routing\Exception\SwitchCallException;
 use Polymorphine\Routing\Tests\RoutingTestMethods;
@@ -23,7 +23,7 @@ use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 
 
-class RouteScanTest extends TestCase
+class ScanSwitchTest extends TestCase
 {
     use RoutingTestMethods;
 
@@ -135,6 +135,6 @@ class RouteScanTest extends TestCase
     private function splitter(array $routes = [], Route $default = null)
     {
         $routes = $routes ?: ['dummy' => new MockedRoute()];
-        return $default ? new RouteScan($routes, $default) : new RouteScan($routes);
+        return $default ? new ScanSwitch($routes, $default) : new ScanSwitch($routes);
     }
 }

@@ -48,7 +48,7 @@ class RouteNodeTest extends TestCase
 
     public function testRouteCanBeSplit()
     {
-        $this->assertInstanceOf(Node\RouteScanNode::class, $this->builder()->responseScan());
+        $this->assertInstanceOf(Node\ScanSwitchNode::class, $this->builder()->responseScan());
         $this->assertInstanceOf(Node\MethodSwitchNode::class, $this->builder()->methodSwitch());
         $this->assertInstanceOf(Node\PathSwitchNode::class, $this->builder()->pathSwitch());
         $this->assertInstanceOf(Node\Resource\ResourceSwitchNode::class, $this->builder()->resource());
@@ -284,21 +284,21 @@ class RouteNodeTest extends TestCase
 
     public function testRoutesCanBeJoinedAfterLinkIsDefined()
     {
-        $builder = new Node\RouteScanNode();
+        $builder = new Node\ScanSwitchNode();
         $builder->route('second')->method('POST')->link($link)->callback($this->callbackResponse($response));
         $builder->route('first')->method('GET')->joinLink($link);
         $route = $builder->build();
         $this->assertSame($response, $route->forward(new FakeServerRequest('GET'), self::$prototype));
         $this->assertSame(self::$prototype, $route->forward(new FakeServerRequest('DELETE'), self::$prototype));
 
-        $builder = new Node\RouteScanNode();
+        $builder = new Node\ScanSwitchNode();
         $builder->defaultRoute()->method('POST')->link($link)->callback($this->callbackResponse($response));
         $builder->route('other')->method('GET')->joinLink($link);
         $route = $builder->build();
         $this->assertSame($response, $route->forward(new FakeServerRequest('GET'), self::$prototype));
         $this->assertSame(self::$prototype, $route->forward(new FakeServerRequest('DELETE'), self::$prototype));
 
-        $builder = new Node\RouteScanNode();
+        $builder = new Node\ScanSwitchNode();
         $builder->route('other')->method('POST')->link($link)->callback($this->callbackResponse($response));
         $builder->defaultRoute()->method('GET')->joinLink($link);
         $route = $builder->build();
@@ -308,21 +308,21 @@ class RouteNodeTest extends TestCase
 
     public function testRoutesCanBeJoinedBeforeLinkIsDefined()
     {
-        $builder = new Node\RouteScanNode();
+        $builder = new Node\ScanSwitchNode();
         $builder->route('first')->method('GET')->joinLink($link);
         $builder->route('second')->method('POST')->link($link)->callback($this->callbackResponse($response));
         $route = $builder->build();
         $this->assertSame($response, $route->forward(new FakeServerRequest('GET'), self::$prototype));
         $this->assertSame(self::$prototype, $route->forward(new FakeServerRequest('DELETE'), self::$prototype));
 
-        $builder = new Node\RouteScanNode();
+        $builder = new Node\ScanSwitchNode();
         $builder->route('other')->method('GET')->joinLink($link);
         $builder->defaultRoute()->method('POST')->link($link)->callback($this->callbackResponse($response));
         $route = $builder->build();
         $this->assertSame($response, $route->forward(new FakeServerRequest('GET'), self::$prototype));
         $this->assertSame(self::$prototype, $route->forward(new FakeServerRequest('DELETE'), self::$prototype));
 
-        $builder = new Node\RouteScanNode();
+        $builder = new Node\ScanSwitchNode();
         $builder->route('other')->method('POST')->joinLink($link);
         $builder->defaultRoute()->method('GET')->link($link)->callback($this->callbackResponse($response));
         $route = $builder->build();

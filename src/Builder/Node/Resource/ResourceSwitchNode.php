@@ -23,7 +23,7 @@ use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\Path;
 use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\PathSegment;
 use Polymorphine\Routing\Route\Gate\UriAttributeSelect;
 use Polymorphine\Routing\Route\Splitter\MethodSwitch;
-use Polymorphine\Routing\Route\Splitter\RouteScan;
+use Polymorphine\Routing\Route\Splitter\ScanSwitch;
 use Polymorphine\Routing\Route\Endpoint\NullEndpoint;
 
 
@@ -110,7 +110,7 @@ class ResourceSwitchNode implements Node
     {
         if (!isset($routes['EDIT']) && !isset($routes['NEW'])) { return []; }
 
-        $forms = new RouteScan([
+        $forms = new ScanSwitch([
             'edit' => $this->pullRoute('EDIT', $routes),
             'new'  => $this->pullRoute('NEW', $routes)
         ]);
@@ -140,7 +140,7 @@ class ResourceSwitchNode implements Node
             'index' => $this->pullRoute('INDEX', $routes)
         ];
 
-        $routes['GET'] = new RouteScan($getRoutes);
+        $routes['GET'] = new ScanSwitch($getRoutes);
 
         return new UriAttributeSelect(new MethodSwitch($routes, 'GET'), $this->idName, 'item', 'index');
     }

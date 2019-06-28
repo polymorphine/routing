@@ -12,10 +12,10 @@
 namespace Polymorphine\Routing\Tests\Builder\Node;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Builder\Node\RouteScanNode;
+use Polymorphine\Routing\Builder\Node\ScanSwitchNode;
 use Polymorphine\Routing\Builder\Node\Resource\ResourceSwitchNode;
 use Polymorphine\Routing\Builder\Exception\BuilderLogicException;
-use Polymorphine\Routing\Route\Splitter\RouteScan;
+use Polymorphine\Routing\Route\Splitter\ScanSwitch;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
@@ -23,18 +23,18 @@ use Polymorphine\Routing\Tests\RoutingTestMethods;
 use InvalidArgumentException;
 
 
-class RouteScanNodeTest extends TestCase
+class ScanSwitchNodeTest extends TestCase
 {
     use RoutingTestMethods;
 
     public function testInstantiation()
     {
-        $this->assertInstanceOf(RouteScanNode::class, $this->builder());
+        $this->assertInstanceOf(ScanSwitchNode::class, $this->builder());
     }
 
     public function testBuild_ReturnsResponseScanSwitch()
     {
-        $this->assertInstanceOf(RouteScan::class, $this->builder()->build());
+        $this->assertInstanceOf(ScanSwitch::class, $this->builder()->build());
     }
 
     public function testRoutesCanBeAdded()
@@ -125,8 +125,8 @@ class RouteScanNodeTest extends TestCase
         $builder->withResourcesFormsPath('other');
     }
 
-    private function builder(): RouteScanNode
+    private function builder(): ScanSwitchNode
     {
-        return new RouteScanNode();
+        return new ScanSwitchNode();
     }
 }
