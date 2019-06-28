@@ -20,9 +20,6 @@ use Psr\Http\Message\UriInterface;
 
 class Builder
 {
-    private $baseUri;
-    private $nullResponse;
-
     /** @var ContainerInterface */
     private $container;
 
@@ -32,23 +29,17 @@ class Builder
     /** @var Router */
     private $router;
 
-    public function __construct(
-        UriInterface $baseUri,
-        ResponseInterface $nullResponse,
-        ContainerInterface $container = null
-    ) {
-        $this->baseUri      = $baseUri;
-        $this->nullResponse = $nullResponse;
-        $this->container    = $container;
+    public function __construct(ContainerInterface $container = null)
+    {
+        $this->container = $container;
     }
 
-    public function router(): Router
+    public function router(UriInterface $baseUri, ResponseInterface $nullResponse): Router
     {
-        if ($this->router) { return $this->router; }
         if (!$this->builder) {
             throw new Exception\BuilderLogicException('Root builder not defined');
         }
-        return $this->router = new Router($this->builder->build(), $this->baseUri, $this->nullResponse);
+        return $this->router = new Router($this->builder->build(), $baseUri, $nullResponse);
     }
 
     public function rootNode(): Node\ContextRouteNode

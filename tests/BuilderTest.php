@@ -30,25 +30,25 @@ class BuilderTest extends TestCase
 {
     public function testInstantiation()
     {
-        $this->assertInstanceOf(Builder::class, $this->root());
+        $this->assertInstanceOf(Builder::class, $this->builder());
     }
 
     public function testRouterMethodWithoutSetup_ThrowsException()
     {
         $this->expectException(BuilderLogicException::class);
-        $this->root()->router();
+        $this->builder()->router(new FakeUri(), new FakeResponse());
     }
 
     public function testWithContextSetupRouterMethod_ReturnsRouter()
     {
-        $root = $this->root();
+        $root = $this->builder();
         $root->rootNode()->callback(function () {});
-        $this->assertInstanceOf(Router::class, $root->router());
+        $this->assertInstanceOf(Router::class, $root->router(new FakeUri(), new FakeResponse()));
     }
 
     public function testSecondRootContext_ThrowsException()
     {
-        $root = $this->root();
+        $root = $this->builder();
         $root->rootNode();
         $this->expectException(BuilderLogicException::class);
         $root->rootNode();
@@ -56,26 +56,26 @@ class BuilderTest extends TestCase
 
     public function testEndpointMethod_ReturnsEndpointSetup()
     {
-        $root = $this->root();
+        $root = $this->builder();
         $this->assertInstanceOf(DiscreteRouteBuilder::class, $root->route());
     }
 
     public function testBuilderMethod_ReturnsRouteBuilder()
     {
-        $root = $this->root();
+        $root = $this->builder();
         $this->assertInstanceOf(ContextRouteNode::class, $root->detachedNode());
     }
 
     public function testWithoutContainerBuilderContextFactoryRoute_ThrowsException()
     {
-        $builder = $this->root()->rootNode();
+        $builder = $this->builder()->rootNode();
         $this->expectException(BuilderLogicException::class);
         $builder->factory(FakeHandlerFactory::class);
     }
 
     public function testContainerIsPassedToBuilderContext()
     {
-        $root    = $this->root(new FakeContainer());
+        $root    = $this->builder(new FakeContainer());
         $builder = $root->rootNode();
         $builder->factory(FakeHandlerFactory::class);
         $this->assertInstanceOf(HandlerFactoryEndpoint::class, $builder->build());
@@ -83,16 +83,14 @@ class BuilderTest extends TestCase
 
     public function testRouterCallbackIsPassedToBuilderContext()
     {
-        $root    = $this->root();
+        $root    = $this->builder();
         $builder = $root->rootNode();
         $builder->redirect('routing.path');
         $this->assertInstanceOf(RedirectEndpoint::class, $builder->build());
     }
 
-    private function root(ContainerInterface $container = null): Builder
+    private function builder(ContainerInterface $container = null): Builder
     {
-        return $container
-            ? new Builder(new FakeUri(), new FakeResponse(), $container)
-            : new Builder(new FakeUri(), new FakeResponse());
+        return $container ? new Builder($container) : new Builder();
     }
 }

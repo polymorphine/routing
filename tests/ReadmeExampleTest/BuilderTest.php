@@ -25,14 +25,12 @@ class BuilderTest extends ReadmeExampleTest
     {
         if ($this->router) { return $this->router; }
 
-        $baseUri      = new FakeUri();
-        $nullResponse = new FakeResponse();
-        $csrf         = $this->csrfMiddleware();
-        $auth         = $this->authMiddleware();
-        $adminGate    = $this->adminGate();
-        $notFound     = $this->notFound();
+        $csrf      = $this->csrfMiddleware();
+        $auth      = $this->authMiddleware();
+        $adminGate = $this->adminGate();
+        $notFound  = $this->notFound();
 
-        $builder = new Builder($baseUri, $nullResponse);
+        $builder = new Builder();
         $root    = $builder->rootNode()->middleware($csrf)->middleware($auth)->responseScan();
 
         $main = $root->defaultRoute()->callbackGate($adminGate)->link($filteredGuestRoute)->pathSwitch();
@@ -60,6 +58,6 @@ class BuilderTest extends ReadmeExampleTest
         $root->route()->method('GET')->joinLink($filteredGuestRoute);
         $root->route()->callback($notFound);
 
-        return $this->router = $builder->router();
+        return $this->router = $builder->router(new FakeUri(), new FakeResponse());
     }
 }
