@@ -42,18 +42,18 @@ class Builder
         return $this->router = new Router($this->builder->build(), $baseUri, $nullResponse);
     }
 
-    public function rootNode(): Node\ContextRouteNode
+    public function rootNode(): Node\RouteNode
     {
         if ($this->builder) {
             throw new Exception\BuilderLogicException('Root builder already defined');
         }
         $this->builder = $this->createContext();
-        return new Node\ContextRouteNode($this->builder);
+        return new Node\RouteNode($this->builder);
     }
 
-    public function detachedNode(): Node\ContextRouteNode
+    public function detachedNode(): Node\RouteNode
     {
-        return new Node\ContextRouteNode($this->createContext());
+        return new Node\RouteNode($this->createContext());
     }
 
     public function route(): Builder\DiscreteRouteBuilder

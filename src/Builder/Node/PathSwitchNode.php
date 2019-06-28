@@ -33,7 +33,7 @@ class PathSwitchNode implements Node
         $this->routes  = $routes;
     }
 
-    public function route(string $name): ContextRouteNode
+    public function route(string $name): RouteNode
     {
         if (!$name) {
             throw new InvalidArgumentException('Name is required for path segment route switch');
@@ -62,7 +62,7 @@ class PathSwitchNode implements Node
         return $this;
     }
 
-    public function root(string $label = null): ContextRouteNode
+    public function root(string $label = null): RouteNode
     {
         if ($this->rootLabel) {
             throw new Exception\BuilderLogicException('Root path route already defined');

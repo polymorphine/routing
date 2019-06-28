@@ -37,13 +37,13 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 
-class ContextRouteNodeTest extends TestCase
+class RouteNodeTest extends TestCase
 {
     use RoutingTestMethods;
 
     public function testInstantiation()
     {
-        $this->assertInstanceOf(Node\ContextRouteNode::class, $this->builder());
+        $this->assertInstanceOf(Node\RouteNode::class, $this->builder());
     }
 
     public function testRouteCanBeSplit()
@@ -120,7 +120,7 @@ class ContextRouteNodeTest extends TestCase
         }
     }
 
-    public function checkCase(Node\ContextRouteNode $builder, ServerRequestInterface $match, ServerRequestInterface $block)
+    public function checkCase(Node\RouteNode $builder, ServerRequestInterface $match, ServerRequestInterface $block)
     {
         $builder->callback($this->callbackResponse($response));
         $route = $builder->build();
@@ -379,8 +379,8 @@ class ContextRouteNodeTest extends TestCase
         $this->assertSame('handler response', (string) $response->getBody());
     }
 
-    private function builder(?ContainerInterface $container = null, ?callable $router = null): Node\ContextRouteNode
+    private function builder(?ContainerInterface $container = null, ?callable $router = null): Node\RouteNode
     {
-        return new Node\ContextRouteNode(new NodeContext($container, $router));
+        return new Node\RouteNode(new NodeContext($container, $router));
     }
 }

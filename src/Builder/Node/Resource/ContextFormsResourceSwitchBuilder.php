@@ -12,7 +12,7 @@
 namespace Polymorphine\Routing\Builder\Node\Resource;
 
 use Polymorphine\Routing\Builder\NodeContext;
-use Polymorphine\Routing\Builder\Node\ContextRouteNode;
+use Polymorphine\Routing\Builder\Node\RouteNode;
 use Polymorphine\Routing\Builder\Node\RouteScanNode;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\PathEndGate;
@@ -33,14 +33,14 @@ class ContextFormsResourceSwitchBuilder extends ResourceSwitchNode
         parent::__construct($context, $this->removeFormRoutes($routes));
     }
 
-    public function add(): ContextRouteNode
+    public function add(): RouteNode
     {
         return $this->formSwitch()->route('new')->wrapRouteCallback(function (Route $route) {
             return new PathEndGate($route);
         });
     }
 
-    public function edit(): ContextRouteNode
+    public function edit(): RouteNode
     {
         $idPattern = new PathSegment($this->idName, $this->idRegexp);
         return $this->formSwitch()->route('edit')->pattern($idPattern);

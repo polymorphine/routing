@@ -31,7 +31,7 @@ class RouteScanNode implements Node
         $this->routes  = $routes;
     }
 
-    public function defaultRoute(): ContextRouteNode
+    public function defaultRoute(): RouteNode
     {
         if ($this->hasDefaultRoute) {
             throw new Exception\BuilderLogicException('Default route already set');
@@ -39,10 +39,10 @@ class RouteScanNode implements Node
 
         array_unshift($this->builders, $defaultRouteBuilder = $this->context->create());
         $this->hasDefaultRoute = true;
-        return new ContextRouteNode($defaultRouteBuilder);
+        return new RouteNode($defaultRouteBuilder);
     }
 
-    public function route(string $name = null): ContextRouteNode
+    public function route(string $name = null): RouteNode
     {
         return $this->addBuilder($name);
     }

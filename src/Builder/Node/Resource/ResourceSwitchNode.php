@@ -14,7 +14,7 @@ namespace Polymorphine\Routing\Builder\Node\Resource;
 use Polymorphine\Routing\Builder\Node;
 use Polymorphine\Routing\Builder\NodeContext;
 use Polymorphine\Routing\Builder\Exception;
-use Polymorphine\Routing\Builder\Node\ContextRouteNode;
+use Polymorphine\Routing\Builder\Node\RouteNode;
 use Polymorphine\Routing\Builder\Node\CompositeBuilderMethods;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\PathEndGate;
@@ -46,42 +46,42 @@ class ResourceSwitchNode implements Node
         return $regexp ? $this->withIdRegexp($regexp) : $this;
     }
 
-    public function index(): ContextRouteNode
+    public function index(): RouteNode
     {
         return $this->addBuilder('INDEX');
     }
 
-    public function get(): ContextRouteNode
+    public function get(): RouteNode
     {
         return $this->addBuilder('GET');
     }
 
-    public function post(): ContextRouteNode
+    public function post(): RouteNode
     {
         return $this->addBuilder('POST');
     }
 
-    public function delete(): ContextRouteNode
+    public function delete(): RouteNode
     {
         return $this->addBuilder('DELETE');
     }
 
-    public function patch(): ContextRouteNode
+    public function patch(): RouteNode
     {
         return $this->addBuilder('PATCH');
     }
 
-    public function put(): ContextRouteNode
+    public function put(): RouteNode
     {
         return $this->addBuilder('PUT');
     }
 
-    public function add(): ContextRouteNode
+    public function add(): RouteNode
     {
         return $this->addBuilder('NEW');
     }
 
-    public function edit(): ContextRouteNode
+    public function edit(): RouteNode
     {
         return $this->addBuilder('EDIT');
     }

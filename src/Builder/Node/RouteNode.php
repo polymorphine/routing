@@ -23,12 +23,12 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 /**
  * Builder that adds Route or given routing tree wrapped by gates
- * to current BuilderContext or creates Builder where new contexts
+ * to current NodeContext or creates Builder where new contexts
  * Routes are created (branched routes).
  *
  * Current context might be built as root with build() method.
  */
-class ContextRouteNode implements Node
+class RouteNode implements Node
 {
     use GateBuildMethods;
 
