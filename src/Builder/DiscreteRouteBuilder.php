@@ -101,24 +101,22 @@ class DiscreteRouteBuilder
     }
 
     /**
-     * Creates HandlerFactoryEndpoint with given Fully Qualified Name
-     * of the class that implements RequestHandlerFactory.
+     * Creates endpoint Route by resolving passed identifier.
      *
-     * To call this method BuilderContext the class was instantiated with
-     * needs to be able to provide ContainerInterface that this endpoint
-     * depends on - otherwise BuilderLogicException will be thrown.
+     * NOTE: Base Context class does not define identifier resolving
+     * procedure, so in order to use this method subclass of Context
+     * must be used overriding Context::mapEndpoint() method.
+     * BuilderLogicException will be thrown otherwise.
      *
-     * @see \Polymorphine\Routing\Route\Endpoint\HandlerFactoryEndpoint
-     *
-     * @param string $className FQN of class implementing RequestHandlerFactory
+     * @param string $id
      *
      * @throws Exception\BuilderLogicException
      *
      * @return Route
      */
-    public function factory(string $className): Route
+    public function endpointId(string $id): Route
     {
-        $this->context->setFactoryRoute($className);
+        $this->context->mapEndpoint($id);
         return $this->context->build();
     }
 

@@ -70,14 +70,14 @@ class BuilderTest extends TestCase
     {
         $builder = $this->builder()->rootNode();
         $this->expectException(BuilderLogicException::class);
-        $builder->factory(FakeHandlerFactory::class);
+        $builder->endpointId(FakeHandlerFactory::class);
     }
 
     public function testContainerIsPassedToBuilderContext()
     {
         $root    = $this->builder(new FakeContainer());
         $builder = $root->rootNode();
-        $builder->factory(FakeHandlerFactory::class);
+        $builder->endpointId(FakeHandlerFactory::class);
         $this->assertInstanceOf(HandlerFactoryEndpoint::class, $builder->build());
     }
 

@@ -24,9 +24,9 @@ class MethodSwitchNode implements Node
     private $implicitMethod = 'GET';
     private $methods        = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'HEAD', 'OPTIONS'];
 
-    public function __construct(?Context $context = null, array $routes = [])
+    public function __construct(Context $context, array $routes = [])
     {
-        $this->context = $context ?? new Context();
+        $this->context = $context;
         $this->routes  = $routes;
     }
 

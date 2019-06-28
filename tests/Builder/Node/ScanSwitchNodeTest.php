@@ -16,6 +16,7 @@ use Polymorphine\Routing\Builder\Node\ScanSwitchNode;
 use Polymorphine\Routing\Builder\Node\Resource\ResourceSwitchNode;
 use Polymorphine\Routing\Builder\Exception\BuilderLogicException;
 use Polymorphine\Routing\Route\Splitter\ScanSwitch;
+use Polymorphine\Routing\Tests\Builder\ContextCreateMethod;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
@@ -26,6 +27,7 @@ use InvalidArgumentException;
 class ScanSwitchNodeTest extends TestCase
 {
     use RoutingTestMethods;
+    use ContextCreateMethod;
 
     public function testInstantiation()
     {
@@ -127,6 +129,6 @@ class ScanSwitchNodeTest extends TestCase
 
     private function builder(): ScanSwitchNode
     {
-        return new ScanSwitchNode();
+        return new ScanSwitchNode($this->context());
     }
 }

@@ -16,6 +16,7 @@ use Polymorphine\Routing\Builder\Node\PathSwitchNode;
 use Polymorphine\Routing\Builder\Node\Resource\ResourceSwitchNode;
 use Polymorphine\Routing\Builder\Exception\BuilderLogicException;
 use Polymorphine\Routing\Route\Splitter\PathSwitch;
+use Polymorphine\Routing\Tests\Builder\ContextCreateMethod;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
@@ -26,6 +27,7 @@ use InvalidArgumentException;
 class PathSwitchNodeTest extends TestCase
 {
     use RoutingTestMethods;
+    use ContextCreateMethod;
 
     public function testInstantiation()
     {
@@ -143,6 +145,6 @@ class PathSwitchNodeTest extends TestCase
 
     private function builder(): PathSwitchNode
     {
-        return new PathSwitchNode();
+        return new PathSwitchNode($this->context());
     }
 }

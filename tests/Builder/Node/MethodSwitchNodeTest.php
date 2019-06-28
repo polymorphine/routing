@@ -15,6 +15,7 @@ use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Builder\Node\MethodSwitchNode;
 use Polymorphine\Routing\Route\Splitter\MethodSwitch;
 use Polymorphine\Routing\Exception\EndpointCallException;
+use Polymorphine\Routing\Tests\Builder\ContextCreateMethod;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
@@ -25,6 +26,7 @@ use InvalidArgumentException;
 class MethodSwitchNodeTest extends TestCase
 {
     use RoutingTestMethods;
+    use ContextCreateMethod;
 
     public function testInstantiation()
     {
@@ -120,6 +122,6 @@ class MethodSwitchNodeTest extends TestCase
 
     private function builder(): MethodSwitchNode
     {
-        return new MethodSwitchNode();
+        return new MethodSwitchNode($this->context());
     }
 }

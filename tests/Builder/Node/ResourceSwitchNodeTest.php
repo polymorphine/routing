@@ -19,6 +19,7 @@ use Polymorphine\Routing\Builder\Node\PathSwitchNode;
 use Polymorphine\Routing\Builder\Exception\BuilderLogicException;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\UriAttributeSelect;
+use Polymorphine\Routing\Tests\Builder\ContextCreateMethod;
 use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
@@ -29,6 +30,7 @@ use Polymorphine\Routing\Tests\RoutingTestMethods;
 class ResourceSwitchNodeTest extends TestCase
 {
     use RoutingTestMethods;
+    use ContextCreateMethod;
 
     public function testInstantiation()
     {
@@ -130,7 +132,8 @@ class ResourceSwitchNodeTest extends TestCase
 
     public function testSeparateFormRoutesCanBeDefinedWithResourceBuilder()
     {
-        $resource = $this->builderWithForms($formsBuilder = new PathSwitchNode());
+        /** @var PathSwitchNode $formsBuilder */
+        $resource = $this->builderWithForms($formsBuilder);
 
         $resource->add()->callback($this->callbackResponse($add));
         $resource->edit()->callback($this->callbackResponse($edit));
@@ -158,7 +161,8 @@ class ResourceSwitchNodeTest extends TestCase
 
     public function testArgumentFormRoutesArePassedToSeparateContext()
     {
-        $route = $this->builderWithForms($formsBuilder = new PathSwitchNode(), [
+        /** @var PathSwitchNode $formsBuilder */
+        $route = $this->builderWithForms($formsBuilder, [
             'NEW'  => new Route\Endpoint\CallbackEndpoint($this->callbackResponse($add)),
             'EDIT' => new Route\Endpoint\CallbackEndpoint($this->callbackResponse($edit))
         ])->build();
@@ -184,7 +188,8 @@ class ResourceSwitchNodeTest extends TestCase
 
     public function testFormsRouteCanBeBuiltBeforeResourceRoutes()
     {
-        $resource = $this->builderWithForms($formsBuilder = new PathSwitchNode());
+        /** @var PathSwitchNode $formsBuilder */
+        $resource = $this->builderWithForms($formsBuilder);
 
         $resource->add()->callback($this->callbackResponse($add));
         $resource->edit()->callback($this->callbackResponse($edit));
@@ -195,7 +200,7 @@ class ResourceSwitchNodeTest extends TestCase
 
     public function testSeparateFormsRoutesWillAllowAnyIdFormat()
     {
-        $resource = $this->builderWithForms(new PathSwitchNode());
+        $resource = $this->builderWithForms($formsBuilder);
         $this->assertInstanceOf(ResourceSwitchNode::class, $resource->id('foo.id', '[a-z0-9]{3}'));
     }
 
@@ -208,12 +213,13 @@ class ResourceSwitchNodeTest extends TestCase
 
     private function builder(): ResourceSwitchNode
     {
-        return new ResourceSwitchNode(null, []);
+        return new ResourceSwitchNode($this->context());
     }
 
-    private function builderWithForms(PathSwitchNode $formsBuilder, array $routes = []): ResourceSwitchNode
+    private function builderWithForms(?PathSwitchNode &$formsBuilder, array $routes = []): ResourceSwitchNode
     {
+        $formsBuilder = new PathSwitchNode($this->context());
         $forms = new FormsContext('resource', $formsBuilder);
-        return new LinkedFormsResourceSwitchNode($forms, null, $routes);
+        return new LinkedFormsResourceSwitchNode($forms, $this->context(), $routes);
     }
 }

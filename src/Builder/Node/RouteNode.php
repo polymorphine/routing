@@ -102,22 +102,20 @@ class RouteNode implements Node
     }
 
     /**
-     * Adds HandlerFactoryEndpoint created with given Fully Qualified Name
-     * of the class that implements RequestHandlerFactory.
+     * Adds endpoint Route resolved from passed identifier.
      *
-     * To call this method BuilderContext the class was instantiated with
-     * needs to be able to provide ContainerInterface that this endpoint
-     * depends on - otherwise BuilderLogicException will be thrown.
+     * NOTE: Base Context class does not define identifier resolving
+     * procedure, so in order to use this method subclass of Context
+     * must be used overriding Context::mapEndpoint() method.
+     * BuilderLogicException will be thrown otherwise.
      *
-     * @see \Polymorphine\Routing\Route\Endpoint\HandlerFactoryEndpoint
-     *
-     * @param string $className FQN of class implementing RequestHandlerFactory
+     * @param string $id
      *
      * @throws Exception\BuilderLogicException
      */
-    public function factory(string $className): void
+    public function endpointId(string $id): void
     {
-        $this->context->setFactoryRoute($className);
+        $this->context->mapEndpoint($id);
     }
 
     /**

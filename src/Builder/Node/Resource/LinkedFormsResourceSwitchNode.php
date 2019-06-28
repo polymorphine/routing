@@ -26,7 +26,7 @@ class LinkedFormsResourceSwitchNode extends ResourceSwitchNode
 
     public function __construct(
         FormsContext $forms,
-        ?Context $context = null,
+        Context $context,
         array $routes = []
     ) {
         $this->forms = $forms;

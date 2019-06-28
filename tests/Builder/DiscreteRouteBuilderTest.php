@@ -29,6 +29,8 @@ use Psr\Container\ContainerInterface;
 
 class DiscreteRouteBuilderTest extends TestCase
 {
+    use ContextCreateMethod;
+
     public function testInstantiation()
     {
         $this->assertInstanceOf(DiscreteRouteBuilder::class, $this->builder());
@@ -48,11 +50,11 @@ class DiscreteRouteBuilderTest extends TestCase
         $handler = new FakeRequestHandler(new FakeResponse());
         $this->assertInstanceOf(HandlerEndpoint::class, $this->builder(new FakeContainer())->handler($handler));
 
-        $this->assertInstanceOf(HandlerFactoryEndpoint::class, $this->builder(new FakeContainer())->factory(FakeHandlerFactory::class));
+        $this->assertInstanceOf(HandlerFactoryEndpoint::class, $this->builder(new FakeContainer())->endpointId(FakeHandlerFactory::class));
     }
 
     private function builder(?ContainerInterface $container = null, ?callable $router = null): DiscreteRouteBuilder
     {
-        return new DiscreteRouteBuilder(new Context($container, $router));
+        return new DiscreteRouteBuilder($this->context($container, $router));
     }
 }

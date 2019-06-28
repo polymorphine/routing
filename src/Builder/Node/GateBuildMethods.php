@@ -14,6 +14,7 @@ namespace Polymorphine\Routing\Builder\Node;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\Pattern;
 use Polymorphine\Routing\Builder\Context;
+use Polymorphine\Routing\Builder\Exception;
 use Psr\Http\Server\MiddlewareInterface;
 
 
@@ -123,9 +124,23 @@ trait GateBuildMethods
         return $this;
     }
 
-    public function containerMiddleware(string $middlewareContainerId): self
+    /**
+     * Adds gate Route resolved from passed identifier.
+     *
+     * NOTE: Base Context class does not define identifier resolving
+     * procedure, so in order to use this method subclass of Context
+     * must be used overriding Context::mapGate() method.
+     * BuilderLogicException will be thrown otherwise.
+     *
+     * @param string $id
+     *
+     * @throws Exception\BuilderLogicException
+     *
+     * @return static
+     */
+    public function gateId(string $id): self
     {
-        $this->context->addContainerMiddlewareGate($middlewareContainerId);
+        $this->context->mapGate($id);
         return $this;
     }
 

@@ -34,9 +34,9 @@ class ResourceSwitchNode implements Node
     protected $idName   = 'resource.id';
     protected $idRegexp = '[1-9][0-9]*';
 
-    public function __construct(?Context $context = null, array $routes = [])
+    public function __construct(Context $context, array $routes = [])
     {
-        $this->context = $context ?? new Context();
+        $this->context = $context;
         $this->routes  = $routes;
     }
 

@@ -12,6 +12,7 @@
 namespace Polymorphine\Routing;
 
 use Polymorphine\Routing\Builder\Node;
+use Polymorphine\Routing\Builder\Context;
 use Polymorphine\Routing\Builder\Exception;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -63,6 +64,9 @@ class Builder
 
     private function createContext(): Builder\Context
     {
-        return new Builder\Context($this->container, function () { return $this->router; });
+        $routerCallback = function () { return $this->router; };
+        return $this->container
+            ? new Builder\Context\ContainerAwareContext($routerCallback, $this->container)
+            : new Context($routerCallback);
     }
 }
