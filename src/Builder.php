@@ -61,8 +61,8 @@ class Builder
         return new Builder\DiscreteRouteBuilder($this->createContext());
     }
 
-    private function createContext(): Builder\NodeContext
+    private function createContext(): Builder\Context
     {
-        return new Builder\NodeContext($this->container, function () { return $this->router; });
+        return new Builder\Context($this->container, function () { return $this->router; });
     }
 }

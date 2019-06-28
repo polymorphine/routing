@@ -16,7 +16,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
 
-class NodeContext implements Node
+class Context
 {
     /** @var null|ContainerInterface */
     private $container;
@@ -52,7 +52,7 @@ class NodeContext implements Node
         return $this->route = $this->wrapRoute($this->builder->build());
     }
 
-    public function create(): NodeContext
+    public function create(): Context
     {
         $newContext = clone $this;
 

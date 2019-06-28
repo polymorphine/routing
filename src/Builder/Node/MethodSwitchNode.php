@@ -12,7 +12,7 @@
 namespace Polymorphine\Routing\Builder\Node;
 
 use Polymorphine\Routing\Builder\Node;
-use Polymorphine\Routing\Builder\NodeContext;
+use Polymorphine\Routing\Builder\Context;
 use Polymorphine\Routing\Route;
 use InvalidArgumentException;
 
@@ -24,9 +24,9 @@ class MethodSwitchNode implements Node
     private $implicitMethod = 'GET';
     private $methods        = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'HEAD', 'OPTIONS'];
 
-    public function __construct(?NodeContext $context = null, array $routes = [])
+    public function __construct(?Context $context = null, array $routes = [])
     {
-        $this->context = $context ?? new NodeContext();
+        $this->context = $context ?? new Context();
         $this->routes  = $routes;
     }
 

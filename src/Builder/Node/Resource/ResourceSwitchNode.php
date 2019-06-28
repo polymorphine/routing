@@ -12,7 +12,7 @@
 namespace Polymorphine\Routing\Builder\Node\Resource;
 
 use Polymorphine\Routing\Builder\Node;
-use Polymorphine\Routing\Builder\NodeContext;
+use Polymorphine\Routing\Builder\Context;
 use Polymorphine\Routing\Builder\Exception;
 use Polymorphine\Routing\Builder\Node\RouteNode;
 use Polymorphine\Routing\Builder\Node\CompositeBuilderMethods;
@@ -34,9 +34,9 @@ class ResourceSwitchNode implements Node
     protected $idName   = 'resource.id';
     protected $idRegexp = '[1-9][0-9]*';
 
-    public function __construct(?NodeContext $context = null, array $routes = [])
+    public function __construct(?Context $context = null, array $routes = [])
     {
-        $this->context = $context ?? new NodeContext();
+        $this->context = $context ?? new Context();
         $this->routes  = $routes;
     }
 

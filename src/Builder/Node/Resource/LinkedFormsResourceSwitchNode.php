@@ -11,7 +11,7 @@
 
 namespace Polymorphine\Routing\Builder\Node\Resource;
 
-use Polymorphine\Routing\Builder\NodeContext;
+use Polymorphine\Routing\Builder\Context;
 use Polymorphine\Routing\Builder\Node\RouteNode;
 use Polymorphine\Routing\Builder\Node\ScanSwitchNode;
 use Polymorphine\Routing\Route;
@@ -26,7 +26,7 @@ class LinkedFormsResourceSwitchNode extends ResourceSwitchNode
 
     public function __construct(
         FormsContext $forms,
-        ?NodeContext $context = null,
+        ?Context $context = null,
         array $routes = []
     ) {
         $this->forms = $forms;

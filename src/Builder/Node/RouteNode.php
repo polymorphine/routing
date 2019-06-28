@@ -12,7 +12,7 @@
 namespace Polymorphine\Routing\Builder\Node;
 
 use Polymorphine\Routing\Builder\Node;
-use Polymorphine\Routing\Builder\NodeContext;
+use Polymorphine\Routing\Builder\Context;
 use Polymorphine\Routing\Builder\Exception;
 use Polymorphine\Routing\Builder\Node\Resource\ResourceSwitchNode;
 use Polymorphine\Routing\Builder\Node\Resource\LinkedFormsResourceSwitchNode;
@@ -34,7 +34,7 @@ class RouteNode implements Node
 
     private $context;
 
-    public function __construct(NodeContext $context)
+    public function __construct(Context $context)
     {
         $this->context = $context;
     }

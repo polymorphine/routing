@@ -12,7 +12,7 @@
 namespace Polymorphine\Routing\Builder\Node;
 
 use Polymorphine\Routing\Builder\Node;
-use Polymorphine\Routing\Builder\NodeContext;
+use Polymorphine\Routing\Builder\Context;
 use Polymorphine\Routing\Builder\Exception;
 use Polymorphine\Routing\Builder\Node\Resource\ResourceSwitchNode;
 use Polymorphine\Routing\Builder\Node\Resource\FormsContext;
@@ -27,9 +27,9 @@ class PathSwitchNode implements Node
     private $resourcesForms;
     private $rootLabel;
 
-    public function __construct(?NodeContext $context = null, array $routes = [])
+    public function __construct(?Context $context = null, array $routes = [])
     {
-        $this->context = $context ?? new NodeContext();
+        $this->context = $context ?? new Context();
         $this->routes  = $routes;
     }
 

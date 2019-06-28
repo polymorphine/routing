@@ -12,7 +12,7 @@
 namespace Polymorphine\Routing\Tests\Builder;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Builder\NodeContext;
+use Polymorphine\Routing\Builder\Context;
 use Polymorphine\Routing\Builder\DiscreteRouteBuilder;
 use Polymorphine\Routing\Route\Endpoint\CallbackEndpoint;
 use Polymorphine\Routing\Route\Endpoint\HandlerEndpoint;
@@ -53,6 +53,6 @@ class DiscreteRouteBuilderTest extends TestCase
 
     private function builder(?ContainerInterface $container = null, ?callable $router = null): DiscreteRouteBuilder
     {
-        return new DiscreteRouteBuilder(new NodeContext($container, $router));
+        return new DiscreteRouteBuilder(new Context($container, $router));
     }
 }

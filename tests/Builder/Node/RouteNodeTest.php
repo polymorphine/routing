@@ -14,7 +14,7 @@ namespace Polymorphine\Routing\Tests\Builder\Node;
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Builder\Node;
 use Polymorphine\Routing\Builder\Exception;
-use Polymorphine\Routing\Builder\NodeContext;
+use Polymorphine\Routing\Builder\Context;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\LazyRoute;
 use Polymorphine\Routing\Route\Gate\Pattern\UriPattern;
@@ -381,6 +381,6 @@ class RouteNodeTest extends TestCase
 
     private function builder(?ContainerInterface $container = null, ?callable $router = null): Node\RouteNode
     {
-        return new Node\RouteNode(new NodeContext($container, $router));
+        return new Node\RouteNode(new Context($container, $router));
     }
 }

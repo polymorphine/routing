@@ -26,7 +26,7 @@ class DiscreteRouteBuilder
 
     private $context;
 
-    public function __construct(NodeContext $context)
+    public function __construct(Context $context)
     {
         $this->context = $context;
     }
