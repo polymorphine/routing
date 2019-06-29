@@ -11,15 +11,21 @@
 
 namespace Polymorphine\Routing\Tests\Doubles;
 
-use Polymorphine\Routing\RequestHandlerFactory;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
 
-class FakeHandlerFactory implements RequestHandlerFactory
+class FakeHandlerFactory
 {
-    public function createHandler(ContainerInterface $container): RequestHandlerInterface
+    private $container;
+
+    public function __construct(ContainerInterface $container)
     {
-        return new FakeRequestHandler(new FakeResponse('handler response'));
+        $this->container = $container;
+    }
+
+    public function create(array $headers): RequestHandlerInterface
+    {
+        return $this->container->get($headers['id']);
     }
 }

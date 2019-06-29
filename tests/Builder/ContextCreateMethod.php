@@ -12,6 +12,7 @@
 namespace Polymorphine\Routing\Tests\Builder;
 
 use Polymorphine\Routing\Builder\Context;
+use Polymorphine\Routing\Builder\MappedRoutes;
 use Psr\Container\ContainerInterface;
 
 
@@ -20,6 +21,8 @@ trait ContextCreateMethod
     private function context(?ContainerInterface $container = null, ?callable $router = null): Context
     {
         $router = $router ?: function () {};
-        return $container ? new Context\ContainerAwareContext($router, $container) : new Context($router);
+        return $container
+            ? new Context(MappedRoutes::withContainerMapping($container)->withRouterCallback($router))
+            : new Context(new MappedRoutes($router, null, null));
     }
 }

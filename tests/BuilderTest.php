@@ -17,13 +17,16 @@ use Polymorphine\Routing\Builder\Node\RouteNode;
 use Polymorphine\Routing\Builder\EndpointRouteBuilder;
 use Polymorphine\Routing\Builder\Exception\BuilderLogicException;
 use Polymorphine\Routing\Router;
-use Polymorphine\Routing\Route\Endpoint\HandlerFactoryEndpoint;
+use Polymorphine\Routing\Route\Endpoint\CallbackEndpoint;
 use Polymorphine\Routing\Route\Endpoint\RedirectEndpoint;
 use Polymorphine\Routing\Tests\Doubles\FakeContainer;
 use Polymorphine\Routing\Tests\Doubles\FakeHandlerFactory;
+use Polymorphine\Routing\Tests\Doubles\FakeRequestHandler;
 use Polymorphine\Routing\Tests\Doubles\FakeResponse;
+use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
 use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ResponseInterface;
 
 
 class BuilderTest extends TestCase
@@ -73,12 +76,20 @@ class BuilderTest extends TestCase
         $builder->endpointId(FakeHandlerFactory::class);
     }
 
-    public function testContainerIsPassedToBuilderContext()
+    public function testContainerMappingIsPassedToBuilderContext()
     {
-        $root    = $this->builder(new FakeContainer());
+        $container = new FakeContainer([
+            'handler' => new FakeRequestHandler(new FakeResponse('handler response'))
+        ]);
+
+        $root    = $this->builder($container);
         $builder = $root->rootNode();
         $builder->endpointId(FakeHandlerFactory::class);
-        $this->assertInstanceOf(HandlerFactoryEndpoint::class, $builder->build());
+        $this->assertInstanceOf(CallbackEndpoint::class, $route = $builder->build());
+
+        $request = (new FakeServerRequest())->withHeader('id', 'handler');
+        $this->assertInstanceOf(ResponseInterface::class, $response = $route->forward($request, new FakeResponse()));
+        $this->assertSame('handler response', (string) $response->getBody());
     }
 
     public function testRouterCallbackIsPassedToBuilderContext()
@@ -91,6 +102,6 @@ class BuilderTest extends TestCase
 
     private function builder(ContainerInterface $container = null): Builder
     {
-        return $container ? new Builder($container) : new Builder();
+        return $container ? Builder::withContainer($container) : new Builder();
     }
 }

@@ -13,6 +13,8 @@ namespace Polymorphine\Routing\Tests\Builder\Node;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Builder\Node;
+use Polymorphine\Routing\Builder\Context;
+use Polymorphine\Routing\Builder\MappedRoutes;
 use Polymorphine\Routing\Builder\Exception;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\LazyRoute;
@@ -35,6 +37,7 @@ use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 use Polymorphine\Routing\Tests\RoutingTestMethods;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 
 class RouteNodeTest extends TestCase
@@ -363,21 +366,36 @@ class RouteNodeTest extends TestCase
         $this->assertSame(301, $response->getStatusCode());
     }
 
-    public function testRouteBuilderWithUndefinedContainer_Factory_ThrowsException()
+    public function testRedirectWithUndefinedRouterCallback_ThrowsException()
+    {
+        $builder = new Node\RouteNode(new Context(new MappedRoutes(null, null, null)));
+        $path    = $builder->pathSwitch();
+        $path->route('admin')->pattern(new Path('redirected'))->joinRoute(new MockedRoute());
+        $node = $path->route('redirect');
+        $this->expectException(Exception\BuilderLogicException::class);
+        $node->redirect('admin');
+    }
+
+    public function testDefaultContainerHandlerFactoryEndpoint()
+    {
+        $container = new FakeContainer([
+            'handler' => new FakeRequestHandler(new FakeResponse('handler response'))
+        ]);
+
+        $builder = $this->builder($container);
+        $builder->endpointId(FakeHandlerFactory::class);
+        $this->assertInstanceOf(CallbackEndpoint::class, $route = $builder->build());
+
+        $request = (new FakeServerRequest())->withHeader('id', 'handler');
+        $this->assertInstanceOf(ResponseInterface::class, $response = $route->forward($request, new FakeResponse()));
+        $this->assertSame('handler response', (string) $response->getBody());
+    }
+
+    public function testRouteBuilderWithUndefinedEndpointCallback_ThrowsException()
     {
         $builder = $this->builder();
         $this->expectException(Exception\BuilderLogicException::class);
         $builder->endpointId('something');
-    }
-
-    public function testFactoryEndpoint()
-    {
-        $builder = $this->builder(new FakeContainer());
-        $builder->endpointId(FakeHandlerFactory::class);
-        $route = $builder->build();
-
-        $response = $route->forward(new FakeServerRequest(), new FakeResponse());
-        $this->assertSame('handler response', (string) $response->getBody());
     }
 
     private function builder(?ContainerInterface $container = null, ?callable $router = null): Node\RouteNode

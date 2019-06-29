@@ -17,8 +17,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class Context
 {
-    /** @var null|callable */
-    private $routerCallback;
+    private $mappedRoutes;
 
     /** @var null|Route */
     private $route;
@@ -29,12 +28,9 @@ class Context
     /** @var callable[] */
     private $gates = [];
 
-    /**
-     * @param null|callable $routerCallback function(): Router
-     */
-    public function __construct(callable $routerCallback)
+    public function __construct(MappedRoutes $mappedRoutes)
     {
-        $this->routerCallback = $routerCallback;
+        $this->mappedRoutes = $mappedRoutes;
     }
 
     public function build(): Route
@@ -88,19 +84,17 @@ class Context
 
     public function setRedirectRoute(string $routingPath, int $code = 301): void
     {
-        $this->setRoute(new Route\Endpoint\RedirectEndpoint($this->uriCallback($routingPath), $code));
+        $this->setRoute($this->mappedRoutes->redirect($routingPath, $code));
     }
 
     public function mapEndpoint(string $id): void
     {
-        $message = 'Endpoint mapping not supported for this builder (called with `%s` identifier)';
-        throw new Exception\BuilderLogicException(sprintf($message, $id));
+        $this->setRoute($this->mappedRoutes->endpoint($id));
     }
 
     public function mapGate(string $id): void
     {
-        $message = 'Gate mapping not supported for this builder (called with `%s` identifier)';
-        throw new Exception\BuilderLogicException(sprintf($message, $id));
+        $this->addGate($this->mappedRoutes->gateway($id));
     }
 
     public function setRoute(Route $route): void
@@ -122,13 +116,6 @@ class Context
         }
 
         return $route;
-    }
-
-    private function uriCallback($routingPath): callable
-    {
-        return function () use ($routingPath) {
-            return (string) ($this->routerCallback)()->uri($routingPath);
-        };
     }
 
     private function stateCheck(): void

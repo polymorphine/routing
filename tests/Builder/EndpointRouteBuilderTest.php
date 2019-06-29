@@ -15,7 +15,6 @@ use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Builder\EndpointRouteBuilder;
 use Polymorphine\Routing\Route\Endpoint\CallbackEndpoint;
 use Polymorphine\Routing\Route\Endpoint\HandlerEndpoint;
-use Polymorphine\Routing\Route\Endpoint\HandlerFactoryEndpoint;
 use Polymorphine\Routing\Route\Endpoint\RedirectEndpoint;
 use Polymorphine\Routing\Route\Gate\LazyRoute;
 use Polymorphine\Routing\Tests\Doubles\MockedRoute;
@@ -49,7 +48,7 @@ class EndpointRouteBuilderTest extends TestCase
         $handler = new FakeRequestHandler(new FakeResponse());
         $this->assertInstanceOf(HandlerEndpoint::class, $this->builder(new FakeContainer())->handler($handler));
 
-        $this->assertInstanceOf(HandlerFactoryEndpoint::class, $this->builder(new FakeContainer())->endpointId(FakeHandlerFactory::class));
+        $this->assertInstanceOf(CallbackEndpoint::class, $this->builder(new FakeContainer())->endpointId(FakeHandlerFactory::class));
     }
 
     private function builder(?ContainerInterface $container = null, ?callable $router = null): EndpointRouteBuilder
