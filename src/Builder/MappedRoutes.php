@@ -26,7 +26,7 @@ class MappedRoutes
     /**
      * @param null|callable $router   function(): Router
      * @param null|callable $endpoint function(string): Route
-     * @param null|callable $gateway  function(string): (function(Route): Route)
+     * @param null|callable $gateway  function(string, Route): Route
      */
     public function __construct(?callable $router, ?callable $endpoint, ?callable $gateway)
     {
@@ -49,12 +49,10 @@ class MappedRoutes
             );
         };
 
-        $gate = function (string $middleware) use ($container): callable {
-            return function (Route $route) use ($middleware, $container): Route {
-                return new Route\Gate\LazyRoute(function () use ($middleware, $container, $route) {
-                    return new Route\Gate\MiddlewareGateway($container->get($middleware), $route);
-                });
-            };
+        $gate = function ($middleware, Route $route) use ($container): Route {
+            return new Route\Gate\LazyRoute(function () use ($middleware, $container, $route) {
+                return new Route\Gate\MiddlewareGateway($container->get($middleware), $route);
+            });
         };
 
         return new self(null, $endpoint, $gate);
@@ -100,6 +98,8 @@ class MappedRoutes
             throw new Exception\BuilderLogicException(sprintf($message, $id));
         }
 
-        return ($this->gateway)($id);
+        return function (Route $route) use ($id): Route {
+            return ($this->gateway)($id, $route);
+        };
     }
 }
