@@ -13,10 +13,8 @@ namespace Polymorphine\Routing\Tests\Route\Gate\Pattern\UriSegment;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route\Gate\Pattern;
-use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\HostDomain;
-use Polymorphine\Routing\Exception\UnreachableEndpointException;
-use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
-use Polymorphine\Routing\Tests\Doubles\FakeUri;
+use Polymorphine\Routing\Exception;
+use Polymorphine\Routing\Tests\Doubles;
 
 
 class HostDomainTest extends TestCase
@@ -28,32 +26,32 @@ class HostDomainTest extends TestCase
 
     public function testMatchingRequest_ReturnsRequest()
     {
-        $request = new FakeServerRequest('GET', FakeUri::fromString('//test.example.com/foo/bar'));
+        $request = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString('//test.example.com/foo/bar'));
         $this->assertSame($request, $this->domain('example.com')->matchedRequest($request));
     }
 
     public function testNotMatchingRequest_ReturnsNull()
     {
-        $request = new FakeServerRequest('GET', FakeUri::fromString('//test.example.com/foo/bar'));
+        $request = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString('//test.example.com/foo/bar'));
         $this->assertNull($this->domain('example.pl')->matchedRequest($request));
     }
 
     public function testUri_ReturnsPrototypeWithHost()
     {
-        $prototype = FakeUri::fromString('https:/foo/bar');
+        $prototype = Doubles\FakeUri::fromString('https:/foo/bar');
         $domain    = $this->domain('example.com');
         $this->assertSame('https://example.com/foo/bar', (string) $domain->uri($prototype, []));
     }
 
     public function testUriGivenPrototypeWithDifferentHost_ThrowsException()
     {
-        $prototype = FakeUri::fromString('https://example.pl/foo/bar');
-        $this->expectException(UnreachableEndpointException::class);
+        $prototype = Doubles\FakeUri::fromString('https://example.pl/foo/bar');
+        $this->expectException(Exception\UnreachableEndpointException::class);
         $this->assertSame('https://example.com/foo/bar', $this->domain('example.com')->uri($prototype, []));
     }
 
     private function domain(string $domain)
     {
-        return new HostDomain($domain);
+        return new Pattern\UriSegment\HostDomain($domain);
     }
 }

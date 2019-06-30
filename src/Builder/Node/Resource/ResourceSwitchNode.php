@@ -12,9 +12,9 @@
 namespace Polymorphine\Routing\Builder\Node\Resource;
 
 use Polymorphine\Routing\Builder\Node;
-use Polymorphine\Routing\Builder\NodeContext;
+use Polymorphine\Routing\Builder\Context;
 use Polymorphine\Routing\Builder\Exception;
-use Polymorphine\Routing\Builder\Node\ContextRouteNode;
+use Polymorphine\Routing\Builder\Node\RouteNode;
 use Polymorphine\Routing\Builder\Node\CompositeBuilderMethods;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\PathEndGate;
@@ -23,7 +23,7 @@ use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\Path;
 use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\PathSegment;
 use Polymorphine\Routing\Route\Gate\UriAttributeSelect;
 use Polymorphine\Routing\Route\Splitter\MethodSwitch;
-use Polymorphine\Routing\Route\Splitter\RouteScan;
+use Polymorphine\Routing\Route\Splitter\ScanSwitch;
 use Polymorphine\Routing\Route\Endpoint\NullEndpoint;
 
 
@@ -34,9 +34,9 @@ class ResourceSwitchNode implements Node
     protected $idName   = 'resource.id';
     protected $idRegexp = '[1-9][0-9]*';
 
-    public function __construct(?NodeContext $context = null, array $routes = [])
+    public function __construct(Context $context, array $routes = [])
     {
-        $this->context = $context ?? new NodeContext();
+        $this->context = $context;
         $this->routes  = $routes;
     }
 
@@ -46,42 +46,42 @@ class ResourceSwitchNode implements Node
         return $regexp ? $this->withIdRegexp($regexp) : $this;
     }
 
-    public function index(): ContextRouteNode
+    public function index(): RouteNode
     {
         return $this->addBuilder('INDEX');
     }
 
-    public function get(): ContextRouteNode
+    public function get(): RouteNode
     {
         return $this->addBuilder('GET');
     }
 
-    public function post(): ContextRouteNode
+    public function post(): RouteNode
     {
         return $this->addBuilder('POST');
     }
 
-    public function delete(): ContextRouteNode
+    public function delete(): RouteNode
     {
         return $this->addBuilder('DELETE');
     }
 
-    public function patch(): ContextRouteNode
+    public function patch(): RouteNode
     {
         return $this->addBuilder('PATCH');
     }
 
-    public function put(): ContextRouteNode
+    public function put(): RouteNode
     {
         return $this->addBuilder('PUT');
     }
 
-    public function add(): ContextRouteNode
+    public function add(): RouteNode
     {
         return $this->addBuilder('NEW');
     }
 
-    public function edit(): ContextRouteNode
+    public function edit(): RouteNode
     {
         return $this->addBuilder('EDIT');
     }
@@ -110,7 +110,7 @@ class ResourceSwitchNode implements Node
     {
         if (!isset($routes['EDIT']) && !isset($routes['NEW'])) { return []; }
 
-        $forms = new RouteScan([
+        $forms = new ScanSwitch([
             'edit' => $this->pullRoute('EDIT', $routes),
             'new'  => $this->pullRoute('NEW', $routes)
         ]);
@@ -140,7 +140,7 @@ class ResourceSwitchNode implements Node
             'index' => $this->pullRoute('INDEX', $routes)
         ];
 
-        $routes['GET'] = new RouteScan($getRoutes);
+        $routes['GET'] = new ScanSwitch($getRoutes);
 
         return new UriAttributeSelect(new MethodSwitch($routes, 'GET'), $this->idName, 'item', 'index');
     }

@@ -58,6 +58,7 @@ class FakeServerRequest implements ServerRequestInterface
 
     public function getHeaders()
     {
+        return $this->attr;
     }
 
     public function hasHeader($name)
@@ -74,6 +75,7 @@ class FakeServerRequest implements ServerRequestInterface
 
     public function withHeader($name, $value)
     {
+        return $this->withAttribute($name, $value);
     }
 
     public function withAddedHeader($name, $value)

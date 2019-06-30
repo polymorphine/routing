@@ -12,10 +12,10 @@
 namespace Polymorphine\Routing\Builder\Node;
 
 use Polymorphine\Routing\Builder\Node;
-use Polymorphine\Routing\Builder\NodeContext;
+use Polymorphine\Routing\Builder\Context;
 use Polymorphine\Routing\Builder\Exception;
 use Polymorphine\Routing\Builder\Node\Resource\ResourceSwitchNode;
-use Polymorphine\Routing\Builder\Node\Resource\ContextFormsResourceSwitchBuilder;
+use Polymorphine\Routing\Builder\Node\Resource\LinkedFormsResourceSwitchNode;
 use Polymorphine\Routing\Builder\Node\Resource\FormsContext;
 use Polymorphine\Routing\Route;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -23,18 +23,18 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 /**
  * Builder that adds Route or given routing tree wrapped by gates
- * to current BuilderContext or creates Builder where new contexts
+ * to current NodeContext or creates Builder where new contexts
  * Routes are created (branched routes).
  *
  * Current context might be built as root with build() method.
  */
-class ContextRouteNode implements Node
+class RouteNode implements Node
 {
     use GateBuildMethods;
 
     private $context;
 
-    public function __construct(NodeContext $context)
+    public function __construct(Context $context)
     {
         $this->context = $context;
     }
@@ -102,22 +102,21 @@ class ContextRouteNode implements Node
     }
 
     /**
-     * Adds HandlerFactoryEndpoint created with given Fully Qualified Name
-     * of the class that implements RequestHandlerFactory.
+     * Adds endpoint Route resolved from passed identifier.
      *
-     * To call this method BuilderContext the class was instantiated with
-     * needs to be able to provide ContainerInterface that this endpoint
-     * depends on - otherwise BuilderLogicException will be thrown.
+     * NOTE: In order to use this method endpoint callback in
+     * MappedRoutes has to be defined. BuilderLogicException
+     * will be thrown otherwise.
      *
-     * @see \Polymorphine\Routing\Route\Endpoint\HandlerFactoryEndpoint
+     * @see \Polymorphine\Routing\Builder\MappedRoutes
      *
-     * @param string $className FQN of class implementing RequestHandlerFactory
+     * @param string $id
      *
      * @throws Exception\BuilderLogicException
      */
-    public function factory(string $className): void
+    public function endpoint(string $id): void
     {
-        $this->context->setFactoryRoute($className);
+        $this->context->mapEndpoint($id);
     }
 
     /**
@@ -167,13 +166,13 @@ class ContextRouteNode implements Node
      *
      * @param Route[] $routes associated with routing path segment keys
      *
-     * @return RouteScanNode
+     * @return ScanSwitchNode
      *
-     *@see \Polymorphine\Routing\Route\Splitter\RouteScan
+     *@see \Polymorphine\Routing\Route\Splitter\ScanSwitch
      */
-    public function responseScan(array $routes = []): RouteScanNode
+    public function responseScan(array $routes = []): ScanSwitchNode
     {
-        return $this->contextBuilder(new RouteScanNode($this->context, $routes));
+        return $this->contextBuilder(new ScanSwitchNode($this->context, $routes));
     }
 
     /**
@@ -219,13 +218,13 @@ class ContextRouteNode implements Node
      * @return ResourceSwitchNode
      *
      *@see PathSwitchNode::resource()
-     * @see RouteScanNode::resource()
+     * @see ScanSwitchNode::resource()
      */
     public function resource(array $routes = [], ?FormsContext $formsBuilder = null): ResourceSwitchNode
     {
         return $this->contextBuilder(
             $formsBuilder
-            ? new ContextFormsResourceSwitchBuilder($formsBuilder, $this->context, $routes)
+            ? new LinkedFormsResourceSwitchNode($formsBuilder, $this->context, $routes)
             : new ResourceSwitchNode($this->context, $routes)
         );
     }

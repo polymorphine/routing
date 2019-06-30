@@ -13,7 +13,7 @@ namespace Polymorphine\Routing\Builder\Node;
 
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Builder\Node;
-use Polymorphine\Routing\Builder\NodeContext;
+use Polymorphine\Routing\Builder\Context;
 use InvalidArgumentException;
 
 
@@ -28,7 +28,7 @@ trait CompositeBuilderMethods
     /** @var Route */
     protected $switch;
 
-    /** @var NodeContext */
+    /** @var Context */
     protected $context;
 
     public function build(): Route
@@ -44,7 +44,7 @@ trait CompositeBuilderMethods
 
     abstract protected function router(array $routes): Route;
 
-    private function addBuilder(?string $name): ContextRouteNode
+    private function addBuilder(?string $name): RouteNode
     {
         $context = $this->context->create();
 
@@ -54,7 +54,7 @@ trait CompositeBuilderMethods
             $this->builders[] = $context;
         }
 
-        return new ContextRouteNode($context);
+        return new RouteNode($context);
     }
 
     private function validName(string $name): string

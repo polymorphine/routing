@@ -12,7 +12,7 @@
 namespace Polymorphine\Routing\Builder\Node;
 
 use Polymorphine\Routing\Builder\Node;
-use Polymorphine\Routing\Builder\NodeContext;
+use Polymorphine\Routing\Builder\Context;
 use Polymorphine\Routing\Route;
 use InvalidArgumentException;
 
@@ -24,9 +24,9 @@ class MethodSwitchNode implements Node
     private $implicitMethod = 'GET';
     private $methods        = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'HEAD', 'OPTIONS'];
 
-    public function __construct(?NodeContext $context = null, array $routes = [])
+    public function __construct(Context $context, array $routes = [])
     {
-        $this->context = $context ?? new NodeContext();
+        $this->context = $context;
         $this->routes  = $routes;
     }
 
@@ -42,32 +42,32 @@ class MethodSwitchNode implements Node
         return $this;
     }
 
-    public function get(): ContextRouteNode
+    public function get(): RouteNode
     {
         return $this->addBuilder('GET');
     }
 
-    public function post(): ContextRouteNode
+    public function post(): RouteNode
     {
         return $this->addBuilder('POST');
     }
 
-    public function patch(): ContextRouteNode
+    public function patch(): RouteNode
     {
         return $this->addBuilder('PATCH');
     }
 
-    public function put(): ContextRouteNode
+    public function put(): RouteNode
     {
         return $this->addBuilder('PUT');
     }
 
-    public function delete(): ContextRouteNode
+    public function delete(): RouteNode
     {
         return $this->addBuilder('DELETE');
     }
 
-    public function route(string $name): ContextRouteNode
+    public function route(string $name): RouteNode
     {
         $context = $this->context->create();
         $names   = explode('|', $name);
@@ -75,7 +75,7 @@ class MethodSwitchNode implements Node
             $this->builders[$this->validMethod($name)] = $context;
         }
 
-        return new ContextRouteNode($context);
+        return new RouteNode($context);
     }
 
     protected function router(array $routes): Route

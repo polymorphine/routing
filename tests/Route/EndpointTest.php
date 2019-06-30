@@ -13,41 +13,37 @@ namespace Polymorphine\Routing\Tests\Route;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Route\Endpoint;
-use Polymorphine\Routing\Exception\SwitchCallException;
-use Polymorphine\Routing\Tests\Doubles\DummyEndpoint;
-use Polymorphine\Routing\Tests\Doubles\FakeResponse;
-use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
-use Polymorphine\Routing\Tests\Doubles\FakeUri;
+use Polymorphine\Routing\Exception;
+use Polymorphine\Routing\Tests\Doubles;
 
 
 class EndpointTest extends TestCase
 {
     public function testInstantiation()
     {
-        $this->assertInstanceOf(Endpoint::class, new DummyEndpoint());
+        $this->assertInstanceOf(Route\Endpoint::class, new Doubles\DummyEndpoint());
     }
 
     public function testSelectCall_ThrowsException()
     {
-        $route = new DummyEndpoint();
-        $this->expectException(SwitchCallException::class);
+        $route = new Doubles\DummyEndpoint();
+        $this->expectException(Exception\SwitchCallException::class);
         $route->select('foo');
     }
 
     public function testUriCall_ReturnsPrototype()
     {
-        $route = new DummyEndpoint();
-        $uri   = new FakeUri();
+        $route = new Doubles\DummyEndpoint();
+        $uri   = new Doubles\FakeUri();
         $this->assertSame($uri, $route->uri($uri, []));
     }
 
     public function testOptionsMethod_ReturnsAllowedMethodsHeader()
     {
-        $route   = new DummyEndpoint();
+        $route   = new Doubles\DummyEndpoint();
         $methods = ['GET', 'POST', 'DELETE'];
 
-        $request = (new FakeServerRequest('OPTIONS'))->withAttribute(Route::METHODS_ATTRIBUTE, $methods);
-        $this->assertSame([implode(', ', $methods)], $route->forward($request, new FakeResponse())->getHeader('Allow'));
+        $request = (new Doubles\FakeServerRequest('OPTIONS'))->withAttribute(Route::METHODS_ATTRIBUTE, $methods);
+        $this->assertSame([implode(', ', $methods)], $route->forward($request, new Doubles\FakeResponse())->getHeader('Allow'));
     }
 }

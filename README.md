@@ -1,8 +1,9 @@
 # Polymorphine/Routing
+[![Latest Stable Version](https://poser.pugx.org/polymorphine/routing/version)](https://packagist.org/packages/polymorphine/routing)
 [![Build Status](https://travis-ci.org/shudd3r/polymorphine-routing.svg?branch=develop)](https://travis-ci.org/shudd3r/polymorphine-routing)
-[![Coverage Status](https://coveralls.io/repos/github/shudd3r/polymorphine-routing/badge.svg?branch=develop)](https://coveralls.io/github/shudd3r/polymorphine-routing?branch=develop)
-[![PHP from Packagist](https://img.shields.io/packagist/php-v/polymorphine/routing/dev-develop.svg)](https://packagist.org/packages/polymorphine/routing)
-[![Packagist](https://img.shields.io/packagist/l/polymorphine/routing.svg)](https://packagist.org/packages/polymorphine/routing)
+[![Coverage status](https://coveralls.io/repos/github/shudd3r/polymorphine-routing/badge.svg?branch=develop)](https://coveralls.io/github/shudd3r/polymorphine-routing?branch=develop)
+[![PHP version](https://img.shields.io/packagist/php-v/polymorphine/routing.svg)](https://packagist.org/packages/polymorphine/routing)
+[![LICENSE](https://img.shields.io/github/license/shudd3r/polymorphine-routing.svg?color=blue)](LICENSE)
 ### Composite routing library for HTTP applications
 
 #### Concept feature: *Tree structure finding matching route and resolving urls*
@@ -58,48 +59,48 @@ Let's start with it's routing logic description:
    already resolved for them.
 
 Here's an example showing how to create this structure using routing builder:
+```php
+/**
+ * assume defined:
+ * UriInterface        $baseUri
+ * ResponseInterface   $nullResponse
+ * MiddlewareInterface $csrf
+ * MiddlewareInterface $auth
+ * callable            $adminGate
+ * callable            $notFound
+ * callable            $this->endpoint(string)
+ */
 
-    /**
-     * assume defined:
-     * UriInterface        $baseUri
-     * ResponseInterface   $nullResponse
-     * MiddlewareInterface $csrf
-     * MiddlewareInterface $auth
-     * callable            $adminGate
-     * callable            $notFound
-     * callable            $this->endpoint(string)
-     */
-    
-    $builder = new Builder($baseUri, $nullResponse);
-    $root    = $builder->rootNode()->middleware($csrf)->middleware($auth)->responseScan();
-    
-    $main = $root->defaultRoute()->callbackGate($adminGate)->link($filteredGuestRoute)->pathSwitch();
-    $main->root('home')->callback($this->endpoint('HomePage'));
-    $admin = $main->route('admin')->methodSwitch();
-    $admin->route('GET')->callback($this->endpoint('AdminPanel'));
-    $admin->route('POST')->callback($this->endpoint('ApplySettings'));
-    $main->route('login')->redirect('home');
-    $main->route('logout')->method('POST')->callback($this->endpoint('Logout'));
-    $articles = $main->resource('articles')->id('id');
-    $articles->index()->callback($this->endpoint('ShowArticles'));
-    $articles->get()->callback($this->endpoint('ShowArticle'));
-    $articles->post()->callback($this->endpoint('AddArticle'));
-    $articles->patch()->callback($this->endpoint('UpdateArticle'));
-    $articles->delete()->callback($this->endpoint('DeleteArticle'));
-    $articles->add()->callback($this->endpoint('AddArticleForm'));
-    $articles->edit()->callback($this->endpoint('EditArticleForm'));
-    
-    $root->route()->path('/login')->methodSwitch([
-        'GET'  => new CallbackEndpoint($this->endpoint('LoginPage')),
-        'POST' => new CallbackEndpoint($this->endpoint('Login'))
-    ]);
-    $root->route()->path('/logout')->redirect('home');
-    $root->route()->path('/admin')->redirect('login');
-    $root->route()->method('GET')->joinLink($filteredGuestRoute);
-    $root->route()->callback($notFound);
+$builder = new Builder();
+$root    = $builder->rootNode()->middleware($csrf)->middleware($auth)->responseScan();
 
-    $router = $builder->router();
+$main = $root->defaultRoute()->callbackGate($adminGate)->link($filteredGuestRoute)->pathSwitch();
+$main->root('home')->callback($this->endpoint('HomePage'));
+$admin = $main->route('admin')->methodSwitch();
+$admin->route('GET')->callback($this->endpoint('AdminPanel'));
+$admin->route('POST')->callback($this->endpoint('ApplySettings'));
+$main->route('login')->redirect('home');
+$main->route('logout')->method('POST')->callback($this->endpoint('Logout'));
+$articles = $main->resource('articles')->id('id');
+$articles->index()->callback($this->endpoint('ShowArticles'));
+$articles->get()->callback($this->endpoint('ShowArticle'));
+$articles->post()->callback($this->endpoint('AddArticle'));
+$articles->patch()->callback($this->endpoint('UpdateArticle'));
+$articles->delete()->callback($this->endpoint('DeleteArticle'));
+$articles->add()->callback($this->endpoint('AddArticleForm'));
+$articles->edit()->callback($this->endpoint('EditArticleForm'));
 
+$root->route()->path('/login')->methodSwitch([
+    'GET'  => new CallbackEndpoint($this->endpoint('LoginPage')),
+    'POST' => new CallbackEndpoint($this->endpoint('Login'))
+]);
+$root->route()->path('/logout')->redirect('home');
+$root->route()->path('/admin')->redirect('login');
+$root->route()->method('GET')->joinLink($filteredGuestRoute);
+$root->route()->callback($notFound);
+
+$router = $builder->router($baseUri, $nullResponse);
+```
 Tests for this example structure can be found in [`ReadmeExampleTests.php`](tests/ReadmeExampleTest.php) - compare one
 created as above using builder ([`BuilderTests.php`](tests/ReadmeExampleTest/BuilderTest.php)) and
 equivalent structure composed directly from components ([`CompositionTests.php`](tests/ReadmeExampleTest/CompositionTest.php))
@@ -113,11 +114,11 @@ Endpoints are responsible for handling incoming server requests with procedures 
 Beside that, endpoints can can handle types of requests that can be resolved in generic way (`OPTIONS`, `HEAD`).
 There are several ways to define endpoint behaviour:
 
-1. [`CallbackEndpoint`](src/Route/Endpoint/CallbackEndpoint.php) ([`RouteBuilder::callback($callable)`](src/Builder/Node/ContextRouteNode.php#L54))
+1. [`CallbackEndpoint`](src/Route/Endpoint/CallbackEndpoint.php) ([`RouteBuilder::callback($callable)`](src/Builder/Node/RouteNode.php#L47))
   will handle forwarded request with given callback function having following signature:
-
-       $callable = function (ServerRequestInterface $request): ResponseInterface { ... }
-
-2. [`HandlerEndpoint`](src/Route/Endpoint/HandlerEndpoint.php) ([`RouteBuilder::handler(RequestHandlerInterface $handler)`](src/Builder/Node/ContextRouteNode.php#L66))
+    ```php
+    $callable = function (ServerRequestInterface $request): ResponseInterface { ... }
+    ```
+2. [`HandlerEndpoint`](src/Route/Endpoint/HandlerEndpoint.php) ([`RouteBuilder::handler(RequestHandlerInterface $handler)`](src/Builder/Node/RouteNode.php#L59))
   will handle forwarded request with given class implementing RequestHandlerInterface.
 

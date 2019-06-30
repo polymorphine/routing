@@ -17,9 +17,7 @@ use Polymorphine\Routing\Route\Splitter\PathSwitch;
 use Polymorphine\Routing\Route\Gate\PathSegmentGate;
 use Polymorphine\Routing\Exception\EndpointCallException;
 use Polymorphine\Routing\Tests\RoutingTestMethods;
-use Polymorphine\Routing\Tests\Doubles\MockedRoute;
-use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
-use Polymorphine\Routing\Tests\Doubles\FakeUri;
+use Polymorphine\Routing\Tests\Doubles;
 use Psr\Http\Message\ResponseInterface;
 
 
@@ -35,27 +33,27 @@ class PathSwitchTest extends TestCase
     public function testForwardNotMatchingPathSegment_ReturnsPrototypeInstance()
     {
         $splitter = $this->splitter();
-        $this->assertSame(self::$prototype, $splitter->forward(new FakeServerRequest(), self::$prototype));
+        $this->assertSame(self::$prototype, $splitter->forward(new Doubles\FakeServerRequest(), self::$prototype));
     }
 
     public function testForwardMatchingPathSegment_ReturnsRouteResponse()
     {
         $splitter = $this->splitter(['foo' => $this->responseRoute($foo)]);
-        $request  = new FakeServerRequest('GET', FakeUri::fromString('/foo/bar'));
+        $request  = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString('/foo/bar'));
         $this->assertSame($foo, $splitter->forward($request, self::$prototype));
     }
 
     public function testWhenNoRootRoute_ForwardNotExistingPathSegment_ReturnsPrototypeInstance()
     {
         $splitter = $this->splitter();
-        $request  = new FakeServerRequest('GET', FakeUri::fromString('/'));
+        $request  = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString('/'));
         $this->assertSame(self::$prototype, $splitter->forward($request, self::$prototype));
     }
 
     public function testWithRootRoute_ForwardNotExistingPathSegment_ReturnsRootResponse()
     {
         $splitter = $this->splitter([], $this->responseRoute($response));
-        $request  = new FakeServerRequest('GET', FakeUri::fromString('/'));
+        $request  = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString('/'));
         $this->assertSame($response, $splitter->forward($request, self::$prototype));
     }
 
@@ -80,8 +78,8 @@ class PathSwitchTest extends TestCase
     public function testSelect_ReturnsMatchingRouteWithPathWrapper()
     {
         $splitter = new PathSwitch([
-            'A' => $routeA = new MockedRoute(),
-            'B' => $routeB = new MockedRoute()
+            'A' => $routeA = new Doubles\MockedRoute(),
+            'B' => $routeB = new Doubles\MockedRoute()
         ]);
         $this->assertEquals(new PathSegmentGate('A', $routeA), $splitter->select('A'));
         $this->assertEquals(new PathSegmentGate('B', $routeB), $splitter->select('B'));
@@ -89,7 +87,7 @@ class PathSwitchTest extends TestCase
 
     public function testSelectNestedPathWithRoutePath_ReturnsSameRouteAsRepeatedSelectCall()
     {
-        $splitter = $this->createStructure(MockedRoute::response('endpoint'), ['foo', 'bar', 'baz']);
+        $splitter = $this->createStructure(Doubles\MockedRoute::response('endpoint'), ['foo', 'bar', 'baz']);
         $this->assertEquals($splitter->select('foo.bar.baz'), $splitter->select('foo')->select('bar')->select('baz'));
     }
 
@@ -111,25 +109,25 @@ class PathSwitchTest extends TestCase
     public function testWhenNoRootRoute_UriMethodCall_ThrowsException()
     {
         $this->expectException(EndpointCallException::class);
-        $this->splitter()->uri(new FakeUri(), []);
+        $this->splitter()->uri(new Doubles\FakeUri(), []);
     }
 
     public function testWithRootRoute_UriMethodCall_ReturnsRootUri()
     {
-        $splitter = $this->splitter([], MockedRoute::withUri('root'));
-        $this->assertSame('root', (string) $splitter->uri(new FakeUri(), []));
+        $splitter = $this->splitter([], Doubles\MockedRoute::withUri('root'));
+        $this->assertSame('root', (string) $splitter->uri(new Doubles\FakeUri(), []));
     }
 
     public function testRootRouteCanBeSelected()
     {
-        $splitter = $this->splitter([], $root = new MockedRoute());
+        $splitter = $this->splitter([], $root = new Doubles\MockedRoute());
         $root     = new Route\Gate\PathEndGate($root);
         $this->assertEquals($root, $splitter->select(PathSwitch::ROOT_PATH));
     }
 
     public function testRootRouteLabelCanBeSetAtInstantiation()
     {
-        $splitter = new PathSwitch(['dummy' => new MockedRoute()], $root = new MockedRoute(), 'rootLabel');
+        $splitter = new PathSwitch(['dummy' => new Doubles\MockedRoute()], $root = new Doubles\MockedRoute(), 'rootLabel');
         $root     = new Route\Gate\PathEndGate($root);
         $this->assertEquals($root, $splitter->select('rootLabel'));
     }
@@ -141,14 +139,14 @@ class PathSwitchTest extends TestCase
         $wrapped   = new PathSegmentGate('foo', new PathSegmentGate('bar', $splitter));
         $implicit  = $structure->select('foo.bar');
         $explicit  = $structure->select('foo.bar.' . PathSwitch::ROOT_PATH);
-        $request   = new FakeServerRequest('GET', FakeUri::fromString('/foo/bar'));
+        $request   = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString('/foo/bar'));
 
         $this->assertEquals($wrapped, $implicit);
         $this->assertNotEquals($implicit, $explicit);
         $this->assertSame($response, $implicit->forward($request, self::$prototype));
         $this->assertSame($response, $explicit->forward($request, self::$prototype));
-        $this->assertEquals('/foo/bar', (string) $implicit->uri(new FakeUri(), []));
-        $this->assertEquals('/foo/bar', (string) $explicit->uri(new FakeUri(), []));
+        $this->assertEquals('/foo/bar', (string) $implicit->uri(new Doubles\FakeUri(), []));
+        $this->assertEquals('/foo/bar', (string) $explicit->uri(new Doubles\FakeUri(), []));
     }
 
     /**
@@ -160,15 +158,15 @@ class PathSwitchTest extends TestCase
      */
     public function testEndpointUri_ReturnsUriThatCanReachEndpoint(array $segments, string $prototype, string $expected)
     {
-        $prototype = FakeUri::fromString($prototype);
+        $prototype = Doubles\FakeUri::fromString($prototype);
         $path      = implode(Route::PATH_SEPARATOR, $segments);
         $splitter  = $this->createStructure($this->responseRoute($endpointResponse), $segments);
         $this->assertSame($expected, (string) $splitter->select($path)->uri($prototype, []));
 
-        $request = new FakeServerRequest('GET', FakeUri::fromString($expected));
+        $request = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString($expected));
         $this->assertSame($endpointResponse, $splitter->forward($request, self::$prototype));
 
-        $request = new FakeServerRequest('GET', $prototype);
+        $request = new Doubles\FakeServerRequest('GET', $prototype);
         $this->assertSame(self::$prototype, $splitter->forward($request, self::$prototype));
     }
 
@@ -183,7 +181,8 @@ class PathSwitchTest extends TestCase
 
     private function routeForwardCall(Route $route, string $requestUri = null): ResponseInterface
     {
-        $request = new FakeServerRequest('GET', $requestUri ? FakeUri::fromString($requestUri) : new FakeUri());
+        $uri     = $requestUri ? Doubles\FakeUri::fromString($requestUri) : new Doubles\FakeUri();
+        $request = new Doubles\FakeServerRequest('GET', $uri);
         return $route->forward($request, self::$prototype);
     }
 
@@ -197,7 +196,7 @@ class PathSwitchTest extends TestCase
 
     private function splitter(array $routes = [], Route $root = null)
     {
-        $routes = $routes ?: ['dummy' => new MockedRoute()];
+        $routes = $routes ?: ['dummy' => new Doubles\MockedRoute()];
         return $root ? new PathSwitch($routes, $root) : new PathSwitch($routes);
     }
 }

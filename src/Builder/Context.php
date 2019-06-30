@@ -12,17 +12,12 @@
 namespace Polymorphine\Routing\Builder;
 
 use Polymorphine\Routing\Route;
-use Psr\Container\ContainerInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
 
-class NodeContext implements Node
+class Context
 {
-    /** @var null|ContainerInterface */
-    private $container;
-
-    /** @var null|callable */
-    private $routerCallback;
+    private $mappedRoutes;
 
     /** @var null|Route */
     private $route;
@@ -33,14 +28,9 @@ class NodeContext implements Node
     /** @var callable[] */
     private $gates = [];
 
-    /**
-     * @param null|ContainerInterface $container
-     * @param null|callable           $routerCallback function(): Router
-     */
-    public function __construct(?ContainerInterface $container = null, ?callable $routerCallback = null)
+    public function __construct(MappedRoutes $mappedRoutes)
     {
-        $this->container      = $container;
-        $this->routerCallback = $routerCallback;
+        $this->mappedRoutes = $mappedRoutes;
     }
 
     public function build(): Route
@@ -52,7 +42,7 @@ class NodeContext implements Node
         return $this->route = $this->wrapRoute($this->builder->build());
     }
 
-    public function create(): NodeContext
+    public function create(): Context
     {
         $newContext = clone $this;
 
@@ -94,23 +84,17 @@ class NodeContext implements Node
 
     public function setRedirectRoute(string $routingPath, int $code = 301): void
     {
-        $this->setRoute(new Route\Endpoint\RedirectEndpoint($this->uriCallback($routingPath), $code));
+        $this->setRoute($this->mappedRoutes->redirect($routingPath, $code));
     }
 
-    public function setFactoryRoute(string $className): void
+    public function mapEndpoint(string $id): void
     {
-        $factoryCallback = function () use ($className) { return new $className(); };
-        $this->setRoute(new Route\Endpoint\HandlerFactoryEndpoint($factoryCallback, $this->container()));
+        $this->setRoute($this->mappedRoutes->endpoint($id));
     }
 
-    public function addContainerMiddlewareGate(string $middlewareContainerId)
+    public function mapGate(string $id): void
     {
-        $this->addGate(function (Route $route) use ($middlewareContainerId) {
-            return new Route\Gate\LazyRoute(function () use ($middlewareContainerId, $route) {
-                $middleware = $this->container()->get($middlewareContainerId);
-                return new Route\Gate\MiddlewareGateway($middleware, $route);
-            });
-        });
+        $this->addGate($this->mappedRoutes->gateway($id));
     }
 
     public function setRoute(Route $route): void
@@ -132,25 +116,6 @@ class NodeContext implements Node
         }
 
         return $route;
-    }
-
-    private function container(): ContainerInterface
-    {
-        if (!$this->container) {
-            throw new Exception\BuilderLogicException('Required container aware builder to build this route');
-        }
-        return $this->container;
-    }
-
-    private function uriCallback($routingPath): callable
-    {
-        if (!$this->routerCallback) {
-            throw new Exception\BuilderLogicException('Required container aware builder to build redirect route');
-        }
-
-        return function () use ($routingPath) {
-            return (string) ($this->routerCallback)()->uri($routingPath);
-        };
     }
 
     private function stateCheck(): void

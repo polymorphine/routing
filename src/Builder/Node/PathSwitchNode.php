@@ -12,7 +12,7 @@
 namespace Polymorphine\Routing\Builder\Node;
 
 use Polymorphine\Routing\Builder\Node;
-use Polymorphine\Routing\Builder\NodeContext;
+use Polymorphine\Routing\Builder\Context;
 use Polymorphine\Routing\Builder\Exception;
 use Polymorphine\Routing\Builder\Node\Resource\ResourceSwitchNode;
 use Polymorphine\Routing\Builder\Node\Resource\FormsContext;
@@ -27,13 +27,13 @@ class PathSwitchNode implements Node
     private $resourcesForms;
     private $rootLabel;
 
-    public function __construct(?NodeContext $context = null, array $routes = [])
+    public function __construct(Context $context, array $routes = [])
     {
-        $this->context = $context ?? new NodeContext();
+        $this->context = $context;
         $this->routes  = $routes;
     }
 
-    public function route(string $name): ContextRouteNode
+    public function route(string $name): RouteNode
     {
         if (!$name) {
             throw new InvalidArgumentException('Name is required for path segment route switch');
@@ -62,7 +62,7 @@ class PathSwitchNode implements Node
         return $this;
     }
 
-    public function root(string $label = null): ContextRouteNode
+    public function root(string $label = null): RouteNode
     {
         if ($this->rootLabel) {
             throw new Exception\BuilderLogicException('Root path route already defined');

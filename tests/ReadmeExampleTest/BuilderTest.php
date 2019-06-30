@@ -14,9 +14,8 @@ namespace Polymorphine\Routing\Tests\ReadmeExampleTest;
 use Polymorphine\Routing\Tests\ReadmeExampleTest;
 use Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Router;
-use Polymorphine\Routing\Route\Endpoint\CallbackEndpoint;
-use Polymorphine\Routing\Tests\Doubles\FakeResponse;
-use Polymorphine\Routing\Tests\Doubles\FakeUri;
+use Polymorphine\Routing\Route\Endpoint;
+use Polymorphine\Routing\Tests\Doubles;
 
 
 class BuilderTest extends ReadmeExampleTest
@@ -50,14 +49,14 @@ class BuilderTest extends ReadmeExampleTest
         $articles->edit()->callback($this->endpoint('EditArticleForm'));
 
         $root->route()->path('/login')->methodSwitch([
-            'GET'  => new CallbackEndpoint($this->endpoint('LoginPage')),
-            'POST' => new CallbackEndpoint($this->endpoint('Login'))
+            'GET'  => new Endpoint\CallbackEndpoint($this->endpoint('LoginPage')),
+            'POST' => new Endpoint\CallbackEndpoint($this->endpoint('Login'))
         ]);
         $root->route()->path('/logout')->redirect('home');
         $root->route()->path('/admin')->redirect('login');
         $root->route()->method('GET')->joinLink($filteredGuestRoute);
         $root->route()->callback($notFound);
 
-        return $this->router = $builder->router(new FakeUri(), new FakeResponse());
+        return $this->router = $builder->router(new Doubles\FakeUri(), new Doubles\FakeResponse());
     }
 }

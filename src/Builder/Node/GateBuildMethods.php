@@ -13,7 +13,8 @@ namespace Polymorphine\Routing\Builder\Node;
 
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\Pattern;
-use Polymorphine\Routing\Builder\NodeContext;
+use Polymorphine\Routing\Builder\Context;
+use Polymorphine\Routing\Builder\Exception;
 use Psr\Http\Server\MiddlewareInterface;
 
 
@@ -21,7 +22,7 @@ trait GateBuildMethods
 {
     use Pattern\PatternSelection;
 
-    /** @var NodeContext */
+    /** @var Context */
     private $context;
 
     /**
@@ -123,9 +124,24 @@ trait GateBuildMethods
         return $this;
     }
 
-    public function containerMiddleware(string $middlewareContainerId): self
+    /**
+     * Adds gate Route resolved from passed identifier.
+     *
+     * NOTE: In order to use this method gate callback in
+     * MappedRoutes has to be defined. BuilderLogicException
+     * will be thrown otherwise.
+     *
+     * @see \Polymorphine\Routing\Builder\MappedRoutes
+     *
+     * @param string $id
+     *
+     * @throws Exception\BuilderLogicException
+     *
+     * @return static
+     */
+    public function gate(string $id): self
     {
-        $this->context->addContainerMiddlewareGate($middlewareContainerId);
+        $this->context->mapGate($id);
         return $this;
     }
 

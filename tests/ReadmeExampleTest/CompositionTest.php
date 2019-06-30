@@ -25,9 +25,8 @@ use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\Path;
 use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\PathSegment;
 use Polymorphine\Routing\Route\Splitter\MethodSwitch;
 use Polymorphine\Routing\Route\Splitter\PathSwitch;
-use Polymorphine\Routing\Route\Splitter\RouteScan;
-use Polymorphine\Routing\Tests\Doubles\FakeResponse;
-use Polymorphine\Routing\Tests\Doubles\FakeUri;
+use Polymorphine\Routing\Route\Splitter\ScanSwitch;
+use Polymorphine\Routing\Tests\Doubles;
 
 
 class CompositionTest extends ReadmeExampleTest
@@ -46,8 +45,8 @@ class CompositionTest extends ReadmeExampleTest
             }),
             'logout' => new MethodGate('POST', $this->callbackEndpoint('Logout')),
             'articles' => new UriAttributeSelect(new MethodSwitch([
-                'GET' => new RouteScan([
-                    'form' => new UriAttributeSelect(new RouteScan([
+                'GET' => new ScanSwitch([
+                    'form' => new UriAttributeSelect(new ScanSwitch([
                         'edit' => new PatternGate(
                             new PathSegment('id'),
                             new PatternGate(new Path('form'), $this->callbackEndpoint('EditArticleForm'))
@@ -67,7 +66,7 @@ class CompositionTest extends ReadmeExampleTest
             $this->csrfMiddleware(),
             new MiddlewareGateway(
                 $this->authMiddleware(),
-                new RouteScan([
+                new ScanSwitch([
                     new PathSegmentGate('login', new MethodSwitch([
                         'GET'  => $this->callbackEndpoint('LoginPage'),
                         'POST' => $this->callbackEndpoint('Login')
@@ -84,7 +83,7 @@ class CompositionTest extends ReadmeExampleTest
             )
         );
 
-        return $this->router = new Router($route, new FakeUri(), new FakeResponse());
+        return $this->router = new Router($route, new Doubles\FakeUri(), new Doubles\FakeResponse());
     }
 
     private function callbackEndpoint(string $id): CallbackEndpoint

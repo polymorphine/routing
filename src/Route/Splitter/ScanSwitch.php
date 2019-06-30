@@ -18,7 +18,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 
 
-class RouteScan implements Route
+class ScanSwitch implements Route
 {
     use RouteSelectMethods;
 

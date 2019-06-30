@@ -12,12 +12,12 @@
 namespace Polymorphine\Routing\Builder\Node;
 
 use Polymorphine\Routing\Builder\Node;
-use Polymorphine\Routing\Builder\NodeContext;
+use Polymorphine\Routing\Builder\Context;
 use Polymorphine\Routing\Builder\Exception;
 use Polymorphine\Routing\Route;
 
 
-class RouteScanNode implements Node
+class ScanSwitchNode implements Node
 {
     use CompositeBuilderMethods;
 
@@ -25,13 +25,13 @@ class RouteScanNode implements Node
     private $hasDefaultRoute = false;
     private $resourcesForms;
 
-    public function __construct(?NodeContext $context = null, array $routes = [])
+    public function __construct(Context $context, array $routes = [])
     {
-        $this->context = $context ?? new NodeContext();
+        $this->context = $context;
         $this->routes  = $routes;
     }
 
-    public function defaultRoute(): ContextRouteNode
+    public function defaultRoute(): RouteNode
     {
         if ($this->hasDefaultRoute) {
             throw new Exception\BuilderLogicException('Default route already set');
@@ -39,10 +39,10 @@ class RouteScanNode implements Node
 
         array_unshift($this->builders, $defaultRouteBuilder = $this->context->create());
         $this->hasDefaultRoute = true;
-        return new ContextRouteNode($defaultRouteBuilder);
+        return new RouteNode($defaultRouteBuilder);
     }
 
-    public function route(string $name = null): ContextRouteNode
+    public function route(string $name = null): RouteNode
     {
         return $this->addBuilder($name);
     }
@@ -70,10 +70,10 @@ class RouteScanNode implements Node
     protected function router(array $routes): Route
     {
         if (!$this->hasDefaultRoute) {
-            return new Route\Splitter\RouteScan($routes);
+            return new Route\Splitter\ScanSwitch($routes);
         }
 
         $defaultRoute = array_shift($routes);
-        return new Route\Splitter\RouteScan($routes, $defaultRoute);
+        return new Route\Splitter\ScanSwitch($routes, $defaultRoute);
     }
 }

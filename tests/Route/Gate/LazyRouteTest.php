@@ -13,11 +13,7 @@ namespace Polymorphine\Routing\Tests\Route\Gate;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Route\Gate\LazyRoute;
-use Polymorphine\Routing\Tests\Doubles\MockedRoute;
-use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
-use Polymorphine\Routing\Tests\Doubles\FakeResponse;
-use Polymorphine\Routing\Tests\Doubles\FakeUri;
+use Polymorphine\Routing\Tests\Doubles;
 
 
 class LazyRouteTest extends TestCase
@@ -38,19 +34,19 @@ class LazyRouteTest extends TestCase
     {
         $route = $this->route();
         $this->assertNull($this->invokedRoute);
-        $route->forward(new FakeServerRequest(), new FakeResponse());
+        $route->forward(new Doubles\FakeServerRequest(), new Doubles\FakeResponse());
         $this->assertInstanceOf(Route::class, $this->invokedRoute);
     }
 
     public function testUriIsCalledOnInvokedRoute()
     {
-        $uri = $this->route()->uri(new FakeUri(), []);
+        $uri = $this->route()->uri(new Doubles\FakeUri(), []);
         $this->assertSame('invoked', $uri->getPath());
     }
 
     public function testRequestIsPassedToInvokedRoute()
     {
-        $response = $this->route()->forward(new FakeServerRequest(), new FakeResponse());
+        $response = $this->route()->forward(new Doubles\FakeServerRequest(), new Doubles\FakeResponse());
         $this->assertSame('invoked', $response->body);
     }
 
@@ -62,8 +58,11 @@ class LazyRouteTest extends TestCase
 
     private function route()
     {
-        return new LazyRoute(function () {
-            return $this->invokedRoute = new MockedRoute(new FakeResponse('invoked'), FakeUri::fromString('invoked'));
+        return new Route\Gate\LazyRoute(function () {
+            return $this->invokedRoute = new Doubles\MockedRoute(
+                new Doubles\FakeResponse('invoked'),
+                Doubles\FakeUri::fromString('invoked')
+            );
         });
     }
 }
