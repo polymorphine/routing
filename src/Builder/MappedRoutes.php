@@ -24,8 +24,25 @@ class MappedRoutes
     private $router;
 
     /**
+     * The purpose of this class is to provide router callback for
+     * redirect endpoints (that will use router's uri at runtime)
+     * and procedures resolving gate and endpoint identifiers by
+     * user defined convention.
+     *
+     * Supplied convention will be used throughout entire router build
+     * process and cannot be changed (even if mutable router callback
+     * is redefined only last variant will be used).
+     *
+     * If there's a need for more endpoint and gate resolvers of this
+     * kind, you might differentiate them using some identifier parsing
+     * strategies (like prefix based selection).
+     *
+     * Static constructor using ContainerInterface is only suggestion,
+     * that also serves as more detailed example of main constructor
+     * parameters.
+     *
      * @param null|callable $router   function(): Router
-     * @param null|callable $endpoint function(string): Route
+     * @param null|callable $endpoint function(string): Endpoint|Route
      * @param null|callable $gateway  function(string, Route): Route
      */
     public function __construct(?callable $router, ?callable $endpoint, ?callable $gateway)
@@ -35,9 +52,23 @@ class MappedRoutes
         $this->gateway  = $gateway;
     }
 
+    /**
+     * Creates container based convention for endpoint and gate mapping.
+     *
+     * Endpoint will resolve class name (FQN) as RequestHandlerInterface
+     * factory instantiated with container parameter, creating handler
+     * instance using request headers.
+     *
+     * Gate will attempt to get MiddlewareInterface from container, and
+     * create MiddlewareRoute with it.
+     *
+     * @param ContainerInterface $container
+     *
+     * @return MappedRoutes
+     */
     public static function withContainerMapping(ContainerInterface $container): self
     {
-        $endpoint = function (string $class) use ($container): Route {
+        $endpoint = function (string $class) use ($container): Route\Endpoint {
             return new Route\Endpoint\CallbackEndpoint(
                 function (ServerRequestInterface $request) use ($class, $container) {
                     /** @var object $factory */
