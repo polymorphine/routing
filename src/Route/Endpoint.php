@@ -18,6 +18,15 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\UriInterface;
 
 
+/**
+ * Subclasses of this Route by implementing abstract execute() method
+ * allow Router to resolve OPTIONS header automatically, thanks to
+ * collecting allowed http methods while traversing routing tree.
+ *
+ * As name suggests these Routes should be leaf nodes of routing tree,
+ * as it will not cause logic contradictions when extending existing
+ * structure.
+ */
 abstract class Endpoint implements Route
 {
     public function forward(Request $request, Response $prototype): Response
@@ -35,6 +44,15 @@ abstract class Endpoint implements Route
         return $prototype;
     }
 
+    /**
+     * Method is equivalent to forward() method, but allows request
+     * pre-processing.
+     *
+     * @param Request  $request
+     * @param Response $prototype
+     *
+     * @return Response
+     */
     abstract protected function execute(Request $request, Response $prototype): Response;
 
     private function optionsResponse(Request $request, Response $prototype): ?Response
