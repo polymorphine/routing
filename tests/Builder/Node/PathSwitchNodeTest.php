@@ -101,7 +101,7 @@ class PathSwitchNodeTest extends TestCase
     {
         $switch = $this->builder();
         $switch->route('foo')->callback(function () {});
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(Exception\BuilderLogicException::class);
         $switch->route('foo');
     }
 

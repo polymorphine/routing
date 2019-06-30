@@ -14,7 +14,7 @@ namespace Polymorphine\Routing\Builder\Node;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Builder\Node;
 use Polymorphine\Routing\Builder\Context;
-use InvalidArgumentException;
+use Polymorphine\Routing\Builder\Exception;
 
 
 trait CompositeBuilderMethods
@@ -61,7 +61,7 @@ trait CompositeBuilderMethods
     {
         if (isset($this->builders[$name]) || isset($this->routes[$name])) {
             $message = 'Route name `%s` already exists in this scope';
-            throw new InvalidArgumentException(sprintf($message, $name));
+            throw new Exception\BuilderLogicException(sprintf($message, $name));
         }
 
         return $name;

@@ -13,7 +13,6 @@ namespace Polymorphine\Routing\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Router;
-use Polymorphine\Routing\Tests\Doubles;
 
 
 class RouterTest extends TestCase

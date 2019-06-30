@@ -18,7 +18,6 @@ use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Tests\Builder;
 use Polymorphine\Routing\Tests\Doubles;
 use Polymorphine\Routing\Tests\RoutingTestMethods;
-use InvalidArgumentException;
 
 
 class ScanSwitchNodeTest extends TestCase
@@ -86,7 +85,7 @@ class ScanSwitchNodeTest extends TestCase
     {
         $switch = $this->builder();
         $switch->route('exists')->callback(function () {});
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(Exception\BuilderLogicException::class);
         $switch->route('exists');
     }
 

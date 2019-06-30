@@ -12,7 +12,7 @@
 namespace Polymorphine\Routing\Tests\Builder\Node;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Builder\Node;
+use Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Exception;
 use Polymorphine\Routing\Tests;
@@ -27,7 +27,7 @@ class MethodSwitchNodeTest extends TestCase
 
     public function testInstantiation()
     {
-        $this->assertInstanceOf(Node\MethodSwitchNode::class, $this->builder());
+        $this->assertInstanceOf(Builder\Node\MethodSwitchNode::class, $this->builder());
     }
 
     public function testBuild_ReturnsResponseScanSwitch()
@@ -105,7 +105,7 @@ class MethodSwitchNodeTest extends TestCase
     {
         $switch = $this->builder();
         $switch->post()->callback(function () {});
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(Builder\Exception\BuilderLogicException::class);
         $switch->route('POST');
     }
 
@@ -113,12 +113,12 @@ class MethodSwitchNodeTest extends TestCase
     {
         $switch = $this->builder();
         $switch->post()->callback(function () {});
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(Builder\Exception\BuilderLogicException::class);
         $switch->route('GET|POST|PATCH');
     }
 
-    private function builder(): Node\MethodSwitchNode
+    private function builder(): Builder\Node\MethodSwitchNode
     {
-        return new Node\MethodSwitchNode($this->context());
+        return new Builder\Node\MethodSwitchNode($this->context());
     }
 }
