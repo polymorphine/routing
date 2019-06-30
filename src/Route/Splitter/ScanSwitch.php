@@ -18,6 +18,10 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 
 
+/**
+ * Aggregated Route where collection of Routes is scanned sequentially
+ * until meaningful (other than prototype) Response is returned.
+ */
 class ScanSwitch implements Route
 {
     use RouteSelectMethods;
@@ -26,6 +30,13 @@ class ScanSwitch implements Route
     protected $defaultRoute;
 
     /**
+     * Default Route is resolved using following rules:
+     * - scanned (forwarded) first,
+     * - is selected further when path does not match any route
+     *   from collection,
+     * - can provide uri, while switch itself cannot resolve uri
+     *   from collection of routes.
+     *
      * @param Route[] $routes
      * @param Route   $defaultRoute
      */
