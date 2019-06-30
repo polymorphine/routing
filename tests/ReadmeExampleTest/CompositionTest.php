@@ -26,8 +26,7 @@ use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\PathSegment;
 use Polymorphine\Routing\Route\Splitter\MethodSwitch;
 use Polymorphine\Routing\Route\Splitter\PathSwitch;
 use Polymorphine\Routing\Route\Splitter\ScanSwitch;
-use Polymorphine\Routing\Tests\Doubles\FakeResponse;
-use Polymorphine\Routing\Tests\Doubles\FakeUri;
+use Polymorphine\Routing\Tests\Doubles;
 
 
 class CompositionTest extends ReadmeExampleTest
@@ -84,7 +83,7 @@ class CompositionTest extends ReadmeExampleTest
             )
         );
 
-        return $this->router = new Router($route, new FakeUri(), new FakeResponse());
+        return $this->router = new Router($route, new Doubles\FakeUri(), new Doubles\FakeResponse());
     }
 
     private function callbackEndpoint(string $id): CallbackEndpoint

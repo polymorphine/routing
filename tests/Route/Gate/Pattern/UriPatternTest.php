@@ -13,10 +13,8 @@ namespace Polymorphine\Routing\Tests\Route\Gate\Pattern;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Route\Gate\Pattern\UriPattern;
-use Polymorphine\Routing\Exception\UnreachableEndpointException;
-use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
-use Polymorphine\Routing\Tests\Doubles\FakeUri;
+use Polymorphine\Routing\Exception;
+use Polymorphine\Routing\Tests\Doubles;
 use Psr\Http\Message\ServerRequestInterface;
 use InvalidArgumentException;
 
@@ -25,7 +23,7 @@ class UriPatternTest extends TestCase
 {
     public function testInstantiation()
     {
-        $this->assertInstanceOf(UriPattern::class, $this->pattern('http:/some/path&query=foo'));
+        $this->assertInstanceOf(Route\Gate\Pattern\UriPattern::class, $this->pattern('http:/some/path&query=foo'));
     }
 
     public function testInstantiationWithInvalidUriString_ThrowsException()
@@ -95,7 +93,7 @@ class UriPatternTest extends TestCase
      */
     public function testUriIsReturnedWithDefinedUriParts($patternString, $uriString, $expected)
     {
-        $prototype = FakeUri::fromString($uriString);
+        $prototype = Doubles\FakeUri::fromString($uriString);
         $pattern   = $this->pattern($patternString);
         $this->assertSame($expected, (string) $pattern->uri($prototype, []));
     }
@@ -125,8 +123,8 @@ class UriPatternTest extends TestCase
      */
     public function testUriOverwritingPrototypeSegment_ThrowsException($patternString, $uriString)
     {
-        $this->expectException(UnreachableEndpointException::class);
-        $this->pattern($patternString)->uri(FakeUri::fromString($uriString), []);
+        $this->expectException(Exception\UnreachableEndpointException::class);
+        $this->pattern($patternString)->uri(Doubles\FakeUri::fromString($uriString), []);
     }
 
     public function prototypeConflict()
@@ -144,11 +142,11 @@ class UriPatternTest extends TestCase
     public function testUriMatchingPrototypeSegment_ReturnsUriWithMissingPartAppended()
     {
         $pattern   = $this->pattern('/foo/bar/baz');
-        $prototype = FakeUri::fromString('/foo/bar');
+        $prototype = Doubles\FakeUri::fromString('/foo/bar');
         $this->assertSame('/foo/bar/baz', (string) $pattern->uri($prototype, []));
 
         $pattern   = $this->pattern('/foo/bar?fizz=buzz&other=param');
-        $prototype = FakeUri::fromString('/foo?fizz=buzz');
+        $prototype = Doubles\FakeUri::fromString('/foo?fizz=buzz');
         $this->assertSame('/foo/bar?fizz=buzz&other=param', (string) $pattern->uri($prototype, []));
     }
 
@@ -204,18 +202,18 @@ class UriPatternTest extends TestCase
     public function testUriFromRelativePathWithRootInPrototype_ReturnsUriWithAppendedPath()
     {
         $pattern   = $this->pattern('bar/slug-string');
-        $prototype = FakeUri::fromString('/foo');
+        $prototype = Doubles\FakeUri::fromString('/foo');
         $this->assertSame('/foo/bar/slug-string', (string) $pattern->uri($prototype, []));
 
         $pattern   = $this->pattern('last/segments?query=string');
-        $prototype = FakeUri::fromString('/foo/bar');
+        $prototype = Doubles\FakeUri::fromString('/foo/bar');
         $this->assertSame('/foo/bar/last/segments?query=string', (string) $pattern->uri($prototype, []));
     }
 
     public function testUriFromRelativePathWithNoRootInPrototype_ReturnsUriWithAbsolutePath()
     {
         $pattern   = $this->pattern('bar');
-        $prototype = new FakeUri();
+        $prototype = new Doubles\FakeUri();
         $this->assertSame('/bar', $pattern->uri($prototype, [])->getPath());
     }
 
@@ -240,11 +238,11 @@ class UriPatternTest extends TestCase
 
     private function pattern(string $uri)
     {
-        return UriPattern::fromUriString($uri);
+        return Route\Gate\Pattern\UriPattern::fromUriString($uri);
     }
 
     private function request(string $uri)
     {
-        return new FakeServerRequest('GET', FakeUri::fromString($uri));
+        return new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString($uri));
     }
 }

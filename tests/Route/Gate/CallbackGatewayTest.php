@@ -13,17 +13,14 @@ namespace Polymorphine\Routing\Tests\Route\Gate;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Route\Gate\CallbackGateway;
-use Polymorphine\Routing\Tests\RoutingTestMethods;
-use Polymorphine\Routing\Tests\Doubles\MockedRoute;
-use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
-use Polymorphine\Routing\Tests\Doubles\FakeUri;
+use Polymorphine\Routing\Tests;
+use Polymorphine\Routing\Tests\Doubles;
 use Psr\Http\Message\ServerRequestInterface;
 
 
 class CallbackGatewayTest extends TestCase
 {
-    use RoutingTestMethods;
+    use Tests\RoutingTestMethods;
 
     public function testInstantiation()
     {
@@ -32,13 +29,13 @@ class CallbackGatewayTest extends TestCase
 
     public function testCallbackPreventsForwardingRequest()
     {
-        $request = new FakeServerRequest();
+        $request = new Doubles\FakeServerRequest();
         $this->assertSame(self::$prototype, $this->middleware()->forward($request, self::$prototype));
     }
 
     public function testMiddlewareForwardsRequest()
     {
-        $request = new FakeServerRequest('POST');
+        $request = new Doubles\FakeServerRequest('POST');
         $this->assertNotSame(self::$prototype, $this->middleware()->forward($request, self::$prototype));
     }
 
@@ -51,13 +48,13 @@ class CallbackGatewayTest extends TestCase
     public function testUriCallIsPassedToWrappedRoute()
     {
         $uri   = 'http://example.com/foo/bar?test=baz';
-        $route = new CallbackGateway($this->basicCallback(), MockedRoute::withUri($uri));
-        $this->assertSame($uri, (string) $route->uri(new FakeUri(), []));
+        $route = new Route\Gate\CallbackGateway($this->basicCallback(), Doubles\MockedRoute::withUri($uri));
+        $this->assertSame($uri, (string) $route->uri(new Doubles\FakeUri(), []));
     }
 
     private function middleware(callable $callback = null)
     {
-        return new CallbackGateway($callback ?: $this->basicCallback(), MockedRoute::response('default'));
+        return new Route\Gate\CallbackGateway($callback ?: $this->basicCallback(), Doubles\MockedRoute::response('default'));
     }
 
     private function basicCallback()

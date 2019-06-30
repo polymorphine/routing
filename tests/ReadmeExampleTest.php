@@ -13,9 +13,6 @@ namespace Polymorphine\Routing\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Router;
-use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
-use Polymorphine\Routing\Tests\Doubles\FakeUri;
-use Polymorphine\Routing\Tests\Doubles\FakeResponse;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -36,14 +33,14 @@ abstract class ReadmeExampleTest extends TestCase
     /**
      * @dataProvider endpointRequests
      *
-     * @param string            $expectedOutput
-     * @param FakeServerRequest $request
-     * @param string            $routePath
-     * @param array             $uriParams
+     * @param string                 $expectedOutput
+     * @param ServerRequestInterface $request
+     * @param string                 $routePath
+     * @param array                  $uriParams
      */
     public function testRequestReachItsEndpoint(
         string $expectedOutput,
-        FakeServerRequest $request,
+        ServerRequestInterface $request,
         string $routePath,
         array $uriParams = []
     ) {
@@ -81,10 +78,10 @@ abstract class ReadmeExampleTest extends TestCase
     /**
      * @dataProvider redirectedRequests
      *
-     * @param FakeServerRequest $request
-     * @param string            $locationRoutePath
+     * @param ServerRequestInterface $request
+     * @param string                 $locationRoutePath
      */
-    public function testRedirectedRequests(FakeServerRequest $request, string $locationRoutePath)
+    public function testRedirectedRequests(ServerRequestInterface $request, string $locationRoutePath)
     {
         $router   = $this->router();
         $response = $router->handle($request);
@@ -108,14 +105,14 @@ abstract class ReadmeExampleTest extends TestCase
             if ($resourceId = $request->getAttribute('id')) {
                 $id .= '(' . $resourceId . ')';
             }
-            return new FakeResponse($id);
+            return new Doubles\FakeResponse($id);
         };
     }
 
     protected function notFound(): callable
     {
         return function () {
-            $response = new FakeResponse();
+            $response = new Doubles\FakeResponse();
             return $response->withStatus(404, 'Not Found');
         };
     }
@@ -153,9 +150,9 @@ abstract class ReadmeExampleTest extends TestCase
         };
     }
 
-    private function request(string $method, string $uri, array $attributes = []): FakeServerRequest
+    private function request(string $method, string $uri, array $attributes = []): ServerRequestInterface
     {
-        $request = new FakeServerRequest($method, FakeUri::fromString($uri));
+        $request = new Doubles\FakeServerRequest($method, Doubles\FakeUri::fromString($uri));
         $request->attr = $attributes;
         return $request;
     }

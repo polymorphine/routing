@@ -13,18 +13,9 @@ namespace Polymorphine\Routing\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Builder;
-use Polymorphine\Routing\Builder\Node\RouteNode;
-use Polymorphine\Routing\Builder\EndpointRouteBuilder;
-use Polymorphine\Routing\Builder\Exception\BuilderLogicException;
+use Polymorphine\Routing\Builder\Exception;
 use Polymorphine\Routing\Router;
-use Polymorphine\Routing\Route\Endpoint\CallbackEndpoint;
-use Polymorphine\Routing\Route\Endpoint\RedirectEndpoint;
-use Polymorphine\Routing\Tests\Doubles\FakeContainer;
-use Polymorphine\Routing\Tests\Doubles\FakeHandlerFactory;
-use Polymorphine\Routing\Tests\Doubles\FakeRequestHandler;
-use Polymorphine\Routing\Tests\Doubles\FakeResponse;
-use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
-use Polymorphine\Routing\Tests\Doubles\FakeUri;
+use Polymorphine\Routing\Route\Endpoint;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -38,57 +29,57 @@ class BuilderTest extends TestCase
 
     public function testRouterMethodWithoutSetup_ThrowsException()
     {
-        $this->expectException(BuilderLogicException::class);
-        $this->builder()->router(new FakeUri(), new FakeResponse());
+        $this->expectException(Exception\BuilderLogicException::class);
+        $this->builder()->router(new Doubles\FakeUri(), new Doubles\FakeResponse());
     }
 
     public function testWithContextSetupRouterMethod_ReturnsRouter()
     {
         $root = $this->builder();
         $root->rootNode()->callback(function () {});
-        $this->assertInstanceOf(Router::class, $root->router(new FakeUri(), new FakeResponse()));
+        $this->assertInstanceOf(Router::class, $root->router(new Doubles\FakeUri(), new Doubles\FakeResponse()));
     }
 
     public function testSecondRootContext_ThrowsException()
     {
         $root = $this->builder();
         $root->rootNode();
-        $this->expectException(BuilderLogicException::class);
+        $this->expectException(Exception\BuilderLogicException::class);
         $root->rootNode();
     }
 
     public function testEndpointMethod_ReturnsEndpointSetup()
     {
         $root = $this->builder();
-        $this->assertInstanceOf(EndpointRouteBuilder::class, $root->route());
+        $this->assertInstanceOf(Builder\EndpointRouteBuilder::class, $root->route());
     }
 
     public function testBuilderMethod_ReturnsRouteBuilder()
     {
         $root = $this->builder();
-        $this->assertInstanceOf(RouteNode::class, $root->detachedNode());
+        $this->assertInstanceOf(Builder\Node\RouteNode::class, $root->detachedNode());
     }
 
     public function testWithoutContainerBuilderContextFactoryRoute_ThrowsException()
     {
         $builder = $this->builder()->rootNode();
-        $this->expectException(BuilderLogicException::class);
-        $builder->endpointId(FakeHandlerFactory::class);
+        $this->expectException(Exception\BuilderLogicException::class);
+        $builder->endpointId(Doubles\FakeHandlerFactory::class);
     }
 
     public function testContainerMappingIsPassedToBuilderContext()
     {
-        $container = new FakeContainer([
-            'handler' => new FakeRequestHandler(new FakeResponse('handler response'))
+        $container = new Doubles\FakeContainer([
+            'handler' => new Doubles\FakeRequestHandler(new Doubles\FakeResponse('handler response'))
         ]);
 
         $root    = $this->builder($container);
         $builder = $root->rootNode();
-        $builder->endpointId(FakeHandlerFactory::class);
-        $this->assertInstanceOf(CallbackEndpoint::class, $route = $builder->build());
+        $builder->endpointId(Doubles\FakeHandlerFactory::class);
+        $this->assertInstanceOf(Endpoint\CallbackEndpoint::class, $route = $builder->build());
 
-        $request = (new FakeServerRequest())->withHeader('id', 'handler');
-        $this->assertInstanceOf(ResponseInterface::class, $response = $route->forward($request, new FakeResponse()));
+        $request = (new Doubles\FakeServerRequest())->withHeader('id', 'handler');
+        $this->assertInstanceOf(ResponseInterface::class, $response = $route->forward($request, new Doubles\FakeResponse()));
         $this->assertSame('handler response', (string) $response->getBody());
     }
 
@@ -97,7 +88,7 @@ class BuilderTest extends TestCase
         $root    = $this->builder();
         $builder = $root->rootNode();
         $builder->redirect('routing.path');
-        $this->assertInstanceOf(RedirectEndpoint::class, $builder->build());
+        $this->assertInstanceOf(Endpoint\RedirectEndpoint::class, $builder->build());
     }
 
     private function builder(ContainerInterface $container = null): Builder

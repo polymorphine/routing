@@ -12,31 +12,27 @@
 namespace Polymorphine\Routing\Tests\Builder\Node;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Builder\Node\PathSwitchNode;
-use Polymorphine\Routing\Builder\Node\Resource\ResourceSwitchNode;
-use Polymorphine\Routing\Builder\Exception\BuilderLogicException;
-use Polymorphine\Routing\Route\Splitter\PathSwitch;
-use Polymorphine\Routing\Tests\Builder\ContextCreateMethod;
-use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
-use Polymorphine\Routing\Tests\Doubles\FakeResponse;
-use Polymorphine\Routing\Tests\Doubles\FakeUri;
-use Polymorphine\Routing\Tests\RoutingTestMethods;
+use Polymorphine\Routing\Builder\Node;
+use Polymorphine\Routing\Builder\Exception;
+use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Tests;
+use Polymorphine\Routing\Tests\Doubles;
 use InvalidArgumentException;
 
 
 class PathSwitchNodeTest extends TestCase
 {
-    use RoutingTestMethods;
-    use ContextCreateMethod;
+    use Tests\RoutingTestMethods;
+    use Tests\Builder\ContextCreateMethod;
 
     public function testInstantiation()
     {
-        $this->assertInstanceOf(PathSwitchNode::class, $this->builder());
+        $this->assertInstanceOf(Node\PathSwitchNode::class, $this->builder());
     }
 
     public function testBuild_ReturnsResponseScanSwitch()
     {
-        $this->assertInstanceOf(PathSwitch::class, $this->builder()->build());
+        $this->assertInstanceOf(Route\Splitter\PathSwitch::class, $this->builder()->build());
     }
 
     public function testRoutesCanBeAdded()
@@ -46,10 +42,10 @@ class PathSwitchNodeTest extends TestCase
         $switch->route('second')->callback($this->callbackResponse($second));
         $route = $switch->build();
 
-        $request   = new FakeServerRequest();
-        $prototype = new FakeResponse();
-        $this->assertSame($first, $route->forward($request->withUri(FakeUri::fromString('/first')), $prototype));
-        $this->assertSame($second, $route->forward($request->withUri(FakeUri::fromString('/second')), $prototype));
+        $request   = new Doubles\FakeServerRequest();
+        $prototype = new Doubles\FakeResponse();
+        $this->assertSame($first, $route->forward($request->withUri(Doubles\FakeUri::fromString('/first')), $prototype));
+        $this->assertSame($second, $route->forward($request->withUri(Doubles\FakeUri::fromString('/second')), $prototype));
     }
 
     public function testEmptyRouteName_ThrowsException()
@@ -66,14 +62,14 @@ class PathSwitchNodeTest extends TestCase
         $switch->root()->callback($this->callbackResponse($root));
         $route = $switch->build();
 
-        $prototype           = new FakeResponse();
-        $relativeRootRequest = new FakeServerRequest('GET', FakeUri::fromString(''));
-        $absoluteRootRequest = new FakeServerRequest('GET', FakeUri::fromString('/'));
+        $prototype           = new Doubles\FakeResponse();
+        $relativeRootRequest = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString(''));
+        $absoluteRootRequest = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString('/'));
 
         $this->assertSame($root, $route->forward($relativeRootRequest, $prototype));
         $this->assertSame($root, $route->forward($absoluteRootRequest, $prototype));
-        $this->assertSame($root, $route->select(PathSwitch::ROOT_PATH)->forward($relativeRootRequest, $prototype));
-        $this->assertSame($root, $route->select(PathSwitch::ROOT_PATH)->forward($absoluteRootRequest, $prototype));
+        $this->assertSame($root, $route->select(Route\Splitter\PathSwitch::ROOT_PATH)->forward($relativeRootRequest, $prototype));
+        $this->assertSame($root, $route->select(Route\Splitter\PathSwitch::ROOT_PATH)->forward($absoluteRootRequest, $prototype));
     }
 
     public function testRootRouteWithLabel()
@@ -83,9 +79,9 @@ class PathSwitchNodeTest extends TestCase
         $switch->root('rootLabel')->callback($this->callbackResponse($root));
         $route = $switch->build();
 
-        $prototype           = new FakeResponse();
-        $relativeRootRequest = new FakeServerRequest('GET', FakeUri::fromString(''));
-        $absoluteRootRequest = new FakeServerRequest('GET', FakeUri::fromString('/'));
+        $prototype           = new Doubles\FakeResponse();
+        $relativeRootRequest = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString(''));
+        $absoluteRootRequest = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString('/'));
 
         $this->assertSame($root, $route->forward($relativeRootRequest, $prototype));
         $this->assertSame($root, $route->forward($absoluteRootRequest, $prototype));
@@ -97,7 +93,7 @@ class PathSwitchNodeTest extends TestCase
     {
         $switch = $this->builder();
         $switch->root();
-        $this->expectException(BuilderLogicException::class);
+        $this->expectException(Exception\BuilderLogicException::class);
         $switch->root();
     }
 
@@ -111,7 +107,7 @@ class PathSwitchNodeTest extends TestCase
 
     public function testResourceBuilderCanBeAdded()
     {
-        $this->assertInstanceOf(ResourceSwitchNode::class, $this->builder()->resource('res'));
+        $this->assertInstanceOf(Node\Resource\ResourceSwitchNode::class, $this->builder()->resource('res'));
     }
 
     public function testSeparateFormsPathForResourceBuilderCanBeSet()
@@ -122,16 +118,16 @@ class PathSwitchNodeTest extends TestCase
         $resource->edit()->callback($this->callbackResponse($edit));
         $route = $builder->build();
 
-        $responsePrototype = new FakeResponse();
-        $uriPrototype      = new FakeUri();
+        $responsePrototype = new Doubles\FakeResponse();
+        $uriPrototype      = new Doubles\FakeUri();
 
-        $newFormUri     = FakeUri::fromString('/forms/resource');
-        $newFormRequest = new FakeServerRequest('GET', $newFormUri);
+        $newFormUri     = Doubles\FakeUri::fromString('/forms/resource');
+        $newFormRequest = new Doubles\FakeServerRequest('GET', $newFormUri);
         $this->assertSame($add, $route->forward($newFormRequest, $responsePrototype));
         $this->assertSame((string) $newFormUri, (string) $route->select('forms.resource')->uri($uriPrototype, []));
 
-        $editFormUri     = FakeUri::fromString('/forms/resource/997');
-        $editFormRequest = new FakeServerRequest('GET', $editFormUri);
+        $editFormUri     = Doubles\FakeUri::fromString('/forms/resource/997');
+        $editFormRequest = new Doubles\FakeServerRequest('GET', $editFormUri);
         $this->assertSame($edit, $route->forward($editFormRequest, $responsePrototype));
         $this->assertSame((string) $editFormUri, (string) $route->select('forms.resource')->uri($uriPrototype, ['resource.id' => 997]));
     }
@@ -139,12 +135,12 @@ class PathSwitchNodeTest extends TestCase
     public function testResourceFormsPathOverwrite_ThrowsException()
     {
         $builder = $this->builder()->withResourcesFormsPath('forms');
-        $this->expectException(BuilderLogicException::class);
+        $this->expectException(Exception\BuilderLogicException::class);
         $builder->withResourcesFormsPath('other');
     }
 
-    private function builder(): PathSwitchNode
+    private function builder(): Node\PathSwitchNode
     {
-        return new PathSwitchNode($this->context());
+        return new Node\PathSwitchNode($this->context());
     }
 }

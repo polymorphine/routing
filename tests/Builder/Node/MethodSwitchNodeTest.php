@@ -12,30 +12,27 @@
 namespace Polymorphine\Routing\Tests\Builder\Node;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Builder\Node\MethodSwitchNode;
-use Polymorphine\Routing\Route\Splitter\MethodSwitch;
-use Polymorphine\Routing\Exception\EndpointCallException;
-use Polymorphine\Routing\Tests\Builder\ContextCreateMethod;
-use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
-use Polymorphine\Routing\Tests\Doubles\FakeResponse;
-use Polymorphine\Routing\Tests\Doubles\FakeUri;
-use Polymorphine\Routing\Tests\RoutingTestMethods;
+use Polymorphine\Routing\Builder\Node;
+use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Exception;
+use Polymorphine\Routing\Tests;
+use Polymorphine\Routing\Tests\Doubles;
 use InvalidArgumentException;
 
 
 class MethodSwitchNodeTest extends TestCase
 {
-    use RoutingTestMethods;
-    use ContextCreateMethod;
+    use Tests\RoutingTestMethods;
+    use Tests\Builder\ContextCreateMethod;
 
     public function testInstantiation()
     {
-        $this->assertInstanceOf(MethodSwitchNode::class, $this->builder());
+        $this->assertInstanceOf(Node\MethodSwitchNode::class, $this->builder());
     }
 
     public function testBuild_ReturnsResponseScanSwitch()
     {
-        $this->assertInstanceOf(MethodSwitch::class, $this->builder()->build());
+        $this->assertInstanceOf(Route\Splitter\MethodSwitch::class, $this->builder()->build());
     }
 
     public function testRoutesCanBeAdded()
@@ -48,8 +45,8 @@ class MethodSwitchNodeTest extends TestCase
         $switch->delete()->callback($this->callbackResponse($delete));
         $route = $switch->build();
 
-        $request   = new FakeServerRequest();
-        $prototype = new FakeResponse();
+        $request   = new Doubles\FakeServerRequest();
+        $prototype = new Doubles\FakeResponse();
         $this->assertSame($get, $route->forward($request->withMethod('GET'), $prototype));
         $this->assertSame($post, $route->forward($request->withMethod('POST'), $prototype));
         $this->assertSame($patch, $route->forward($request->withMethod('PATCH'), $prototype));
@@ -64,8 +61,8 @@ class MethodSwitchNodeTest extends TestCase
         $switch->route('POST|PATCH')->callback($this->callbackResponse($multiple));
         $route = $switch->build();
 
-        $request   = new FakeServerRequest();
-        $prototype = new FakeResponse();
+        $request   = new Doubles\FakeServerRequest();
+        $prototype = new Doubles\FakeResponse();
         $this->assertSame($single, $route->forward($request->withMethod('GET'), $prototype));
         $this->assertSame($multiple, $route->forward($request->withMethod('POST'), $prototype));
         $this->assertSame($multiple, $route->forward($request->withMethod('PATCH'), $prototype));
@@ -76,7 +73,7 @@ class MethodSwitchNodeTest extends TestCase
         $switch = $this->builder()->implicitPath('POST');
         $switch->post()->path('routeIMPLICIT')->callback(function () {});
         $route = $switch->build();
-        $this->assertSame('/routeIMPLICIT', (string) $route->uri(new FakeUri(), []));
+        $this->assertSame('/routeIMPLICIT', (string) $route->uri(new Doubles\FakeUri(), []));
     }
 
     public function testRemovingImplicitRoute()
@@ -84,10 +81,10 @@ class MethodSwitchNodeTest extends TestCase
         $switch = $this->builder()->explicitPath();
         $switch->post()->path('routePOST')->callback(function () {});
         $route = $switch->build();
-        $this->assertSame('/routePOST', (string) $route->select('POST')->uri(new FakeUri(), []));
+        $this->assertSame('/routePOST', (string) $route->select('POST')->uri(new Doubles\FakeUri(), []));
 
-        $this->expectException(EndpointCallException::class);
-        $route->uri(new FakeUri(), []);
+        $this->expectException(Exception\EndpointCallException::class);
+        $route->uri(new Doubles\FakeUri(), []);
     }
 
     public function testEmptyHttpMethodRouteName_ThrowsException()
@@ -120,8 +117,8 @@ class MethodSwitchNodeTest extends TestCase
         $switch->route('GET|POST|PATCH');
     }
 
-    private function builder(): MethodSwitchNode
+    private function builder(): Node\MethodSwitchNode
     {
-        return new MethodSwitchNode($this->context());
+        return new Node\MethodSwitchNode($this->context());
     }
 }

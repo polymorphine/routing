@@ -12,29 +12,13 @@
 namespace Polymorphine\Routing\Tests\Builder\Node;
 
 use PHPUnit\Framework\TestCase;
+use Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Builder\Node;
-use Polymorphine\Routing\Builder\Context;
-use Polymorphine\Routing\Builder\MappedRoutes;
-use Polymorphine\Routing\Builder\Exception;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Route\Gate\LazyRoute;
-use Polymorphine\Routing\Route\Gate\Pattern\UriPattern;
-use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\Scheme;
-use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\Path;
-use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\PathSegment;
-use Polymorphine\Routing\Route\Endpoint\CallbackEndpoint;
-use Polymorphine\Routing\Route\Endpoint\HandlerEndpoint;
+use Polymorphine\Routing\Route\Gate\Pattern\UriSegment as Uri;
 use Polymorphine\Routing\Router;
-use Polymorphine\Routing\Tests\Builder\ContextCreateMethod;
-use Polymorphine\Routing\Tests\Doubles\FakeContainer;
-use Polymorphine\Routing\Tests\Doubles\FakeHandlerFactory;
-use Polymorphine\Routing\Tests\Doubles\FakeMiddleware;
-use Polymorphine\Routing\Tests\Doubles\FakeRequestHandler;
-use Polymorphine\Routing\Tests\Doubles\FakeResponse;
-use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
-use Polymorphine\Routing\Tests\Doubles\FakeUri;
-use Polymorphine\Routing\Tests\Doubles\MockedRoute;
-use Polymorphine\Routing\Tests\RoutingTestMethods;
+use Polymorphine\Routing\Tests;
+use Polymorphine\Routing\Tests\Doubles;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -42,8 +26,8 @@ use Psr\Http\Message\ResponseInterface;
 
 class RouteNodeTest extends TestCase
 {
-    use RoutingTestMethods;
-    use ContextCreateMethod;
+    use Tests\RoutingTestMethods;
+    use Tests\Builder\ContextCreateMethod;
 
     public function testInstantiation()
     {
@@ -62,35 +46,35 @@ class RouteNodeTest extends TestCase
     {
         $builder = $this->builder();
         $builder->callback(function () {});
-        $this->assertInstanceOf(CallbackEndpoint::class, $builder->build());
+        $this->assertInstanceOf(Route\Endpoint\CallbackEndpoint::class, $builder->build());
     }
 
     public function testHandlerEndpoint()
     {
         $builder = $this->builder();
-        $builder->handler(new FakeRequestHandler(new FakeResponse()));
-        $this->assertInstanceOf(HandlerEndpoint::class, $builder->build());
+        $builder->handler(new Doubles\FakeRequestHandler(new Doubles\FakeResponse()));
+        $this->assertInstanceOf(Route\Endpoint\HandlerEndpoint::class, $builder->build());
     }
 
     public function testLazyEndpoint()
     {
         $builder = $this->builder();
         $builder->lazy(function () {});
-        $this->assertInstanceOf(LazyRoute::class, $builder->build());
+        $this->assertInstanceOf(Route\Gate\LazyRoute::class, $builder->build());
     }
 
     public function testSetRouteWhenAlreadyBuilt_ThrowsException()
     {
         $route = $this->builder();
         $route->callback(function () {});
-        $this->expectException(Exception\BuilderLogicException::class);
+        $this->expectException(Builder\Exception\BuilderLogicException::class);
         $route->pathSwitch();
     }
 
     public function testBuildUndefinedRoute_ThrowsException()
     {
         $builder = $this->builder();
-        $this->expectException(Exception\BuilderLogicException::class);
+        $this->expectException(Builder\Exception\BuilderLogicException::class);
         $builder->build();
     }
 
@@ -100,11 +84,11 @@ class RouteNodeTest extends TestCase
             return $request->getAttribute('test') ? $request : null;
         };
 
-        $request = new FakeServerRequest('GET', FakeUri::fromString('http://example.com/foo'));
-        $https   = FakeUri::fromString('https://example.com/foo/bar/baz');
+        $request = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString('http://example.com/foo'));
+        $https   = Doubles\FakeUri::fromString('https://example.com/foo/bar/baz');
 
         $cases = [
-            [$this->builder()->pattern(new Scheme('https')), $request->withUri($https), $request],
+            [$this->builder()->pattern(new Uri\Scheme('https')), $request->withUri($https), $request],
             [$this->builder()->path('foo/bar/baz'), $request->withUri($https), $request],
             [$this->builder()->path('foo/{@name}/baz'), $request->withUri($https), $request],
             [$this->builder()->path('foo/{name}/baz', ['name' => 'b.r']), $request->withUri($https), $request],
@@ -129,7 +113,7 @@ class RouteNodeTest extends TestCase
         $builder->callback($this->callbackResponse($response));
         $route = $builder->build();
 
-        $prototype = new FakeResponse();
+        $prototype = new Doubles\FakeResponse();
         $this->assertSame($response, $route->forward($match, $prototype));
         $this->assertSame($prototype, $route->forward($block, $prototype));
     }
@@ -137,11 +121,11 @@ class RouteNodeTest extends TestCase
     public function testMiddlewareGateway()
     {
         $builder = $this->builder();
-        $builder->middleware(new FakeMiddleware('wrap'))->callback($this->callbackResponse($endpoint, 'body'));
+        $builder->middleware(new Doubles\FakeMiddleware('wrap'))->callback($this->callbackResponse($endpoint, 'body'));
         $route = $builder->build();
 
-        $request   = new FakeServerRequest();
-        $prototype = new FakeResponse();
+        $request   = new Doubles\FakeServerRequest();
+        $prototype = new Doubles\FakeResponse();
         $response  = $route->forward($request->withAttribute('middleware', 'requestPassed'), $prototype);
         $this->assertNotSame($response, $prototype);
         $this->assertSame('requestPassed: wrap body wrap', (string) $response->getBody());
@@ -149,12 +133,12 @@ class RouteNodeTest extends TestCase
 
     public function testGateIdMethod()
     {
-        $builder = $this->builder(new FakeContainer(['middleware.id' => new FakeMiddleware('wrap')]));
+        $builder = $this->builder(new Doubles\FakeContainer(['middleware.id' => new Doubles\FakeMiddleware('wrap')]));
         $builder->gateId('middleware.id')->callback($this->callbackResponse($endpoint, 'body'));
         $route = $builder->build();
 
-        $request   = new FakeServerRequest();
-        $prototype = new FakeResponse();
+        $request   = new Doubles\FakeServerRequest();
+        $prototype = new Doubles\FakeResponse();
         $response  = $route->forward($request->withAttribute('middleware', 'requestPassed'), $prototype);
         $this->assertNotSame($response, $prototype);
         $this->assertSame('requestPassed: wrap body wrap', (string) $response->getBody());
@@ -163,7 +147,7 @@ class RouteNodeTest extends TestCase
     public function testGateIdWithoutContextREsolver_ThrowsException()
     {
         $builder = $this->builder();
-        $this->expectException(Exception\BuilderLogicException::class);
+        $this->expectException(Builder\Exception\BuilderLogicException::class);
         $builder->gateId('something');
     }
 
@@ -171,14 +155,14 @@ class RouteNodeTest extends TestCase
     {
         $builder = $this->builder();
         $builder->method('PATCH')
-                ->pattern(UriPattern::fromUriString('https:/foo*'))
-                ->pattern(new PathSegment('id', '[a-z]+'))
+                ->pattern(Route\Gate\Pattern\UriPattern::fromUriString('https:/foo*'))
+                ->pattern(new Uri\PathSegment('id', '[a-z]+'))
                 ->callbackGate(function (ServerRequestInterface $request) { return $request->getAttribute('pass') ? $request : null; })
                 ->callback($this->callbackResponse($response));
         $route = $builder->build();
 
-        $prototype = new FakeResponse();
-        $block     = new FakeServerRequest('PATCH', FakeUri::fromString('https://example.com/foo/bar'));
+        $prototype = new Doubles\FakeResponse();
+        $block     = new Doubles\FakeServerRequest('PATCH', Doubles\FakeUri::fromString('https://example.com/foo/bar'));
         $pass      = $block->withAttribute('pass', true);
         $this->assertSame($prototype, $route->forward($block, $prototype));
         $this->assertSame($response, $route->forward($pass, $prototype));
@@ -193,41 +177,41 @@ class RouteNodeTest extends TestCase
         })->callback($this->callbackResponse($response));
         $route = $builder->build();
 
-        $prototype = new FakeResponse();
-        $this->assertSame($prototype, $route->forward(new FakeServerRequest('GET'), $prototype));
-        $this->assertSame($response, $route->forward(new FakeServerRequest('POST'), $prototype));
+        $prototype = new Doubles\FakeResponse();
+        $this->assertSame($prototype, $route->forward(new Doubles\FakeServerRequest('GET'), $prototype));
+        $this->assertSame($response, $route->forward(new Doubles\FakeServerRequest('POST'), $prototype));
     }
 
     public function testGatesAreEvaluatedInCorrectOrder()
     {
         $builder = $this->builder();
-        $builder->pattern(new Path('foo*'))
-                ->pattern(new Path('bar*'))
+        $builder->pattern(new Uri\Path('foo*'))
+                ->pattern(new Uri\Path('bar*'))
                 ->callback($this->callbackResponse($response));
         $route = $builder->build();
 
-        $this->assertSame('/foo/bar', (string) $route->uri(FakeUri::fromString(''), []));
+        $this->assertSame('/foo/bar', (string) $route->uri(Doubles\FakeUri::fromString(''), []));
 
-        $prototype = new FakeResponse();
-        $request   = new FakeServerRequest();
-        $this->assertSame($prototype, $route->forward($request->withUri(FakeUri::fromString('/bar/foo')), $prototype));
-        $this->assertSame($response, $route->forward($request->withUri(FakeUri::fromString('/foo/bar')), $prototype));
+        $prototype = new Doubles\FakeResponse();
+        $request   = new Doubles\FakeServerRequest();
+        $this->assertSame($prototype, $route->forward($request->withUri(Doubles\FakeUri::fromString('/bar/foo')), $prototype));
+        $this->assertSame($response, $route->forward($request->withUri(Doubles\FakeUri::fromString('/foo/bar')), $prototype));
     }
 
     public function testGatesCanWrapSplitterAndItsRoutes()
     {
         $endpoint = function (ServerRequestInterface $request) {
-            return new FakeResponse('response:' . $request->getUri()->getPath());
+            return new Doubles\FakeResponse('response:' . $request->getUri()->getPath());
         };
         $builder = $this->builder();
-        $split   = $builder->pattern(new Path('foo*'))->responseScan();
-        $split->route('routeA')->pattern(new Path('bar*'))->callback($endpoint);
-        $split->route('routeB')->pattern(new Path('baz*'))->callback($endpoint);
+        $split   = $builder->pattern(new Uri\Path('foo*'))->responseScan();
+        $split->route('routeA')->pattern(new Uri\Path('bar*'))->callback($endpoint);
+        $split->route('routeB')->pattern(new Uri\Path('baz*'))->callback($endpoint);
         $route = $builder->build();
 
-        $prototype = new FakeResponse();
-        $requestA  = new FakeServerRequest('GET', FakeUri::fromString('http://example.com/foo/bar'));
-        $requestB  = new FakeServerRequest('GET', FakeUri::fromString('http://example.com/foo/baz'));
+        $prototype = new Doubles\FakeResponse();
+        $requestA  = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString('http://example.com/foo/bar'));
+        $requestB  = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString('http://example.com/foo/baz'));
         $this->assertSame('response:/foo/bar', (string) $route->forward($requestA, $prototype)->getBody());
         $this->assertSame('response:/foo/baz', (string) $route->forward($requestB, $prototype)->getBody());
     }
@@ -236,28 +220,28 @@ class RouteNodeTest extends TestCase
     {
         $endpoint = function ($name) {
             return function (ServerRequestInterface $request) use ($name) {
-                return new FakeResponse('response' . $name . ':' . $request->getMethod());
+                return new Doubles\FakeResponse('response' . $name . ':' . $request->getMethod());
             };
         };
         $builder = $this->builder();
-        $split   = $builder->pattern(new Path('foo*'))->responseScan();
-        $split->route('routeA')->pattern(new Path('bar*'))->callback($endpoint('A'));
-        $split->route('routeB')->pattern(new Path('baz*'))->callback($endpoint('B'));
+        $split   = $builder->pattern(new Uri\Path('foo*'))->responseScan();
+        $split->route('routeA')->pattern(new Uri\Path('bar*'))->callback($endpoint('A'));
+        $split->route('routeB')->pattern(new Uri\Path('baz*'))->callback($endpoint('B'));
         $route = $builder->build();
 
         $builder = new Node\MethodSwitchNode($this->context());
-        $builder->route('POST')->pattern(new Scheme('https'))->joinRoute($route);
+        $builder->route('POST')->pattern(new Uri\Scheme('https'))->joinRoute($route);
         $builder->route('GET')->joinRoute($route);
         $route = $builder->build();
 
-        $prototype = new FakeResponse();
-        $requestA  = new FakeServerRequest('GET', FakeUri::fromString('http://example.com/foo/bar'));
-        $requestB  = new FakeServerRequest('POST', FakeUri::fromString('http://example.com/foo/baz'));
+        $prototype = new Doubles\FakeResponse();
+        $requestA  = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString('http://example.com/foo/bar'));
+        $requestB  = new Doubles\FakeServerRequest('POST', Doubles\FakeUri::fromString('http://example.com/foo/baz'));
         $this->assertSame('responseA:GET', (string) $route->forward($requestA, $prototype)->getBody());
         $this->assertSame($prototype, $route->forward($requestB, $prototype));
 
-        $requestA = new FakeServerRequest('POST', FakeUri::fromString('https://example.com/foo/bar'));
-        $requestB = new FakeServerRequest('GET', FakeUri::fromString('https://example.com/foo/baz'));
+        $requestA = new Doubles\FakeServerRequest('POST', Doubles\FakeUri::fromString('https://example.com/foo/bar'));
+        $requestB = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString('https://example.com/foo/baz'));
         $this->assertSame('responseA:POST', (string) $route->forward($requestA, $prototype)->getBody());
         $this->assertSame('responseB:GET', (string) $route->forward($requestB, $prototype)->getBody());
     }
@@ -266,13 +250,13 @@ class RouteNodeTest extends TestCase
     {
         $endpoint = $this->responseRoute($response);
         $builder  = $this->builder();
-        $split    = $builder->pattern(new Path('foo*'))->responseScan();
-        $split->route('routeA')->pattern(new Path('bar*'))->link($endpointA)->joinRoute($endpoint);
-        $split->route('routeB')->pattern(new Path('baz*'))->joinRoute($endpoint);
+        $split    = $builder->pattern(new Uri\Path('foo*'))->responseScan();
+        $split->route('routeA')->pattern(new Uri\Path('bar*'))->link($endpointA)->joinRoute($endpoint);
+        $split->route('routeB')->pattern(new Uri\Path('baz*'))->joinRoute($endpoint);
         $route = $builder->build();
 
         $builder = new Node\MethodSwitchNode($this->context());
-        $builder->route('POST')->link($postRoute)->pattern(new Scheme('https'))->joinRoute($route);
+        $builder->route('POST')->link($postRoute)->pattern(new Uri\Scheme('https'))->joinRoute($route);
         $builder->route('GET')->joinRoute($route);
         $route = $builder->build();
 
@@ -286,11 +270,11 @@ class RouteNodeTest extends TestCase
 
         $split = $builder->get()->link($link)->responseScan();
         $split->route('first')->callback($this->callbackResponse($response));
-        $split->route('second')->joinRoute(new MockedRoute());
+        $split->route('second')->joinRoute(new Doubles\MockedRoute());
 
         $builder->post()->joinLink($link);
 
-        $this->assertSame($response, $builder->build()->forward(new FakeServerRequest('POST'), self::$prototype));
+        $this->assertSame($response, $builder->build()->forward(new Doubles\FakeServerRequest('POST'), self::$prototype));
     }
 
     public function testRoutesCanBeJoinedAfterLinkIsDefined()
@@ -299,22 +283,22 @@ class RouteNodeTest extends TestCase
         $builder->route('second')->method('POST')->link($link)->callback($this->callbackResponse($response));
         $builder->route('first')->method('GET')->joinLink($link);
         $route = $builder->build();
-        $this->assertSame($response, $route->forward(new FakeServerRequest('GET'), self::$prototype));
-        $this->assertSame(self::$prototype, $route->forward(new FakeServerRequest('DELETE'), self::$prototype));
+        $this->assertSame($response, $route->forward(new Doubles\FakeServerRequest('GET'), self::$prototype));
+        $this->assertSame(self::$prototype, $route->forward(new Doubles\FakeServerRequest('DELETE'), self::$prototype));
 
         $builder = new Node\ScanSwitchNode($this->context());
         $builder->defaultRoute()->method('POST')->link($link)->callback($this->callbackResponse($response));
         $builder->route('other')->method('GET')->joinLink($link);
         $route = $builder->build();
-        $this->assertSame($response, $route->forward(new FakeServerRequest('GET'), self::$prototype));
-        $this->assertSame(self::$prototype, $route->forward(new FakeServerRequest('DELETE'), self::$prototype));
+        $this->assertSame($response, $route->forward(new Doubles\FakeServerRequest('GET'), self::$prototype));
+        $this->assertSame(self::$prototype, $route->forward(new Doubles\FakeServerRequest('DELETE'), self::$prototype));
 
         $builder = new Node\ScanSwitchNode($this->context());
         $builder->route('other')->method('POST')->link($link)->callback($this->callbackResponse($response));
         $builder->defaultRoute()->method('GET')->joinLink($link);
         $route = $builder->build();
-        $this->assertSame($response, $route->forward(new FakeServerRequest('GET'), self::$prototype));
-        $this->assertSame(self::$prototype, $route->forward(new FakeServerRequest('DELETE'), self::$prototype));
+        $this->assertSame($response, $route->forward(new Doubles\FakeServerRequest('GET'), self::$prototype));
+        $this->assertSame(self::$prototype, $route->forward(new Doubles\FakeServerRequest('DELETE'), self::$prototype));
     }
 
     public function testRoutesCanBeJoinedBeforeLinkIsDefined()
@@ -323,22 +307,22 @@ class RouteNodeTest extends TestCase
         $builder->route('first')->method('GET')->joinLink($link);
         $builder->route('second')->method('POST')->link($link)->callback($this->callbackResponse($response));
         $route = $builder->build();
-        $this->assertSame($response, $route->forward(new FakeServerRequest('GET'), self::$prototype));
-        $this->assertSame(self::$prototype, $route->forward(new FakeServerRequest('DELETE'), self::$prototype));
+        $this->assertSame($response, $route->forward(new Doubles\FakeServerRequest('GET'), self::$prototype));
+        $this->assertSame(self::$prototype, $route->forward(new Doubles\FakeServerRequest('DELETE'), self::$prototype));
 
         $builder = new Node\ScanSwitchNode($this->context());
         $builder->route('other')->method('GET')->joinLink($link);
         $builder->defaultRoute()->method('POST')->link($link)->callback($this->callbackResponse($response));
         $route = $builder->build();
-        $this->assertSame($response, $route->forward(new FakeServerRequest('GET'), self::$prototype));
-        $this->assertSame(self::$prototype, $route->forward(new FakeServerRequest('DELETE'), self::$prototype));
+        $this->assertSame($response, $route->forward(new Doubles\FakeServerRequest('GET'), self::$prototype));
+        $this->assertSame(self::$prototype, $route->forward(new Doubles\FakeServerRequest('DELETE'), self::$prototype));
 
         $builder = new Node\ScanSwitchNode($this->context());
         $builder->route('other')->method('POST')->joinLink($link);
         $builder->defaultRoute()->method('GET')->link($link)->callback($this->callbackResponse($response));
         $route = $builder->build();
-        $this->assertSame($response, $route->forward(new FakeServerRequest('GET'), self::$prototype));
-        $this->assertSame(self::$prototype, $route->forward(new FakeServerRequest('DELETE'), self::$prototype));
+        $this->assertSame($response, $route->forward(new Doubles\FakeServerRequest('GET'), self::$prototype));
+        $this->assertSame(self::$prototype, $route->forward(new Doubles\FakeServerRequest('DELETE'), self::$prototype));
     }
 
     public function testRouteJoinedBackToItsOwnPath_ThrowsException()
@@ -347,7 +331,7 @@ class RouteNodeTest extends TestCase
         $split   = $builder->get()->link($link)->responseScan();
         $split->route('first')->callback($this->callbackResponse($response));
         $split->route('second')->joinLink($link);
-        $this->expectException(Exception\BuilderLogicException::class);
+        $this->expectException(Builder\Exception\BuilderLogicException::class);
         $builder->build();
     }
 
@@ -356,11 +340,11 @@ class RouteNodeTest extends TestCase
         $router  = null;
         $builder = $this->builder(null, function () use (&$router) { return $router; });
         $path    = $builder->pathSwitch();
-        $path->route('admin')->pattern(new Path('redirected'))->joinRoute(new MockedRoute());
+        $path->route('admin')->pattern(new Uri\Path('redirected'))->joinRoute(new Doubles\MockedRoute());
         $path->route('redirect')->redirect('admin');
 
-        $router   = new Router($builder->build(), new FakeUri(), new FakeResponse());
-        $request  = new FakeServerRequest('GET', FakeUri::fromString('/redirect'));
+        $router   = new Router($builder->build(), new Doubles\FakeUri(), new Doubles\FakeResponse());
+        $request  = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString('/redirect'));
         $response = $router->handle($request);
         $this->assertSame(['/admin/redirected'], $response->getHeader('Location'));
         $this->assertSame(301, $response->getStatusCode());
@@ -368,33 +352,33 @@ class RouteNodeTest extends TestCase
 
     public function testRedirectWithUndefinedRouterCallback_ThrowsException()
     {
-        $builder = new Node\RouteNode(new Context(new MappedRoutes(null, null, null)));
+        $builder = new Node\RouteNode(new Builder\Context(new Builder\MappedRoutes(null, null, null)));
         $path    = $builder->pathSwitch();
-        $path->route('admin')->pattern(new Path('redirected'))->joinRoute(new MockedRoute());
+        $path->route('admin')->pattern(new Uri\Path('redirected'))->joinRoute(new Doubles\MockedRoute());
         $node = $path->route('redirect');
-        $this->expectException(Exception\BuilderLogicException::class);
+        $this->expectException(Builder\Exception\BuilderLogicException::class);
         $node->redirect('admin');
     }
 
     public function testDefaultContainerHandlerFactoryEndpoint()
     {
-        $container = new FakeContainer([
-            'handler' => new FakeRequestHandler(new FakeResponse('handler response'))
+        $container = new Doubles\FakeContainer([
+            'handler' => new Doubles\FakeRequestHandler(new Doubles\FakeResponse('handler response'))
         ]);
 
         $builder = $this->builder($container);
-        $builder->endpointId(FakeHandlerFactory::class);
-        $this->assertInstanceOf(CallbackEndpoint::class, $route = $builder->build());
+        $builder->endpointId(Doubles\FakeHandlerFactory::class);
+        $this->assertInstanceOf(Route\Endpoint\CallbackEndpoint::class, $route = $builder->build());
 
-        $request = (new FakeServerRequest())->withHeader('id', 'handler');
-        $this->assertInstanceOf(ResponseInterface::class, $response = $route->forward($request, new FakeResponse()));
+        $request = (new Doubles\FakeServerRequest())->withHeader('id', 'handler');
+        $this->assertInstanceOf(ResponseInterface::class, $response = $route->forward($request, new Doubles\FakeResponse()));
         $this->assertSame('handler response', (string) $response->getBody());
     }
 
     public function testRouteBuilderWithUndefinedEndpointCallback_ThrowsException()
     {
         $builder = $this->builder();
-        $this->expectException(Exception\BuilderLogicException::class);
+        $this->expectException(Builder\Exception\BuilderLogicException::class);
         $builder->endpointId('something');
     }
 

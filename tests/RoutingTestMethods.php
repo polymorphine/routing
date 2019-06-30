@@ -11,10 +11,6 @@
 
 namespace Polymorphine\Routing\Tests;
 
-use Polymorphine\Routing\Tests\Doubles\FakeResponse;
-use Polymorphine\Routing\Tests\Doubles\MockedRoute;
-use Psr\Http\Message\ServerRequestInterface;
-
 
 trait RoutingTestMethods
 {
@@ -22,13 +18,13 @@ trait RoutingTestMethods
 
     public static function setUpBeforeClass()
     {
-        self::$prototype = new FakeResponse();
+        self::$prototype = new Doubles\FakeResponse();
     }
 
     private function callbackResponse(&$response, string $body = '')
     {
-        $response = new FakeResponse($body);
-        return function (ServerRequestInterface $request) use (&$response) {
+        $response = new Doubles\FakeResponse($body);
+        return function ($request) use (&$response) {
             $response->fromRequest = $request;
             return $response;
         };
@@ -36,7 +32,7 @@ trait RoutingTestMethods
 
     private function responseRoute(&$response, string $body = '')
     {
-        $response = new FakeResponse($body);
-        return new MockedRoute($response);
+        $response = new Doubles\FakeResponse($body);
+        return new Doubles\MockedRoute($response);
     }
 }

@@ -13,10 +13,8 @@ namespace Polymorphine\Routing\Tests\Route\Endpoint;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Route\Endpoint\RedirectEndpoint;
-use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
-use Polymorphine\Routing\Tests\Doubles\FakeResponse;
-use Polymorphine\Routing\Tests\Doubles\FakeUri;
+use Polymorphine\Routing\Route\Endpoint;
+use Polymorphine\Routing\Tests\Doubles;
 
 
 class RedirectEndpointTest extends TestCase
@@ -28,15 +26,15 @@ class RedirectEndpointTest extends TestCase
 
     public function testRequest_ReturnsRedirectResponse()
     {
-        $response = $this->redirect('/foo/bar')->forward(new FakeServerRequest(), new FakeResponse());
+        $response = $this->redirect('/foo/bar')->forward(new Doubles\FakeServerRequest(), new Doubles\FakeResponse());
         $this->assertSame(301, $response->getStatusCode());
         $this->assertSame(['/foo/bar'], $response->headers['Location']);
     }
 
     private function redirect(string $uri)
     {
-        return new RedirectEndpoint(function () use ($uri) {
-            return (string) FakeUri::fromString($uri);
+        return new Endpoint\RedirectEndpoint(function () use ($uri) {
+            return (string) Doubles\FakeUri::fromString($uri);
         });
     }
 }

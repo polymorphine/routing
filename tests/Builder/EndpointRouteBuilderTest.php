@@ -12,17 +12,10 @@
 namespace Polymorphine\Routing\Tests\Builder;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Builder\EndpointRouteBuilder;
-use Polymorphine\Routing\Route\Endpoint\CallbackEndpoint;
-use Polymorphine\Routing\Route\Endpoint\HandlerEndpoint;
-use Polymorphine\Routing\Route\Endpoint\RedirectEndpoint;
-use Polymorphine\Routing\Route\Gate\LazyRoute;
-use Polymorphine\Routing\Tests\Doubles\MockedRoute;
-use Polymorphine\Routing\Tests\Doubles\FakeContainer;
-use Polymorphine\Routing\Tests\Doubles\FakeHandlerFactory;
-use Polymorphine\Routing\Tests\Doubles\FakeRequestHandler;
-use Polymorphine\Routing\Tests\Doubles\FakeResponse;
-use Psr\Container\ContainerInterface;
+use Polymorphine\Routing\Builder;
+use Polymorphine\Routing\Route\Endpoint;
+use Polymorphine\Routing\Route\Gate;
+use Polymorphine\Routing\Tests\Doubles;
 
 
 class EndpointRouteBuilderTest extends TestCase
@@ -31,28 +24,30 @@ class EndpointRouteBuilderTest extends TestCase
 
     public function testInstantiation()
     {
-        $this->assertInstanceOf(EndpointRouteBuilder::class, $this->builder());
+        $this->assertInstanceOf(Builder\EndpointRouteBuilder::class, $this->builder());
     }
 
     public function testRouteBuildingMethodsWithoutGateWrappers_ReturnConcreteRoutes()
     {
-        $this->assertInstanceOf(CallbackEndpoint::class, $this->builder()->callback(function () {}));
+        $callback = function () {};
+        $this->assertInstanceOf(Endpoint\CallbackEndpoint::class, $this->builder()->callback($callback));
+        $this->assertInstanceOf(Gate\LazyRoute::class, $this->builder()->lazy($callback));
 
-        $this->assertInstanceOf(LazyRoute::class, $this->builder()->lazy(function () {}));
-
-        $route = new MockedRoute();
+        $route = new Doubles\MockedRoute();
         $this->assertSame($route, $this->builder()->joinRoute($route));
 
-        $this->assertInstanceOf(RedirectEndpoint::class, $this->builder(null, function () {})->redirect('some.route'));
+        $builder = $this->builder(null, function () {});
+        $this->assertInstanceOf(Endpoint\RedirectEndpoint::class, $builder->redirect('some.route'));
 
-        $handler = new FakeRequestHandler(new FakeResponse());
-        $this->assertInstanceOf(HandlerEndpoint::class, $this->builder(new FakeContainer())->handler($handler));
+        $handler = new Doubles\FakeRequestHandler(new Doubles\FakeResponse());
+        $this->assertInstanceOf(Endpoint\HandlerEndpoint::class, $this->builder()->handler($handler));
 
-        $this->assertInstanceOf(CallbackEndpoint::class, $this->builder(new FakeContainer())->endpointId(FakeHandlerFactory::class));
+        $builder = $this->builder(new Doubles\FakeContainer());
+        $this->assertInstanceOf(Endpoint\CallbackEndpoint::class, $builder->endpointId(Doubles\FakeHandlerFactory::class));
     }
 
-    private function builder(?ContainerInterface $container = null, ?callable $router = null): EndpointRouteBuilder
+    private function builder($container = null, ?callable $router = null): Builder\EndpointRouteBuilder
     {
-        return new EndpointRouteBuilder($this->context($container, $router));
+        return new Builder\EndpointRouteBuilder($this->context($container, $router));
     }
 }

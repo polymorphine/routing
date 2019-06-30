@@ -13,22 +13,20 @@ namespace Polymorphine\Routing\Tests\Route\Endpoint;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route\Endpoint;
-use Polymorphine\Routing\Route\Endpoint\HandlerEndpoint;
-use Polymorphine\Routing\Tests\Doubles\FakeServerRequest;
-use Polymorphine\Routing\Tests\Doubles\FakeRequestHandler;
-use Polymorphine\Routing\Tests\Doubles\FakeResponse;
+use Polymorphine\Routing\Tests\Doubles;
 
 
 class HandlerEndpointTest extends TestCase
 {
     public function testInstantiation()
     {
-        $this->assertInstanceOf(Endpoint::class, new HandlerEndpoint(new FakeRequestHandler(new FakeResponse())));
+        $instance = new Endpoint\HandlerEndpoint(new Doubles\FakeRequestHandler(new Doubles\FakeResponse()));
+        $this->assertInstanceOf(Endpoint::class, $instance);
     }
 
     public function testForward_ReturnsHandlerResponse()
     {
-        $endpoint = new HandlerEndpoint(new FakeRequestHandler($response = new FakeResponse()));
-        $this->assertSame($response, $endpoint->forward(new FakeServerRequest(), new FakeResponse()));
+        $endpoint = new Endpoint\HandlerEndpoint(new Doubles\FakeRequestHandler($response = new Doubles\FakeResponse()));
+        $this->assertSame($response, $endpoint->forward(new Doubles\FakeServerRequest(), new Doubles\FakeResponse()));
     }
 }
