@@ -16,9 +16,12 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 
 /**
- * Builder that creates linear endpoint Route or given routing tree
- * wrapped by gates in its own (root) context that is not attached to any
- * node builder in composition tree.
+ * Builder that creates linear endpoint Route (or is attached to another
+ * routing tree) wrapped by gates in its own context that is separate to
+ * builder composition.
+ *
+ * Serves as a convenience method of composing object consisting of gate
+ * routes and Endpoint classes.
  */
 class EndpointRouteBuilder
 {
