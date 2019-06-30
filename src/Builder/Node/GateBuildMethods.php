@@ -127,10 +127,11 @@ trait GateBuildMethods
     /**
      * Adds gate Route resolved from passed identifier.
      *
-     * NOTE: Base Context class does not define identifier resolving
-     * procedure, so in order to use this method subclass of Context
-     * must be used overriding Context::mapGate() method.
-     * BuilderLogicException will be thrown otherwise.
+     * NOTE: In order to use this method gate callback in
+     * MappedRoutes has to be defined. BuilderLogicException
+     * will be thrown otherwise.
+     *
+     * @see \Polymorphine\Routing\Builder\MappedRoutes
      *
      * @param string $id
      *
@@ -138,7 +139,7 @@ trait GateBuildMethods
      *
      * @return static
      */
-    public function gateId(string $id): self
+    public function gate(string $id): self
     {
         $this->context->mapGate($id);
         return $this;

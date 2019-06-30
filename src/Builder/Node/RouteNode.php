@@ -104,16 +104,17 @@ class RouteNode implements Node
     /**
      * Adds endpoint Route resolved from passed identifier.
      *
-     * NOTE: Base Context class does not define identifier resolving
-     * procedure, so in order to use this method subclass of Context
-     * must be used overriding Context::mapEndpoint() method.
-     * BuilderLogicException will be thrown otherwise.
+     * NOTE: In order to use this method endpoint callback in
+     * MappedRoutes has to be defined. BuilderLogicException
+     * will be thrown otherwise.
+     *
+     * @see \Polymorphine\Routing\Builder\MappedRoutes
      *
      * @param string $id
      *
      * @throws Exception\BuilderLogicException
      */
-    public function endpointId(string $id): void
+    public function endpoint(string $id): void
     {
         $this->context->mapEndpoint($id);
     }

@@ -340,7 +340,7 @@ class RouteNodeTest extends TestCase
     public function testDefaultMappedGateMethod()
     {
         $builder = $this->builder(new Doubles\FakeContainer(['middleware.id' => new Doubles\FakeMiddleware('wrap')]));
-        $builder->gateId('middleware.id')->callback($this->callbackResponse($endpoint, 'body'));
+        $builder->gate('middleware.id')->callback($this->callbackResponse($endpoint, 'body'));
         $route = $builder->build();
 
         $request   = new Doubles\FakeServerRequest();
@@ -354,7 +354,7 @@ class RouteNodeTest extends TestCase
     {
         $builder = $this->builder();
         $this->expectException(Routing\Builder\Exception\BuilderLogicException::class);
-        $builder->gateId('something');
+        $builder->gate('something');
     }
 
     public function testDefaultMappedEndpoint()
@@ -364,7 +364,7 @@ class RouteNodeTest extends TestCase
         ]);
 
         $builder = $this->builder($container);
-        $builder->endpointId(Doubles\FakeHandlerFactory::class);
+        $builder->endpoint(Doubles\FakeHandlerFactory::class);
         $this->assertInstanceOf(Route\Endpoint\CallbackEndpoint::class, $route = $builder->build());
 
         $request = (new Doubles\FakeServerRequest())->withHeader('id', 'handler');
@@ -376,7 +376,7 @@ class RouteNodeTest extends TestCase
     {
         $builder = $this->builder();
         $this->expectException(Routing\Builder\Exception\BuilderLogicException::class);
-        $builder->endpointId('something');
+        $builder->endpoint('something');
     }
 
     private function builder($container = null, ?callable $router = null): Node\RouteNode
