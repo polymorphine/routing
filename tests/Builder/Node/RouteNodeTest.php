@@ -12,22 +12,19 @@
 namespace Polymorphine\Routing\Tests\Builder\Node;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Builder;
+use Polymorphine\Routing;
 use Polymorphine\Routing\Builder\Node;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\Pattern\UriSegment as Uri;
-use Polymorphine\Routing\Router;
-use Polymorphine\Routing\Tests;
 use Polymorphine\Routing\Tests\Doubles;
-use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 
 class RouteNodeTest extends TestCase
 {
-    use Tests\RoutingTestMethods;
-    use Tests\Builder\ContextCreateMethod;
+    use Routing\Tests\RoutingTestMethods;
+    use Routing\Tests\Builder\ContextCreateMethod;
 
     public function testInstantiation()
     {
@@ -67,14 +64,14 @@ class RouteNodeTest extends TestCase
     {
         $route = $this->builder();
         $route->callback(function () {});
-        $this->expectException(Builder\Exception\BuilderLogicException::class);
+        $this->expectException(Routing\Builder\Exception\BuilderLogicException::class);
         $route->pathSwitch();
     }
 
     public function testBuildUndefinedRoute_ThrowsException()
     {
         $builder = $this->builder();
-        $this->expectException(Builder\Exception\BuilderLogicException::class);
+        $this->expectException(Routing\Builder\Exception\BuilderLogicException::class);
         $builder->build();
     }
 
@@ -129,26 +126,6 @@ class RouteNodeTest extends TestCase
         $response  = $route->forward($request->withAttribute('middleware', 'requestPassed'), $prototype);
         $this->assertNotSame($response, $prototype);
         $this->assertSame('requestPassed: wrap body wrap', (string) $response->getBody());
-    }
-
-    public function testGateIdMethod()
-    {
-        $builder = $this->builder(new Doubles\FakeContainer(['middleware.id' => new Doubles\FakeMiddleware('wrap')]));
-        $builder->gateId('middleware.id')->callback($this->callbackResponse($endpoint, 'body'));
-        $route = $builder->build();
-
-        $request   = new Doubles\FakeServerRequest();
-        $prototype = new Doubles\FakeResponse();
-        $response  = $route->forward($request->withAttribute('middleware', 'requestPassed'), $prototype);
-        $this->assertNotSame($response, $prototype);
-        $this->assertSame('requestPassed: wrap body wrap', (string) $response->getBody());
-    }
-
-    public function testGateIdWithoutContextREsolver_ThrowsException()
-    {
-        $builder = $this->builder();
-        $this->expectException(Builder\Exception\BuilderLogicException::class);
-        $builder->gateId('something');
     }
 
     public function testRouteWrappedWithMultipleGates()
@@ -216,7 +193,7 @@ class RouteNodeTest extends TestCase
         $this->assertSame('response:/foo/baz', (string) $route->forward($requestB, $prototype)->getBody());
     }
 
-    public function testRouteCanBeAttachedToBuilder()
+    public function testRouteCanBeAttachedToBuilderNode()
     {
         $endpoint = function ($name) {
             return function (ServerRequestInterface $request) use ($name) {
@@ -246,7 +223,7 @@ class RouteNodeTest extends TestCase
         $this->assertSame('responseB:GET', (string) $route->forward($requestB, $prototype)->getBody());
     }
 
-    public function testBuilderCanEstablishLinkInsideStructure()
+    public function testBuilderNodeCanEstablishLinkInsideStructure()
     {
         $endpoint = $this->responseRoute($response);
         $builder  = $this->builder();
@@ -331,7 +308,7 @@ class RouteNodeTest extends TestCase
         $split   = $builder->get()->link($link)->responseScan();
         $split->route('first')->callback($this->callbackResponse($response));
         $split->route('second')->joinLink($link);
-        $this->expectException(Builder\Exception\BuilderLogicException::class);
+        $this->expectException(Routing\Builder\Exception\BuilderLogicException::class);
         $builder->build();
     }
 
@@ -343,7 +320,7 @@ class RouteNodeTest extends TestCase
         $path->route('admin')->pattern(new Uri\Path('redirected'))->joinRoute(new Doubles\MockedRoute());
         $path->route('redirect')->redirect('admin');
 
-        $router   = new Router($builder->build(), new Doubles\FakeUri(), new Doubles\FakeResponse());
+        $router   = new Routing\Router($builder->build(), new Doubles\FakeUri(), new Doubles\FakeResponse());
         $request  = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString('/redirect'));
         $response = $router->handle($request);
         $this->assertSame(['/admin/redirected'], $response->getHeader('Location'));
@@ -352,15 +329,35 @@ class RouteNodeTest extends TestCase
 
     public function testRedirectWithUndefinedRouterCallback_ThrowsException()
     {
-        $builder = new Node\RouteNode(new Builder\Context(new Builder\MappedRoutes(null, null, null)));
+        $builder = new Node\RouteNode(new Routing\Builder\Context(new Routing\Builder\MappedRoutes(null, null, null)));
         $path    = $builder->pathSwitch();
         $path->route('admin')->pattern(new Uri\Path('redirected'))->joinRoute(new Doubles\MockedRoute());
         $node = $path->route('redirect');
-        $this->expectException(Builder\Exception\BuilderLogicException::class);
+        $this->expectException(Routing\Builder\Exception\BuilderLogicException::class);
         $node->redirect('admin');
     }
 
-    public function testDefaultContainerHandlerFactoryEndpoint()
+    public function testDefaultMappedGateMethod()
+    {
+        $builder = $this->builder(new Doubles\FakeContainer(['middleware.id' => new Doubles\FakeMiddleware('wrap')]));
+        $builder->gateId('middleware.id')->callback($this->callbackResponse($endpoint, 'body'));
+        $route = $builder->build();
+
+        $request   = new Doubles\FakeServerRequest();
+        $prototype = new Doubles\FakeResponse();
+        $response  = $route->forward($request->withAttribute('middleware', 'requestPassed'), $prototype);
+        $this->assertNotSame($response, $prototype);
+        $this->assertSame('requestPassed: wrap body wrap', (string) $response->getBody());
+    }
+
+    public function testMappedGateWithoutIdResolver_ThrowsException()
+    {
+        $builder = $this->builder();
+        $this->expectException(Routing\Builder\Exception\BuilderLogicException::class);
+        $builder->gateId('something');
+    }
+
+    public function testDefaultMappedEndpoint()
     {
         $container = new Doubles\FakeContainer([
             'handler' => new Doubles\FakeRequestHandler(new Doubles\FakeResponse('handler response'))
@@ -375,14 +372,14 @@ class RouteNodeTest extends TestCase
         $this->assertSame('handler response', (string) $response->getBody());
     }
 
-    public function testRouteBuilderWithUndefinedEndpointCallback_ThrowsException()
+    public function testMappedEndpointWithoutIdResolver_ThrowsException()
     {
         $builder = $this->builder();
-        $this->expectException(Builder\Exception\BuilderLogicException::class);
+        $this->expectException(Routing\Builder\Exception\BuilderLogicException::class);
         $builder->endpointId('something');
     }
 
-    private function builder(?ContainerInterface $container = null, ?callable $router = null): Node\RouteNode
+    private function builder($container = null, ?callable $router = null): Node\RouteNode
     {
         return new Node\RouteNode($this->context($container, $router));
     }
