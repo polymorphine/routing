@@ -17,6 +17,10 @@ use Psr\Http\Message\ResponseInterface;
 use Polymorphine\Routing\Route;
 
 
+/**
+ * Wrapper transforming Route into RequestHandlerInterface useful in
+ * MiddlewareInterface chaining within routing paths.
+ */
 class RouteHandler implements RequestHandlerInterface
 {
     private $route;
