@@ -18,6 +18,10 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\UriInterface;
 
 
+/**
+ * Aggregated Route dispatching incoming requests based on its http method.
+ * Scans all routes for OPTIONS requests to determine allowed methods.
+ */
 class MethodSwitch implements Route
 {
     use RouteSelectMethods;
@@ -26,8 +30,13 @@ class MethodSwitch implements Route
     private $implicit;
 
     /**
+     * Implicit method Route is for convenience only - it is assumed when method
+     * is not specified in selection path. It will be used when creating URI
+     * directly for this switch context or select path will not match any of
+     * defined routes.
+     *
      * @param Route[] $routes   associative array with http method keys (GET, POST, PATCH... etc.)
-     * @param string  $implicit method which route will be used for uri build or non-method path selection
+     * @param string  $implicit key from provided $routes (ignored if none match)
      */
     public function __construct(array $routes, ?string $implicit = 'GET')
     {
