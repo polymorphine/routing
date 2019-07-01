@@ -18,6 +18,10 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 
 
+/**
+ * Aggregated Route where selection of concrete Route from its Route
+ * collection is based on relative (to routing root) URI path.
+ */
 class PathSwitch implements Route
 {
     use RouteSelectMethods;
@@ -30,6 +34,13 @@ class PathSwitch implements Route
     private $rootLabel;
 
     /**
+     * Root Route represents fully traversed path in routing structure,
+     * and can be selected explicitly with (provided od default) $rootLabel.
+     * Only when root route is defined this aggregate instance can produce
+     * its own URI, because it assumes that no further path will be required.
+     * Root route defined with path constraints will detect conflict at its
+     * URI build and UnreachableEndpointException will be thrown.
+     *
      * @param Route[] $routes
      * @param Route   $root
      * @param string  $rootLabel label used to select root path route (if defined)
