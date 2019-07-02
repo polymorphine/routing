@@ -33,10 +33,7 @@ class DynamicTargetMask implements Route\Gate\Pattern
     public function matchedRequest(ServerRequestInterface $request): ?ServerRequestInterface
     {
         $this->parsedPath or $this->parsedPath = $this->parsePattern();
-
-        if (!$target = $this->normalizeTarget($request->getRequestTarget())) {
-            return null;
-        }
+        if (!$target = $this->comparableTarget($request)) { return null; }
 
         $pattern = $this->pathPattern();
         if (!preg_match($pattern, $target, $attributes)) { return null; }
@@ -162,25 +159,23 @@ class DynamicTargetMask implements Route\Gate\Pattern
         return $params;
     }
 
-    private function normalizeTarget(string $target): ?string
+    private function comparableTarget(ServerRequestInterface $request): ?string
     {
-        if (strpos($target, '?') === false) {
-            return ($this->parsedQuery) ? null : $target;
-        }
-
-        [$path, $query] = explode('?', $target, 2);
+        $uri  = $request->getUri();
+        $path = $uri->getPath();
 
         if (!$this->parsedQuery) { return $path; }
-        if (!$query = $this->relevantQueryParams($query)) { return null; }
+        if (!$query = $this->relevantQueryParams($uri)) { return null; }
 
         return $path . '?' . $query;
     }
 
-    private function relevantQueryParams(string $query): ?string
+    private function relevantQueryParams(UriInterface $uri): ?string
     {
+        if (!$query = $uri->getQuery()) { return null; }
         $elements = $this->queryParams(explode('&', $query));
-        $segments = [];
 
+        $segments = [];
         foreach ($this->parsedQuery as $name => $value) {
             if (!array_key_exists($name, $elements)) { return null; }
             $segments[] = ($value === null) ? $name : $name . '=' . $elements[$name];
