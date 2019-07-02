@@ -17,6 +17,10 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\UriInterface;
 
 
+/**
+ * Gate route forwarding requests with given http method or set of methods.
+ * Filters OPTIONS request to determine allowed methods on this route path.
+ */
 class MethodGate implements Route
 {
     private const METHOD_SEPARATOR = '|';
