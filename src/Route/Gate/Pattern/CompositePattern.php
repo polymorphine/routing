@@ -16,6 +16,10 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 
 
+/**
+ * Pattern that encapsulates multiple patterns processed
+ * sequentially either for matching and generating URI.
+ */
 class CompositePattern implements Pattern
 {
     private $patterns;
