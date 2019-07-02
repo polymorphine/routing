@@ -139,6 +139,13 @@ class UriPatternTest extends TestCase
         ];
     }
 
+    public function testEmptySegmentConstraintForNotEmptyPrototype_ThrowsException()
+    {
+        $pattern = new Route\Gate\Pattern\UriSegment\Port('');
+        $this->expectException(Exception\UnreachableEndpointException::class);
+        $pattern->uri(Doubles\FakeUri::fromString('//example.com:123'), []);
+    }
+
     public function testUriMatchingPrototypeSegment_ReturnsUriWithMissingPartAppended()
     {
         $pattern   = $this->pattern('/foo/bar/baz');
