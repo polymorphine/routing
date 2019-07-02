@@ -17,9 +17,9 @@ use Psr\Http\Message\UriInterface;
 
 class Scheme extends UriSegment
 {
-    protected function getUriPart(UriInterface $uri): ?string
+    protected function getUriPart(UriInterface $uri): string
     {
-        return $uri->getScheme() ?: null;
+        return $uri->getScheme();
     }
 
     protected function setUriPart(UriInterface $uri): UriInterface

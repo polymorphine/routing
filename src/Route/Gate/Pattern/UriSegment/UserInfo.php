@@ -17,9 +17,9 @@ use Psr\Http\Message\UriInterface;
 
 class UserInfo extends UriSegment
 {
-    protected function getUriPart(UriInterface $uri): ?string
+    protected function getUriPart(UriInterface $uri): string
     {
-        return $uri->getUserInfo() ?: null;
+        return $uri->getUserInfo();
     }
 
     protected function setUriPart(UriInterface $uri): UriInterface

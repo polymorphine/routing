@@ -17,13 +17,13 @@ use Psr\Http\Message\UriInterface;
 
 class Port extends UriSegment
 {
-    protected function getUriPart(UriInterface $uri): ?int
+    protected function getUriPart(UriInterface $uri): string
     {
-        return $uri->getPort();
+        return (string) $uri->getPort();
     }
 
     protected function setUriPart(UriInterface $uri): UriInterface
     {
-        return $uri->withPort($this->pattern);
+        return $uri->withPort($this->pattern ? (int) $this->pattern : null);
     }
 }

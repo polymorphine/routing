@@ -21,7 +21,7 @@ abstract class UriSegment implements Route\Gate\Pattern
 {
     protected $pattern;
 
-    public function __construct($pattern)
+    public function __construct(string $pattern)
     {
         $this->pattern = $pattern;
     }
@@ -35,7 +35,7 @@ abstract class UriSegment implements Route\Gate\Pattern
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
         $uriPart = $this->getUriPart($prototype);
-        if (isset($uriPart) && $uriPart !== $this->pattern) {
+        if ($uriPart && $uriPart !== $this->pattern) {
             $message = sprintf('Pattern conflict for `%s` in `%s` uri', (string) $this->pattern, (string) $prototype);
             throw new Exception\UnreachableEndpointException($message);
         }
@@ -43,7 +43,7 @@ abstract class UriSegment implements Route\Gate\Pattern
         return $this->setUriPart($prototype);
     }
 
-    abstract protected function getUriPart(UriInterface $uri);
+    abstract protected function getUriPart(UriInterface $uri): string;
 
     abstract protected function setUriPart(UriInterface $uri): UriInterface;
 }

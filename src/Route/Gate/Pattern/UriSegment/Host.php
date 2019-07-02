@@ -17,9 +17,9 @@ use Psr\Http\Message\UriInterface;
 
 class Host extends Route\Gate\Pattern\UriSegment
 {
-    protected function getUriPart(UriInterface $uri): ?string
+    protected function getUriPart(UriInterface $uri): string
     {
-        return $uri->getHost() ?: null;
+        return $uri->getHost();
     }
 
     protected function setUriPart(UriInterface $uri): UriInterface
