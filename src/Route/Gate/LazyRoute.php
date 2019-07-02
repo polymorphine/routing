@@ -17,6 +17,10 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 
 
+/**
+ * Gate route that invokes further routing structure with
+ * given callback and passes messages further.
+ */
 class LazyRoute implements Route
 {
     private $routeCallback;
