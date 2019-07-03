@@ -17,10 +17,29 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 
 
+/**
+ * Static query pattern that checks whether query param exists
+ * with required value and builds URI based on query keys with
+ * its values.
+ */
 class Query implements Route\Gate\Pattern
 {
     private $query;
 
+    /**
+     * Query string parameter MUST NOT begin with `?` character.
+     *
+     * Given query string will be matched against defined params only
+     * without specified order. Keys without equal sign (eg. `foo&bar`)
+     * will check only if these keys are defined within query string, and
+     * keys with empty value (like `foo` in `foo=&bar=something`) will
+     * require that value to be empty.
+     *
+     * Building URI on prototype with defined key-value pair not matching
+     * current constraint will throw UnreachableEndpointException
+     *
+     * @param string $queryString
+     */
     public function __construct(string $queryString)
     {
         $this->query = $queryString;
