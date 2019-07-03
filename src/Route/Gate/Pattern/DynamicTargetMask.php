@@ -28,8 +28,8 @@ class DynamicTargetMask implements Route\Gate\Pattern
 {
     private $pattern;
     private $params;
-    private $parsedPath;
-    private $parsedQuery;
+    private $parsed = false;
+    private $queryParams;
 
     /**
      * Dynamic parameters in pattern string are (prefixed) name placeholders
@@ -63,10 +63,12 @@ class DynamicTargetMask implements Route\Gate\Pattern
 
     public function matchedRequest(ServerRequestInterface $request): ?ServerRequestInterface
     {
-        $this->parsedPath or $this->parsedPath = $this->parsePattern();
-        if (!$target = $this->comparableTarget($request)) { return null; }
+        $this->parsed or $this->parsePattern();
 
-        $pattern = $this->pathPattern();
+        $target = $this->comparableTarget($request);
+        if (!$target) { return null; }
+
+        $pattern = $this->patternRegexp();
         if (!preg_match($pattern, $target, $attributes)) { return null; }
 
         foreach (array_intersect_key($attributes, $this->params) as $name => $param) {
@@ -78,16 +80,16 @@ class DynamicTargetMask implements Route\Gate\Pattern
 
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
-        $this->parsedPath or $this->parsedPath = $this->parsePattern();
+        $this->parsed or $this->parsePattern();
 
         $params = $this->uriPlaceholders($params);
-        $target = str_replace(array_keys($params), $params, $this->parsedPath);
+        $target = str_replace(array_keys($params), $params, $this->pattern);
 
         if ($target[0] !== '/') {
             return $this->resolveRelativePath($target, $prototype);
         }
 
-        if (!$this->parsedQuery) {
+        if (!$this->queryParams) {
             $this->checkConflict($target, $prototype->getPath());
             return $prototype->withPath($target);
         }
@@ -100,55 +102,27 @@ class DynamicTargetMask implements Route\Gate\Pattern
         return $prototype->withPath($path)->withQuery($query);
     }
 
-    private function pathPattern()
+    private function patternRegexp()
     {
-        $pattern = preg_quote($this->parsedPath);
-        foreach ($this->params as $name => $regexp) {
+        $regexp = preg_quote($this->pattern);
+        foreach ($this->params as $name => $paramRegexp) {
             $placeholder = '\\' . self::DELIM_LEFT . $name . '\\' . self::DELIM_RIGHT;
-            $replace     = '(?P<' . $name . '>' . $regexp . ')';
-            $pattern     = str_replace($placeholder, $replace, $pattern);
+            $replace     = '(?P<' . $name . '>' . $paramRegexp . ')';
+            $regexp      = str_replace($placeholder, $replace, $regexp);
         }
 
-        if ($this->parsedPath[0] === '/') {
-            $pattern = '^' . $pattern;
+        if ($this->pattern[0] === '/') {
+            $regexp = '^' . $regexp;
         }
 
-        return '#' . $pattern . '$#';
-    }
-
-    private function parsePattern(): string
-    {
-        $types  = array_keys(self::TYPE_REGEXP);
-        $regexp = $this->typeMarkersRegexp($types);
-
-        $pos = strpos($this->pattern, '?');
-        if ($pos !== false && $query = substr($this->pattern, $pos + 1)) {
-            $this->parseQuery($query);
-        }
-
-        preg_match_all($regexp, $this->pattern, $matches, PREG_SET_ORDER);
-        foreach ($matches as $match) {
-            $this->params[$match['id']] = self::TYPE_REGEXP[$match['type']];
-        }
-
-        $replace = array_map(function ($type) { return self::DELIM_LEFT . $type; }, $types);
-
-        return str_replace($replace, self::DELIM_LEFT, $this->pattern);
-    }
-
-    private function typeMarkersRegexp(array $types): string
-    {
-        $regexpMarkers = array_map(function ($typeMarker) { return preg_quote($typeMarker, '/'); }, $types);
-        $idPattern     = '(?P<type>' . implode('|', $regexpMarkers) . ')(?P<id>[a-zA-Z]+)';
-
-        return '/' . self::DELIM_LEFT . $idPattern . self::DELIM_RIGHT . '/';
+        return '#' . $regexp . '$#';
     }
 
     private function uriPlaceholders(array $params): array
     {
         if (count($params) < count($this->params)) {
             $message = 'Route requires %s params for `%s` path - %s provided';
-            $message = sprintf($message, count($this->params), $this->parsedPath, count($params));
+            $message = sprintf($message, count($this->params), $this->pattern, count($params));
             throw new Exception\InvalidUriParamsException($message);
         }
 
@@ -168,26 +142,10 @@ class DynamicTargetMask implements Route\Gate\Pattern
         $value = (string) $value;
         if (!preg_match('/^' . $type . '$/', $value)) {
             $message = 'Invalid param `%s` type for `%s` route path';
-            throw new Exception\InvalidUriParamsException(sprintf($message, $name, $this->parsedPath));
+            throw new Exception\InvalidUriParamsException(sprintf($message, $name, $this->pattern));
         }
 
         return $value;
-    }
-
-    private function parseQuery(string $query): void
-    {
-        $this->parsedQuery = $this->queryParams(explode('&', $query));
-    }
-
-    private function queryParams(array $segments): array
-    {
-        $params = [];
-        foreach ($segments as $segment) {
-            [$name, $value] = explode('=', $segment, 2) + [false, null];
-            $params[$name] = $value;
-        }
-
-        return $params;
     }
 
     private function comparableTarget(ServerRequestInterface $request): ?string
@@ -195,7 +153,7 @@ class DynamicTargetMask implements Route\Gate\Pattern
         $uri  = $request->getUri();
         $path = $uri->getPath();
 
-        if (!$this->parsedQuery) { return $path; }
+        if (!$this->queryParams) { return $path; }
         if (!$query = $this->relevantQueryParams($uri)) { return null; }
 
         return $path . '?' . $query;
@@ -207,7 +165,7 @@ class DynamicTargetMask implements Route\Gate\Pattern
         $elements = $this->queryParams(explode('&', $query));
 
         $segments = [];
-        foreach ($this->parsedQuery as $name => $value) {
+        foreach ($this->queryParams as $name => $value) {
             if (!array_key_exists($name, $elements)) { return null; }
             $segments[] = ($value === null) ? $name : $name . '=' . $elements[$name];
         }
@@ -219,7 +177,7 @@ class DynamicTargetMask implements Route\Gate\Pattern
     {
         $target = $prototype->getPath() . '/' . $target;
 
-        if (!$this->parsedQuery) { return $prototype->withPath($target); }
+        if (!$this->queryParams) { return $prototype->withPath($target); }
 
         [$path, $query] = explode('?', $target, 2);
         $this->checkConflict($query, $prototype->getQuery());
@@ -233,5 +191,45 @@ class DynamicTargetMask implements Route\Gate\Pattern
             $message = 'Uri conflict detected prototype `%s` does not match route `%s`';
             throw new Exception\UnreachableEndpointException(sprintf($message, $prototypeSegment, $routeSegment));
         }
+    }
+
+    private function parsePattern(): void
+    {
+        $types  = array_keys(self::TYPE_REGEXP);
+        $regexp = $this->typeMarkersRegexp($types);
+
+        $pos = strpos($this->pattern, '?');
+        if ($pos !== false && $query = substr($this->pattern, $pos + 1)) {
+            $this->queryParams = $this->queryParams(explode('&', $query));
+        }
+
+        preg_match_all($regexp, $this->pattern, $matches, PREG_SET_ORDER);
+        foreach ($matches as $match) {
+            $this->params[$match['id']] = self::TYPE_REGEXP[$match['type']];
+        }
+
+        $replace = array_map(function ($type) { return self::DELIM_LEFT . $type; }, $types);
+
+        $this->pattern = str_replace($replace, self::DELIM_LEFT, $this->pattern);
+        $this->parsed  = true;
+    }
+
+    private function typeMarkersRegexp(array $types): string
+    {
+        $regexpMarkers = array_map(function ($typeMarker) { return preg_quote($typeMarker, '/'); }, $types);
+        $idPattern     = '(?P<type>' . implode('|', $regexpMarkers) . ')(?P<id>[a-zA-Z]+)';
+
+        return '/' . self::DELIM_LEFT . $idPattern . self::DELIM_RIGHT . '/';
+    }
+
+    private function queryParams(array $segments): array
+    {
+        $params = [];
+        foreach ($segments as $segment) {
+            [$name, $value] = explode('=', $segment, 2) + [false, null];
+            $params[$name] = $value;
+        }
+
+        return $params;
     }
 }
