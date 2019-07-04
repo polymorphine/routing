@@ -17,14 +17,23 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 
 
+/**
+ * Static subdomain pattern that matches one of allowed values
+ * and assigning it to request attribute and appending it to
+ * prototype URI's domain.
+ */
 class HostSubdomain implements Route\Gate\Pattern
 {
     private $id;
     private $values = [];
 
     /**
-     * @param string   $id
-     * @param string[] $values
+     * Building URI with subdomain requires prototype with existing
+     * domain. If domain is set by pattern gate it needs to be processed
+     * before this pattern.
+     *
+     * @param string   $id     identifier name of assigned attribute and URI build param
+     * @param string[] $values allowed subdomain values
      */
     public function __construct(string $id, array $values)
     {
