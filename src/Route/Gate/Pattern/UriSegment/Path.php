@@ -17,6 +17,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 
 
+/**
+ * Static pattern matching and creating URI with specified path.
+ */
 class Path implements Route\Gate\Pattern
 {
     use Route\Gate\Pattern\PathContextMethods;
@@ -25,6 +28,20 @@ class Path implements Route\Gate\Pattern
     protected $relative = true;
     protected $fragment = false;
 
+    /**
+     * Path pattern may be full path required within request URI
+     * or part of it. When leading slash is omitted path is matched
+     * and created relatively to current processing state in routing
+     * structure processing and pattern ending with an asterisk will
+     * indicate that more path segments may exist.
+     *
+     * @example new Path('some/relative*')
+     *          Will append given pattern to current URI prototype, and compare
+     *          it against remaining (unprocessed) beginning of request's URI
+     *          path.
+     *
+     * @param string $path
+     */
     public function __construct(string $path)
     {
         $this->path = $this->parsePath($path);
