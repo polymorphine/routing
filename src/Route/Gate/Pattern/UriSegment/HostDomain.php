@@ -17,10 +17,20 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 
 
+/**
+ * Static domain pattern matching request's domain to given
+ * value and building URI with it.
+ */
 class HostDomain implements Route\Gate\Pattern
 {
     private $domain;
 
+    /**
+     * Domain is matched and built starting from top domain level
+     * and will ignore subdomain part of host segment of request.
+     *
+     * @param string $domain
+     */
     public function __construct(string $domain)
     {
         $this->domain = $domain;
