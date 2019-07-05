@@ -17,6 +17,12 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
 
+/**
+ * The purpose of this class is to provide router callback for
+ * redirect endpoints (that will use router's uri at runtime)
+ * and procedures resolving gate and endpoint identifiers by
+ * user defined convention.
+ */
 class MappedRoutes
 {
     private $endpoint;
@@ -24,11 +30,6 @@ class MappedRoutes
     private $router;
 
     /**
-     * The purpose of this class is to provide router callback for
-     * redirect endpoints (that will use router's uri at runtime)
-     * and procedures resolving gate and endpoint identifiers by
-     * user defined convention.
-     *
      * Supplied convention will be used throughout entire router build
      * process and cannot be changed (even if mutable router callback
      * is redefined only last variant will be used).
