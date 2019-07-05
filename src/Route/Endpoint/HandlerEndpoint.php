@@ -17,6 +17,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 
+/**
+ * Endpoint passing request to given RequestHandlerInterface.
+ */
 class HandlerEndpoint extends Endpoint
 {
     private $handler;

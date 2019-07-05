@@ -16,6 +16,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 
+/**
+ * Endpoint passing request to given callback.
+ */
 class CallbackEndpoint extends Endpoint
 {
     private $callback;
