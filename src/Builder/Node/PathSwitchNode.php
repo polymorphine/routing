@@ -20,6 +20,11 @@ use Polymorphine\Routing\Route;
 use InvalidArgumentException;
 
 
+/**
+ * Builder Node creating and configuring PathSwitch splitter route.
+ *
+ * @see \Polymorphine\Routing\Route\Splitter\PathSwitch
+ */
 class PathSwitchNode implements Node
 {
     use CompositeBuilderMethods;
@@ -33,6 +38,14 @@ class PathSwitchNode implements Node
         $this->routes  = $routes;
     }
 
+    /**
+     * Creates builder context for route accessible through $name
+     * path segment in URI.
+     *
+     * @param string $name
+     *
+     * @return RouteNode
+     */
     public function route(string $name): RouteNode
     {
         if (!$name) {
@@ -42,6 +55,15 @@ class PathSwitchNode implements Node
         return $this->addBuilder($name);
     }
 
+    /**
+     * Creates (REST) resource context builder accessed with path
+     * segment given as $name parameter.
+     *
+     * @param string $name
+     * @param array  $routes
+     *
+     * @return Resource\ResourceSwitchNode
+     */
     public function resource(string $name, array $routes = []): ResourceSwitchNode
     {
         if ($this->resourcesForms) {
@@ -52,6 +74,16 @@ class PathSwitchNode implements Node
         return $this->route($name)->resource($routes);
     }
 
+    /**
+     * Creates separate path for resource forms configured from resource
+     * builder context.
+     *
+     * @see PathSwitchNode::resource()
+     *
+     * @param string $name path segment to resource form endpoints
+     *
+     * @return PathSwitchNode
+     */
     public function withResourcesFormsPath(string $name): self
     {
         if ($this->resourcesForms) {
@@ -62,6 +94,17 @@ class PathSwitchNode implements Node
         return $this;
     }
 
+    /**
+     * Creates builder context for route which URI path ends in
+     * PathSwitch splitter with no continued path resolution.
+     *
+     * @see \Polymorphine\Routing\Route\Splitter\PathSwitch constructor
+     * description for more information on root route.
+     *
+     * @param null|string $label
+     *
+     * @return RouteNode
+     */
     public function root(string $label = null): RouteNode
     {
         if ($this->rootLabel) {
