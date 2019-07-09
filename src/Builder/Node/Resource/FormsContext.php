@@ -15,6 +15,10 @@ use Polymorphine\Routing\Builder\Node;
 use Polymorphine\Routing\Route;
 
 
+/**
+ * Builder context to define form routes accessed with different
+ * URI path than REST resource.
+ */
 class FormsContext
 {
     private $formsBuilder;

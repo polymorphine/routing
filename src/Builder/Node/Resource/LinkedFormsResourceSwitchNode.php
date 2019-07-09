@@ -19,6 +19,10 @@ use Polymorphine\Routing\Route\Gate\PathEndGate;
 use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\PathSegment;
 
 
+/**
+ * Extension to ResourceSwitchNode that manages form handling paths
+ * in separate context (accessed with different URI path).
+ */
 class LinkedFormsResourceSwitchNode extends ResourceSwitchNode
 {
     private $forms;
