@@ -18,11 +18,19 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 
 
+/**
+ * Gate route chaining MiddlewareInterface processing within
+ * routing execution path.
+ */
 class MiddlewareGateway implements Route
 {
     private $middleware;
     private $route;
 
+    /**
+     * @param MiddlewareInterface $middleware
+     * @param Route               $route      receives request after processed in middleware
+     */
     public function __construct(MiddlewareInterface $middleware, Route $route)
     {
         $this->middleware = $middleware;

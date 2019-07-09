@@ -17,6 +17,12 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 
 
+/**
+ * Gate resolving URI based on existence of concrete parameter.
+ * Used primarily for convenience in REST resource paths, where
+ * route path is assumed, and given parameter will decide to
+ * return URI for resource "list" or concrete resource.
+ */
 class UriAttributeSelect implements Route
 {
     private $id;
@@ -24,6 +30,12 @@ class UriAttributeSelect implements Route
     private $indexPath;
     private $resource;
 
+    /**
+     * @param Route  $resource  composite route with both $itemPath and $indexPath routes
+     * @param string $id        name of URI parameter that indicates item path selection
+     * @param string $itemPath  path to select URI from when $id is present
+     * @param string $indexPath path to select URI from when $id is missing
+     */
     public function __construct(Route $resource, string $id, string $itemPath, string $indexPath)
     {
         $this->resource  = $resource;

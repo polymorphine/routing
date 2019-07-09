@@ -15,6 +15,10 @@ use Polymorphine\Routing\Route;
 use Psr\Http\Message\UriInterface;
 
 
+/**
+ * Subclass of UriSegment Pattern matching and generating
+ * URI's host segment.
+ */
 class Host extends Route\Gate\Pattern\UriSegment
 {
     protected function getUriPart(UriInterface $uri): string

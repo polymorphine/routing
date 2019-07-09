@@ -17,6 +17,10 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 
 
+/**
+ * Gate Route forwarding request further on matching request URI
+ * and producing URI based on provided Pattern.
+ */
 class PatternGate implements Route
 {
     use Pattern\PatternSelection;

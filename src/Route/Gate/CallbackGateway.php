@@ -17,6 +17,10 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 
 
+/**
+ * Gate route processing and evaluating incoming request with
+ * given callback function.
+ */
 class CallbackGateway implements Route
 {
     private $callback;
@@ -28,7 +32,7 @@ class CallbackGateway implements Route
      * - null - if request should be blocked and $prototype response returned.
      *
      * NOTE: If request uri is verified it will not be resembled by Uri built
-     * with gateway's self::uri() method - Pattern gate should be used instead.
+     * with gateway's uri() method - Pattern gate should be used instead.
      *
      * @param callable $callback function(ServerRequestInterface): ?ServerRequestInterface
      * @param Route    $route

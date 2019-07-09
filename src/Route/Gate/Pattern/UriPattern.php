@@ -18,11 +18,17 @@ use Psr\Http\Message\UriInterface;
 use InvalidArgumentException;
 
 
+/**
+ * Static Pattern resolved into composition of individual URI segment Patterns.
+ */
 class UriPattern implements Pattern
 {
     private $uri;
     private $pattern;
 
+    /**
+     * @param array $segments associative array of URI segments as returned by parse_url() function
+     */
     public function __construct(array $segments)
     {
         $this->uri = $segments;

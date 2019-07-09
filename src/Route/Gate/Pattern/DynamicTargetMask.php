@@ -17,6 +17,10 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 
 
+/**
+ * Dynamic Pattern performing request target matching with parameters
+ * assignment and building URI using supplied dynamic parameters.
+ */
 class DynamicTargetMask implements Route\Gate\Pattern
 {
     private $pattern;
@@ -24,6 +28,30 @@ class DynamicTargetMask implements Route\Gate\Pattern
     private $parsedPath;
     private $parsedQuery;
 
+    /**
+     * Dynamic parameters in pattern string are (prefixed) name placeholders
+     * enclosed in delimiters defined in Pattern interface.
+     *
+     * Pattern interface defines also placeholder's prefixes that assign
+     * common regexp patterns implicitly, so that $params parameter doesn't
+     * need to define them.
+     *
+     * For queries only their values will be matched dynamically with
+     * placeholders, and it is possible to test if key name exists within
+     * matched request URI regardless of its value.
+     *
+     * @example - Prefixed placeholders and defined 'key' with any value:
+     *          new DynamicTargetMask('/post/{#id}?title={$slug}&key=');
+     *          - Equivalent with not-prefixed placeholders:
+     *          new DynamicTargetMask('/post/{id}?title={slug}&key=', [
+     *              'id'   => '[1-9][0-9]*',
+     *              'slug' => '[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9]'
+     *          ]);
+     *
+     * @param string $pattern path (and query) pattern with variable placeholders
+     * @param array  $params  associative array of not-prefixed placeholder name keys
+     *                        and their regexp patterns
+     */
     public function __construct(string $pattern, array $params = [])
     {
         $this->pattern = $pattern;

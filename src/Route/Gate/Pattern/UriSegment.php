@@ -17,10 +17,27 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 
 
+/**
+ * Abstract Pattern of URI segment with exact value compared with
+ * segment returned by request URI or attached to created link.
+ */
 abstract class UriSegment implements Route\Gate\Pattern
 {
     protected $pattern;
 
+    /**
+     * If built URI prototype already contains this segment value and
+     * its different than given pattern UnreachableEndpointException
+     * will be thrown.
+     *
+     * WARNING: Empty segment constraint checked before non-empty one
+     * will not cause an exception despite contradiction and unreachable
+     * endpoint URI.
+     *
+     * int|null patterns for port segment will be converted to string.
+     *
+     * @param string $pattern exact value that should be returned by UriInterface::getX() method
+     */
     public function __construct(string $pattern)
     {
         $this->pattern = $pattern;
@@ -43,7 +60,24 @@ abstract class UriSegment implements Route\Gate\Pattern
         return $this->setUriPart($prototype);
     }
 
+    /**
+     * Returns string representing concrete URI segment defined by subclass.
+     * NOTE: Port returned from UriInterface::getPort() method as int|null
+     * is also converted to string.
+     *
+     * @param UriInterface $uri
+     *
+     * @return string
+     */
     abstract protected function getUriPart(UriInterface $uri): string;
 
+    /**
+     * Creates instance with URI segment defined by subclass having instance
+     * pattern value (pattern will be converted to int for port segment).
+     *
+     * @param UriInterface $uri
+     *
+     * @return UriInterface
+     */
     abstract protected function setUriPart(UriInterface $uri): UriInterface;
 }

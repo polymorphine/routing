@@ -16,5 +16,11 @@ use Polymorphine\Routing\Route;
 
 interface Node
 {
+    /**
+     * Creates Route from gathered builder data and subsequent
+     * Routes definitions.
+     *
+     * @return Route
+     */
     public function build(): Route;
 }

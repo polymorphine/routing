@@ -17,6 +17,10 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 
 
+/**
+ * Dynamic pattern constraint (with value capturing) and build
+ * directive for single (relative) path segment.
+ */
 class PathSegment implements Route\Gate\Pattern
 {
     use Route\Gate\Pattern\PathContextMethods;
@@ -24,6 +28,18 @@ class PathSegment implements Route\Gate\Pattern
     private $name;
     private $regexp;
 
+    /**
+     * URI path segment will be built using given $name param, and
+     * matched capturing ServerRequestInterface attribute with its
+     * name relative to current processing stage in routing tree.
+     *
+     * Regexp will be used in both matching and building stages throwing
+     * InvalidUriParamsException in case of missing param to build URI
+     * or param value that would produce URI that couldn't be matched.
+     *
+     * @param string $name
+     * @param string $regexp
+     */
     public function __construct(string $name = 'id', string $regexp = '[1-9][0-9]*')
     {
         $this->name   = $name;

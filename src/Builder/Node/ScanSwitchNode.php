@@ -31,6 +31,14 @@ class ScanSwitchNode implements Node
         $this->routes  = $routes;
     }
 
+    /**
+     * Creates default route builder context.
+     *
+     * @see Route\Splitter\ScanSwitch constructor for more info
+     * on default route.
+     *
+     * @return RouteNode
+     */
     public function defaultRoute(): RouteNode
     {
         if ($this->hasDefaultRoute) {
@@ -42,11 +50,31 @@ class ScanSwitchNode implements Node
         return new RouteNode($defaultRouteBuilder);
     }
 
+    /**
+     * Creates new route context.
+     *
+     * If $name is not supplied route URI cannot be built directly,
+     * but may be accessed with URI built with another (alternative)
+     * route.
+     *
+     * @param null|string $name
+     *
+     * @return RouteNode
+     */
     public function route(string $name = null): RouteNode
     {
         return $this->addBuilder($name);
     }
 
+    /**
+     * Creates (REST) resource context builder accessed with path
+     * segment given as $name parameter.
+     *
+     * @param string $name
+     * @param array  $routes
+     *
+     * @return Resource\ResourceSwitchNode
+     */
     public function resource(string $name, array $routes = []): Resource\ResourceSwitchNode
     {
         if ($this->resourcesForms) {
@@ -57,6 +85,16 @@ class ScanSwitchNode implements Node
         return $this->route($name)->path($name)->resource($routes);
     }
 
+    /**
+     * Creates separate path for resource forms configured from resource
+     * builder context.
+     *
+     * @see ScanSwitchNode::resource()
+     *
+     * @param string $name path segment to resource form endpoints
+     *
+     * @return ScanSwitchNode
+     */
     public function withResourcesFormsPath(string $name): self
     {
         if ($this->resourcesForms) {

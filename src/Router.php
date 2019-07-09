@@ -51,7 +51,7 @@ class Router implements RequestHandlerInterface
     }
 
     /**
-     * @param string $path
+     * @param string $path as defined in uri() method
      *
      * @return Router with changed root context
      */

@@ -18,12 +18,23 @@ use Psr\Http\Message\UriInterface;
 use Polymorphine\Routing\Exception;
 
 
+/**
+ * Gate route that forwards only requests which entire path was already
+ * matched in preceding routes.
+ */
 class PathEndGate implements Route
 {
     use Route\Gate\Pattern\PathContextMethods;
 
     private $route;
 
+    /**
+     * Subsequent route given as parameter with URI path constraint
+     * contradicts this route's rule, which makes this route unreachable,
+     * and calling uri() method for this route will throw exception.
+     *
+     * @param Route $route
+     */
     public function __construct(Route $route)
     {
         $this->route = $route;

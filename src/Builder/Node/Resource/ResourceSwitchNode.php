@@ -27,6 +27,11 @@ use Polymorphine\Routing\Route\Splitter\ScanSwitch;
 use Polymorphine\Routing\Route\Endpoint\NullEndpoint;
 
 
+/**
+ * Builder node setting up REST resource routing structure for
+ * http methods and (optionally) pseudo methods linking to
+ * resource index and add/edit forms.
+ */
 class ResourceSwitchNode implements Node
 {
     use CompositeBuilderMethods;
@@ -34,53 +39,114 @@ class ResourceSwitchNode implements Node
     protected $idName   = 'resource.id';
     protected $idRegexp = '[1-9][0-9]*';
 
+    /**
+     * Possible route names are: GET|POST|PUT|PATCH|DELETE and INDEX|ADD|EDIT.
+     *
+     * @param Context $context
+     * @param array   $routes  associative array of http methods or
+     */
     public function __construct(Context $context, array $routes = [])
     {
         $this->context = $context;
         $this->routes  = $routes;
     }
 
+    /**
+     * Setting resource id format and attribute name it's assigned to
+     * (default: resource.id => [1-9][0-9]*).
+     *
+     * @param string      $name
+     * @param null|string $regexp
+     *
+     * @return ResourceSwitchNode
+     */
     public function id(string $name, string $regexp = null): self
     {
         $this->idName = $name;
         return $regexp ? $this->withIdRegexp($regexp) : $this;
     }
 
+    /**
+     * Creates route for resource list - GET method without specified id.
+     *
+     * @return RouteNode
+     */
     public function index(): RouteNode
     {
         return $this->addBuilder('INDEX');
     }
 
+    /**
+     * Creates route for GET method of resource with given id.
+     *
+     * @return RouteNode
+     */
     public function get(): RouteNode
     {
         return $this->addBuilder('GET');
     }
 
+    /**
+     * Creates endpoint for creating new resource - POST method
+     * without given id.
+     *
+     * @return RouteNode
+     */
     public function post(): RouteNode
     {
         return $this->addBuilder('POST');
     }
 
+    /**
+     * Creates endpoint with DELETE method removing resource with
+     * given id.
+     *
+     * @return RouteNode
+     */
     public function delete(): RouteNode
     {
         return $this->addBuilder('DELETE');
     }
 
+    /**
+     * Creates endpoint modifying resource with given id using
+     * PATCH method.
+     *
+     * @return RouteNode
+     */
     public function patch(): RouteNode
     {
         return $this->addBuilder('PATCH');
     }
 
+    /**
+     * Creates endpoint adding the resource with specific id
+     * using PUT method.
+     *
+     * @return RouteNode
+     */
     public function put(): RouteNode
     {
         return $this->addBuilder('PUT');
     }
 
+    /**
+     * Creates endpoint rendering form layout/field list to
+     * add new resource.
+     *
+     * @return RouteNode
+     */
     public function add(): RouteNode
     {
         return $this->addBuilder('NEW');
     }
 
+    /**
+     * Creates endpoint rendering form layout/field list with
+     * values of resource with given id that can be modified.
+     *
+     * @return RouteNode
+     */
     public function edit(): RouteNode
     {
         return $this->addBuilder('EDIT');

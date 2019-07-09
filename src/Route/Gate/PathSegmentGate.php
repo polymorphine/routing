@@ -17,6 +17,10 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 
 
+/**
+ * Gate route that matches request uri and builds one using single
+ * segment of relative path in current routing tree context.
+ */
 class PathSegmentGate implements Route
 {
     use Route\Gate\Pattern\PathContextMethods;

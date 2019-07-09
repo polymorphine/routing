@@ -16,10 +16,23 @@ use Polymorphine\Routing\Builder\Exception;
 use Polymorphine\Routing\Route;
 
 
+/**
+ * Builder node linking to another, possibly not built yet route.
+ * Used to connect multiple (alternative) routes to same routing
+ * path resolved by builder nodes when all definitions are not
+ * yet established (router not built).
+ *
+ * @see RouteNode::link()
+ * @see RouteNode::joinLink()
+ */
 class LinkedRouteNode implements Node
 {
     private $futureRoute;
 
+    /**
+     * @param null|Route $futureRoute deferred Route build resolved by builder at
+     *                                composition stage
+     */
     public function __construct(&$futureRoute)
     {
         $this->futureRoute = &$futureRoute;

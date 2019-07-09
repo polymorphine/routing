@@ -16,6 +16,10 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 
+/**
+ * Endpoint returning redirect directive with uri string
+ * produced by given callback (usually referring to router).
+ */
 class RedirectEndpoint extends Endpoint
 {
     private $uriCallback;
