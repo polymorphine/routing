@@ -18,6 +18,8 @@ use Polymorphine\Routing\Builder\Exception;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\Http\Message\UriFactoryInterface;
 
 
 class Builder
@@ -90,6 +92,24 @@ class Builder
             throw new Exception\BuilderLogicException('Root builder not defined');
         }
         return $this->router = new Router($this->builder->build(), $baseUri, $nullResponse);
+    }
+
+    /**
+     * Creates Router instance based on builder nodes defined on root
+     * node. Uses PSR-17 factories to create base URI and null response.
+     *
+     * @param UriFactoryInterface      $uriFactory
+     * @param ResponseFactoryInterface $responseFactory
+     *
+     * @throws Exception\BuilderLogicException
+     *
+     * @return Router
+     */
+    public function routerWithFactories(
+        UriFactoryInterface $uriFactory,
+        ResponseFactoryInterface $responseFactory
+    ): Router {
+        return $this->router($uriFactory->createUri(), $responseFactory->createResponse(404));
     }
 
     /**

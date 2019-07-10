@@ -51,7 +51,12 @@ class BuilderTest extends TestCase
     {
         $root = $this->builder();
         $root->rootNode()->callback(function () {});
-        $this->assertInstanceOf(Router::class, $root->router(new Doubles\FakeUri(), new Doubles\FakeResponse()));
+
+        $router = $root->router(new Doubles\FakeUri(), new Doubles\FakeResponse());
+        $this->assertInstanceOf(Router::class, $router);
+
+        $router = $root->routerWithFactories(new Doubles\FakeUriFactory(), new Doubles\FakeResponseFactory());
+        $this->assertInstanceOf(Router::class, $router);
     }
 
     public function testSecondRootNode_ThrowsException()
