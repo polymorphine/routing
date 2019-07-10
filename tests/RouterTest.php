@@ -13,6 +13,9 @@ namespace Polymorphine\Routing\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Router;
+use Polymorphine\Routing\Tests\Doubles\FakeResponseFactory;
+use Polymorphine\Routing\Tests\Doubles\FakeUriFactory;
+use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 
 
 class RouterTest extends TestCase
@@ -27,6 +30,11 @@ class RouterTest extends TestCase
     public function testInstantiation()
     {
         $this->assertInstanceOf(Router::class, $this->router());
+        $this->assertInstanceOf(Router::class, Router::withPrototypeFactories(
+            new MockedRoute(),
+            new FakeUriFactory(),
+            new FakeResponseFactory()
+        ));
     }
 
     public function testNotMatchedRequestDispatch_ReturnsPrototypeInstance()

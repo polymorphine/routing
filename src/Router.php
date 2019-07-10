@@ -15,6 +15,8 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
+use Psr\Http\Message\UriFactoryInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
 
 
 class Router implements RequestHandlerInterface
@@ -43,6 +45,14 @@ class Router implements RequestHandlerInterface
         $this->route        = $route;
         $this->baseUri      = $baseUri;
         $this->baseResponse = $baseResponse;
+    }
+
+    public static function withPrototypeFactories(
+        Route $route,
+        UriFactoryInterface $uriFactory,
+        ResponseFactoryInterface $responseFactory
+    ): self {
+        return new self($route, $uriFactory->createUri(), $responseFactory->createResponse(404));
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
