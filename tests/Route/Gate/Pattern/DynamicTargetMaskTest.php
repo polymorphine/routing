@@ -208,7 +208,7 @@ class DynamicTargetMaskTest extends TestCase
     {
         return [
             ['/user/{#id}', '/some/other/path'],
-            ['/foo/{#id}?some=query', '?other=query'],
+            ['/foo/{#id}?some=foo', '?other=bar'], //todo: no conflict -> append
             ['/foo/bar/baz', '/foo/baz']
         ];
     }
@@ -231,8 +231,9 @@ class DynamicTargetMaskTest extends TestCase
     {
         return [
             ['/user/{#id}', '/user', [1500], '/user/1500'],
-            ['/foo/{#id}?some=query&fizz=buzz', '?some=query&fizz=', [1500], '/foo/1500?some=query&fizz=buzz'],
+            ['/foo/{#id}?some=query&fizz=buzz', '?some=query&fizz=', [1500], '/foo/1500?some=query&fizz=buzz'], //todo: conflict
             ['/foo/bar/baz', '/foo/bar', [], '/foo/bar/baz']
+            //todo: ['/foo?fizz={#number}', '?buzz=something', [123], '/foo?buzz=something&fizz=123']
         ];
     }
 
