@@ -207,9 +207,9 @@ class DynamicTargetMaskTest extends TestCase
     public function prototypeConflict()
     {
         return [
-            ['/user/{#id}', '/some/other/path'],
-            ['/foo/{#id}?some=foo', '?other=bar'], //todo: no conflict -> append
-            ['/foo/bar/baz', '/foo/baz']
+            'different absolute paths' => ['/foo/bar/baz', '/foo/baz'],
+            'different query param fizz' => ['/foo/bar?anything&fizz=buzz', '?anything=foo&fizz=baz'],
+            'different query param fizz (defined empty)' => ['/foo/{#id}?some=query&fizz=buzz', '?some=query&fizz=']
         ];
     }
 
@@ -221,7 +221,7 @@ class DynamicTargetMaskTest extends TestCase
      * @param $params
      * @param $expected
      */
-    public function testUriMatchingPrototypeSegment_ReturnsUriWithMissingPartAppended($pattern, $proto, $params, $expected)
+    public function testUriMatchingPrototypeSegment_ReturnsUriWithMissingPartsAppended($pattern, $proto, $params, $expected)
     {
         $pattern = $this->pattern($pattern);
         $this->assertSame($expected, (string) $pattern->uri(Doubles\FakeUri::fromString($proto), $params));
@@ -230,10 +230,11 @@ class DynamicTargetMaskTest extends TestCase
     public function prototypeSegmentMatch()
     {
         return [
-            ['/user/{#id}', '/user', [1500], '/user/1500'],
-            ['/foo/{#id}?some=query&fizz=buzz', '?some=query&fizz=', [1500], '/foo/1500?some=query&fizz=buzz'], //todo: conflict
-            ['/foo/bar/baz', '/foo/bar', [], '/foo/bar/baz']
-            //todo: ['/foo?fizz={#number}', '?buzz=something', [123], '/foo?buzz=something&fizz=123']
+            ['{#id}', '/user', [1500], '/user/1500'],
+            ['foo/{#id}?some=foo', '?other=bar', [673], '/foo/673?other=bar&some=foo'],
+            ['/foo/bar/baz', '/foo/bar', [], '/foo/bar/baz'],
+            ['/foo/{#id}?some=query&fizz=buzz', '?some=query&fizz', [123], '/foo/123?some=query&fizz=buzz'],
+            ['/foo?fizz', '?fizz=foo&buzz=something', [], '/foo?fizz=foo&buzz=something']
         ];
     }
 

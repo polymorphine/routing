@@ -85,21 +85,10 @@ class DynamicTargetMask implements Route\Gate\Pattern
         $params = $this->uriPlaceholders($params);
         $target = str_replace(array_keys($params), $params, $this->pattern);
 
-        if ($target[0] !== '/') {
-            return $this->resolveRelativePath($target, $prototype);
-        }
+        [$path, $query] = explode('?', $target, 2) + [false, null];
 
-        if (!$this->queryParams) {
-            $this->checkConflict($target, $prototype->getPath());
-            return $prototype->withPath($target);
-        }
-
-        [$path, $query] = explode('?', $target, 2);
-
-        $this->checkConflict($path, $prototype->getPath());
-        $this->checkConflict($query, $prototype->getQuery());
-
-        return $prototype->withPath($path)->withQuery($query);
+        $prototype = $this->setPath($path, $prototype);
+        return $this->queryParams ? $this->setQuery($query, $prototype) : $prototype;
     }
 
     private function patternRegexp()
@@ -162,7 +151,7 @@ class DynamicTargetMask implements Route\Gate\Pattern
     private function relevantQueryParams(UriInterface $uri): ?string
     {
         if (!$query = $uri->getQuery()) { return null; }
-        $elements = $this->queryParams(explode('&', $query));
+        $elements = $this->queryParams($query);
 
         $segments = [];
         foreach ($this->queryParams as $name => $value) {
@@ -173,24 +162,57 @@ class DynamicTargetMask implements Route\Gate\Pattern
         return implode('&', $segments);
     }
 
-    private function resolveRelativePath($target, UriInterface $prototype): UriInterface
+    private function setPath(string $path, UriInterface $prototype): UriInterface
     {
-        $target = $prototype->getPath() . '/' . $target;
+        $prototypePath = $prototype->getPath();
+        if ($path[0] !== '/') {
+            return $prototype->withPath($prototypePath . '/' . $path);
+        }
 
-        if (!$this->queryParams) { return $prototype->withPath($target); }
+        if ($prototypePath && strpos($path, $prototypePath) !== 0) {
+            $message = 'Uri conflict detected prototype `%s` path does not match route `%s` path';
+            throw new Exception\UnreachableEndpointException(sprintf($message, $prototypePath, $path));
+        }
 
-        [$path, $query] = explode('?', $target, 2);
-        $this->checkConflict($query, $prototype->getQuery());
-
-        return $prototype->withPath($path)->withQuery($query);
+        return $prototype->withPath($path);
     }
 
-    private function checkConflict(string $routeSegment, string $prototypeSegment)
+    private function setQuery(string $query, UriInterface $prototype): UriInterface
     {
-        if ($prototypeSegment && strpos($routeSegment, $prototypeSegment) !== 0) {
-            $message = 'Uri conflict detected prototype `%s` does not match route `%s`';
-            throw new Exception\UnreachableEndpointException(sprintf($message, $prototypeSegment, $routeSegment));
+        if (!$queryString = $prototype->getQuery()) {
+            return $prototype->withQuery($query);
         }
+
+        $routeParams = $this->queryParams($query);
+        $queryParams = $this->queryParams($queryString);
+
+        $segments = [];
+        foreach ($queryParams as $name => $value) {
+            if (array_key_exists($name, $routeParams)) {
+                $value = $this->resolveConflict($routeParams, $name, $value);
+                unset($routeParams[$name]);
+            }
+
+            $segments[] = $this->querySegment($name, $value);
+        }
+
+        foreach ($routeParams as $name => $value) {
+            $segments[] = $this->querySegment($name, $value);
+        }
+
+        return $prototype->withQuery(implode('&', $segments));
+    }
+
+    private function resolveConflict(array $routeParams, string $name, ?string $value): ?string
+    {
+        if ($value === null) { return $routeParams[$name]; }
+
+        if (isset($routeParams[$name]) && $routeParams[$name] !== $value) {
+            $message = 'Uri build conflict - attempt to overwrite `%s` query param value `%s` with `%s`';
+            throw new Exception\UnreachableEndpointException(sprintf($message, $name, $value, $routeParams[$name]));
+        }
+
+        return $value;
     }
 
     private function parsePattern(): void
@@ -200,7 +222,7 @@ class DynamicTargetMask implements Route\Gate\Pattern
 
         $pos = strpos($this->pattern, '?');
         if ($pos !== false && $query = substr($this->pattern, $pos + 1)) {
-            $this->queryParams = $this->queryParams(explode('&', $query));
+            $this->queryParams = $this->queryParams($query);
         }
 
         preg_match_all($regexp, $this->pattern, $matches, PREG_SET_ORDER);
@@ -222,8 +244,10 @@ class DynamicTargetMask implements Route\Gate\Pattern
         return '/' . self::DELIM_LEFT . $idPattern . self::DELIM_RIGHT . '/';
     }
 
-    private function queryParams(array $segments): array
+    private function queryParams(string $query): array
     {
+        $segments = explode('&', $query);
+
         $params = [];
         foreach ($segments as $segment) {
             [$name, $value] = explode('=', $segment, 2) + [false, null];
@@ -231,5 +255,10 @@ class DynamicTargetMask implements Route\Gate\Pattern
         }
 
         return $params;
+    }
+
+    private function querySegment(string $name, ?string $value): string
+    {
+        return $value === null ? $name : $name . '=' . $value;
     }
 }
