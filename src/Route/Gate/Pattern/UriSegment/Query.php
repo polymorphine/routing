@@ -91,7 +91,7 @@ class Query implements Route\Gate\Pattern
         $requestSegments  = $this->queryValues($requestQuery);
 
         foreach ($requiredSegments as $key => $value) {
-            if (!isset($requestSegments[$key])) { return false; }
+            if (!array_key_exists($key, $requestSegments)) { return false; }
             if (!isset($value)) { continue; }
             if ($value !== $requestSegments[$key]) { return false; }
         }

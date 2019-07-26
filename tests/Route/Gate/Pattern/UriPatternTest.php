@@ -53,6 +53,7 @@ class UriPatternTest extends TestCase
             ['?query=foo&bar=baz', 'http://example.com/some/path?query=foo&bar=baz'],
             ['//example.com:9002', 'https://example.com:9002/foo/path'],
             ['?query=bar&foo', '?query=bar&foo=anything'],
+            ['?query=bar&foo', '?foo&query=bar'],
             ['?query=bar&foo=', '?foo=&query=bar']
         ];
     }
