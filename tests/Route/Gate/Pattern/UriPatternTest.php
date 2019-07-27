@@ -175,24 +175,24 @@ class UriPatternTest extends TestCase
         $this->assertInstanceOf(ServerRequestInterface::class, $pattern->matchedRequest($request));
     }
 
-    public function testAbsolutePathWithAsteriskMatchesPathFragment()
+    public function testAbsolutePathMatchesPathFragment()
     {
-        $pattern = $this->pattern('/foo/bar*');
+        $pattern = $this->pattern('/foo/bar');
         $matched = $pattern->matchedRequest($this->request('/foo/bar/baz/and/anything'));
         $this->assertInstanceOf(ServerRequestInterface::class, $matched);
         $this->assertSame('baz/and/anything', $matched->getAttribute(Route::PATH_ATTRIBUTE));
     }
 
-    public function testPathWithAsteriskAndQueryCanBeMatched()
+    public function testPathFragmentAndQueryCanBeMatched()
     {
-        $pattern = $this->pattern('foo/bar*?query=foo');
+        $pattern = $this->pattern('foo/bar?query=foo');
         $request = $this->request('//example.com/foo/bar/baz?param=bar&query=foo');
         $this->assertInstanceOf(ServerRequestInterface::class, $pattern->matchedRequest($request));
     }
 
-    public function testPathWithAsteriskAndQueryCanBeMatchedInRelativeContext()
+    public function testPathFragmentAndQueryCanBeMatchedInRelativeContext()
     {
-        $pattern = $this->pattern('foo/bar*?query=foo');
+        $pattern = $this->pattern('foo/bar?query=foo');
         $request = $this->request('//example.com/fizz/foo/bar/baz?param=bar&query=foo')
                         ->withAttribute(Route::PATH_ATTRIBUTE, 'foo/bar/baz');
         $this->assertInstanceOf(ServerRequestInterface::class, $pattern->matchedRequest($request));
@@ -200,7 +200,7 @@ class UriPatternTest extends TestCase
 
     public function testRelativePathPatternDoesNotMatchBeyondRequestPath()
     {
-        $pattern = $this->pattern('foo/bar*');
+        $pattern = $this->pattern('foo/bar');
         $matched = $pattern->matchedRequest($this->request('/foo/bar'));
         $this->assertInstanceOf(ServerRequestInterface::class, $matched);
         $this->assertNull($pattern->matchedRequest($matched));

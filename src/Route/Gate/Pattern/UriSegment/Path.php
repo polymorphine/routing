@@ -24,27 +24,21 @@ class Path implements Route\Gate\Pattern
 {
     use Route\Gate\Pattern\PathContextMethods;
 
-    protected $path;
-    protected $relative = true;
-    protected $fragment = false;
+    private $path;
+    private $relative;
 
     /**
      * Path pattern may be full path required within request URI
      * or part of it. When leading slash is omitted path is matched
      * and created relatively to current processing state in routing
-     * structure processing and pattern ending with an asterisk will
-     * indicate that more path segments may exist.
-     *
-     * @example new Path('some/relative*')
-     *          Will append given pattern to current URI prototype, and compare
-     *          it against remaining (unprocessed) beginning of request's URI
-     *          path.
+     * structure.
      *
      * @param string $path
      */
     public function __construct(string $path)
     {
-        $this->path = $this->parsePath($path);
+        $this->path     = $path;
+        $this->relative = (!$path || $path[0] !== '/');
     }
 
     public function matchedRequest(ServerRequestInterface $request): ?ServerRequestInterface
@@ -54,10 +48,6 @@ class Path implements Route\Gate\Pattern
         }
 
         $requestPath = ($this->relative) ? $this->relativePath($request) : $request->getUri()->getPath();
-        if (!$this->fragment) {
-            if ($this->path !== $requestPath) { return null; }
-            return $request->withAttribute(Route::PATH_ATTRIBUTE, '');
-        }
 
         if (strpos($requestPath, $this->path) !== 0) { return null; }
         return $request->withAttribute(Route::PATH_ATTRIBUTE, $this->newPathContext($requestPath, $this->path));
@@ -82,15 +72,5 @@ class Path implements Route\Gate\Pattern
             $message = 'Uri conflict in `%s` prototype segment for `%s` uri';
             throw new Exception\UnreachableEndpointException(sprintf($message, $prototypeSegment, $this->path));
         }
-    }
-
-    private function parsePath(string $pattern): string
-    {
-        if (empty($pattern)) { return $pattern; }
-
-        $this->relative = ($pattern[0] !== '/');
-        $this->fragment = (substr($pattern, -1) === '*');
-
-        return ($this->fragment) ? rtrim($pattern, '*') : $pattern;
     }
 }
