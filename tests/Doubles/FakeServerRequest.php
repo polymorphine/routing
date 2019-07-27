@@ -160,7 +160,9 @@ class FakeServerRequest implements ServerRequestInterface
 
     public function getAttribute($name, $default = null)
     {
-        if ($name === Route::WILDCARD_ATTRIBUTE) { return $this->wildcard; }
+        if ($name === Route::WILDCARD_ATTRIBUTE) {
+            return $this->wildcard ?: $default;
+        }
 
         return $this->attr[$name] ?? $default;
     }
@@ -168,7 +170,7 @@ class FakeServerRequest implements ServerRequestInterface
     public function withAttribute($name, $value)
     {
         $clone = clone $this;
-        $clone->attr[$name] = $value;
+        ($name === Route::WILDCARD_ATTRIBUTE) ? $clone->wildcard = $value : $clone->attr[$name] = $value;
         return $clone;
     }
 
