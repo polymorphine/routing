@@ -33,7 +33,7 @@ class LinkedRouteNode implements Node
      * @param null|Route $futureRoute deferred Route build resolved by builder at
      *                                composition stage
      */
-    public function __construct(&$futureRoute)
+    public function __construct(?Route &$futureRoute)
     {
         $this->futureRoute = &$futureRoute;
     }
