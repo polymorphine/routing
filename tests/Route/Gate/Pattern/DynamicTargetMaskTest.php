@@ -60,6 +60,24 @@ class DynamicTargetMaskTest extends TestCase
         $this->assertSame($attr, $pattern->matchedRequest($request)->getAttributes());
     }
 
+    public function testPatternWithNoQueryParamValueMatchesAnyValue()
+    {
+        $pattern = $this->pattern('?foo&fizz');
+        $request = $this->request('https://example.com/path?fizz=buzz&foo=bar-125&anything=else');
+        $this->assertInstanceOf(ServerRequestInterface::class, $pattern->matchedRequest($request));
+    }
+
+    public function testPatternWithEmptyQueryParamsMatchEmptyValue()
+    {
+        $pattern = $this->pattern('?foo=');
+        $request = $this->request('https://example.com/path?fizz=buzz&foo=&anything=else');
+        $this->assertInstanceOf(ServerRequestInterface::class, $pattern->matchedRequest($request));
+
+        $pattern = $this->pattern('?foo=');
+        $request = $this->request('https://example.com/path?fizz=buzz&foo=123&anything=else');
+        $this->assertNull($pattern->matchedRequest($request));
+    }
+
     /**
      * @dataProvider matchingRequests
      *
