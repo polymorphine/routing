@@ -20,8 +20,6 @@ use Psr\Http\Server\MiddlewareInterface;
 
 trait GateBuildMethods
 {
-    use Pattern\PatternSelection;
-
     /** @var Context */
     private $context;
 
@@ -84,7 +82,7 @@ trait GateBuildMethods
         $this->context->addGate(function (Route $route) use ($path, $regexp) {
             $segments = explode('/', trim($path, '/'));
             while ($segment = array_pop($segments)) {
-                $pattern = $this->patternSegment($segment, $regexp);
+                $pattern = $this->pathSegment($segment, $regexp);
                 $route = $pattern
                     ? new Route\Gate\PatternGate($pattern, $route)
                     : new Route\Gate\PathSegmentGate($segment, $route);
@@ -195,5 +193,27 @@ trait GateBuildMethods
     public function options(Pattern $pattern = null): self
     {
         return $this->method('OPTIONS', $pattern);
+    }
+
+    private function pathSegment(string $segment, array $regexp): ?Pattern
+    {
+        if (!$id = $this->patternId($segment)) { return null; }
+
+        if (isset($regexp[$id])) {
+            return new Pattern\UriSegment\PathSegment($id, $regexp[$id]);
+        }
+
+        [$type, $id] = [$id[0], substr($id, 1)];
+
+        return isset(Pattern::TYPE_REGEXP[$type])
+            ? new Pattern\UriSegment\PathSegment($id, Pattern::TYPE_REGEXP[$type])
+            : null;
+    }
+
+    private function patternId(string $segment): ?string
+    {
+        if ($segment[0] !== Pattern::DELIM_LEFT) { return null; }
+        $id = substr($segment, 1, -1);
+        return ($segment === Pattern::DELIM_LEFT . $id . Pattern::DELIM_RIGHT) ? $id : null;
     }
 }

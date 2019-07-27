@@ -23,8 +23,6 @@ use Psr\Http\Message\UriInterface;
  */
 class PatternGate implements Route
 {
-    use Pattern\PatternSelection;
-
     private $pattern;
     private $route;
 
@@ -34,9 +32,13 @@ class PatternGate implements Route
         $this->route   = $route;
     }
 
-    public static function withPatternString(string $pattern, Route $route, array $params = [])
+    public static function fromPatternString(string $uriPattern, Route $route, array $params = [])
     {
-        return new self(self::selectPattern($pattern, $params), $route);
+        $pattern = strpos($uriPattern, Pattern::DELIM_RIGHT)
+            ? new Pattern\DynamicTargetMask($uriPattern, $params)
+            : Pattern\UriPattern::fromUriString($uriPattern);
+
+        return new self($pattern, $route);
     }
 
     public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface

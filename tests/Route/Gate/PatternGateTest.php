@@ -31,10 +31,10 @@ class PatternGateTest extends TestCase
         $this->assertEquals($default, $https);
         $this->assertNotEquals($default, $http);
 
-        $gateway = Gate\PatternGate::withPatternString('/test/{#testId}', new Doubles\MockedRoute());
+        $gateway = Gate\PatternGate::fromPatternString('/test/{#testId}', new Doubles\MockedRoute());
         $this->assertInstanceOf(Route::class, $gateway);
 
-        $gateway = Gate\PatternGate::withPatternString('//domain.com/test/foo', new Doubles\MockedRoute());
+        $gateway = Gate\PatternGate::fromPatternString('//domain.com/test/foo', new Doubles\MockedRoute());
         $this->assertInstanceOf(Route::class, $gateway);
     }
 
@@ -88,12 +88,12 @@ class PatternGateTest extends TestCase
     public function testComposedRelativePathsAreJoinedInCorrectOrder()
     {
         $prototype = Doubles\FakeUri::fromString('/foo');
-        $route     = Gate\PatternGate::withPatternString('{$bar}', Gate\PatternGate::withPatternString('{#baz}', Doubles\MockedRoute::response('endpoint')));
+        $route     = Gate\PatternGate::fromPatternString('{$bar}', Gate\PatternGate::fromPatternString('{#baz}', Doubles\MockedRoute::response('endpoint')));
         $this->assertSame('/foo/bar/123', $uri = (string) $route->uri($prototype, ['bar' => 'bar', 'baz' => 123]));
         $this->assertSame('endpoint', (string) $route->forward($this->request($uri), self::$prototype)->getBody());
 
         $prototype = Doubles\FakeUri::fromString('/foo');
-        $route     = Gate\PatternGate::withPatternString('bar*', Gate\PatternGate::withPatternString('baz', Doubles\MockedRoute::response('endpoint')));
+        $route     = Gate\PatternGate::fromPatternString('bar*', Gate\PatternGate::fromPatternString('baz', Doubles\MockedRoute::response('endpoint')));
         $this->assertSame('/foo/bar/baz', $uri = (string) $route->uri($prototype, []));
         $request = $this->request($uri)->withAttribute(Route::PATH_ATTRIBUTE, 'bar/baz');
         $this->assertSame('endpoint', (string) $route->forward($request, self::$prototype)->getBody());
@@ -102,21 +102,21 @@ class PatternGateTest extends TestCase
     public function testComposedRelativePathsMatchesChangeContextForNextMatch()
     {
         $request = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString('/foo/bar/baz'));
-        $route   = Gate\PatternGate::withPatternString('bar', Gate\PatternGate::withPatternString('bar', Doubles\MockedRoute::response('endpoint')));
+        $route   = Gate\PatternGate::fromPatternString('bar', Gate\PatternGate::fromPatternString('bar', Doubles\MockedRoute::response('endpoint')));
         $this->assertSame(self::$prototype, $route->forward($request, self::$prototype));
     }
 
     public function testQueryPatternsAreJoinedTogetherOnCompositeRoute()
     {
         $prototype = Doubles\FakeUri::fromString('http://example.com/path');
-        $route     = Gate\PatternGate::withPatternString('?foo=fizz', Gate\PatternGate::withPatternString('?bar=buzz', Doubles\MockedRoute::response('endpoint')));
+        $route     = Gate\PatternGate::fromPatternString('?foo=fizz', Gate\PatternGate::fromPatternString('?bar=buzz', Doubles\MockedRoute::response('endpoint')));
         $this->assertSame('http://example.com/path?foo=fizz&bar=buzz', (string) $route->uri($prototype, []));
     }
 
     public function testCompositeQueryPatternsWithoutSpecifiedValueAreMatched()
     {
         $request = $this->request('http://example.com/path?foo=fizz&bar=buzz');
-        $route   = Gate\PatternGate::withPatternString('?foo', Gate\PatternGate::withPatternString('?bar', $this->responseRoute($response)));
+        $route   = Gate\PatternGate::fromPatternString('?foo', Gate\PatternGate::fromPatternString('?bar', $this->responseRoute($response)));
         $this->assertSame($response, $route->forward($request, self::$prototype));
     }
 
