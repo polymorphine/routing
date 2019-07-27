@@ -22,6 +22,11 @@ trait PathContextMethods
         return $request->getAttribute(Route::PATH_ATTRIBUTE) ?? ltrim($request->getUri()->getPath(), '/');
     }
 
+    private function isPathFullyMatched(ServerRequestInterface $request): bool
+    {
+        return !$this->relativePath($request) || $request->getAttribute(self::WILDCARD_ATTRIBUTE);
+    }
+
     private function splitRelativePath(ServerRequestInterface $request): array
     {
         return $this->splitPathSegment($this->relativePath($request));
