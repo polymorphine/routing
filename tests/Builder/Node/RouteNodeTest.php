@@ -75,6 +75,38 @@ class RouteNodeTest extends TestCase
         $builder->build();
     }
 
+    public function testNoWildcardPathPatternForNotFullyMatchedRequestPath_ReturnsPrototype()
+    {
+        $request = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString('http://example.com/foo/bar/baz'));
+        $request->wildcard = false;
+        $prototype = new Doubles\FakeResponse();
+
+        $builder = $this->builder()->path('foo/bar');
+        $builder->callback($this->callbackResponse($response));
+        $this->assertSame($prototype, $builder->build()->forward($request, $prototype));
+    }
+
+    /**
+     * @dataProvider wildcardPaths
+     *
+     * @param string $path
+     */
+    public function testWildcardPathPatternForNotFullyMatchedRequestPath_ReturnsEndpointResponse(string $path)
+    {
+        $request = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString('http://example.com/foo/bar/baz'));
+        $request->wildcard = false;
+        $prototype = new Doubles\FakeResponse();
+
+        $builder = $this->builder()->path($path);
+        $builder->callback($this->callbackResponse($response));
+        $this->assertSame($response, $builder->build()->forward($request, $prototype));
+    }
+
+    public function wildcardPaths()
+    {
+        return [['foo/bar*'], ['foo/bar/*'], ['foo*'], ['foo/*'], ['*']];
+    }
+
     public function testGateWrappers()
     {
         $attrCheckCallback = function (ServerRequestInterface $request) {
