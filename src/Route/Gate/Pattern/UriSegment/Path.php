@@ -44,7 +44,7 @@ class Path implements Route\Gate\Pattern
     public function matchedRequest(ServerRequestInterface $request): ?ServerRequestInterface
     {
         if (!$this->path) {
-            return ($this->relativePath($request) === '') ? $request : null;
+            return ($this->relativePath($request) === '') ? $request->withAttribute(Route::PATH_ATTRIBUTE, '') : null;
         }
 
         $requestPath = ($this->relative) ? $this->relativePath($request) : $request->getUri()->getPath();

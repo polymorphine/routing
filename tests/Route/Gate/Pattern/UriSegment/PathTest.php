@@ -93,6 +93,14 @@ class PathTest extends TestCase
         $this->assertInstanceOf(ServerRequestInterface::class, $pattern->matchedRequest($request));
     }
 
+    public function testEmptyPathShouldMatchRootPath()
+    {
+        $pattern = $this->pattern('');
+        $request = $this->request('/');
+        $this->assertInstanceOf(ServerRequestInterface::class, $matched = $pattern->matchedRequest($request));
+        $this->assertSame('', $matched->getAttribute(Route::PATH_ATTRIBUTE));
+    }
+
     public function testRelativePathPatternDoesNotMatchBeyondRequestPath()
     {
         $pattern = $this->pattern('foo/bar');
