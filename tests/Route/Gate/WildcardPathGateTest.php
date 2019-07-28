@@ -54,8 +54,6 @@ class WildcardPathGateTest extends TestCase
     private function request(bool $wildcard = false)
     {
         $request = new Doubles\FakeServerRequest();
-        $request->wildcard = $wildcard;
-
-        return $request;
+        return $wildcard ? $request->withAttribute(Route::WILDCARD_ATTRIBUTE, true) : $request;
     }
 }

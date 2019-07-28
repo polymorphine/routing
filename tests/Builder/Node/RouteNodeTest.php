@@ -77,8 +77,7 @@ class RouteNodeTest extends TestCase
 
     public function testNoWildcardPathPatternForNotFullyMatchedRequestPath_ReturnsPrototype()
     {
-        $request = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString('http://example.com/foo/bar/baz'));
-        $request->wildcard = false;
+        $request   = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString('http://example.com/foo/bar/baz'));
         $prototype = new Doubles\FakeResponse();
 
         $builder = $this->builder()->path('foo/bar');
@@ -93,8 +92,7 @@ class RouteNodeTest extends TestCase
      */
     public function testWildcardPathPatternForNotFullyMatchedRequestPath_ReturnsEndpointResponse(string $path)
     {
-        $request = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString('http://example.com/foo/bar/baz'));
-        $request->wildcard = false;
+        $request   = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString('http://example.com/foo/bar/baz'));
         $prototype = new Doubles\FakeResponse();
 
         $builder = $this->builder()->path($path);
@@ -139,7 +137,7 @@ class RouteNodeTest extends TestCase
 
     public function checkCase(Node\RouteNode $builder, ServerRequestInterface $match, ServerRequestInterface $block)
     {
-        $builder->callback($this->callbackResponse($response));
+        $builder->path('*')->callback($this->callbackResponse($response));
         $route = $builder->build();
 
         $prototype = new Doubles\FakeResponse();

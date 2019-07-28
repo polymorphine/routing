@@ -11,7 +11,6 @@
 
 namespace Polymorphine\Routing\Tests\Doubles;
 
-use Polymorphine\Routing\Route;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
@@ -24,8 +23,6 @@ class FakeServerRequest implements ServerRequestInterface
     public $attr    = [];
     public $cookies = [];
     public $parsed  = [];
-
-    public $wildcard = true;
 
     public function __construct(string $method = 'GET', UriInterface $uri = null)
     {
@@ -160,17 +157,13 @@ class FakeServerRequest implements ServerRequestInterface
 
     public function getAttribute($name, $default = null)
     {
-        if ($name === Route::WILDCARD_ATTRIBUTE) {
-            return $this->wildcard ?: $default;
-        }
-
         return $this->attr[$name] ?? $default;
     }
 
     public function withAttribute($name, $value)
     {
         $clone = clone $this;
-        ($name === Route::WILDCARD_ATTRIBUTE) ? $clone->wildcard = $value : $clone->attr[$name] = $value;
+        $clone->attr[$name] = $value;
         return $clone;
     }
 
