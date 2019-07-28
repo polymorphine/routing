@@ -157,32 +157,6 @@ class UriPatternTest extends TestCase
         $this->assertSame('/foo/bar?fizz=buzz&other=param', (string) $pattern->uri($prototype, []));
     }
 
-    public function testRelativePathIsMatched()
-    {
-        $pattern = $this->pattern('bar');
-        $matched = $pattern->matchedRequest($this->request('/foo/bar')->withAttribute(Route::PATH_ATTRIBUTE, 'bar'));
-        $this->assertInstanceOf(ServerRequestInterface::class, $matched);
-        $this->assertSame('', $matched->getAttribute(Route::PATH_ATTRIBUTE));
-    }
-
-    public function testEmptyRelativePathIsMatched()
-    {
-        $pattern = $this->pattern('');
-        $request = $this->request('/foo/bar')->withAttribute(Route::PATH_ATTRIBUTE, 'bar');
-        $this->assertNull($pattern->matchedRequest($request));
-
-        $request = $request->withAttribute(Route::PATH_ATTRIBUTE, '');
-        $this->assertInstanceOf(ServerRequestInterface::class, $pattern->matchedRequest($request));
-    }
-
-    public function testAbsolutePathMatchesPathFragment()
-    {
-        $pattern = $this->pattern('/foo/bar');
-        $matched = $pattern->matchedRequest($this->request('/foo/bar/baz/and/anything'));
-        $this->assertInstanceOf(ServerRequestInterface::class, $matched);
-        $this->assertSame('baz/and/anything', $matched->getAttribute(Route::PATH_ATTRIBUTE));
-    }
-
     public function testPathFragmentAndQueryCanBeMatched()
     {
         $pattern = $this->pattern('foo/bar?query=foo');
@@ -198,30 +172,11 @@ class UriPatternTest extends TestCase
         $this->assertInstanceOf(ServerRequestInterface::class, $pattern->matchedRequest($request));
     }
 
-    public function testRelativePathPatternDoesNotMatchBeyondRequestPath()
+    public function testUriFromRelativePathWithQueryAndRootInPrototype_ReturnsUriWithAppendedPath()
     {
-        $pattern = $this->pattern('foo/bar');
-        $matched = $pattern->matchedRequest($this->request('/foo/bar'));
-        $this->assertInstanceOf(ServerRequestInterface::class, $matched);
-        $this->assertNull($pattern->matchedRequest($matched));
-    }
-
-    public function testUriFromRelativePathWithRootInPrototype_ReturnsUriWithAppendedPath()
-    {
-        $pattern   = $this->pattern('bar/slug-string');
-        $prototype = Doubles\FakeUri::fromString('/foo');
-        $this->assertSame('/foo/bar/slug-string', (string) $pattern->uri($prototype, []));
-
         $pattern   = $this->pattern('last/segments?query=string');
         $prototype = Doubles\FakeUri::fromString('/foo/bar');
         $this->assertSame('/foo/bar/last/segments?query=string', (string) $pattern->uri($prototype, []));
-    }
-
-    public function testUriFromRelativePathWithNoRootInPrototype_ReturnsUriWithAbsolutePath()
-    {
-        $pattern   = $this->pattern('bar');
-        $prototype = new Doubles\FakeUri();
-        $this->assertSame('/bar', $pattern->uri($prototype, [])->getPath());
     }
 
     public function testHostStartingWithAsteriskMatchesDomainAndSubdomainRequests()
