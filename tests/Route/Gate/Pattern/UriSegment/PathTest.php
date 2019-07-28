@@ -19,7 +19,7 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class PathTest extends TestCase
 {
-    public function testNotMatchingAbsolutePath_ReturnsNull()
+    public function testNotMatchingAbsolutePattern_ReturnsNull()
     {
         $pattern = $this->pattern('/foo/bar');
         $request = $this->request('/');
@@ -34,7 +34,7 @@ class PathTest extends TestCase
         $this->assertNull($pattern->matchedRequest($request));
     }
 
-    public function testMatchingAbsolutePath_ReturnsRequestWithContextFragment()
+    public function testMatchingAbsolutePattern_ReturnsRequestWithContextFragment()
     {
         $pattern = $this->pattern('/foo/bar');
         $request = $this->request('/foo/bar/baz/and/anything');
@@ -42,7 +42,7 @@ class PathTest extends TestCase
         $this->assertSame('baz/and/anything', $matched->getAttribute(Route::PATH_ATTRIBUTE));
     }
 
-    public function testAbsolutePathIsMatchedWithRequestPathRegardlessOfContext()
+    public function testAbsolutePatternIsMatchedWithPathRegardlessOfContext()
     {
         $pattern = $this->pattern('/foo/bar');
         $request = $this->request('/other/path/foo', 'foo/bar');
@@ -54,7 +54,7 @@ class PathTest extends TestCase
         $this->assertSame('baz/qux', $matched->getAttribute(Route::PATH_ATTRIBUTE));
     }
 
-    public function testNotMatchingRelativePath_ReturnsNull()
+    public function testNotMatchingRelativePattern_ReturnsNull()
     {
         $pattern = $this->pattern('bar/baz');
         $request = $this->request('/foo/bar/baz');
@@ -65,7 +65,7 @@ class PathTest extends TestCase
         $this->assertNull($pattern->matchedRequest($request));
     }
 
-    public function testRelativePathMatchingAbsolutePathWithoutContext_ReturnsRequestWithContextFragment()
+    public function testRelativePatternMatchingAbsolutePathWithoutContext_ReturnsRequestWithContextFragment()
     {
         $pattern = $this->pattern('foo/bar');
         $request = $this->request('/foo/bar/baz/qux');
@@ -74,7 +74,7 @@ class PathTest extends TestCase
         $this->assertSame('baz/qux', $matched->getAttribute(Route::PATH_ATTRIBUTE));
     }
 
-    public function testRelativePathIsMatchedWithContextPathWhenPresent()
+    public function testRelativePatternIsMatchedWithContextPathWhenPresent()
     {
         $pattern = $this->pattern('bar/baz');
         $request = $this->request('/any/path/foo', 'bar/baz/qux');
@@ -83,7 +83,7 @@ class PathTest extends TestCase
         $this->assertSame('qux', $matched->getAttribute(Route::PATH_ATTRIBUTE));
     }
 
-    public function testEmptyRelativePathIsMatchedWhenContextIsEmpty()
+    public function testEmptyRelativePatternIsMatchedWhenContextIsEmpty()
     {
         $pattern = $this->pattern('');
         $request = $this->request('/foo/bar')->withAttribute(Route::PATH_ATTRIBUTE, 'bar');
@@ -93,7 +93,7 @@ class PathTest extends TestCase
         $this->assertInstanceOf(ServerRequestInterface::class, $pattern->matchedRequest($request));
     }
 
-    public function testEmptyPathShouldMatchRootPath()
+    public function testEmptyPatternShouldMatchRootPath()
     {
         $pattern = $this->pattern('');
         $request = $this->request('/');
@@ -101,7 +101,7 @@ class PathTest extends TestCase
         $this->assertSame('', $matched->getAttribute(Route::PATH_ATTRIBUTE));
     }
 
-    public function testRelativePathPatternDoesNotMatchBeyondRequestPath()
+    public function testRelativePatternDoesNotMatchBeyondRequestPath()
     {
         $pattern = $this->pattern('foo/bar');
         $request = $this->request('/foo/bar');
@@ -109,7 +109,7 @@ class PathTest extends TestCase
         $this->assertNull($pattern->matchedRequest($matched));
     }
 
-    public function testUriFromRelativePathWithRootInPrototype_ReturnsUriWithAppendedPath()
+    public function testUriFromRelativePatternWithRootInPrototype_ReturnsUriWithAppendedPath()
     {
         $pattern   = $this->pattern('bar/slug-string');
         $prototype = Doubles\FakeUri::fromString('/foo');
@@ -120,7 +120,7 @@ class PathTest extends TestCase
         $this->assertSame('/foo/bar/last/segments', (string) $pattern->uri($prototype, []));
     }
 
-    public function testUriFromRelativePathWithNoRootInPrototype_ReturnsUriWithAbsolutePath()
+    public function testUriFromRelativePatternWithNoRootInPrototype_ReturnsUriWithAbsolutePath()
     {
         $pattern   = $this->pattern('bar');
         $prototype = new Doubles\FakeUri();
