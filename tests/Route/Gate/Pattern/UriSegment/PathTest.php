@@ -13,6 +13,7 @@ namespace Polymorphine\Routing\Tests\Route\Gate\Pattern\UriSegment;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Exception;
 use Polymorphine\Routing\Tests\Doubles;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -125,6 +126,39 @@ class PathTest extends TestCase
         $pattern   = $this->pattern('bar');
         $prototype = new Doubles\FakeUri();
         $this->assertSame('/bar', $pattern->uri($prototype, [])->getPath());
+    }
+
+    /**
+     * @dataProvider validContextMutation
+     *
+     * @param string      $pattern
+     * @param string      $request
+     * @param null|string $context
+     * @param string      $newContext
+     */
+    public function testContextChangeWithAbsolutePathPattern(string $pattern, string $request, ?string $context, string $newContext)
+    {
+        $pattern = $this->pattern($pattern);
+        $request = $this->request($request, $context);
+        $this->assertSame($newContext, $pattern->matchedRequest($request)->getAttribute(Route::PATH_ATTRIBUTE));
+    }
+
+    public function validContextMutation()
+    {
+        return [
+            ['/foo', '/foo/bar/baz/qux', null, 'bar/baz/qux'],
+            ['/foo', '/foo/bar/baz/qux', 'bar/baz/qux', 'bar/baz/qux'],
+            ['/foo/bar', '/foo/bar/baz/qux', 'bar/baz/qux', 'baz/qux'],
+            ['/foo/bar', '/foo/bar/baz/qux', 'baz/qux', 'baz/qux']
+        ];
+    }
+
+    public function testUriForAbsolutePatternThatDoesntCoverBuiltPrototype_ThrowsException()
+    {
+        $pattern   = $this->pattern('/foo/bar');
+        $prototype = Doubles\FakeUri::fromString('/foo/bar/baz');
+        $this->expectException(Exception\UnreachableEndpointException::class);
+        $pattern->uri($prototype, []);
     }
 
     private function pattern(string $path): Route\Gate\Pattern
