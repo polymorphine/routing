@@ -86,10 +86,10 @@ class PathTest extends TestCase
     public function testEmptyRelativePatternIsMatchedWhenContextIsEmpty()
     {
         $pattern = $this->pattern('');
-        $request = $this->request('/foo/bar')->withAttribute(Route::PATH_ATTRIBUTE, 'bar');
+        $request = $this->request('/foo/bar', 'bar');
         $this->assertNull($pattern->matchedRequest($request));
 
-        $request = $request->withAttribute(Route::PATH_ATTRIBUTE, '');
+        $request = $this->request('/foo/bar', '');
         $this->assertInstanceOf(ServerRequestInterface::class, $pattern->matchedRequest($request));
     }
 
@@ -127,14 +127,14 @@ class PathTest extends TestCase
         $this->assertSame('/bar', $pattern->uri($prototype, [])->getPath());
     }
 
-    private function pattern(string $path)
+    private function pattern(string $path): Route\Gate\Pattern
     {
         return new Route\Gate\Pattern\UriSegment\Path($path);
     }
 
-    private function request(string $uri, string $context = null)
+    private function request(string $uri, ?string $context = null): ServerRequestInterface
     {
         $request = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString($uri));
-        return $context ? $request->withAttribute(Route::PATH_ATTRIBUTE, $context) : $request;
+        return isset($context) ? $request->withAttribute(Route::PATH_ATTRIBUTE, $context) : $request;
     }
 }
