@@ -47,10 +47,17 @@ class Path implements Route\Gate\Pattern
             return ($this->relativePath($request) === '') ? $request->withAttribute(Route::PATH_ATTRIBUTE, '') : null;
         }
 
-        $requestPath = ($this->relative) ? $this->relativePath($request) : $request->getUri()->getPath();
+        $relativePath = $this->relativePath($request);
+        $requestPath  = ($this->relative) ? $relativePath : $request->getUri()->getPath();
 
         if (strpos($requestPath, $this->path) !== 0) { return null; }
-        return $request->withAttribute(Route::PATH_ATTRIBUTE, $this->newPathContext($requestPath, $this->path));
+
+        $newContext = $this->newPathContext($requestPath, $this->path);
+        if (!$this->relative && $newContext && strpos($relativePath, $newContext) === false) {
+            return null;
+        }
+
+        return $request->withAttribute(Route::PATH_ATTRIBUTE, $newContext);
     }
 
     public function uri(UriInterface $prototype, array $params): UriInterface

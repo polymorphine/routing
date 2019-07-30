@@ -43,16 +43,28 @@ class PathTest extends TestCase
         $this->assertSame('baz/and/anything', $matched->getAttribute(Route::PATH_ATTRIBUTE));
     }
 
-    public function testAbsolutePatternIsMatchedWithPathRegardlessOfContext()
+    public function testAbsolutePatternThatReachesCurrentContext_IsMatched()
     {
+        $pattern = $this->pattern('/foo');
+        $request = $this->request('/foo/bar/baz/qux', 'bar/baz/qux');
+        $this->assertInstanceOf(ServerRequestInterface::class, $matched = $pattern->matchedRequest($request));
+        $this->assertSame('bar/baz/qux', $matched->getAttribute(Route::PATH_ATTRIBUTE));
+
         $pattern = $this->pattern('/foo/bar');
-        $request = $this->request('/other/path/foo', 'foo/bar');
+        $request = $this->request('/foo/bar/baz/qux', 'bar/baz/qux');
+        $this->assertInstanceOf(ServerRequestInterface::class, $matched = $pattern->matchedRequest($request));
+        $this->assertSame('baz/qux', $matched->getAttribute(Route::PATH_ATTRIBUTE));
+    }
+
+    public function testAbsolutePatternThatDoesNotReachCurrentContext_IsNotMatched()
+    {
+        $pattern = $this->pattern('/foo');
+        $request = $this->request('/foo/bar/baz/qux', 'baz/qux');
         $this->assertNull($pattern->matchedRequest($request));
 
         $pattern = $this->pattern('/foo/bar');
-        $request = $this->request('/foo/bar/baz/qux', 'any/path');
-        $this->assertInstanceOf(ServerRequestInterface::class, $matched = $pattern->matchedRequest($request));
-        $this->assertSame('baz/qux', $matched->getAttribute(Route::PATH_ATTRIBUTE));
+        $request = $this->request('/foo/bar/baz/qux', 'qux');
+        $this->assertNull($pattern->matchedRequest($request));
     }
 
     public function testNotMatchingRelativePattern_ReturnsNull()
@@ -102,11 +114,12 @@ class PathTest extends TestCase
         $this->assertSame('', $matched->getAttribute(Route::PATH_ATTRIBUTE));
     }
 
-    public function testRelativePatternDoesNotMatchBeyondRequestPath()
+    public function testRelativePatternDoesNotMatchAlreadyMatchedPath()
     {
         $pattern = $this->pattern('foo/bar');
         $request = $this->request('/foo/bar');
         $this->assertInstanceOf(ServerRequestInterface::class, $matched = $pattern->matchedRequest($request));
+        $this->assertSame('', $matched->getAttribute(Route::PATH_ATTRIBUTE));
         $this->assertNull($pattern->matchedRequest($matched));
     }
 
