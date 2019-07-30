@@ -56,15 +56,17 @@ class PathTest extends TestCase
         $this->assertSame('baz/qux', $matched->getAttribute(Route::PATH_ATTRIBUTE));
     }
 
-    public function testAbsolutePatternThatDoesNotReachCurrentContext_IsNotMatched()
+    public function testAbsolutePatternThatDoesNotReachCurrentContext_IsMatchedWithoutContextChange()
     {
         $pattern = $this->pattern('/foo');
         $request = $this->request('/foo/bar/baz/qux', 'baz/qux');
-        $this->assertNull($pattern->matchedRequest($request));
+        $this->assertInstanceOf(ServerRequestInterface::class, $matched = $pattern->matchedRequest($request));
+        $this->assertSame('baz/qux', $matched->getAttribute(Route::PATH_ATTRIBUTE));
 
         $pattern = $this->pattern('/foo/bar');
         $request = $this->request('/foo/bar/baz/qux', 'qux');
-        $this->assertNull($pattern->matchedRequest($request));
+        $this->assertInstanceOf(ServerRequestInterface::class, $matched = $pattern->matchedRequest($request));
+        $this->assertSame('qux', $matched->getAttribute(Route::PATH_ATTRIBUTE));
     }
 
     public function testNotMatchingRelativePattern_ReturnsNull()
@@ -166,12 +168,19 @@ class PathTest extends TestCase
         ];
     }
 
-    public function testUriForAbsolutePatternThatDoesntCoverBuiltPrototype_ThrowsException()
+    public function testUriForAbsolutePatternThatDoesntCoverBuiltPrototype_ReturnsPrototype()
     {
         $pattern   = $this->pattern('/foo/bar');
         $prototype = Doubles\FakeUri::fromString('/foo/bar/baz');
+        $this->assertSame($prototype, $pattern->uri($prototype, []));
+    }
+
+    public function testUriForAbsolutePatternThatDoesntMatchBuiltPrototype_ThrowsException()
+    {
+        $pattern   = $this->pattern('/bar');
+        $prototype = Doubles\FakeUri::fromString('/foo/bar/baz');
         $this->expectException(Exception\UnreachableEndpointException::class);
-        $pattern->uri($prototype, []);
+        $this->assertSame($prototype, $pattern->uri($prototype, []));
     }
 
     private function pattern(string $path): Route\Gate\Pattern

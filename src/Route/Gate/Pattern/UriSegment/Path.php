@@ -54,7 +54,7 @@ class Path implements Route\Gate\Pattern
 
         $newContext = $this->newPathContext($requestPath, $this->path);
         if (!$this->relative && $newContext && strpos($relativePath, $newContext) === false) {
-            return null;
+            return $request;
         }
 
         return $request->withAttribute(Route::PATH_ATTRIBUTE, $newContext);
@@ -69,13 +69,15 @@ class Path implements Route\Gate\Pattern
             return $prototype->withPath($prototypePath . '/' . $this->path);
         }
 
-        $this->checkConflict(substr($this->path, 0, strlen($prototypePath)), $prototypePath);
-        return $prototype->withPath($this->path);
+        $routeSegment = substr($this->path, 0, strlen($prototypePath));
+        $this->checkConflict($routeSegment, $prototypePath);
+
+        return $routeSegment === $this->path ? $prototype : $prototype->withPath($this->path);
     }
 
     private function checkConflict(string $routeSegment, string $prototypeSegment)
     {
-        if ($prototypeSegment && $routeSegment !== $prototypeSegment) {
+        if ($prototypeSegment && strpos($prototypeSegment, $routeSegment) !== 0) {
             $message = 'Uri conflict in `%s` prototype segment for `%s` uri';
             throw new Exception\UnreachableEndpointException(sprintf($message, $prototypeSegment, $this->path));
         }
