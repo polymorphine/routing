@@ -29,12 +29,7 @@ trait PathContextMethods
 
     private function splitRelativePath(ServerRequestInterface $request): array
     {
-        return $this->splitPathSegment($this->relativePath($request));
-    }
-
-    private function splitPathSegment(string $path)
-    {
-        return explode('/', ltrim($path, '/'), 2) + [null, ''];
+        return explode('/', ltrim($this->relativePath($request), '/'), 2) + [null, ''];
     }
 
     private function newPathContext(string $relativePath, string $matchedPath): string
