@@ -22,14 +22,14 @@ trait PathContextMethods
         return $request->getAttribute(Route::PATH_ATTRIBUTE) ?? ltrim($request->getUri()->getPath(), '/');
     }
 
-    private function splitRelativePath(ServerRequestInterface $request): array
+    private function isPathFullyMatched(ServerRequestInterface $request): bool
     {
-        return $this->splitPathSegment($this->relativePath($request));
+        return !$this->relativePath($request) || $request->getAttribute(self::WILDCARD_ATTRIBUTE);
     }
 
-    private function splitPathSegment(string $path)
+    private function splitRelativePath(ServerRequestInterface $request): array
     {
-        return explode('/', ltrim($path, '/'), 2) + [null, ''];
+        return explode('/', ltrim($this->relativePath($request), '/'), 2) + [null, ''];
     }
 
     private function newPathContext(string $relativePath, string $matchedPath): string

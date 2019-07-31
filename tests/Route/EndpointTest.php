@@ -46,4 +46,33 @@ class EndpointTest extends TestCase
         $request = (new Doubles\FakeServerRequest('OPTIONS'))->withAttribute(Route::METHODS_ATTRIBUTE, $methods);
         $this->assertSame([implode(', ', $methods)], $route->forward($request, new Doubles\FakeResponse())->getHeader('Allow'));
     }
+
+    public function testForwardedRequestWithFullyProcessedPathOrWildcardAttribute_ReturnsResponse()
+    {
+        $route     = new Doubles\DummyEndpoint();
+        $request   = new Doubles\FakeServerRequest();
+        $prototype = new Doubles\FakeResponse();
+
+        $request->uri = Doubles\FakeUri::fromString('http://no.path/');
+        $this->assertNotSame($prototype, $route->forward($request, $prototype));
+
+        $request->uri = Doubles\FakeUri::fromString('http://with.path/some/path');
+        $this->assertNotSame($prototype, $route->forward($request->withAttribute(Route::PATH_ATTRIBUTE, ''), $prototype));
+
+        $request->uri = Doubles\FakeUri::fromString('http://with.path/some/path');
+        $this->assertNotSame($prototype, $route->forward($request->withAttribute(Route::WILDCARD_ATTRIBUTE, true), $prototype));
+    }
+
+    public function testForwardedRequestWithUnprocessedPathAndNoWildcardAttribute_ReturnsPrototype()
+    {
+        $route     = new Doubles\DummyEndpoint();
+        $request   = new Doubles\FakeServerRequest();
+        $prototype = new Doubles\FakeResponse();
+
+        $request->uri = Doubles\FakeUri::fromString('http://with.path/some/path');
+        $this->assertSame($prototype, $route->forward($request, $prototype));
+
+        $request->uri = Doubles\FakeUri::fromString('http://path.from.attribute');
+        $this->assertSame($prototype, $route->forward($request->withAttribute(Route::PATH_ATTRIBUTE, 'some/path'), $prototype));
+    }
 }

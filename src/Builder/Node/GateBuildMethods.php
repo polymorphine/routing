@@ -80,7 +80,13 @@ trait GateBuildMethods
     public function path(string $path, array $regexp = []): self
     {
         $this->context->addGate(function (Route $route) use ($path, $regexp) {
-            $segments = explode('/', trim($path, '/'));
+            if (substr($path, -1) === '*') {
+                $route = new Route\Gate\WildcardPathGate($route);
+            }
+
+            if (!$path = trim($path, '/*')) { return $route; }
+
+            $segments = explode('/', $path);
             while ($segment = array_pop($segments)) {
                 $pattern = $this->pathSegment($segment, $regexp);
                 $route = $pattern

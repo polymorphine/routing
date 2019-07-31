@@ -132,7 +132,6 @@ class UriPatternTest extends TestCase
         return [
             ['http:', 'https://example.com'],
             ['https://www.example.com', 'https://example.com'],
-            ['/foo/bar/baz', '/foo//baz'],
             ['//user:pass@example.com', '//www.example.com'],
             ['?foo=bar&some=value', '?foo=bar&some=otherValue'],
             ['?foo=&some=value', '?foo=something&some=value']
@@ -148,80 +147,35 @@ class UriPatternTest extends TestCase
 
     public function testUriMatchingPrototypeSegment_ReturnsUriWithMissingPartAppended()
     {
-        $pattern   = $this->pattern('/foo/bar/baz');
+        $pattern   = $this->pattern('bar/baz');
         $prototype = Doubles\FakeUri::fromString('/foo/bar');
-        $this->assertSame('/foo/bar/baz', (string) $pattern->uri($prototype, []));
+        $this->assertSame('/foo/bar/bar/baz', (string) $pattern->uri($prototype, []));
 
-        $pattern   = $this->pattern('/foo/bar?fizz=buzz&other=param');
+        $pattern   = $this->pattern('bar/baz?fizz=buzz&other=param');
         $prototype = Doubles\FakeUri::fromString('/foo?fizz=buzz');
-        $this->assertSame('/foo/bar?fizz=buzz&other=param', (string) $pattern->uri($prototype, []));
+        $this->assertSame('/foo/bar/baz?fizz=buzz&other=param', (string) $pattern->uri($prototype, []));
     }
 
-    public function testRelativePathIsMatched()
+    public function testPathFragmentAndQueryCanBeMatched()
     {
-        $pattern = $this->pattern('bar');
-        $matched = $pattern->matchedRequest($this->request('/foo/bar')->withAttribute(Route::PATH_ATTRIBUTE, 'bar'));
-        $this->assertInstanceOf(ServerRequestInterface::class, $matched);
-        $this->assertSame('', $matched->getAttribute(Route::PATH_ATTRIBUTE));
-    }
-
-    public function testEmptyRelativePathIsMatched()
-    {
-        $pattern = $this->pattern('');
-        $request = $this->request('/foo/bar')->withAttribute(Route::PATH_ATTRIBUTE, 'bar');
-        $this->assertNull($pattern->matchedRequest($request));
-
-        $request = $request->withAttribute(Route::PATH_ATTRIBUTE, '');
-        $this->assertInstanceOf(ServerRequestInterface::class, $pattern->matchedRequest($request));
-    }
-
-    public function testAbsolutePathWithAsteriskMatchesPathFragment()
-    {
-        $pattern = $this->pattern('/foo/bar*');
-        $matched = $pattern->matchedRequest($this->request('/foo/bar/baz/and/anything'));
-        $this->assertInstanceOf(ServerRequestInterface::class, $matched);
-        $this->assertSame('baz/and/anything', $matched->getAttribute(Route::PATH_ATTRIBUTE));
-    }
-
-    public function testPathWithAsteriskAndQueryCanBeMatched()
-    {
-        $pattern = $this->pattern('foo/bar*?query=foo');
+        $pattern = $this->pattern('foo/bar?query=foo');
         $request = $this->request('//example.com/foo/bar/baz?param=bar&query=foo');
         $this->assertInstanceOf(ServerRequestInterface::class, $pattern->matchedRequest($request));
     }
 
-    public function testPathWithAsteriskAndQueryCanBeMatchedInRelativeContext()
+    public function testPathFragmentAndQueryCanBeMatchedInRelativeContext()
     {
-        $pattern = $this->pattern('foo/bar*?query=foo');
+        $pattern = $this->pattern('foo/bar?query=foo');
         $request = $this->request('//example.com/fizz/foo/bar/baz?param=bar&query=foo')
                         ->withAttribute(Route::PATH_ATTRIBUTE, 'foo/bar/baz');
         $this->assertInstanceOf(ServerRequestInterface::class, $pattern->matchedRequest($request));
     }
 
-    public function testRelativePathPatternDoesNotMatchBeyondRequestPath()
+    public function testUriFromRelativePathWithQueryAndRootInPrototype_ReturnsUriWithAppendedPath()
     {
-        $pattern = $this->pattern('foo/bar*');
-        $matched = $pattern->matchedRequest($this->request('/foo/bar'));
-        $this->assertInstanceOf(ServerRequestInterface::class, $matched);
-        $this->assertNull($pattern->matchedRequest($matched));
-    }
-
-    public function testUriFromRelativePathWithRootInPrototype_ReturnsUriWithAppendedPath()
-    {
-        $pattern   = $this->pattern('bar/slug-string');
-        $prototype = Doubles\FakeUri::fromString('/foo');
-        $this->assertSame('/foo/bar/slug-string', (string) $pattern->uri($prototype, []));
-
         $pattern   = $this->pattern('last/segments?query=string');
         $prototype = Doubles\FakeUri::fromString('/foo/bar');
         $this->assertSame('/foo/bar/last/segments?query=string', (string) $pattern->uri($prototype, []));
-    }
-
-    public function testUriFromRelativePathWithNoRootInPrototype_ReturnsUriWithAbsolutePath()
-    {
-        $pattern   = $this->pattern('bar');
-        $prototype = new Doubles\FakeUri();
-        $this->assertSame('/bar', $pattern->uri($prototype, [])->getPath());
     }
 
     public function testHostStartingWithAsteriskMatchesDomainAndSubdomainRequests()

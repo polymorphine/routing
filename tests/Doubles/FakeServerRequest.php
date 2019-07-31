@@ -37,7 +37,7 @@ class FakeServerRequest implements ServerRequestInterface
 
     public function getUri()
     {
-        return $this->uri ?: FakeUri::fromString('//example.com/foo/bar');
+        return $this->uri ?: FakeUri::fromString('//example.com');
     }
 
     public function getRequestTarget()

@@ -29,8 +29,12 @@ use Psr\Http\Message\UriInterface;
  */
 abstract class Endpoint implements Route
 {
+    use Route\Gate\Pattern\PathContextMethods;
+
     public function forward(Request $request, Response $prototype): Response
     {
+        if (!$this->isPathFullyMatched($request)) { return $prototype; }
+
         return $this->optionsResponse($request, $prototype) ?: $this->execute($request, $prototype);
     }
 

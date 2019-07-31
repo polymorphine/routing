@@ -75,6 +75,36 @@ class RouteNodeTest extends TestCase
         $builder->build();
     }
 
+    public function testNoWildcardPathPatternForNotFullyMatchedRequestPath_ReturnsPrototype()
+    {
+        $request   = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString('http://example.com/foo/bar/baz'));
+        $prototype = new Doubles\FakeResponse();
+
+        $builder = $this->builder()->path('foo/bar');
+        $builder->callback($this->callbackResponse($response));
+        $this->assertSame($prototype, $builder->build()->forward($request, $prototype));
+    }
+
+    /**
+     * @dataProvider wildcardPaths
+     *
+     * @param string $path
+     */
+    public function testWildcardPathPatternForNotFullyMatchedRequestPath_ReturnsEndpointResponse(string $path)
+    {
+        $request   = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString('http://example.com/foo/bar/baz'));
+        $prototype = new Doubles\FakeResponse();
+
+        $builder = $this->builder()->path($path);
+        $builder->callback($this->callbackResponse($response));
+        $this->assertSame($response, $builder->build()->forward($request, $prototype));
+    }
+
+    public function wildcardPaths()
+    {
+        return [['foo/bar*'], ['foo/bar/*'], ['foo*'], ['foo/*'], ['*']];
+    }
+
     public function testGateWrappers()
     {
         $attrCheckCallback = function (ServerRequestInterface $request) {
@@ -107,7 +137,7 @@ class RouteNodeTest extends TestCase
 
     public function checkCase(Node\RouteNode $builder, ServerRequestInterface $match, ServerRequestInterface $block)
     {
-        $builder->callback($this->callbackResponse($response));
+        $builder->path('*')->callback($this->callbackResponse($response));
         $route = $builder->build();
 
         $prototype = new Doubles\FakeResponse();
@@ -132,7 +162,7 @@ class RouteNodeTest extends TestCase
     {
         $builder = $this->builder();
         $builder->method('PATCH')
-                ->pattern(Route\Gate\Pattern\UriPattern::fromUriString('https:/foo*'))
+                ->pattern(Route\Gate\Pattern\UriPattern::fromUriString('https:/foo'))
                 ->pattern(new Uri\PathSegment('id', '[a-z]+'))
                 ->callbackGate(function (ServerRequestInterface $request) { return $request->getAttribute('pass') ? $request : null; })
                 ->callback($this->callbackResponse($response));
@@ -162,8 +192,8 @@ class RouteNodeTest extends TestCase
     public function testGatesAreEvaluatedInCorrectOrder()
     {
         $builder = $this->builder();
-        $builder->pattern(new Uri\Path('foo*'))
-                ->pattern(new Uri\Path('bar*'))
+        $builder->pattern(new Uri\Path('foo'))
+                ->pattern(new Uri\Path('bar'))
                 ->callback($this->callbackResponse($response));
         $route = $builder->build();
 
@@ -181,9 +211,9 @@ class RouteNodeTest extends TestCase
             return new Doubles\FakeResponse('response:' . $request->getUri()->getPath());
         };
         $builder = $this->builder();
-        $split   = $builder->pattern(new Uri\Path('foo*'))->responseScan();
-        $split->route('routeA')->pattern(new Uri\Path('bar*'))->callback($endpoint);
-        $split->route('routeB')->pattern(new Uri\Path('baz*'))->callback($endpoint);
+        $split   = $builder->pattern(new Uri\Path('foo'))->responseScan();
+        $split->route('routeA')->pattern(new Uri\Path('bar'))->callback($endpoint);
+        $split->route('routeB')->pattern(new Uri\Path('baz'))->callback($endpoint);
         $route = $builder->build();
 
         $prototype = new Doubles\FakeResponse();
@@ -201,9 +231,9 @@ class RouteNodeTest extends TestCase
             };
         };
         $builder = $this->builder();
-        $split   = $builder->pattern(new Uri\Path('foo*'))->responseScan();
-        $split->route('routeA')->pattern(new Uri\Path('bar*'))->callback($endpoint('A'));
-        $split->route('routeB')->pattern(new Uri\Path('baz*'))->callback($endpoint('B'));
+        $split   = $builder->pattern(new Uri\Path('foo'))->responseScan();
+        $split->route('routeA')->pattern(new Uri\Path('bar'))->callback($endpoint('A'));
+        $split->route('routeB')->pattern(new Uri\Path('baz'))->callback($endpoint('B'));
         $route = $builder->build();
 
         $builder = new Node\MethodSwitchNode($this->context());
