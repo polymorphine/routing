@@ -20,6 +20,9 @@ use Psr\Http\Message\UriInterface;
 /**
  * Dynamic Pattern performing request target matching with parameters
  * assignment and building URI using supplied dynamic parameters.
+ *
+ * NOTE: This pattern is intended as temporary solution handling hazy
+ *       routing system of legacy APIs in the process of refactoring.
  */
 class DynamicTargetMask implements Route\Gate\Pattern
 {
