@@ -12,7 +12,6 @@
 namespace Polymorphine\Routing\Route\Gate\Pattern\UriSegment;
 
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 
@@ -25,61 +24,33 @@ class Path implements Route\Gate\Pattern
     use Route\Gate\Pattern\PathContextMethods;
 
     private $path;
-    private $relative;
 
     /**
      * Path pattern may be full path required within request URI
-     * or part of it. When leading slash is omitted path is matched
-     * and created relatively to current processing state in routing
-     * structure.
+     * or part of it. Path is matched and created relatively to
+     * current processing state in routing structure.
      *
-     * @param string $path
+     * @param string $path Full path or fragment without leading and trailing slashes
      */
     public function __construct(string $path)
     {
-        $this->path     = $path;
-        $this->relative = (!$path || $path[0] !== '/');
+        $this->path = trim($path, '/');
     }
 
     public function matchedRequest(ServerRequestInterface $request): ?ServerRequestInterface
     {
+        $requestPath = $this->relativePath($request);
         if (!$this->path) {
-            return ($this->relativePath($request) === '') ? $request->withAttribute(Route::PATH_ATTRIBUTE, '') : null;
+            return ($requestPath === $this->path) ? $request->withAttribute(Route::PATH_ATTRIBUTE, '') : null;
         }
 
-        $relativePath = $this->relativePath($request);
-        $requestPath  = ($this->relative) ? $relativePath : $request->getUri()->getPath();
-
-        if (strpos($requestPath, $this->path) !== 0) { return null; }
-
-        $newContext = $this->newPathContext($requestPath, $this->path);
-        if (!$this->relative && $newContext && strpos($relativePath, $newContext) === false) {
-            return $request;
-        }
-
-        return $request->withAttribute(Route::PATH_ATTRIBUTE, $newContext);
+        return (strpos($requestPath, $this->path) === 0)
+            ? $request->withAttribute(Route::PATH_ATTRIBUTE, $this->newPathContext($requestPath, $this->path))
+            : null;
     }
 
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
-        if (!$this->path) { return $prototype; }
-
-        $prototypePath = $prototype->getPath();
-        if ($this->relative) {
-            return $prototype->withPath($prototypePath . '/' . $this->path);
-        }
-
-        $routeSegment = substr($this->path, 0, strlen($prototypePath));
-        $this->checkConflict($routeSegment, $prototypePath);
-
-        return $routeSegment === $this->path ? $prototype : $prototype->withPath($this->path);
-    }
-
-    private function checkConflict(string $routeSegment, string $prototypeSegment)
-    {
-        if ($prototypeSegment && strpos($prototypeSegment, $routeSegment) !== 0) {
-            $message = 'Uri conflict in `%s` prototype segment for `%s` uri';
-            throw new Exception\UnreachableEndpointException(sprintf($message, $prototypeSegment, $this->path));
-        }
+        return $this->path ? $prototype->withPath($prototype->getPath() . '/' . $this->path) : $prototype;
     }
 }

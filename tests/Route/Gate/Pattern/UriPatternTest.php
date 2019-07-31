@@ -132,7 +132,6 @@ class UriPatternTest extends TestCase
         return [
             ['http:', 'https://example.com'],
             ['https://www.example.com', 'https://example.com'],
-            ['/foo/bar/baz', '/foo//baz'],
             ['//user:pass@example.com', '//www.example.com'],
             ['?foo=bar&some=value', '?foo=bar&some=otherValue'],
             ['?foo=&some=value', '?foo=something&some=value']
@@ -148,13 +147,13 @@ class UriPatternTest extends TestCase
 
     public function testUriMatchingPrototypeSegment_ReturnsUriWithMissingPartAppended()
     {
-        $pattern   = $this->pattern('/foo/bar/baz');
+        $pattern   = $this->pattern('bar/baz');
         $prototype = Doubles\FakeUri::fromString('/foo/bar');
-        $this->assertSame('/foo/bar/baz', (string) $pattern->uri($prototype, []));
+        $this->assertSame('/foo/bar/bar/baz', (string) $pattern->uri($prototype, []));
 
-        $pattern   = $this->pattern('/foo/bar?fizz=buzz&other=param');
+        $pattern   = $this->pattern('bar/baz?fizz=buzz&other=param');
         $prototype = Doubles\FakeUri::fromString('/foo?fizz=buzz');
-        $this->assertSame('/foo/bar?fizz=buzz&other=param', (string) $pattern->uri($prototype, []));
+        $this->assertSame('/foo/bar/baz?fizz=buzz&other=param', (string) $pattern->uri($prototype, []));
     }
 
     public function testPathFragmentAndQueryCanBeMatched()

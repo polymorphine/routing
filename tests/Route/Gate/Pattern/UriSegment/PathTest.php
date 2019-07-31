@@ -13,64 +13,18 @@ namespace Polymorphine\Routing\Tests\Route\Gate\Pattern\UriSegment;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Exception;
 use Polymorphine\Routing\Tests\Doubles;
 use Psr\Http\Message\ServerRequestInterface;
 
 
 class PathTest extends TestCase
 {
-    public function testNotMatchingAbsolutePattern_ReturnsNull()
+    public function testNotMatchingPattern_ReturnsNull()
     {
-        $pattern = $this->pattern('/foo/bar');
-        $request = $this->request('/');
-        $this->assertNull($pattern->matchedRequest($request));
-
         $pattern = $this->pattern('/foo/bar');
         $request = $this->request('/foo');
         $this->assertNull($pattern->matchedRequest($request));
 
-        $pattern = $this->pattern('/foo/bar');
-        $request = $this->request('/foo/something/bar');
-        $this->assertNull($pattern->matchedRequest($request));
-    }
-
-    public function testMatchingAbsolutePattern_ReturnsRequestWithContextFragment()
-    {
-        $pattern = $this->pattern('/foo/bar');
-        $request = $this->request('/foo/bar/baz/and/anything');
-        $this->assertInstanceOf(ServerRequestInterface::class, $matched = $pattern->matchedRequest($request));
-        $this->assertSame('baz/and/anything', $matched->getAttribute(Route::PATH_ATTRIBUTE));
-    }
-
-    public function testAbsolutePatternThatReachesCurrentContext_IsMatched()
-    {
-        $pattern = $this->pattern('/foo');
-        $request = $this->request('/foo/bar/baz/qux', 'bar/baz/qux');
-        $this->assertInstanceOf(ServerRequestInterface::class, $matched = $pattern->matchedRequest($request));
-        $this->assertSame('bar/baz/qux', $matched->getAttribute(Route::PATH_ATTRIBUTE));
-
-        $pattern = $this->pattern('/foo/bar');
-        $request = $this->request('/foo/bar/baz/qux', 'bar/baz/qux');
-        $this->assertInstanceOf(ServerRequestInterface::class, $matched = $pattern->matchedRequest($request));
-        $this->assertSame('baz/qux', $matched->getAttribute(Route::PATH_ATTRIBUTE));
-    }
-
-    public function testAbsolutePatternThatDoesNotReachCurrentContext_IsMatchedWithoutContextChange()
-    {
-        $pattern = $this->pattern('/foo');
-        $request = $this->request('/foo/bar/baz/qux', 'baz/qux');
-        $this->assertInstanceOf(ServerRequestInterface::class, $matched = $pattern->matchedRequest($request));
-        $this->assertSame('baz/qux', $matched->getAttribute(Route::PATH_ATTRIBUTE));
-
-        $pattern = $this->pattern('/foo/bar');
-        $request = $this->request('/foo/bar/baz/qux', 'qux');
-        $this->assertInstanceOf(ServerRequestInterface::class, $matched = $pattern->matchedRequest($request));
-        $this->assertSame('qux', $matched->getAttribute(Route::PATH_ATTRIBUTE));
-    }
-
-    public function testNotMatchingRelativePattern_ReturnsNull()
-    {
         $pattern = $this->pattern('bar/baz');
         $request = $this->request('/foo/bar/baz');
         $this->assertNull($pattern->matchedRequest($request));
@@ -80,7 +34,7 @@ class PathTest extends TestCase
         $this->assertNull($pattern->matchedRequest($request));
     }
 
-    public function testRelativePatternMatchingAbsolutePathWithoutContext_ReturnsRequestWithContextFragment()
+    public function testPatternMatchingAbsolutePathWithoutContext_ReturnsRequestWithContextFragment()
     {
         $pattern = $this->pattern('foo/bar');
         $request = $this->request('/foo/bar/baz/qux');
@@ -89,16 +43,16 @@ class PathTest extends TestCase
         $this->assertSame('baz/qux', $matched->getAttribute(Route::PATH_ATTRIBUTE));
     }
 
-    public function testRelativePatternIsMatchedWithContextPathWhenPresent()
+    public function testPatternIsMatchedRelativelyWithContextPathWhenPresent()
     {
         $pattern = $this->pattern('bar/baz');
-        $request = $this->request('/any/path/foo', 'bar/baz/qux');
+        $request = $this->request('/foo/bar/baz/qux', 'bar/baz/qux');
         $matched = $pattern->matchedRequest($request);
         $this->assertInstanceOf(ServerRequestInterface::class, $matched);
         $this->assertSame('qux', $matched->getAttribute(Route::PATH_ATTRIBUTE));
     }
 
-    public function testEmptyRelativePatternIsMatchedWhenContextIsEmpty()
+    public function testEmptyPatternIsMatchedWhenContextIsEmpty()
     {
         $pattern = $this->pattern('');
         $request = $this->request('/foo/bar', 'bar');
@@ -116,7 +70,7 @@ class PathTest extends TestCase
         $this->assertSame('', $matched->getAttribute(Route::PATH_ATTRIBUTE));
     }
 
-    public function testRelativePatternDoesNotMatchAlreadyMatchedPath()
+    public function testPatternDoesNotMatchAlreadyMatchedPath()
     {
         $pattern = $this->pattern('foo/bar');
         $request = $this->request('/foo/bar');
@@ -136,51 +90,11 @@ class PathTest extends TestCase
         $this->assertSame('/foo/bar/last/segments', (string) $pattern->uri($prototype, []));
     }
 
-    public function testUriFromRelativePatternWithNoRootInPrototype_ReturnsUriWithAbsolutePath()
+    public function testUriWithNoRootInPrototype_ReturnsUriWithAbsolutePath()
     {
         $pattern   = $this->pattern('bar');
         $prototype = new Doubles\FakeUri();
         $this->assertSame('/bar', $pattern->uri($prototype, [])->getPath());
-    }
-
-    /**
-     * @dataProvider validContextMutation
-     *
-     * @param string      $pattern
-     * @param string      $request
-     * @param null|string $context
-     * @param string      $newContext
-     */
-    public function testContextChangeWithAbsolutePathPattern(string $pattern, string $request, ?string $context, string $newContext)
-    {
-        $pattern = $this->pattern($pattern);
-        $request = $this->request($request, $context);
-        $this->assertSame($newContext, $pattern->matchedRequest($request)->getAttribute(Route::PATH_ATTRIBUTE));
-    }
-
-    public function validContextMutation()
-    {
-        return [
-            ['/foo', '/foo/bar/baz/qux', null, 'bar/baz/qux'],
-            ['/foo', '/foo/bar/baz/qux', 'bar/baz/qux', 'bar/baz/qux'],
-            ['/foo/bar', '/foo/bar/baz/qux', 'bar/baz/qux', 'baz/qux'],
-            ['/foo/bar', '/foo/bar/baz/qux', 'baz/qux', 'baz/qux']
-        ];
-    }
-
-    public function testUriForAbsolutePatternThatDoesntCoverBuiltPrototype_ReturnsPrototype()
-    {
-        $pattern   = $this->pattern('/foo/bar');
-        $prototype = Doubles\FakeUri::fromString('/foo/bar/baz');
-        $this->assertSame($prototype, $pattern->uri($prototype, []));
-    }
-
-    public function testUriForAbsolutePatternThatDoesntMatchBuiltPrototype_ThrowsException()
-    {
-        $pattern   = $this->pattern('/bar');
-        $prototype = Doubles\FakeUri::fromString('/foo/bar/baz');
-        $this->expectException(Exception\UnreachableEndpointException::class);
-        $this->assertSame($prototype, $pattern->uri($prototype, []));
     }
 
     private function pattern(string $path): Route\Gate\Pattern
