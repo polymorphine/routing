@@ -129,6 +129,18 @@ class QueryTest extends TestCase
         ];
     }
 
+    public function testUriMethodParamsSetQueryParametersForUndefinedPatternValues()
+    {
+        $pattern   = $this->pattern('foo&bar&baz=qux');
+        $prototype = $this->uri('');
+
+        $uri = $pattern->uri($prototype, ['foo' => 'fizz', 'baz' => 'ignored']);
+        $this->assertSame('foo=fizz&bar&baz=qux', $uri->getQuery());
+
+        $uri = $pattern->uri($uri, ['foo' => 'ignored', 'bar' => 'buzz']);
+        $this->assertSame('foo=fizz&bar=buzz&baz=qux', $uri->getQuery());
+    }
+
     private function pattern(string $query): Pattern
     {
         return new Pattern\UriSegment\Query($query);
