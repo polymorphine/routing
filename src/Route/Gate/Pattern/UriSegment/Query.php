@@ -52,38 +52,40 @@ class Query implements Route\Gate\Pattern
 
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
-        return $prototype->withQuery($this->combinedQuery($prototype->getQuery()));
+        return $prototype->withQuery($this->combinedQuery($prototype->getQuery(), $params));
     }
 
-    private function combinedQuery(string $prototypeQuery)
+    private function combinedQuery(string $prototypeQuery, array $params): string
     {
-        if (empty($prototypeQuery)) { return $this->query; }
+        if (empty($prototypeQuery) && !$params) { return $this->query; }
 
-        $requiredSegments  = $this->queryValues($this->query);
-        $prototypeSegments = $this->queryValues($prototypeQuery);
+        $required  = $this->queryValues($this->query);
+        $prototype = $this->queryValues($prototypeQuery);
 
-        foreach ($requiredSegments as $name => $value) {
-            if (isset($value, $prototypeSegments[$name]) && $prototypeSegments[$name] !== $value) {
-                $message = 'Query param conflict for `%s` key in `%s` query';
-                throw new Exception\UnreachableEndpointException(sprintf($message, $name, (string) $this->query));
-            }
-
-            if (!isset($value) && isset($prototypeSegments[$name])) {
-                continue;
-            }
-
-            $prototypeSegments[$name] = $value;
+        foreach ($required as $name => $value) {
+            if ($this->isDefined($prototype, $name, $value)) { continue; }
+            $prototype[$name] = $value ?? $params[$name] ?? null;
         }
 
         $query = [];
-        foreach ($prototypeSegments as $name => $value) {
+        foreach ($prototype as $name => $value) {
             $query[] = isset($value) ? $name . '=' . $value : $name;
         }
 
         return implode('&', $query);
     }
 
-    private function queryMatch($requestQuery)
+    private function isDefined(array $prototype, string $name, ?string $value): bool
+    {
+        if (!isset($prototype[$name])) { return false; }
+        if (isset($value) && $prototype[$name] !== $value) {
+            $message = 'Query param conflict for `%s` key in `%s` query pattern';
+            throw new Exception\UnreachableEndpointException(sprintf($message, $name, $this->query));
+        }
+        return true;
+    }
+
+    private function queryMatch($requestQuery): bool
     {
         if (empty($requestQuery)) { return false; }
 
@@ -91,7 +93,7 @@ class Query implements Route\Gate\Pattern
         $requestSegments  = $this->queryValues($requestQuery);
 
         foreach ($requiredSegments as $key => $value) {
-            if (!isset($requestSegments[$key])) { return false; }
+            if (!array_key_exists($key, $requestSegments)) { return false; }
             if (!isset($value)) { continue; }
             if ($value !== $requestSegments[$key]) { return false; }
         }
@@ -101,7 +103,7 @@ class Query implements Route\Gate\Pattern
 
     private function queryValues(string $query): array
     {
-        $segments = explode('&', $query);
+        $segments = $query ? explode('&', $query) : [];
 
         $segmentValues = [];
         foreach ($segments as $segment) {

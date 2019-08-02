@@ -60,6 +60,24 @@ class DynamicTargetMaskTest extends TestCase
         $this->assertSame($attr, $pattern->matchedRequest($request)->getAttributes());
     }
 
+    public function testPatternWithNoQueryParamValueMatchesAnyValue()
+    {
+        $pattern = $this->pattern('?foo&fizz');
+        $request = $this->request('https://example.com/path?fizz=buzz&foo=bar-125&anything=else');
+        $this->assertInstanceOf(ServerRequestInterface::class, $pattern->matchedRequest($request));
+    }
+
+    public function testPatternWithEmptyQueryParamsMatchEmptyValue()
+    {
+        $pattern = $this->pattern('?foo=');
+        $request = $this->request('https://example.com/path?fizz=buzz&foo=&anything=else');
+        $this->assertInstanceOf(ServerRequestInterface::class, $pattern->matchedRequest($request));
+
+        $pattern = $this->pattern('?foo=');
+        $request = $this->request('https://example.com/path?fizz=buzz&foo=123&anything=else');
+        $this->assertNull($pattern->matchedRequest($request));
+    }
+
     /**
      * @dataProvider matchingRequests
      *
@@ -207,9 +225,9 @@ class DynamicTargetMaskTest extends TestCase
     public function prototypeConflict()
     {
         return [
-            ['/user/{#id}', '/some/other/path'],
-            ['/foo/{#id}?some=query', '?other=query'],
-            ['/foo/bar/baz', '/foo/baz']
+            'different absolute paths' => ['/foo/bar/baz', '/foo/baz'],
+            'different query param fizz' => ['/foo/bar?anything&fizz=buzz', '?anything=foo&fizz=baz'],
+            'different query param fizz (defined empty)' => ['/foo/{#id}?some=query&fizz=buzz', '?some=query&fizz=']
         ];
     }
 
@@ -221,7 +239,7 @@ class DynamicTargetMaskTest extends TestCase
      * @param $params
      * @param $expected
      */
-    public function testUriMatchingPrototypeSegment_ReturnsUriWithMissingPartAppended($pattern, $proto, $params, $expected)
+    public function testUriMatchingPrototypeSegment_ReturnsUriWithMissingPartsAppended($pattern, $proto, $params, $expected)
     {
         $pattern = $this->pattern($pattern);
         $this->assertSame($expected, (string) $pattern->uri(Doubles\FakeUri::fromString($proto), $params));
@@ -230,9 +248,11 @@ class DynamicTargetMaskTest extends TestCase
     public function prototypeSegmentMatch()
     {
         return [
-            ['/user/{#id}', '/user', [1500], '/user/1500'],
-            ['/foo/{#id}?some=query&fizz=buzz', '?some=query&fizz=', [1500], '/foo/1500?some=query&fizz=buzz'],
-            ['/foo/bar/baz', '/foo/bar', [], '/foo/bar/baz']
+            ['{#id}', '/user', [1500], '/user/1500'],
+            ['foo/{#id}?some=foo', '?other=bar', [673], '/foo/673?other=bar&some=foo'],
+            ['/foo/bar/baz', '/foo/bar', [], '/foo/bar/baz'],
+            ['/foo/{#id}?some=query&fizz=buzz', '?some=query&fizz', [123], '/foo/123?some=query&fizz=buzz'],
+            ['/foo?fizz', '?fizz=foo&buzz=something', [], '/foo?fizz=foo&buzz=something']
         ];
     }
 
