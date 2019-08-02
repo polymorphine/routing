@@ -9,11 +9,11 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Tests\Route\Gate\Pattern\UriSegment;
+namespace Polymorphine\Routing\Tests\Route\Gate\Pattern\UriPart;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\PathSegment;
+use Polymorphine\Routing\Route\Gate\Pattern\UriPart\PathSegment;
 use Polymorphine\Routing\Exception;
 use Polymorphine\Routing\Tests\Doubles;
 

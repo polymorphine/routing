@@ -18,10 +18,10 @@ use Psr\Http\Message\UriInterface;
 
 
 /**
- * Abstract Pattern of URI segment with exact value compared with
+ * Abstract Pattern of URI part with exact value compared with
  * segment returned by request URI or attached to created link.
  */
-abstract class UriSegment implements Route\Gate\Pattern
+abstract class UriPart implements Route\Gate\Pattern
 {
     protected $pattern;
 

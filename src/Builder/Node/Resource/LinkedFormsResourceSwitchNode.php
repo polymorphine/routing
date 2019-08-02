@@ -16,7 +16,7 @@ use Polymorphine\Routing\Builder\Node\RouteNode;
 use Polymorphine\Routing\Builder\Node\ScanSwitchNode;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\PathEndGate;
-use Polymorphine\Routing\Route\Gate\Pattern\UriSegment\PathSegment;
+use Polymorphine\Routing\Route\Gate\Pattern\UriPart\PathSegment;
 
 
 /**

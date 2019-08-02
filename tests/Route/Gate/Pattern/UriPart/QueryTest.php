@@ -9,7 +9,7 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Tests\Route\Gate\Pattern\UriSegment;
+namespace Polymorphine\Routing\Tests\Route\Gate\Pattern\UriPart;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route\Gate\Pattern;
@@ -24,7 +24,7 @@ class QueryTest extends TestCase
     {
         $pattern = $this->pattern('foo=bar');
         $this->assertInstanceOf(Pattern::class, $pattern);
-        $this->assertInstanceOf(Pattern\UriSegment\Query::class, $pattern);
+        $this->assertInstanceOf(Pattern\UriPart\Query::class, $pattern);
     }
 
     /**
@@ -143,7 +143,7 @@ class QueryTest extends TestCase
 
     private function pattern(string $query): Pattern
     {
-        return new Pattern\UriSegment\Query($query);
+        return new Pattern\UriPart\Query($query);
     }
 
     private function request(string $uri)

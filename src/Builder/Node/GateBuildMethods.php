@@ -206,13 +206,13 @@ trait GateBuildMethods
         if (!$id = $this->patternId($segment)) { return null; }
 
         if (isset($regexp[$id])) {
-            return new Pattern\UriSegment\PathSegment($id, $regexp[$id]);
+            return new Pattern\UriPart\PathSegment($id, $regexp[$id]);
         }
 
         [$type, $id] = [$id[0], substr($id, 1)];
 
         return isset(Pattern::TYPE_REGEXP[$type])
-            ? new Pattern\UriSegment\PathSegment($id, Pattern::TYPE_REGEXP[$type])
+            ? new Pattern\UriPart\PathSegment($id, Pattern::TYPE_REGEXP[$type])
             : null;
     }
 

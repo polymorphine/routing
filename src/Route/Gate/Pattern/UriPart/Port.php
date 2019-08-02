@@ -9,17 +9,17 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Route\Gate\Pattern\UriSegment;
+namespace Polymorphine\Routing\Route\Gate\Pattern\UriPart;
 
-use Polymorphine\Routing\Route\Gate\Pattern\UriSegment;
+use Polymorphine\Routing\Route\Gate\Pattern\UriPart;
 use Psr\Http\Message\UriInterface;
 
 
 /**
- * Subclass of UriSegment Pattern matching and generating
- * URI's port segment.
+ * Subclass of UriPath Pattern matching and generating
+ * URI's port part.
  */
-class Port extends UriSegment
+class Port extends UriPart
 {
     protected function getUriPart(UriInterface $uri): string
     {

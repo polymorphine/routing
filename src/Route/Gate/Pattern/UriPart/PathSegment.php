@@ -9,7 +9,7 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Route\Gate\Pattern\UriSegment;
+namespace Polymorphine\Routing\Route\Gate\Pattern\UriPart;
 
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Exception;
@@ -18,8 +18,8 @@ use Psr\Http\Message\UriInterface;
 
 
 /**
- * Dynamic pattern constraint (with value capturing) and build
- * directive for single (relative) path segment.
+ * Dynamic pattern constraint with value capturing and build
+ * directive for single path segment.
  */
 class PathSegment implements Route\Gate\Pattern
 {

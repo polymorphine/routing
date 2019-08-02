@@ -9,7 +9,7 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Tests\Route\Gate\Pattern\UriSegment;
+namespace Polymorphine\Routing\Tests\Route\Gate\Pattern\UriPart;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
@@ -99,7 +99,7 @@ class PathTest extends TestCase
 
     private function pattern(string $path): Route\Gate\Pattern
     {
-        return new Route\Gate\Pattern\UriSegment\Path($path);
+        return new Route\Gate\Pattern\UriPart\Path($path);
     }
 
     private function request(string $uri, ?string $context = null): ServerRequestInterface

@@ -12,7 +12,7 @@
 namespace Polymorphine\Routing\Route\Gate\Pattern;
 
 use Polymorphine\Routing\Route\Gate\Pattern;
-use Polymorphine\Routing\Route\Gate\Pattern\UriSegment as Uri;
+use Polymorphine\Routing\Route\Gate\Pattern\UriPart as Uri;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 use InvalidArgumentException;

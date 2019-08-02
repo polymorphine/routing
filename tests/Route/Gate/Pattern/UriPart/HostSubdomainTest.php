@@ -9,7 +9,7 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Tests\Route\Gate\Pattern\UriSegment;
+namespace Polymorphine\Routing\Tests\Route\Gate\Pattern\UriPart;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route\Gate\Pattern;
@@ -74,6 +74,6 @@ class HostSubdomainTest extends TestCase
 
     private function subdomain(string $id, array $values)
     {
-        return new Pattern\UriSegment\HostSubdomain($id, $values);
+        return new Pattern\UriPart\HostSubdomain($id, $values);
     }
 }

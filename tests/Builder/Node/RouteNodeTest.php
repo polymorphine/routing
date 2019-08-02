@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing;
 use Polymorphine\Routing\Builder\Node;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Route\Gate\Pattern\UriSegment as Uri;
+use Polymorphine\Routing\Route\Gate\Pattern\UriPart as Uri;
 use Polymorphine\Routing\Tests\Doubles;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
