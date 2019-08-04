@@ -21,7 +21,7 @@ use Psr\Http\Message\UriInterface;
  * Dynamic pattern constraint with value capturing and build
  * directive for single path segment.
  */
-class PathSegment implements Route\Gate\Pattern
+class PathRegexpSegment implements Route\Gate\Pattern
 {
     use Route\Gate\Pattern\PathContextMethods;
 

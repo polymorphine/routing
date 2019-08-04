@@ -13,12 +13,12 @@ namespace Polymorphine\Routing\Tests\Route\Gate\Pattern\UriPart;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Route\Gate\Pattern\UriPart\PathSegment;
+use Polymorphine\Routing\Route\Gate\Pattern\UriPart\PathRegexpSegment;
 use Polymorphine\Routing\Exception;
 use Polymorphine\Routing\Tests\Doubles;
 
 
-class PathSegmentTest extends TestCase
+class PathRegexpSegmentTest extends TestCase
 {
     public function testFirstNumericPathSegmentIsMatchedAndCapturedFromRelativePath()
     {
@@ -57,15 +57,15 @@ class PathSegmentTest extends TestCase
 
     public function testNamedConstructorsEquivalentToConcretePatterns()
     {
-        $this->assertEquals($this->pattern('id', '[0-9]+'), PathSegment::numeric());
-        $this->assertEquals($this->pattern('id', '[1-9][0-9]*'), PathSegment::number());
-        $this->assertEquals($this->pattern('slug', '[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9]'), PathSegment::slug());
-        $this->assertEquals($this->pattern('name', '[a-zA-Z0-9]+'), PathSegment::name());
+        $this->assertEquals($this->pattern('id', '[0-9]+'), PathRegexpSegment::numeric());
+        $this->assertEquals($this->pattern('id', '[1-9][0-9]*'), PathRegexpSegment::number());
+        $this->assertEquals($this->pattern('slug', '[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9]'), PathRegexpSegment::slug());
+        $this->assertEquals($this->pattern('name', '[a-zA-Z0-9]+'), PathRegexpSegment::name());
     }
 
     private function pattern(string $name = 'id', string $regexp = '[1-9][0-9]*')
     {
-        return new PathSegment($name, $regexp);
+        return new PathRegexpSegment($name, $regexp);
     }
 
     private function request(string $uri)

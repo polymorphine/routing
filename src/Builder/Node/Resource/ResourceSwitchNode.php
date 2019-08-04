@@ -20,7 +20,7 @@ use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\PathEndGate;
 use Polymorphine\Routing\Route\Gate\PatternGate;
 use Polymorphine\Routing\Route\Gate\Pattern\UriPart\Path;
-use Polymorphine\Routing\Route\Gate\Pattern\UriPart\PathSegment;
+use Polymorphine\Routing\Route\Gate\Pattern\UriPart\PathRegexpSegment;
 use Polymorphine\Routing\Route\Gate\UriAttributeSelect;
 use Polymorphine\Routing\Route\Splitter\MethodSwitch;
 use Polymorphine\Routing\Route\Splitter\ScanSwitch;
@@ -196,7 +196,7 @@ class ResourceSwitchNode implements Node
                 $route = new PatternGate(new Path('form'), $route);
                 break;
         }
-        return new PatternGate(new PathSegment($this->idName, $this->idRegexp), $route);
+        return new PatternGate(new PathRegexpSegment($this->idName, $this->idRegexp), $route);
     }
 
     private function composeLogicStructure(array $routes): Route

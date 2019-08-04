@@ -163,7 +163,7 @@ class RouteNodeTest extends TestCase
         $builder = $this->builder();
         $builder->method('PATCH')
                 ->pattern(Route\Gate\Pattern\UriPattern::fromUriString('https:/foo'))
-                ->pattern(new Uri\PathSegment('id', '[a-z]+'))
+                ->pattern(new Uri\PathRegexpSegment('id', '[a-z]+'))
                 ->callbackGate(function (ServerRequestInterface $request) { return $request->getAttribute('pass') ? $request : null; })
                 ->callback($this->callbackResponse($response));
         $route = $builder->build();
