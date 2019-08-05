@@ -14,7 +14,7 @@ namespace Polymorphine\Routing\Tests\Route\Splitter;
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Splitter\PathSwitch;
-use Polymorphine\Routing\Route\Gate\PathSegmentGate;
+use Polymorphine\Routing\Route\Gate;
 use Polymorphine\Routing\Exception\EndpointCallException;
 use Polymorphine\Routing\Tests\RoutingTestMethods;
 use Polymorphine\Routing\Tests\Doubles;
@@ -81,8 +81,8 @@ class PathSwitchTest extends TestCase
             'A' => $routeA = new Doubles\MockedRoute(),
             'B' => $routeB = new Doubles\MockedRoute()
         ]);
-        $this->assertEquals(new PathSegmentGate('A', $routeA), $splitter->select('A'));
-        $this->assertEquals(new PathSegmentGate('B', $routeB), $splitter->select('B'));
+        $this->assertEquals($this->patternGate('A', $routeA), $splitter->select('A'));
+        $this->assertEquals($this->patternGate('B', $routeB), $splitter->select('B'));
     }
 
     public function testSelectNestedPathWithRoutePath_ReturnsSameRouteAsRepeatedSelectCall()
@@ -121,14 +121,14 @@ class PathSwitchTest extends TestCase
     public function testRootRouteCanBeSelected()
     {
         $splitter = $this->splitter([], $root = new Doubles\MockedRoute());
-        $root     = new Route\Gate\PathEndGate($root);
+        $root     = new Gate\PathEndGate($root);
         $this->assertEquals($root, $splitter->select(PathSwitch::ROOT_PATH));
     }
 
     public function testRootRouteLabelCanBeSetAtInstantiation()
     {
         $splitter = new PathSwitch(['dummy' => new Doubles\MockedRoute()], $root = new Doubles\MockedRoute(), 'rootLabel');
-        $root     = new Route\Gate\PathEndGate($root);
+        $root     = new Gate\PathEndGate($root);
         $this->assertEquals($root, $splitter->select('rootLabel'));
     }
 
@@ -136,7 +136,7 @@ class PathSwitchTest extends TestCase
     {
         $splitter  = $this->splitter([], $this->responseRoute($response));
         $structure = $this->createStructure($splitter, ['foo', 'bar']);
-        $wrapped   = new PathSegmentGate('foo', new PathSegmentGate('bar', $splitter));
+        $wrapped   = $this->patternGate('foo', $this->patternGate('bar', $splitter));
         $implicit  = $structure->select('foo.bar');
         $explicit  = $structure->select('foo.bar.' . PathSwitch::ROOT_PATH);
         $request   = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString('/foo/bar'));
@@ -198,5 +198,10 @@ class PathSwitchTest extends TestCase
     {
         $routes = $routes ?: ['dummy' => new Doubles\MockedRoute()];
         return $root ? new PathSwitch($routes, $root) : new PathSwitch($routes);
+    }
+
+    private function patternGate(string $name, Route $route): Gate\PatternGate
+    {
+        return new Gate\PatternGate(new Gate\Pattern\UriPart\PathSegment($name), $route);
     }
 }
