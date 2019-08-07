@@ -86,14 +86,13 @@ trait GateBuildMethods
 
             if (!$path = trim($path, '/*')) { return $route; }
 
-            $segments = explode('/', $path);
-            while ($segment = array_pop($segments)) {
-                $pattern = $this->pathSegment($segment, $regexp);
-                $route = $pattern
-                    ? new Route\Gate\PatternGate($pattern, $route)
-                    : new Route\Gate\PathSegmentGate($segment, $route);
+            $patterns = [];
+            foreach (explode('/', $path) as $segment) {
+                $patterns[] = $this->pathSegment($segment, $regexp);
             }
-            return $route;
+
+            $pattern = count($patterns) === 1 ? $patterns[0] : new Pattern\CompositePattern($patterns);
+            return new Route\Gate\PatternGate($pattern, $route);
         });
         return $this;
     }
@@ -203,7 +202,9 @@ trait GateBuildMethods
 
     private function pathSegment(string $segment, array $regexp): ?Pattern
     {
-        if (!$id = $this->patternId($segment)) { return null; }
+        if (!$id = $this->patternId($segment)) {
+            return new Pattern\UriPart\PathSegment($segment);
+        }
 
         if (isset($regexp[$id])) {
             return new Pattern\UriPart\PathRegexpSegment($id, $regexp[$id]);
@@ -213,7 +214,7 @@ trait GateBuildMethods
 
         return isset(Pattern::TYPE_REGEXP[$type])
             ? new Pattern\UriPart\PathRegexpSegment($id, Pattern::TYPE_REGEXP[$type])
-            : null;
+            : new Pattern\UriPart\PathRegexpSegment($type . $id);
     }
 
     private function patternId(string $segment): ?string
