@@ -18,10 +18,10 @@ use Polymorphine\Routing\Route\Endpoint\RedirectEndpoint;
 use Polymorphine\Routing\Route\Gate\CallbackGateway;
 use Polymorphine\Routing\Route\Gate\MiddlewareGateway;
 use Polymorphine\Routing\Route\Gate\MethodGate;
-use Polymorphine\Routing\Route\Gate\PathSegmentGate;
 use Polymorphine\Routing\Route\Gate\UriAttributeSelect;
 use Polymorphine\Routing\Route\Gate\PatternGate;
 use Polymorphine\Routing\Route\Gate\Pattern\UriPart\Path;
+use Polymorphine\Routing\Route\Gate\Pattern\UriPart\PathSegment;
 use Polymorphine\Routing\Route\Gate\Pattern\UriPart\PathRegexpSegment;
 use Polymorphine\Routing\Route\Splitter\MethodSwitch;
 use Polymorphine\Routing\Route\Splitter\PathSwitch;
@@ -67,14 +67,14 @@ class CompositionTest extends ReadmeExampleTest
             new MiddlewareGateway(
                 $this->authMiddleware(),
                 new ScanSwitch([
-                    new PathSegmentGate('login', new MethodSwitch([
+                    new PatternGate(new PathSegment('login'), new MethodSwitch([
                         'GET'  => $this->callbackEndpoint('LoginPage'),
                         'POST' => $this->callbackEndpoint('Login')
                     ])),
-                    new PathSegmentGate('logout', new RedirectEndpoint(function () {
+                    new PatternGate(new PathSegment('logout'), new RedirectEndpoint(function () {
                         return $this->router->uri('home');
                     })),
-                    new PathSegmentGate('admin', new RedirectEndpoint(function () {
+                    new PatternGate(new PathSegment('admin'), new RedirectEndpoint(function () {
                         return $this->router->uri('login');
                     })),
                     new MethodGate('GET', $mainRoute),
