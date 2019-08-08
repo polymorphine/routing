@@ -20,7 +20,7 @@ use Polymorphine\Routing\Route\Gate\MiddlewareGateway;
 use Polymorphine\Routing\Route\Gate\MethodGate;
 use Polymorphine\Routing\Route\Gate\UriAttributeSelect;
 use Polymorphine\Routing\Route\Gate\PatternGate;
-use Polymorphine\Routing\Route\Gate\Pattern\UriPart\Path;
+use Polymorphine\Routing\Route\Gate\Pattern\CompositePattern;
 use Polymorphine\Routing\Route\Gate\Pattern\UriPart\PathSegment;
 use Polymorphine\Routing\Route\Gate\Pattern\UriPart\PathRegexpSegment;
 use Polymorphine\Routing\Route\Splitter\MethodSwitch;
@@ -49,14 +49,17 @@ class CompositionTest extends ReadmeExampleTest
                     'form' => new UriAttributeSelect(new ScanSwitch([
                         'edit' => new PatternGate(
                             new PathRegexpSegment('id'),
-                            new PatternGate(new Path('form'), $this->callbackEndpoint('EditArticleForm'))
+                            new PatternGate(new PathSegment('form'), $this->callbackEndpoint('EditArticleForm'))
                         ),
-                        'new' => new PatternGate(new Path('new/form'), $this->callbackEndpoint('AddArticleForm'))
+                        'new' => new PatternGate(
+                            new CompositePattern([new PathSegment('new'), new PathSegment('form')]),
+                            $this->callbackEndpoint('AddArticleForm')
+                        )
                     ]), 'id', 'edit', 'new'),
                     'item'  => new PatternGate(new PathRegexpSegment('id'), $this->callbackEndpoint('ShowArticle')),
-                    'index' => new PatternGate(new Path(''), $this->callbackEndpoint('ShowArticles'))
+                    'index' => $this->callbackEndpoint('ShowArticles')
                 ]),
-                'POST'   => new PatternGate(new Path(''), $this->callbackEndpoint('AddArticle')),
+                'POST'   => $this->callbackEndpoint('AddArticle'),
                 'DELETE' => new PatternGate(new PathRegexpSegment('id'), $this->callbackEndpoint('DeleteArticle')),
                 'PATCH'  => new PatternGate(new PathRegexpSegment('id'), $this->callbackEndpoint('UpdateArticle'))
             ]), 'id', 'item', 'index')

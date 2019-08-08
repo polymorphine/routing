@@ -19,7 +19,8 @@ use Polymorphine\Routing\Builder\Node\CompositeBuilderMethods;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\PathEndGate;
 use Polymorphine\Routing\Route\Gate\PatternGate;
-use Polymorphine\Routing\Route\Gate\Pattern\UriPart\Path;
+use Polymorphine\Routing\Route\Gate\Pattern\CompositePattern;
+use Polymorphine\Routing\Route\Gate\Pattern\UriPart\PathSegment as Path;
 use Polymorphine\Routing\Route\Gate\Pattern\UriPart\PathRegexpSegment;
 use Polymorphine\Routing\Route\Gate\UriAttributeSelect;
 use Polymorphine\Routing\Route\Splitter\MethodSwitch;
@@ -191,7 +192,7 @@ class ResourceSwitchNode implements Node
             case 'POST':
                 return new PathEndGate($route);
             case 'NEW':
-                return new PatternGate(new Path('new/form'), $route);
+                return new PatternGate(new CompositePattern([new Path('new'), new Path('form')]), $route);
             case 'EDIT':
                 $route = new PatternGate(new Path('form'), $route);
                 break;
