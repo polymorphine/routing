@@ -52,6 +52,8 @@ class UriPatternTest extends TestCase
             ['http:/some/path', 'http://whatever.com/some/path?query=part&ignored=values'],
             ['?query=foo&bar=baz', 'http://example.com/some/path?query=foo&bar=baz'],
             ['//example.com:9002', 'https://example.com:9002/foo/path'],
+            ['/foo/bar/{#baz}', 'https://example.com:9002/foo/bar/123/another?some=query'],
+            ['foo/{$bar}/baz', 'https://example.com:9002/foo/bar-part/baz/another?some=query'],
             ['?query=bar&foo', '?query=bar&foo=anything'],
             ['?query=bar&foo', '?foo&query=bar'],
             ['?query=bar&foo=', '?foo=&query=bar']
@@ -79,6 +81,8 @@ class UriPatternTest extends TestCase
             ['?query=foo&bar=baz', 'http://example.com/some/path?query=foo&bar=qux'],
             ['//example.com:8080', '//example.com:9001'],
             ['//example.com:8080', '//example.com'],
+            ['/foo/bar/{#baz}', 'https://example.com:9002/foo/bar/123zzz/another?some=query'],
+            ['foo/{$bar}/baz', 'https://example.com:9002/foo/bar_part/baz/another?some=query'],
             ['?query=bar&foo', '?query=bar'],
             ['?query=bar&foo=', '?foo=emptyRequired&query=bar'],
             ['/some/path?query=string', '/some/path']

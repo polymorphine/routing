@@ -24,23 +24,30 @@ use InvalidArgumentException;
 class UriPattern implements Pattern
 {
     private $uri;
+    private $regexp;
     private $pattern;
 
     /**
      * @param array $segments associative array of URI segments as returned by parse_url() function
+     * @param array $regexp   associative array of RegExp patterns for uri path segments
      */
-    public function __construct(array $segments)
+    public function __construct(array $segments, array $regexp = [])
     {
-        $this->uri = $segments;
+        $this->uri    = $segments;
+        $this->regexp = $regexp;
     }
 
-    public static function fromUriString(string $uri)
+    public static function fromUriString(string $uri, array $regexp = [])
     {
+        if (strpos($uri, Pattern::DELIM_LEFT . '#') !== false) {
+            return self::removeFragmentDelimiter($uri, $regexp);
+        }
+
         if (!$segments = parse_url($uri)) {
             throw new InvalidArgumentException(sprintf('Malformed URI string: `%s`', $uri));
         }
 
-        return new self($segments);
+        return new self($segments, $regexp);
     }
 
     public function matchedRequest(ServerRequestInterface $request): ?ServerRequestInterface
@@ -68,6 +75,8 @@ class UriPattern implements Pattern
 
     private function resolvePattern(string $name, $value): ?Pattern
     {
+        if (!$value) { return null; }
+
         switch ($name) {
             case 'scheme':
                 return new Uri\Scheme($value);
@@ -79,11 +88,62 @@ class UriPattern implements Pattern
                 $pass = isset($this->uri['pass']) ? ':' . $this->uri['pass'] : '';
                 return new Uri\UserInfo($value . $pass);
             case 'path':
-                return new Uri\Path($value);
+                return $this->pathPattern($value);
             case 'query':
                 return new Uri\Query($value);
         }
 
         return null;
+    }
+
+    private function pathPattern(string $path): Pattern
+    {
+        $segments = explode('/', trim($path, '/*'));
+        $patterns = [];
+        foreach ($segments as $segment) {
+            $patterns[] = $this->pathSegment($segment);
+        }
+
+        return count($patterns) === 1 ? $patterns[0] : new Pattern\CompositePattern($patterns);
+    }
+
+    private function pathSegment(string $segment): ?Pattern
+    {
+        if (!$id = $this->patternId($segment)) {
+            return new Uri\PathSegment($segment);
+        }
+
+        if (isset($this->regexp[$id])) {
+            return new Uri\PathRegexpSegment($id, $this->regexp[$id]);
+        }
+
+        [$type, $id] = [$id[0], substr($id, 1)];
+
+        return isset(Pattern::TYPE_REGEXP[$type])
+            ? new Uri\PathRegexpSegment($id, Pattern::TYPE_REGEXP[$type])
+            : new Uri\PathRegexpSegment($type . $id);
+    }
+
+    private function patternId(string $segment): ?string
+    {
+        if ($segment[0] !== Pattern::DELIM_LEFT) { return null; }
+        $id = substr($segment, 1, -1);
+        return ($segment === Pattern::DELIM_LEFT . $id . Pattern::DELIM_RIGHT) ? $id : null;
+    }
+
+    private static function removeFragmentDelimiter(string $uri, array $regexp): self
+    {
+        $pattern = Pattern::DELIM_LEFT . '#([a-z]+)' . Pattern::DELIM_RIGHT;
+        preg_match_all('/' . $pattern . '/', $uri, $matches);
+        foreach ($matches[1] as $id) {
+            $regexp[$id] = Pattern::TYPE_REGEXP['#'];
+            $uri = str_replace(
+                Pattern::DELIM_LEFT . '#' . $id . Pattern::DELIM_RIGHT,
+                Pattern::DELIM_LEFT . $id . Pattern::DELIM_RIGHT,
+                $uri
+            );
+        }
+
+        return self::fromUriString($uri, $regexp);
     }
 }
