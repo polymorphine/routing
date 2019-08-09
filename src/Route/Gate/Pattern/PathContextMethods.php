@@ -31,9 +31,4 @@ trait PathContextMethods
     {
         return explode('/', ltrim($this->relativePath($request), '/'), 2) + [null, ''];
     }
-
-    private function newPathContext(string $relativePath, string $matchedPath): string
-    {
-        return substr($relativePath, strlen($matchedPath) + 1);
-    }
 }
