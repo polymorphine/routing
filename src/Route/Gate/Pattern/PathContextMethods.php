@@ -24,6 +24,6 @@ trait PathContextMethods
 
     private function splitRelativePath(ServerRequestInterface $request): array
     {
-        return explode('/', ltrim($this->relativePath($request), '/'), 2) + [null, ''];
+        return explode('/', $this->relativePath($request), 2) + [null, ''];
     }
 }
