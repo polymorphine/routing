@@ -52,7 +52,7 @@ class UriPatternTest extends TestCase
             ['http:/some/path', 'http://whatever.com/some/path?query=part&ignored=values'],
             ['?query=foo&bar=baz', 'http://example.com/some/path?query=foo&bar=baz'],
             ['//example.com:9002', 'https://example.com:9002/foo/path'],
-            ['/foo/bar/{#baz}', 'https://example.com:9002/foo/bar/123/another?some=query'],
+            ['/foo/bar/{#baz.Qux}', 'https://example.com:9002/foo/bar/123/another?some=query'],
             ['foo/{$bar}/baz', 'https://example.com:9002/foo/bar-part/baz/another?some=query'],
             ['?query=bar&foo', '?query=bar&foo=anything'],
             ['?query=bar&foo', '?foo&query=bar'],

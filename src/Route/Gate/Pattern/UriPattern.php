@@ -37,10 +37,10 @@ class UriPattern implements Pattern
         $this->regexp = $regexp;
     }
 
-    public static function fromUriString(string $uri, array $regexp = [])
+    public static function fromUriString(string $uri, array $regexp = []): self
     {
-        if (strpos($uri, Pattern::DELIM_LEFT . '#') !== false) {
-            return self::removeFragmentDelimiter($uri, $regexp);
+        if (strpos($uri, self::DELIM_LEFT . '#') !== false) {
+            return self::withoutFragmentDelimiter($uri, $regexp);
         }
 
         if (!$segments = parse_url($uri)) {
@@ -52,28 +52,28 @@ class UriPattern implements Pattern
 
     public function matchedRequest(ServerRequestInterface $request): ?ServerRequestInterface
     {
-        isset($this->pattern) or $this->pattern = $this->parsePattern();
-        return $this->pattern->matchedRequest($request);
+        return $this->pattern()->matchedRequest($request);
     }
 
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
-        isset($this->pattern) or $this->pattern = $this->parsePattern();
-        return $this->pattern->uri($prototype, $params);
+        return $this->pattern()->uri($prototype, $params);
     }
 
-    private function parsePattern(): Pattern
+    private function pattern(): Pattern
     {
+        if ($this->pattern) { return $this->pattern; }
+
         $patterns = [];
         foreach ($this->uri as $name => $value) {
-            if (!$pattern = $this->resolvePattern($name, $value)) { continue; }
+            if (!$pattern = $this->resolveUriPart($name, $value)) { continue; }
             $patterns[] = $pattern;
         }
 
-        return (count($patterns) === 1) ? $patterns[0] : new CompositePattern($patterns);
+        return $this->pattern = (count($patterns) === 1) ? $patterns[0] : new CompositePattern($patterns);
     }
 
-    private function resolvePattern(string $name, $value): ?Pattern
+    private function resolveUriPart(string $name, $value): ?Pattern
     {
         if (!$value) { return null; }
 
@@ -88,7 +88,7 @@ class UriPattern implements Pattern
                 $pass = isset($this->uri['pass']) ? ':' . $this->uri['pass'] : '';
                 return new Uri\UserInfo($value . $pass);
             case 'path':
-                return $this->pathPattern($value);
+                return $value ? $this->pathPattern($value) : null;
             case 'query':
                 return new Uri\Query($value);
         }
@@ -98,7 +98,7 @@ class UriPattern implements Pattern
 
     private function pathPattern(string $path): Pattern
     {
-        $segments = explode('/', trim($path, '/*'));
+        $segments = explode('/', trim($path, '/'));
         $patterns = [];
         foreach ($segments as $segment) {
             $patterns[] = $this->pathSegment($segment);
@@ -119,31 +119,31 @@ class UriPattern implements Pattern
 
         [$type, $id] = [$id[0], substr($id, 1)];
 
-        return isset(Pattern::TYPE_REGEXP[$type])
-            ? new Uri\PathRegexpSegment($id, Pattern::TYPE_REGEXP[$type])
+        return isset(self::TYPE_REGEXP[$type])
+            ? new Uri\PathRegexpSegment($id, self::TYPE_REGEXP[$type])
             : new Uri\PathRegexpSegment($type . $id);
     }
 
     private function patternId(string $segment): ?string
     {
-        if ($segment[0] !== Pattern::DELIM_LEFT) { return null; }
+        if ($segment[0] !== self::DELIM_LEFT) { return null; }
         $id = substr($segment, 1, -1);
-        return ($segment === Pattern::DELIM_LEFT . $id . Pattern::DELIM_RIGHT) ? $id : null;
+        return $segment === self::param($id) ? $id : null;
     }
 
-    private static function removeFragmentDelimiter(string $uri, array $regexp): self
+    private static function withoutFragmentDelimiter(string $uri, array $regexp): self
     {
-        $pattern = Pattern::DELIM_LEFT . '#([a-z]+)' . Pattern::DELIM_RIGHT;
-        preg_match_all('/' . $pattern . '/', $uri, $matches);
+        preg_match_all('/' . self::param('#([A-Za-z.]+)') . '/', $uri, $matches);
         foreach ($matches[1] as $id) {
-            $regexp[$id] = Pattern::TYPE_REGEXP['#'];
-            $uri = str_replace(
-                Pattern::DELIM_LEFT . '#' . $id . Pattern::DELIM_RIGHT,
-                Pattern::DELIM_LEFT . $id . Pattern::DELIM_RIGHT,
-                $uri
-            );
+            $regexp[$id] = self::TYPE_REGEXP['#'];
+            $uri = str_replace(self::param('#' . $id), self::param($id), $uri);
         }
 
         return self::fromUriString($uri, $regexp);
+    }
+
+    private static function param(string $id): string
+    {
+        return self::DELIM_LEFT . $id . self::DELIM_RIGHT;
     }
 }
