@@ -66,4 +66,9 @@ abstract class Endpoint implements Route
         $methods = $request->getAttribute(self::METHODS_ATTRIBUTE);
         return $methods ? $prototype->withHeader('Allow', implode(', ', $methods)) : null;
     }
+
+    private function isPathFullyMatched(Request $request): bool
+    {
+        return !$this->relativePath($request) || $request->getAttribute(self::WILDCARD_ATTRIBUTE);
+    }
 }
