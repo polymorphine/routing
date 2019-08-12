@@ -17,7 +17,6 @@ use Polymorphine\Routing\Builder\Exception;
 use Polymorphine\Routing\Builder\Node\RouteNode;
 use Polymorphine\Routing\Builder\Node\CompositeBuilderMethods;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Route\Gate\PathEndGate;
 use Polymorphine\Routing\Route\Gate\PatternGate;
 use Polymorphine\Routing\Route\Gate\Pattern\CompositePattern;
 use Polymorphine\Routing\Route\Gate\Pattern\UriPart\PathSegment as Path;
@@ -190,7 +189,7 @@ class ResourceSwitchNode implements Node
         switch ($name) {
             case 'INDEX':
             case 'POST':
-                return new PathEndGate($route);
+                return $route;
             case 'NEW':
                 return new PatternGate(new CompositePattern([new Path('new'), new Path('form')]), $route);
             case 'EDIT':
