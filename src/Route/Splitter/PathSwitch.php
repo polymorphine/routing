@@ -70,7 +70,7 @@ class PathSwitch implements Route
     public function select(string $path): Route
     {
         if ($path === $this->rootLabel && $this->root) {
-            return new Gate\PathEndGate($this->root);
+            return new self([], $this->root, $this->rootLabel);
         }
 
         [$id, $path] = $this->splitPath($path);
