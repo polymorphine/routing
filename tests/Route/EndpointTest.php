@@ -57,7 +57,7 @@ class EndpointTest extends TestCase
         $this->assertNotSame($prototype, $route->forward($request, $prototype));
 
         $request->uri = Doubles\FakeUri::fromString('http://with.path/some/path');
-        $this->assertNotSame($prototype, $route->forward($request->withAttribute(Route::PATH_ATTRIBUTE, ''), $prototype));
+        $this->assertNotSame($prototype, $route->forward($request->withAttribute(Route::PATH_ATTRIBUTE, []), $prototype));
 
         $request->uri = Doubles\FakeUri::fromString('http://with.path/some/path');
         $this->assertNotSame($prototype, $route->forward($request->withAttribute(Route::WILDCARD_ATTRIBUTE, true), $prototype));
@@ -73,6 +73,6 @@ class EndpointTest extends TestCase
         $this->assertSame($prototype, $route->forward($request, $prototype));
 
         $request->uri = Doubles\FakeUri::fromString('http://path.from.attribute');
-        $this->assertSame($prototype, $route->forward($request->withAttribute(Route::PATH_ATTRIBUTE, 'some/path'), $prototype));
+        $this->assertSame($prototype, $route->forward($request->withAttribute(Route::PATH_ATTRIBUTE, ['some', 'path']), $prototype));
     }
 }

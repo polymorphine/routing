@@ -22,15 +22,15 @@ class PathRegexpSegmentTest extends TestCase
 {
     public function testFirstNumericPathSegmentIsMatchedAndCapturedFromRelativePath()
     {
-        $request = $this->request('/post/7523/some-slug-part')->withAttribute(Route::PATH_ATTRIBUTE, '7523/some-slug-part');
+        $request = $this->request('/post/7523/some-slug-part')->withAttribute(Route::PATH_ATTRIBUTE, ['7523', 'some-slug-part']);
         $matched = $this->pattern('name')->matchedRequest($request);
         $this->assertSame('7523', $matched->getAttribute('name'));
-        $this->assertSame('some-slug-part', $matched->getAttribute(Route::PATH_ATTRIBUTE));
+        $this->assertSame(['some-slug-part'], $matched->getAttribute(Route::PATH_ATTRIBUTE));
     }
 
     public function testFirstNonNumericRelativePathSegmentIsNotMatched()
     {
-        $request = $this->request('/post/foo/7523/anything')->withAttribute(Route::PATH_ATTRIBUTE, 'foo/7523/anything');
+        $request = $this->request('/post/foo/7523/anything')->withAttribute(Route::PATH_ATTRIBUTE, ['foo', '7523', 'anything']);
         $this->assertNull($this->pattern()->matchedRequest($request));
     }
 

@@ -30,31 +30,31 @@ class PathSegmentTest extends TestCase
         $pattern = $this->pattern('foo');
         $request = $this->request('foo/bar/baz');
         $this->assertInstanceOf(ServerRequestInterface::class, $matched = $pattern->matchedRequest($request));
-        $this->assertSame('bar/baz', $matched->getAttribute(Route::PATH_ATTRIBUTE));
+        $this->assertSame(['bar', 'baz'], $matched->getAttribute(Route::PATH_ATTRIBUTE));
 
         $pattern = $this->pattern('bar');
-        $request = $this->request('foo/bar', 'bar');
+        $request = $this->request('foo/bar', ['bar']);
         $this->assertInstanceOf(ServerRequestInterface::class, $matched = $pattern->matchedRequest($request));
-        $this->assertSame('', $matched->getAttribute(Route::PATH_ATTRIBUTE));
+        $this->assertSame([], $matched->getAttribute(Route::PATH_ATTRIBUTE));
 
         $pattern = $this->pattern('bar');
-        $request = $this->request('foo/bar/baz', 'bar/baz');
+        $request = $this->request('foo/bar/baz', ['bar', 'baz']);
         $this->assertInstanceOf(ServerRequestInterface::class, $matched = $pattern->matchedRequest($request));
-        $this->assertSame('baz', $matched->getAttribute(Route::PATH_ATTRIBUTE));
+        $this->assertSame(['baz'], $matched->getAttribute(Route::PATH_ATTRIBUTE));
     }
 
     public function testNotMatchingRequest_ReturnsNull()
     {
         $pattern = $this->pattern('foo');
-        $request = $this->request('foo/bar/baz', 'bar/baz');
+        $request = $this->request('foo/bar/baz', ['bar', 'baz']);
         $this->assertNull($pattern->matchedRequest($request));
 
         $pattern = $this->pattern('foo');
-        $request = $this->request('foo/bar/baz', '');
+        $request = $this->request('foo/bar/baz', []);
         $this->assertNull($pattern->matchedRequest($request));
 
         $pattern = $this->pattern('bar');
-        $request = $this->request('foo/bar/baz', 'baz');
+        $request = $this->request('foo/bar/baz', ['baz']);
         $this->assertNull($pattern->matchedRequest($request));
     }
 
@@ -74,7 +74,7 @@ class PathSegmentTest extends TestCase
         return new Pattern\UriPart\PathSegment($name);
     }
 
-    private function request(string $uri, string $context = null): ServerRequestInterface
+    private function request(string $uri, array $context = null): ServerRequestInterface
     {
         $request = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString($uri));
         return isset($context) ? $request->withAttribute(Route::PATH_ATTRIBUTE, $context) : $request;

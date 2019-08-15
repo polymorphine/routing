@@ -172,7 +172,7 @@ class UriPatternTest extends TestCase
     {
         $pattern = $this->pattern('foo/bar?query=foo');
         $request = $this->request('//example.com/fizz/foo/bar/baz?param=bar&query=foo')
-                        ->withAttribute(Route::PATH_ATTRIBUTE, 'foo/bar/baz');
+                        ->withAttribute(Route::PATH_ATTRIBUTE, ['foo', 'bar', 'baz']);
         $this->assertInstanceOf(ServerRequestInterface::class, $pattern->matchedRequest($request));
     }
 
