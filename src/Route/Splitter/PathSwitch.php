@@ -55,7 +55,7 @@ class PathSwitch implements Route
 
     public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
     {
-        [$segment, $relativePath] = $this->splitRelativePath($request);
+        $segment = $this->pathSegment($request);
 
         if (!$segment && $this->root) {
             return $this->root->forward($request, $prototype);
@@ -63,7 +63,7 @@ class PathSwitch implements Route
 
         $route = $this->routes[$segment] ?? null;
         return $route
-            ? $route->forward($request->withAttribute(static::PATH_ATTRIBUTE, $relativePath), $prototype)
+            ? $route->forward($this->newContextRequest($request), $prototype)
             : $prototype;
     }
 

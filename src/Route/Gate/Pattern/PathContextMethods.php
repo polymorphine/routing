@@ -17,17 +17,22 @@ use Psr\Http\Message\ServerRequestInterface;
 
 trait PathContextMethods
 {
+    private function pathSegment(ServerRequestInterface $request): ?string
+    {
+        $segments = $this->relativePath($request);
+        return $segments[0] ?? null;
+    }
+
+    private function newContextRequest(ServerRequestInterface $request): ServerRequestInterface
+    {
+        $segments = $this->relativePath($request);
+        array_shift($segments);
+        return $request->withAttribute(Route::PATH_ATTRIBUTE, $segments);
+    }
+
     private function relativePath(ServerRequestInterface $request): array
     {
         return $request->getAttribute(Route::PATH_ATTRIBUTE) ?? $this->readPathSegments($request);
-    }
-
-    private function splitRelativePath(ServerRequestInterface $request): array
-    {
-        $segments = $this->relativePath($request);
-        $current  = array_shift($segments);
-
-        return [$current, $segments];
     }
 
     private function readPathSegments(ServerRequestInterface $request): array

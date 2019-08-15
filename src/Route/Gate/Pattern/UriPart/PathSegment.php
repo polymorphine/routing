@@ -32,10 +32,9 @@ class PathSegment implements Route\Gate\Pattern
 
     public function matchedRequest(ServerRequestInterface $request): ?ServerRequestInterface
     {
-        [$segment, $path] = $this->splitRelativePath($request);
-        if ($this->name !== $segment) { return null; }
-
-        return $request->withAttribute(Route::PATH_ATTRIBUTE, $path);
+        return $this->name === $this->pathSegment($request)
+            ? $this->newContextRequest($request)
+            : null;
     }
 
     public function uri(UriInterface $prototype, array $params): UriInterface
