@@ -98,10 +98,16 @@ class UriPattern implements Pattern
 
     private function pathPattern(string $path): Pattern
     {
-        $segments = explode('/', trim($path, '/'));
+        $wildcard = (substr($path, -1) !== '*') ? null : new Uri\PathWildcard();
+        $path     = trim($path, '/*');
+        $segments = $path ? explode('/', $path) : [];
         $patterns = [];
         foreach ($segments as $segment) {
             $patterns[] = $this->pathSegment($segment);
+        }
+
+        if ($wildcard) {
+            $patterns[] = $wildcard;
         }
 
         return count($patterns) === 1 ? $patterns[0] : new Pattern\CompositePattern($patterns);
