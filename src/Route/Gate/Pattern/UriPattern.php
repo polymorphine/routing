@@ -50,6 +50,11 @@ class UriPattern implements Pattern
         return new self($segments, $regexp);
     }
 
+    public static function path(string $path, array $regexp = []): self
+    {
+        return new self(['path' => $path], $regexp);
+    }
+
     public function matchedRequest(ServerRequestInterface $request): ?ServerRequestInterface
     {
         return $this->pattern()->matchedRequest($request);
