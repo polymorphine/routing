@@ -95,7 +95,7 @@ class PatternGateTest extends TestCase
         $prototype = Doubles\FakeUri::fromString('/foo');
         $route     = Gate\PatternGate::fromPatternString('bar', Gate\PatternGate::fromPatternString('baz', Doubles\MockedRoute::response('endpoint')));
         $this->assertSame('/foo/bar/baz', $uri = (string) $route->uri($prototype, []));
-        $request = $this->request($uri)->withAttribute(Route::PATH_ATTRIBUTE, 'bar/baz');
+        $request = $this->request($uri)->withAttribute(Route::PATH_ATTRIBUTE, ['bar', 'baz']);
         $this->assertSame('endpoint', (string) $route->forward($request, self::$prototype)->getBody());
     }
 

@@ -18,11 +18,11 @@ use Polymorphine\Routing\Route\Endpoint\RedirectEndpoint;
 use Polymorphine\Routing\Route\Gate\CallbackGateway;
 use Polymorphine\Routing\Route\Gate\MiddlewareGateway;
 use Polymorphine\Routing\Route\Gate\MethodGate;
-use Polymorphine\Routing\Route\Gate\PathSegmentGate;
 use Polymorphine\Routing\Route\Gate\UriAttributeSelect;
 use Polymorphine\Routing\Route\Gate\PatternGate;
-use Polymorphine\Routing\Route\Gate\Pattern\UriPart\Path;
+use Polymorphine\Routing\Route\Gate\Pattern\CompositePattern;
 use Polymorphine\Routing\Route\Gate\Pattern\UriPart\PathSegment;
+use Polymorphine\Routing\Route\Gate\Pattern\UriPart\PathRegexpSegment;
 use Polymorphine\Routing\Route\Splitter\MethodSwitch;
 use Polymorphine\Routing\Route\Splitter\PathSwitch;
 use Polymorphine\Routing\Route\Splitter\ScanSwitch;
@@ -48,17 +48,20 @@ class CompositionTest extends ReadmeExampleTest
                 'GET' => new ScanSwitch([
                     'form' => new UriAttributeSelect(new ScanSwitch([
                         'edit' => new PatternGate(
-                            new PathSegment('id'),
-                            new PatternGate(new Path('form'), $this->callbackEndpoint('EditArticleForm'))
+                            new PathRegexpSegment('id'),
+                            new PatternGate(new PathSegment('form'), $this->callbackEndpoint('EditArticleForm'))
                         ),
-                        'new' => new PatternGate(new Path('new/form'), $this->callbackEndpoint('AddArticleForm'))
+                        'new' => new PatternGate(
+                            new CompositePattern([new PathSegment('new'), new PathSegment('form')]),
+                            $this->callbackEndpoint('AddArticleForm')
+                        )
                     ]), 'id', 'edit', 'new'),
-                    'item'  => new PatternGate(new PathSegment('id'), $this->callbackEndpoint('ShowArticle')),
-                    'index' => new PatternGate(new Path(''), $this->callbackEndpoint('ShowArticles'))
+                    'item'  => new PatternGate(new PathRegexpSegment('id'), $this->callbackEndpoint('ShowArticle')),
+                    'index' => $this->callbackEndpoint('ShowArticles')
                 ]),
-                'POST'   => new PatternGate(new Path(''), $this->callbackEndpoint('AddArticle')),
-                'DELETE' => new PatternGate(new PathSegment('id'), $this->callbackEndpoint('DeleteArticle')),
-                'PATCH'  => new PatternGate(new PathSegment('id'), $this->callbackEndpoint('UpdateArticle'))
+                'POST'   => $this->callbackEndpoint('AddArticle'),
+                'DELETE' => new PatternGate(new PathRegexpSegment('id'), $this->callbackEndpoint('DeleteArticle')),
+                'PATCH'  => new PatternGate(new PathRegexpSegment('id'), $this->callbackEndpoint('UpdateArticle'))
             ]), 'id', 'item', 'index')
         ], $this->callbackEndpoint('HomePage'), 'home');
 
@@ -67,14 +70,14 @@ class CompositionTest extends ReadmeExampleTest
             new MiddlewareGateway(
                 $this->authMiddleware(),
                 new ScanSwitch([
-                    new PathSegmentGate('login', new MethodSwitch([
+                    new PatternGate(new PathSegment('login'), new MethodSwitch([
                         'GET'  => $this->callbackEndpoint('LoginPage'),
                         'POST' => $this->callbackEndpoint('Login')
                     ])),
-                    new PathSegmentGate('logout', new RedirectEndpoint(function () {
+                    new PatternGate(new PathSegment('logout'), new RedirectEndpoint(function () {
                         return $this->router->uri('home');
                     })),
-                    new PathSegmentGate('admin', new RedirectEndpoint(function () {
+                    new PatternGate(new PathSegment('admin'), new RedirectEndpoint(function () {
                         return $this->router->uri('login');
                     })),
                     new MethodGate('GET', $mainRoute),

@@ -12,6 +12,7 @@
 namespace Polymorphine\Routing\Route\Splitter;
 
 use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Route\Gate;
 use Polymorphine\Routing\Exception\EndpointCallException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -25,7 +26,7 @@ use Psr\Http\Message\UriInterface;
 class PathSwitch implements Route
 {
     use RouteSelectMethods;
-    use Route\Gate\Pattern\PathContextMethods;
+    use Gate\Pattern\PathContextMethods;
 
     public const ROOT_PATH = 'ROOT';
 
@@ -54,7 +55,7 @@ class PathSwitch implements Route
 
     public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
     {
-        [$segment, $relativePath] = $this->splitRelativePath($request);
+        $segment = $this->pathSegment($request);
 
         if (!$segment && $this->root) {
             return $this->root->forward($request, $prototype);
@@ -62,18 +63,19 @@ class PathSwitch implements Route
 
         $route = $this->routes[$segment] ?? null;
         return $route
-            ? $route->forward($request->withAttribute(static::PATH_ATTRIBUTE, $relativePath), $prototype)
+            ? $route->forward($this->newContextRequest($request), $prototype)
             : $prototype;
     }
 
     public function select(string $path): Route
     {
         if ($path === $this->rootLabel && $this->root) {
-            return new Route\Gate\PathEndGate($this->root);
+            return new self([], $this->root, $this->rootLabel);
         }
 
         [$id, $path] = $this->splitPath($path);
-        return new Route\Gate\PathSegmentGate($id, $this->getRoute($id, $path));
+        $pattern = new Gate\Pattern\UriPart\PathSegment($id);
+        return new Gate\PatternGate($pattern, $this->getRoute($id, $path));
     }
 
     public function uri(UriInterface $prototype, array $params): UriInterface

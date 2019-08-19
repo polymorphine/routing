@@ -17,28 +17,24 @@ use Psr\Http\Message\UriInterface;
 
 
 /**
- * Static pattern constraint with build directive for single path segment.
+ * Pattern capturing unprocessed path.
  */
-class PathSegment implements Route\Gate\Pattern
+class PathWildcard implements Route\Gate\Pattern
 {
     use Route\Gate\Pattern\PathContextMethods;
 
-    private $name;
-
-    public function __construct(string $name)
+    public function __construct()
     {
-        $this->name = $name;
     }
 
     public function matchedRequest(ServerRequestInterface $request): ?ServerRequestInterface
     {
-        return $this->name === $this->pathSegment($request)
-            ? $this->newContextRequest($request)
-            : null;
+        $path = implode('/', $this->relativePath($request));
+        return $request->withAttribute(Route::WILDCARD_ATTRIBUTE, $path)->withAttribute(Route::PATH_ATTRIBUTE, []);
     }
 
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
-        return $prototype->withPath($prototype->getPath() . '/' . $this->name);
+        return $prototype;
     }
 }

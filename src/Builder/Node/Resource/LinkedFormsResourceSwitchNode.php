@@ -14,9 +14,7 @@ namespace Polymorphine\Routing\Builder\Node\Resource;
 use Polymorphine\Routing\Builder\Context;
 use Polymorphine\Routing\Builder\Node\RouteNode;
 use Polymorphine\Routing\Builder\Node\ScanSwitchNode;
-use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Route\Gate\PathEndGate;
-use Polymorphine\Routing\Route\Gate\Pattern\UriPart\PathSegment;
+use Polymorphine\Routing\Route\Gate\Pattern\UriPart\PathRegexpSegment;
 
 
 /**
@@ -39,14 +37,12 @@ class LinkedFormsResourceSwitchNode extends ResourceSwitchNode
 
     public function add(): RouteNode
     {
-        return $this->formSwitch()->route('new')->wrapRouteCallback(function (Route $route) {
-            return new PathEndGate($route);
-        });
+        return $this->formSwitch()->route('new');
     }
 
     public function edit(): RouteNode
     {
-        $idPattern = new PathSegment($this->idName, $this->idRegexp);
+        $idPattern = new PathRegexpSegment($this->idName, $this->idRegexp);
         return $this->formSwitch()->route('edit')->pattern($idPattern);
     }
 

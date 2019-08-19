@@ -17,23 +17,27 @@ use Psr\Http\Message\ServerRequestInterface;
 
 trait PathContextMethods
 {
-    private function relativePath(ServerRequestInterface $request): string
+    private function pathSegment(ServerRequestInterface $request): ?string
     {
-        return $request->getAttribute(Route::PATH_ATTRIBUTE) ?? ltrim($request->getUri()->getPath(), '/');
+        $segments = $this->relativePath($request);
+        return $segments[0] ?? null;
     }
 
-    private function isPathFullyMatched(ServerRequestInterface $request): bool
+    private function newContextRequest(ServerRequestInterface $request): ServerRequestInterface
     {
-        return !$this->relativePath($request) || $request->getAttribute(self::WILDCARD_ATTRIBUTE);
+        $segments = $this->relativePath($request);
+        array_shift($segments);
+        return $request->withAttribute(Route::PATH_ATTRIBUTE, $segments);
     }
 
-    private function splitRelativePath(ServerRequestInterface $request): array
+    private function relativePath(ServerRequestInterface $request): array
     {
-        return explode('/', ltrim($this->relativePath($request), '/'), 2) + [null, ''];
+        return $request->getAttribute(Route::PATH_ATTRIBUTE) ?? $this->readPathSegments($request);
     }
 
-    private function newPathContext(string $relativePath, string $matchedPath): string
+    private function readPathSegments(ServerRequestInterface $request): array
     {
-        return substr($relativePath, strlen($matchedPath) + 1);
+        $path = ltrim($request->getUri()->getPath(), '/');
+        return $path ? explode('/', $path) : [];
     }
 }

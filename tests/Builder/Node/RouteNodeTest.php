@@ -163,7 +163,7 @@ class RouteNodeTest extends TestCase
         $builder = $this->builder();
         $builder->method('PATCH')
                 ->pattern(Route\Gate\Pattern\UriPattern::fromUriString('https:/foo'))
-                ->pattern(new Uri\PathSegment('id', '[a-z]+'))
+                ->pattern(new Uri\PathRegexpSegment('id', '[a-z]+'))
                 ->callbackGate(function (ServerRequestInterface $request) { return $request->getAttribute('pass') ? $request : null; })
                 ->callback($this->callbackResponse($response));
         $route = $builder->build();
@@ -192,8 +192,8 @@ class RouteNodeTest extends TestCase
     public function testGatesAreEvaluatedInCorrectOrder()
     {
         $builder = $this->builder();
-        $builder->pattern(new Uri\Path('foo'))
-                ->pattern(new Uri\Path('bar'))
+        $builder->pattern(new Uri\PathSegment('foo'))
+                ->pattern(new Uri\PathSegment('bar'))
                 ->callback($this->callbackResponse($response));
         $route = $builder->build();
 
@@ -211,9 +211,9 @@ class RouteNodeTest extends TestCase
             return new Doubles\FakeResponse('response:' . $request->getUri()->getPath());
         };
         $builder = $this->builder();
-        $split   = $builder->pattern(new Uri\Path('foo'))->responseScan();
-        $split->route('routeA')->pattern(new Uri\Path('bar'))->callback($endpoint);
-        $split->route('routeB')->pattern(new Uri\Path('baz'))->callback($endpoint);
+        $split   = $builder->pattern(new Uri\PathSegment('foo'))->responseScan();
+        $split->route('routeA')->pattern(new Uri\PathSegment('bar'))->callback($endpoint);
+        $split->route('routeB')->pattern(new Uri\PathSegment('baz'))->callback($endpoint);
         $route = $builder->build();
 
         $prototype = new Doubles\FakeResponse();
@@ -231,9 +231,9 @@ class RouteNodeTest extends TestCase
             };
         };
         $builder = $this->builder();
-        $split   = $builder->pattern(new Uri\Path('foo'))->responseScan();
-        $split->route('routeA')->pattern(new Uri\Path('bar'))->callback($endpoint('A'));
-        $split->route('routeB')->pattern(new Uri\Path('baz'))->callback($endpoint('B'));
+        $split   = $builder->pattern(new Uri\PathSegment('foo'))->responseScan();
+        $split->route('routeA')->pattern(new Uri\PathSegment('bar'))->callback($endpoint('A'));
+        $split->route('routeB')->pattern(new Uri\PathSegment('baz'))->callback($endpoint('B'));
         $route = $builder->build();
 
         $builder = new Node\MethodSwitchNode($this->context());
@@ -257,9 +257,9 @@ class RouteNodeTest extends TestCase
     {
         $endpoint = $this->responseRoute($response);
         $builder  = $this->builder();
-        $split    = $builder->pattern(new Uri\Path('foo*'))->responseScan();
-        $split->route('routeA')->pattern(new Uri\Path('bar*'))->link($endpointA)->joinRoute($endpoint);
-        $split->route('routeB')->pattern(new Uri\Path('baz*'))->joinRoute($endpoint);
+        $split    = $builder->pattern(new Uri\PathSegment('foo'))->responseScan();
+        $split->route('routeA')->pattern(new Uri\PathSegment('bar'))->link($endpointA)->joinRoute($endpoint);
+        $split->route('routeB')->pattern(new Uri\PathSegment('baz'))->joinRoute($endpoint);
         $route = $builder->build();
 
         $builder = new Node\MethodSwitchNode($this->context());
@@ -347,7 +347,7 @@ class RouteNodeTest extends TestCase
         $router  = null;
         $builder = $this->builder(null, function () use (&$router) { return $router; });
         $path    = $builder->pathSwitch();
-        $path->route('admin')->pattern(new Uri\Path('redirected'))->joinRoute(new Doubles\MockedRoute());
+        $path->route('admin')->pattern(new Uri\PathSegment('redirected'))->joinRoute(new Doubles\MockedRoute());
         $path->route('redirect')->redirect('admin');
 
         $router   = new Routing\Router($builder->build(), new Doubles\FakeUri(), new Doubles\FakeResponse());
@@ -361,7 +361,7 @@ class RouteNodeTest extends TestCase
     {
         $builder = new Node\RouteNode(new Routing\Builder\Context(new Routing\Builder\MappedRoutes(null, null, null)));
         $path    = $builder->pathSwitch();
-        $path->route('admin')->pattern(new Uri\Path('redirected'))->joinRoute(new Doubles\MockedRoute());
+        $path->route('admin')->pattern(new Uri\PathSegment('redirected'))->joinRoute(new Doubles\MockedRoute());
         $node = $path->route('redirect');
         $this->expectException(Routing\Builder\Exception\BuilderLogicException::class);
         $node->redirect('admin');
