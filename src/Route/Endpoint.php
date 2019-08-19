@@ -33,8 +33,7 @@ abstract class Endpoint implements Route
 
     public function forward(Request $request, Response $prototype): Response
     {
-        if (!$this->isPathFullyMatched($request)) { return $prototype; }
-
+        if ($this->relativePath($request)) { return $prototype; }
         return $this->optionsResponse($request, $prototype) ?: $this->execute($request, $prototype);
     }
 
@@ -65,10 +64,5 @@ abstract class Endpoint implements Route
 
         $methods = $request->getAttribute(self::METHODS_ATTRIBUTE);
         return $methods ? $prototype->withHeader('Allow', implode(', ', $methods)) : null;
-    }
-
-    private function isPathFullyMatched(Request $request): bool
-    {
-        return !$this->relativePath($request) || $request->getAttribute(self::WILDCARD_ATTRIBUTE);
     }
 }
