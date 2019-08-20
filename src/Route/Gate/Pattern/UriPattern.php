@@ -39,10 +39,7 @@ class UriPattern implements Pattern
 
     public static function fromUriString(string $uri, array $regexp = []): self
     {
-        if (strpos($uri, self::DELIM_LEFT . '#') !== false) {
-            return self::withoutFragmentDelimiter($uri, $regexp);
-        }
-
+        $uri = str_replace(self::DELIM_LEFT . '#', self::DELIM_LEFT, $uri);
         if (!$segments = parse_url($uri)) {
             throw new InvalidArgumentException(sprintf('Malformed URI string: `%s`', $uri));
         }
@@ -124,15 +121,9 @@ class UriPattern implements Pattern
             return new Uri\PathSegment($segment);
         }
 
-        if (isset($this->regexp[$id])) {
-            return new Uri\PathRegexpSegment($id, $this->regexp[$id]);
-        }
-
-        [$type, $id] = [$id[0], substr($id, 1)];
-
-        return isset(self::TYPE_REGEXP[$type])
-            ? new Uri\PathRegexpSegment($id, self::TYPE_REGEXP[$type])
-            : new Uri\PathRegexpSegment($type . $id);
+        return isset(self::TYPE_REGEXP[$id[0]])
+            ? new Uri\PathRegexpSegment(substr($id, 1), self::TYPE_REGEXP[$id[0]])
+            : new Uri\PathRegexpSegment($id, $this->regexp[$id] ?? self::TYPE_REGEXP[self::TYPE_NUMBER]);
     }
 
     private function patternId(string $segment): ?string
@@ -140,17 +131,6 @@ class UriPattern implements Pattern
         if ($segment[0] !== self::DELIM_LEFT) { return null; }
         $id = substr($segment, 1, -1);
         return $segment === self::param($id) ? $id : null;
-    }
-
-    private static function withoutFragmentDelimiter(string $uri, array $regexp): self
-    {
-        preg_match_all('/' . self::param('#([A-Za-z.]+)') . '/', $uri, $matches);
-        foreach ($matches[1] as $id) {
-            $regexp[$id] = self::TYPE_REGEXP['#'];
-            $uri = str_replace(self::param('#' . $id), self::param($id), $uri);
-        }
-
-        return self::fromUriString($uri, $regexp);
     }
 
     private static function param(string $id): string
