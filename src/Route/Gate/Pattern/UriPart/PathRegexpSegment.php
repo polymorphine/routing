@@ -40,7 +40,7 @@ class PathRegexpSegment implements Route\Gate\Pattern
      * @param string $name
      * @param string $regexp
      */
-    public function __construct(string $name = 'id', string $regexp = '[1-9][0-9]*')
+    public function __construct(string $name = 'id', string $regexp = self::TYPE_REGEXP[self::TYPE_NUMBER])
     {
         $this->name   = $name;
         $this->regexp = $regexp;
@@ -53,7 +53,7 @@ class PathRegexpSegment implements Route\Gate\Pattern
 
     public static function number(string $name = 'id')
     {
-        return new static($name, self::TYPE_REGEXP[self::TYPE_NUMBER]);
+        return new static($name);
     }
 
     public static function slug(string $name = 'slug')
