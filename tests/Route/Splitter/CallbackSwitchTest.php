@@ -66,12 +66,12 @@ class CallbackSwitchTest extends TestCase
         $splitter->uri(new Doubles\FakeUri(), []);
     }
 
-    private function splitter(array $routes = [], string $keyStub = 'route')
+    private function splitter(array $routes = [], string $idStub = 'route')
     {
-        $callback = function (ServerRequestInterface $request) use ($keyStub): string {
-            return $keyStub;
+        $idCallback = function (ServerRequestInterface $request) use ($idStub): string {
+            return $idStub;
         };
-        return new Route\Splitter\CallbackSwitch($routes, $callback);
+        return new Route\Splitter\CallbackSwitch($routes, $idCallback);
     }
 
     private function responseRoute(&$response, string $body = '')

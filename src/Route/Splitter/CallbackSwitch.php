@@ -27,22 +27,22 @@ class CallbackSwitch implements Route
     use RouteSelectMethods;
 
     private $routes;
-    private $callback;
+    private $idCallback;
 
     /**
-     * @param Route[]  $routes   associative array with route name keys
-     * @param callable $callback function (ServerRequestInterface): string
+     * @param Route[]  $routes     associative array with route name keys
+     * @param callable $idCallback function (ServerRequestInterface): string
      */
-    public function __construct(array $routes, callable $callback)
+    public function __construct(array $routes, callable $idCallback)
     {
-        $this->routes   = $routes;
-        $this->callback = $callback;
+        $this->routes     = $routes;
+        $this->idCallback = $idCallback;
     }
 
     public function forward(Request $request, Response $prototype): Response
     {
-        $name  = ($this->callback)($request);
-        $route = $this->routes[$name] ?? null;
+        $id    = ($this->idCallback)($request);
+        $route = $this->routes[$id] ?? null;
 
         return $route ? $route->forward($request, $prototype) : $prototype;
     }
