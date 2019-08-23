@@ -20,6 +20,8 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class CallbackSwitchTest extends TestCase
 {
+    private const TEST_ID = 'route.id';
+
     public function testInstantiation()
     {
         $this->assertInstanceOf(Route\Splitter\CallbackSwitch::class, $this->splitter());
@@ -28,21 +30,15 @@ class CallbackSwitchTest extends TestCase
 
     public function testRequestIsForwardedBasedOnCallbackResult()
     {
-        $request   = new Doubles\FakeServerRequest();
-        $prototype = new Doubles\FakeResponse();
-        $routes = [
+        $splitter = $this->splitter([
             'foo' => $this->responseRoute($fooResponse),
             'bar' => $this->responseRoute($barResponse)
-        ];
-
-        $splitter = $this->splitter($routes, 'selected');
+        ]);
+        $request   = new Doubles\FakeServerRequest();
+        $prototype = new Doubles\FakeResponse();
         $this->assertSame($prototype, $splitter->forward($request, $prototype));
-
-        $splitter = $this->splitter($routes, 'foo');
-        $this->assertSame($fooResponse, $splitter->forward($request, $prototype));
-
-        $splitter = $this->splitter($routes, 'bar');
-        $this->assertSame($barResponse, $splitter->forward($request, $prototype));
+        $this->assertSame($fooResponse, $splitter->forward($request->withAttribute(self::TEST_ID, 'foo'), $prototype));
+        $this->assertSame($barResponse, $splitter->forward($request->withAttribute(self::TEST_ID, 'bar'), $prototype));
     }
 
     public function testRoutesCanBeSelected()
@@ -66,10 +62,10 @@ class CallbackSwitchTest extends TestCase
         $splitter->uri(new Doubles\FakeUri(), []);
     }
 
-    private function splitter(array $routes = [], string $idStub = 'route')
+    private function splitter(array $routes = [])
     {
-        $idCallback = function (ServerRequestInterface $request) use ($idStub): string {
-            return $idStub;
+        $idCallback = function (ServerRequestInterface $request): string {
+            return $request->getAttribute(self::TEST_ID, 'not.found');
         };
         return new Route\Splitter\CallbackSwitch($routes, $idCallback);
     }
