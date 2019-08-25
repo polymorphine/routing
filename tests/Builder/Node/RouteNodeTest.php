@@ -36,6 +36,7 @@ class RouteNodeTest extends TestCase
         $this->assertInstanceOf(Node\ScanSwitchNode::class, $this->builder()->responseScan());
         $this->assertInstanceOf(Node\MethodSwitchNode::class, $this->builder()->methodSwitch());
         $this->assertInstanceOf(Node\PathSwitchNode::class, $this->builder()->pathSwitch());
+        $this->assertInstanceOf(Node\CallbackSwitchNode::class, $this->builder()->callbackSwitch(function () {}));
         $this->assertInstanceOf(Node\Resource\ResourceSwitchNode::class, $this->builder()->resource());
     }
 
