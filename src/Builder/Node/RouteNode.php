@@ -192,6 +192,23 @@ class RouteNode implements Node
     }
 
     /**
+     * Creates CallbackSwitch node context builder.
+     * Optional defined associative array of Routes with id keys
+     * returned by callback.
+     *
+     * @see \Polymorphine\Routing\Route\Splitter\CallbackSwitch
+     *
+     * @param callable $idCallback function(ServerRequestInterface): string
+     * @param array    $routes
+     *
+     * @return CallbackSwitchNode
+     */
+    public function callbackSwitch(callable $idCallback, array $routes = []): CallbackSwitchNode
+    {
+        return $this->contextBuilder(new CallbackSwitchNode($this->context, $idCallback, $routes));
+    }
+
+    /**
      * Creates node context builder producing composite routing logic
      * for REST resource.
      * Optionally already defined array of Routes with keys representing
