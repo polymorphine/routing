@@ -164,11 +164,11 @@ class RouteNode implements Node
      * Anonymous Routes (without key) cannot be explicitly selected
      * (to produce Uri), but matched request would reach them.
      *
+     * @see \Polymorphine\Routing\Route\Splitter\ScanSwitch
+     *
      * @param Route[] $routes associated with routing path segment keys
      *
      * @return ScanSwitchNode
-     *
-     *@see \Polymorphine\Routing\Route\Splitter\ScanSwitch
      */
     public function responseScan(array $routes = []): ScanSwitchNode
     {
@@ -180,11 +180,11 @@ class RouteNode implements Node
      * Optionally already defined array of Routes with keys representing
      * http methods (and routing path segment) might be given as parameter.
      *
+     * @see \Polymorphine\Routing\Route\Splitter\MethodSwitch
+     *
      * @param Route[] $routes associated with http method keys
      *
      * @return MethodSwitchNode
-     *
-     *@see \Polymorphine\Routing\Route\Splitter\MethodSwitch
      */
     public function methodSwitch(array $routes = []): MethodSwitchNode
     {
@@ -229,13 +229,13 @@ class RouteNode implements Node
      * Otherwise it is recommended to build resource with method that defines its
      * name directly in PathSwitchBuilder or RouteScanBuilder.
      *
+     * @see PathSwitchNode::resource()
+     * @see ScanSwitchNode::resource()
+     *
      * @param array             $routes
      * @param null|FormsContext $formsBuilder
      *
      * @return ResourceSwitchNode
-     *
-     *@see PathSwitchNode::resource()
-     * @see ScanSwitchNode::resource()
      */
     public function resource(array $routes = [], ?FormsContext $formsBuilder = null): ResourceSwitchNode
     {
