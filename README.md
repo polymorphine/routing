@@ -6,17 +6,20 @@
 [![LICENSE](https://img.shields.io/github/license/polymorphine/routing.svg?color=blue)](LICENSE)
 ### Composite routing library for HTTP applications
 
-#### Concept feature: *Tree structure finding matching route and resolving urls*
-Router may consist of individual routes (see [`Route`](src/Route.php) interface) from
+#### Concept feature: *Tree structure routing matching requests and building endpoint urls*
+Router may consist of individual routes (see [`Route`](src/Route.php) interface) of
 three main categories:
 * **Splitters** - Switches that branch single route into multiple route paths.
   `Switch` would be more accurate name, but it's a php keyword and it would require
   some additional prefix/postfix description.
 * **Gates** - Routes that determine if current request should be forwarded or performs
   some preprocessing based on request passing through.
-* **Endpoints** - Use case entry points. Routes which only responsibility is to take
-  (processed) request and return response. Neither routing path continuations nor uri
-  building happens in endpoint routes.
+* **Endpoints** - Routes which only responsibility is to take (processed) request and
+  pass it to handler that produces response. Neither routing path continuations nor uri
+  building happens in endpoint routes, but when request uri path is not fully processed
+  then handler method is not called and null (prototype) response is returned.
+  Endpoints are also capable of gathering and returning responses for OPTIONS method
+  requests if this http method was not explicitly routed.
 
 These routes composed in different ways will create unique routing logic, but since
 composition tree may be deep its instantiation using `new` operator may become
