@@ -47,6 +47,11 @@ abstract class Endpoint implements Route
         return $prototype;
     }
 
+    public function routes(string $path, UriInterface $uri): array
+    {
+        return [$path => (string) $uri];
+    }
+
     /**
      * Method is equivalent to forward() method, but allows request
      * pre-processing.

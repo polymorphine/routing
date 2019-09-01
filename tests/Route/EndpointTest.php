@@ -72,4 +72,13 @@ class EndpointTest extends TestCase
         $request->uri = Doubles\FakeUri::fromString('http://path.from.attribute');
         $this->assertSame($prototype, $route->forward($request->withAttribute(Route::PATH_ATTRIBUTE, ['some', 'path']), $prototype));
     }
+
+    public function testRoutesMethod_ReturnsArrayMappingRoutePathToUri()
+    {
+        $route = new Doubles\DummyEndpoint();
+        $uri   = Doubles\FakeUri::fromString($uriString = 'https://example.com/foo/bar');
+        $path  = 'some.routing.path';
+
+        $this->assertSame([$path => $uriString], $route->routes($path, $uri));
+    }
 }
