@@ -118,10 +118,17 @@ Beside that, endpoints can can handle types of requests that can be resolved in 
 There are several ways to define endpoint behaviour:
 
 1. [`CallbackEndpoint`](src/Route/Endpoint/CallbackEndpoint.php) ([`RouteBuilder::callback($callable)`](src/Builder/Node/RouteNode.php#L47))
-  will handle forwarded request with given callback function having following signature:
+  will handle forwarded request using given callback function with following signature:
     ```php
     $callable = function (ServerRequestInterface $request): ResponseInterface { ... }
     ```
 2. [`HandlerEndpoint`](src/Route/Endpoint/HandlerEndpoint.php) ([`RouteBuilder::handler(RequestHandlerInterface $handler)`](src/Builder/Node/RouteNode.php#L59))
   will handle forwarded request with given class implementing RequestHandlerInterface.
+3. [`RedirectEndpoint`](src/Route/Endpoint/RedirectEndpoint.php) ([`RouteBuilder::redirect(string $routingPath, $code = 301)`](src/Builder/Node/RouteNode.php#L84))
+  will return response redirecting to another endpoint route.
+4. _Mapped endpoint_ ([`RouteBuilder::endpoint(string $id)`](src/Builder/Node/RouteNode.php#L104))
+  will use user defined callback to create endpoint route based on given id string. To define mapping
+  procedure initialise [`Builder`](src/Builder.php) with [`MappedRoutes`](src/Builder/MappedRoutes.php)
+  with defined `$endpoint` parameter (see predefined mapping using PSR's `ContainerInterface` in
+  [`MappedRoutes::withContainerMapping()`](src/Builder/MappedRoutes.php#L56)).
 
