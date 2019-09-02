@@ -61,4 +61,14 @@ interface Pattern
      * @return UriInterface
      */
     public function uri(UriInterface $prototype, array $params): UriInterface;
+
+    /**
+     * Returns UriInterface replacing dynamic parts of pattern
+     * with its placeholders.
+     *
+     * @param UriInterface $uri
+     *
+     * @return UriInterface
+     */
+    public function templateUri(UriInterface $uri): UriInterface;
 }

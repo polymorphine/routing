@@ -48,6 +48,14 @@ class PathWildcardTest extends TestCase
         $this->assertSame($prototype, $pattern->uri($prototype, ['anything' => 'xxx']));
     }
 
+    public function testUriTemplate_ReturnsUriWithAsteriskEndingPath()
+    {
+        $pattern = new Route\Gate\Pattern\UriPart\PathWildcard();
+        $uri     = Doubles\FakeUri::fromString('http://example.com/foo/bar?query=baz');
+
+        $this->assertSame($uri, $pattern->templateUri($uri));
+    }
+
     private function request(string $uri, string $relativePath = null)
     {
         $request = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString($uri));

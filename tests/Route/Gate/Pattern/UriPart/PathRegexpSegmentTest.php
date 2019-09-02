@@ -55,6 +55,13 @@ class PathRegexpSegmentTest extends TestCase
         $this->pattern()->uri($this->uri('/foo/bar'), ['id' => 'id-00765']);
     }
 
+    public function testUriTemplate_ReturnsUriWithParameterPlaceholder()
+    {
+        $pattern = $this->pattern('id', '[0-9]+');
+        $uri     = $uri = $this->uri('/foo/bar');
+        $this->assertSame($uri, $pattern->templateUri($uri));
+    }
+
     public function testNamedConstructorsEquivalentToConcretePatterns()
     {
         $this->assertEquals($this->pattern('id', '[0-9]+'), PathRegexpSegment::numeric());

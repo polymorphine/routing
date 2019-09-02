@@ -55,6 +55,12 @@ class Query implements Route\Gate\Pattern
         return $prototype->withQuery($this->combinedQuery($prototype->getQuery(), $params));
     }
 
+    public function templateUri(UriInterface $uri): UriInterface
+    {
+        // TODO: Implement templateUri() method.
+        return $uri;
+    }
+
     private function combinedQuery(string $prototypeQuery, array $params): string
     {
         if (empty($prototypeQuery) && !$params) { return $this->query; }

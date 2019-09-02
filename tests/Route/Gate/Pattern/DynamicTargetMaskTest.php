@@ -312,6 +312,13 @@ class DynamicTargetMaskTest extends TestCase
         $this->assertSame('/foo/34', (string) $pattern->uri($prototype, ['34']));
     }
 
+    public function testTemplateUri_ReturnsPatternUriWithParameterPlaceholders()
+    {
+        $pattern = $this->pattern('foo/{#id}');
+        $uri     = Doubles\FakeUri::fromString('//example.com');
+        $this->assertSame($uri, $pattern->templateUri($uri));
+    }
+
     private function pattern($pattern = '')
     {
         return new Pattern\DynamicTargetMask($pattern);

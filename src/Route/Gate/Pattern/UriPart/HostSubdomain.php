@@ -64,6 +64,12 @@ class HostSubdomain implements Route\Gate\Pattern
         return $prototype->withHost($subdomain . '.' . $host);
     }
 
+    public function templateUri(UriInterface $uri): UriInterface
+    {
+        // TODO: Implement templateUri() method.
+        return $uri;
+    }
+
     private function subdomainParameter(array $params): string
     {
         if (!isset($params[$this->id])) {

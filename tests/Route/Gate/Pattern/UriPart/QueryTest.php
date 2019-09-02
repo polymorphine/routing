@@ -141,6 +141,13 @@ class QueryTest extends TestCase
         $this->assertSame('foo=fizz&bar=buzz&baz=qux', $uri->getQuery());
     }
 
+    public function testUriTemplate_ReturnsUriWithQueryPlaceholders()
+    {
+        $pattern = $this->pattern('foo=bar');
+        $uri     = Doubles\FakeUri::fromString('/foo/bar');
+        $this->assertSame($uri, $pattern->templateUri($uri));
+    }
+
     private function pattern(string $query): Pattern
     {
         return new Pattern\UriPart\Query($query);

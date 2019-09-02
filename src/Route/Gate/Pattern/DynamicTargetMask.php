@@ -91,6 +91,12 @@ class DynamicTargetMask implements Route\Gate\Pattern
         return $this->queryParams ? $this->setQuery($query, $prototype) : $prototype;
     }
 
+    public function templateUri(UriInterface $uri): UriInterface
+    {
+        // TODO: Implement templateUri() method.
+        return $uri;
+    }
+
     private function patternRegexp()
     {
         $regexp = preg_quote($this->pattern);

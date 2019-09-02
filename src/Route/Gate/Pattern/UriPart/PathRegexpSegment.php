@@ -90,6 +90,12 @@ class PathRegexpSegment implements Route\Gate\Pattern
         return $prototype->withPath($prototype->getPath() . '/' . $id);
     }
 
+    public function templateUri(UriInterface $uri): UriInterface
+    {
+        // TODO: Implement templateUri() method.
+        return $uri;
+    }
+
     protected function validFormat($id): bool
     {
         return (bool) preg_match('#^' . $this->regexp . '$#', (string) $id);

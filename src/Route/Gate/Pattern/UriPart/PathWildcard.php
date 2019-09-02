@@ -37,4 +37,10 @@ class PathWildcard implements Route\Gate\Pattern
     {
         return $prototype;
     }
+
+    public function templateUri(UriInterface $uri): UriInterface
+    {
+        // TODO: Implement templateUri() method.
+        return $uri;
+    }
 }
