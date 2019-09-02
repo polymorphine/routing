@@ -202,6 +202,14 @@ class UriPatternTest extends TestCase
         $this->assertSame($request, $patternB->matchedRequest($request));
     }
 
+    public function testTemplateUri_ReturnsAppendsUriTemplatesFromAllPatterns()
+    {
+        $pattern = $this->pattern('https://example.com:5000');
+        $uri     = Doubles\FakeUri::fromString('/foo/bar');
+
+        $this->assertSame('https://example.com:5000/foo/bar', (string) $pattern->templateUri($uri));
+    }
+
     private function pattern(string $uri)
     {
         return Route\Gate\Pattern\UriPattern::fromUriString($uri);

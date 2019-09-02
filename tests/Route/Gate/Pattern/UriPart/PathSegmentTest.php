@@ -69,6 +69,17 @@ class PathSegmentTest extends TestCase
         $this->assertSame('http://example.com/foo/bar', (string) $pattern->uri($prototype, []));
     }
 
+    public function testUriTemplate_ReturnsUriWithExpandedPath()
+    {
+        $pattern   = $this->pattern('foo');
+        $prototype = Doubles\FakeUri::fromString('http://example.com');
+        $this->assertSame('http://example.com/foo', (string) $pattern->templateUri($prototype));
+
+        $pattern   = $this->pattern('bar');
+        $prototype = Doubles\FakeUri::fromString('http://example.com/foo');
+        $this->assertSame('http://example.com/foo/bar', (string) $pattern->templateUri($prototype));
+    }
+
     private function pattern(string $name): Pattern\UriPart\PathSegment
     {
         return new Pattern\UriPart\PathSegment($name);

@@ -23,6 +23,8 @@ use Psr\Http\Message\UriInterface;
  */
 abstract class UriPart implements Route\Gate\Pattern
 {
+    use StaticUriTemplateMethod;
+
     protected $pattern;
 
     /**
