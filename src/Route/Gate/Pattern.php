@@ -32,8 +32,8 @@ interface Pattern
         self::TYPE_NUMERIC => '[0-9]+'
     ];
 
-    public const PLACEHOLDER_LEFT  = '((:';
-    public const PLACEHOLDER_RIGHT = ':))';
+    public const PLACEHOLDER_LEFT  = '((';
+    public const PLACEHOLDER_RIGHT = '))';
 
     /**
      * When $request matches pattern it is returned back
