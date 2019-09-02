@@ -225,8 +225,8 @@ class DynamicTargetMaskTest extends TestCase
     public function prototypeConflict()
     {
         return [
-            'different absolute paths' => ['/foo/bar/baz', '/foo/baz'],
-            'different query param fizz' => ['/foo/bar?anything&fizz=buzz', '?anything=foo&fizz=baz'],
+            'different absolute paths'                   => ['/foo/bar/baz', '/foo/baz'],
+            'different query param fizz'                 => ['/foo/bar?anything&fizz=buzz', '?anything=foo&fizz=baz'],
             'different query param fizz (defined empty)' => ['/foo/{#id}?some=query&fizz=buzz', '?some=query&fizz=']
         ];
     }
