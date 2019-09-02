@@ -53,7 +53,7 @@ class PathWildcardTest extends TestCase
         $pattern = new Route\Gate\Pattern\UriPart\PathWildcard();
         $uri     = Doubles\FakeUri::fromString('http://example.com/foo/bar?query=baz');
 
-        $this->assertSame($uri, $pattern->templateUri($uri));
+        $this->assertSame('http://example.com/foo/bar((:/*:))?query=baz', (string) $pattern->templateUri($uri));
     }
 
     private function request(string $uri, string $relativePath = null)
