@@ -16,8 +16,8 @@ use Polymorphine\Routing\Route\Gate\Pattern;
 
 trait UriTemplatePlaceholder
 {
-    public function placeholder(string $name)
+    private function placeholder(string $definition)
     {
-        return Pattern::PLACEHOLDER_LEFT . $name . Pattern::PLACEHOLDER_RIGHT;
+        return Pattern::PLACEHOLDER_LEFT . $definition . Pattern::PLACEHOLDER_RIGHT;
     }
 }
