@@ -24,6 +24,8 @@ use Psr\Http\Message\UriInterface;
  */
 class Query implements Route\Gate\Pattern
 {
+    use Route\Gate\Pattern\UriTemplatePlaceholder;
+
     private $query;
 
     /**
@@ -57,8 +59,8 @@ class Query implements Route\Gate\Pattern
 
     public function templateUri(UriInterface $uri): UriInterface
     {
-        // TODO: Implement templateUri() method.
-        return $uri;
+        $wildcardSegments = array_keys(array_filter($this->queryValues($this->query), 'is_null'));
+        return $this->uri($uri, array_fill_keys($wildcardSegments, $this->placeholder('*')));
     }
 
     private function combinedQuery(string $prototypeQuery, array $params): string
