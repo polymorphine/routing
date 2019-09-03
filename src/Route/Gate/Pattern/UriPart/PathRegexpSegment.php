@@ -24,6 +24,7 @@ use Psr\Http\Message\UriInterface;
 class PathRegexpSegment implements Route\Gate\Pattern
 {
     use Route\Gate\Pattern\PathContextMethods;
+    use Route\Gate\Pattern\UriTemplatePlaceholder;
 
     private $name;
     private $regexp;
@@ -92,8 +93,8 @@ class PathRegexpSegment implements Route\Gate\Pattern
 
     public function templateUri(UriInterface $uri): UriInterface
     {
-        // TODO: Implement templateUri() method.
-        return $uri;
+        $definition = $this->name . ':' . $this->regexp;
+        return $uri->withPath($uri->getPath() . '/' . $this->placeholder($definition));
     }
 
     protected function validFormat($id): bool
