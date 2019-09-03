@@ -55,7 +55,9 @@ class HostSubdomainTest extends TestCase
     {
         $subdomain = $this->subdomain('lang', ['en', 'pl', 'de']);
         $uri       = Doubles\FakeUri::fromString('//example.com/foo/bar?fizz=buzz');
-        $this->assertSame($uri, $subdomain->templateUri($uri));
+        $param     = Pattern::PLACEHOLDER_LEFT . 'lang:en|pl|de' . Pattern::PLACEHOLDER_RIGHT;
+        $expected  = $uri->withHost($param . '.' . $uri->getHost());
+        $this->assertEquals($expected, $subdomain->templateUri($uri));
     }
 
     public function testMissingUriParam_ThrowsException()
