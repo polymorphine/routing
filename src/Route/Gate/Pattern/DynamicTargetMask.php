@@ -83,14 +83,7 @@ class DynamicTargetMask implements Route\Gate\Pattern
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
         $this->parsed or $this->parsePattern();
-
-        $params = $this->uriPlaceholders($params);
-        $target = str_replace(array_keys($params), $params, $this->pattern);
-
-        [$path, $query] = explode('?', $target, 2) + [false, null];
-
-        $prototype = $this->setPath($path, $prototype);
-        return $this->queryParams ? $this->setQuery($query, $prototype) : $prototype;
+        return $this->replacePlaceholders($prototype, $this->uriPlaceholders($params));
     }
 
     public function templateUri(UriInterface $uri): UriInterface
@@ -105,11 +98,7 @@ class DynamicTargetMask implements Route\Gate\Pattern
             $placeholders[$token] = $this->placeholder($definition);
         }
 
-        $target = str_replace(array_keys($placeholders), $placeholders, $this->pattern);
-        [$path, $query] = explode('?', $target, 2) + [false, null];
-
-        $uri = $this->setPath($path, $uri);
-        return $this->queryParams ? $this->setQuery($query, $uri) : $uri;
+        return $this->replacePlaceholders($uri, $placeholders);
     }
 
     private function patternRegexp()
@@ -145,6 +134,15 @@ class DynamicTargetMask implements Route\Gate\Pattern
         }
 
         return $placeholders;
+    }
+
+    private function replacePlaceholders(UriInterface $uri, array $placeholders): UriInterface
+    {
+        $target = str_replace(array_keys($placeholders), $placeholders, $this->pattern);
+        [$path, $query] = explode('?', $target, 2) + [false, null];
+
+        $uri = $this->setPath($path, $uri);
+        return $this->queryParams ? $this->setQuery($query, $uri) : $uri;
     }
 
     private function validParam(string $name, string $type, $value): string
