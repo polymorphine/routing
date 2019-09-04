@@ -93,7 +93,8 @@ class PathRegexpSegment implements Route\Gate\Pattern
 
     public function templateUri(UriInterface $uri): UriInterface
     {
-        $definition = $this->name . ':' . $this->regexp;
+        $presetType = array_search($this->regexp, self::TYPE_REGEXP, true);
+        $definition = $presetType ? $presetType . $this->name : $this->name . ':' . $this->regexp;
         return $uri->withPath($uri->getPath() . '/' . $this->placeholder($definition));
     }
 

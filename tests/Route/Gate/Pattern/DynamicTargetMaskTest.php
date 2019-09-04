@@ -314,10 +314,19 @@ class DynamicTargetMaskTest extends TestCase
 
     public function testTemplateUri_ReturnsPatternUriWithParameterPlaceholders()
     {
+        $pattern = new Pattern\DynamicTargetMask('bar/{id}?name={name}', ['id' => '[1-9]', 'name' => '(bar|baz)']);
+        $uri     = Doubles\FakeUri::fromString('//example.com/foo?query=string');
+        $expected = $uri->withPath('/foo/bar/((id:[1-9]))')
+                        ->withQuery('query=string&name=((name:(bar|baz)))');
+        $this->assertEquals($expected, $pattern->templateUri($uri));
+    }
+
+    public function testUriTemplateWithPredefinedRegexp_ReturnsUriWithParameterTypePlaceholder()
+    {
         $pattern = $this->pattern('bar/{#id}?name={$name}');
         $uri     = Doubles\FakeUri::fromString('//example.com/foo?query=string');
-        $expected = $uri->withPath('/foo/bar/((id:[1-9][0-9]*))')
-                        ->withQuery('query=string&name=((name:[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9]))');
+        $expected = $uri->withPath('/foo/bar/((#id))')
+                        ->withQuery('query=string&name=(($name))');
         $this->assertEquals($expected, $pattern->templateUri($uri));
     }
 

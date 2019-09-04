@@ -99,8 +99,10 @@ class DynamicTargetMask implements Route\Gate\Pattern
 
         $placeholders = [];
         foreach ($this->params as $name => $type) {
-            $token = self::DELIM_LEFT . $name . self::DELIM_RIGHT;
-            $placeholders[$token] = $this->placeholder($name . ':' . $type);
+            $token      = self::DELIM_LEFT . $name . self::DELIM_RIGHT;
+            $presetType = array_search($type, self::TYPE_REGEXP, true);
+            $definition = $presetType ? $presetType . $name : $name . ':' . $type;
+            $placeholders[$token] = $this->placeholder($definition);
         }
 
         $target = str_replace(array_keys($placeholders), $placeholders, $this->pattern);

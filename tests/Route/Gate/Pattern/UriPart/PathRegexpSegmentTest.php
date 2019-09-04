@@ -57,9 +57,18 @@ class PathRegexpSegmentTest extends TestCase
 
     public function testUriTemplate_ReturnsUriWithParameterPlaceholder()
     {
+        $pattern  = $this->pattern('id', 'post-[0-9]+');
+        $uri      = $uri = $this->uri('/foo/bar');
+        $param    = Route\Gate\Pattern::PLACEHOLDER_LEFT . 'id:post-[0-9]+' . Route\Gate\Pattern::PLACEHOLDER_RIGHT;
+        $expected = $uri->withPath($uri->getPath() . '/' . $param);
+        $this->assertEquals($expected, $pattern->templateUri($uri));
+    }
+
+    public function testUriTemplateWithPredefinedRegexp_ReturnsUriWithParameterTypePlaceholder()
+    {
         $pattern  = $this->pattern('id', '[0-9]+');
         $uri      = $uri = $this->uri('/foo/bar');
-        $param    = Route\Gate\Pattern::PLACEHOLDER_LEFT . 'id:[0-9]+' . Route\Gate\Pattern::PLACEHOLDER_RIGHT;
+        $param    = Route\Gate\Pattern::PLACEHOLDER_LEFT . '%id' . Route\Gate\Pattern::PLACEHOLDER_RIGHT;
         $expected = $uri->withPath($uri->getPath() . '/' . $param);
         $this->assertEquals($expected, $pattern->templateUri($uri));
     }
