@@ -26,6 +26,8 @@ use Psr\Http\Message\UriInterface;
  */
 class DynamicTargetMask implements Route\Gate\Pattern
 {
+    use UriTemplatePlaceholder;
+
     private $pattern;
     private $params;
     private $parsed = false;
@@ -93,8 +95,19 @@ class DynamicTargetMask implements Route\Gate\Pattern
 
     public function templateUri(UriInterface $uri): UriInterface
     {
-        // TODO: Implement templateUri() method.
-        return $uri;
+        $this->parsed or $this->parsePattern();
+
+        $placeholders = [];
+        foreach ($this->params as $name => $type) {
+            $token = self::DELIM_LEFT . $name . self::DELIM_RIGHT;
+            $placeholders[$token] = $this->placeholder($name . ':' . $type);
+        }
+
+        $target = str_replace(array_keys($placeholders), $placeholders, $this->pattern);
+        [$path, $query] = explode('?', $target, 2) + [false, null];
+
+        $uri = $this->setPath($path, $uri);
+        return $this->queryParams ? $this->setQuery($query, $uri) : $uri;
     }
 
     private function patternRegexp()
