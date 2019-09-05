@@ -56,6 +56,11 @@ class LazyRouteTest extends TestCase
         $this->assertSame('invoked.route.path', $route->path);
     }
 
+    public function testRoutesMethod_ReturnsUriTemplatesAssociatedToRoutePaths()
+    {
+        $this->assertSame([], $this->route()->routes('foo.bar', Doubles\FakeUri::fromString('/foo/bar')));
+    }
+
     private function route()
     {
         return new Route\Gate\LazyRoute(function () {

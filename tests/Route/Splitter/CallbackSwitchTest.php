@@ -62,6 +62,11 @@ class CallbackSwitchTest extends TestCase
         $splitter->uri(new Doubles\FakeUri(), []);
     }
 
+    public function testRoutesMethod_ReturnsUriTemplatesAssociatedToRoutePaths()
+    {
+        $this->assertSame([], $this->splitter()->routes('foo.bar', Doubles\FakeUri::fromString('/foo/bar')));
+    }
+
     private function splitter(array $routes = [])
     {
         $idCallback = function (ServerRequestInterface $request): string {

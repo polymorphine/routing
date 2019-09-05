@@ -76,4 +76,6 @@ interface Route
      * @return UriInterface
      */
     public function uri(UriInterface $prototype, array $params): UriInterface;
+
+    public function routes(string $path, UriInterface $uri): array;
 }

@@ -120,6 +120,11 @@ class PatternGateTest extends TestCase
         $this->assertSame($response, $route->forward($request, self::$prototype));
     }
 
+    public function testRoutesMethod_ReturnsUriTemplatesAssociatedToRoutePaths()
+    {
+        $this->assertSame([], $this->patternGate()->routes('foo.bar', Doubles\FakeUri::fromString('/foo/bar')));
+    }
+
     private function patternGate(string $uriPattern = 'https:', $subRoute = null)
     {
         return new Gate\PatternGate(Gate\Pattern\UriPattern::fromUriString($uriPattern), $subRoute ?: Doubles\MockedRoute::response('default'));

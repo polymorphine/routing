@@ -95,6 +95,11 @@ class MethodGateTest extends TestCase
         $this->assertSame($response, $route->forward($request, new Doubles\FakeResponse()));
     }
 
+    public function testRoutesMethod_ReturnsUriTemplatesAssociatedToRoutePaths()
+    {
+        $this->assertSame([], $this->gate()->routes('foo.bar', Doubles\FakeUri::fromString('/foo/bar')));
+    }
+
     private function gate(string $methods = 'GET', Route $route = null)
     {
         return new Route\Gate\MethodGate($methods, $route ?? Doubles\MockedRoute::response('forwarded'));

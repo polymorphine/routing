@@ -86,4 +86,10 @@ class PathSwitch implements Route
 
         return $this->root->uri($prototype, $params);
     }
+
+    public function routes(string $path, UriInterface $uri): array
+    {
+        // TODO: Implement routes() method.
+        return [];
+    }
 }

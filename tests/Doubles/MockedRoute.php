@@ -65,4 +65,9 @@ class MockedRoute implements Route
 
         return $prototype;
     }
+
+    public function routes(string $path, UriInterface $uri): array
+    {
+        return [$path => (string) $uri];
+    }
 }

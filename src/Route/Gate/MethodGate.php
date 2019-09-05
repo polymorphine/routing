@@ -58,6 +58,12 @@ class MethodGate implements Route
         return $this->route->uri($prototype, $params);
     }
 
+    public function routes(string $path, UriInterface $uri): array
+    {
+        // TODO: Implement routes() method.
+        return [];
+    }
+
     private function options(Request $request, Response $prototype): Response
     {
         if ($this->isAllowed('OPTIONS')) {

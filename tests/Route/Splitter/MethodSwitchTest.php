@@ -150,6 +150,11 @@ class MethodSwitchTest extends TestCase
         $this->assertSame($response, $splitter->forward($request, new Doubles\FakeResponse()));
     }
 
+    public function testRoutesMethod_ReturnsUriTemplatesAssociatedToRoutePaths()
+    {
+        $this->assertSame([], $this->splitter()->routes('foo.bar', Doubles\FakeUri::fromString('/foo/bar')));
+    }
+
     private function splitter(array $methods = ['POST', 'GET', 'PUT', 'PATCH', 'DELETE']): MethodSwitch
     {
         $routes = [];

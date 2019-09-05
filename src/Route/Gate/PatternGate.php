@@ -58,4 +58,10 @@ class PatternGate implements Route
         $prototype = $this->pattern->uri($prototype, $params);
         return $this->route->uri($prototype, $params);
     }
+
+    public function routes(string $path, UriInterface $uri): array
+    {
+        // TODO: Implement routes() method.
+        return [];
+    }
 }

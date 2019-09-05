@@ -46,6 +46,11 @@ class MiddlewareGatewayTest extends TestCase
         $this->assertSame($uri, (string) $route->uri(new Doubles\FakeUri(), []));
     }
 
+    public function testRoutesMethod_ReturnsUriTemplatesAssociatedToRoutePaths()
+    {
+        $this->assertSame([], $this->middleware()->routes('foo.bar', Doubles\FakeUri::fromString('/foo/bar')));
+    }
+
     private function middleware()
     {
         return new Route\Gate\MiddlewareGateway(new Doubles\FakeMiddleware(), Doubles\MockedRoute::response('response'));

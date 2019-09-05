@@ -52,6 +52,11 @@ class CallbackGatewayTest extends TestCase
         $this->assertSame($uri, (string) $route->uri(new Doubles\FakeUri(), []));
     }
 
+    public function testRoutesMethod_ReturnsUriTemplatesAssociatedToRoutePaths()
+    {
+        $this->assertSame([], $this->middleware()->routes('foo.bar', Doubles\FakeUri::fromString('/foo/bar')));
+    }
+
     private function middleware(callable $callback = null)
     {
         return new Route\Gate\CallbackGateway($callback ?: $this->basicCallback(), Doubles\MockedRoute::response('default'));

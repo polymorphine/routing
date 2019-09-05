@@ -49,6 +49,12 @@ class LazyRoute implements Route
         return $this->invokedRoute()->uri($prototype, $params);
     }
 
+    public function routes(string $path, UriInterface $uri): array
+    {
+        // TODO: Implement routes() method.
+        return [];
+    }
+
     protected function invokedRoute(): Route
     {
         return $this->route ?? $this->route = ($this->routeCallback)();

@@ -72,6 +72,12 @@ class ScanSwitch implements Route
         throw new EndpointCallException('Cannot resolve specific Uri for switch route');
     }
 
+    public function routes(string $path, UriInterface $uri): array
+    {
+        // TODO: Implement routes() method.
+        return [];
+    }
+
     private function checkDefaultRoute(ServerRequestInterface $request, ResponseInterface $prototype)
     {
         return $this->defaultRoute ? $this->defaultRoute->forward($request, $prototype) : $prototype;

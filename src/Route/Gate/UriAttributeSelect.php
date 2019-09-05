@@ -60,4 +60,10 @@ class UriAttributeSelect implements Route
             ? $this->resource->select($this->itemPath)->uri($prototype, $params)
             : $this->resource->select($this->indexPath)->uri($prototype, $params);
     }
+
+    public function routes(string $path, UriInterface $uri): array
+    {
+        // TODO: Implement routes() method.
+        return [];
+    }
 }

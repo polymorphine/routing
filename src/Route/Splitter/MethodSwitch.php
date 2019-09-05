@@ -73,6 +73,12 @@ class MethodSwitch implements Route
         throw new Exception\EndpointCallException('Cannot resolve specific Uri for switch route');
     }
 
+    public function routes(string $path, UriInterface $uri): array
+    {
+        // TODO: Implement routes() method.
+        return [];
+    }
+
     private function options(Request $request, Response $prototype): Response
     {
         if ($route = $this->methodRoute('OPTIONS')) {

@@ -170,6 +170,11 @@ class PathSwitchTest extends TestCase
         $this->assertSame(self::$prototype, $splitter->forward($request, self::$prototype));
     }
 
+    public function testRoutesMethod_ReturnsUriTemplatesAssociatedToRoutePaths()
+    {
+        $this->assertSame([], $this->splitter()->routes('foo.bar', Doubles\FakeUri::fromString('/foo/bar')));
+    }
+
     public function segmentCombinations()
     {
         return [

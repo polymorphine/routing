@@ -51,4 +51,10 @@ class MiddlewareGateway implements Route
     {
         return $this->route->uri($prototype, $params);
     }
+
+    public function routes(string $path, UriInterface $uri): array
+    {
+        // TODO: Implement routes() method.
+        return [];
+    }
 }
