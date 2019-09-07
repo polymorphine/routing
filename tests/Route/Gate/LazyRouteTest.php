@@ -27,44 +27,45 @@ class LazyRouteTest extends TestCase
 
     public function testInstantiation()
     {
-        $this->assertInstanceOf(Route::class, $this->route());
+        $this->assertInstanceOf(Route::class, $this->gate());
     }
 
     public function testWrappedRouteInstantiationIsDeferred()
     {
-        $route = $this->route();
-        $this->assertNull($this->invokedRoute);
-        $route->forward(new Doubles\FakeServerRequest(), new Doubles\FakeResponse());
-        $this->assertInstanceOf(Route::class, $this->invokedRoute);
-    }
-
-    public function testUriIsCalledOnInvokedRoute()
-    {
-        $uri = $this->route()->uri(new Doubles\FakeUri(), []);
-        $this->assertSame('invoked', $uri->getPath());
+        $gate = $this->gate($route);
+        $this->assertNull($route);
+        $gate->forward(new Doubles\FakeServerRequest(), new Doubles\FakeResponse());
+        $this->assertInstanceOf(Route::class, $route);
     }
 
     public function testRequestIsPassedToInvokedRoute()
     {
-        $response = $this->route()->forward(new Doubles\FakeServerRequest(), new Doubles\FakeResponse());
-        $this->assertSame('invoked', $response->body);
+        $request  = new Doubles\FakeServerRequest();
+        $response = $this->gate($route)->forward($request, new Doubles\FakeResponse());
+        $this->assertSame($response, $route->response);
+    }
+
+    public function testUriIsCalledOnInvokedRoute()
+    {
+        $uri = $this->gate($route)->uri(new Doubles\FakeUri(), []);
+        $this->assertSame($uri, $route->uri);
     }
 
     public function testSelectIsCalledOnInvokedRoute()
     {
-        $route = $this->route()->select('invoked.route.path');
+        $this->gate($route)->select('invoked.route.path');
         $this->assertSame('invoked.route.path', $route->path);
     }
 
     public function testRoutesMethod_ReturnsUriTemplatesAssociatedToRoutePaths()
     {
-        $this->assertSame([], $this->route()->routes('foo.bar', Doubles\FakeUri::fromString('/foo/bar')));
+        $this->assertSame([], $this->gate()->routes('foo.bar', Doubles\FakeUri::fromString('/foo/bar')));
     }
 
-    private function route()
+    private function gate(?Route &$route = null)
     {
-        return new Route\Gate\LazyRoute(function () {
-            return $this->invokedRoute = new Doubles\MockedRoute(
+        return new Route\Gate\LazyRoute(function () use (&$route) {
+            return $route = new Doubles\MockedRoute(
                 new Doubles\FakeResponse('invoked'),
                 Doubles\FakeUri::fromString('invoked')
             );
