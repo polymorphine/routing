@@ -64,7 +64,7 @@ class MockedRoute implements Route
         $part = $this->uri->getQuery() and $prototype = $prototype->withQuery($part);
         $part = $this->uri->getPort() and $prototype = $prototype->withPort($part);
 
-        return $prototype;
+        return $this->uri = $prototype;
     }
 
     public function routes(string $path, UriInterface $uri): array

@@ -57,14 +57,14 @@ class PatternGateTest extends TestCase
     public function testUri_ReturnsUriWithPatternDefinedSegments()
     {
         $subRoute = Doubles\MockedRoute::withUri('/foo/bar');
-
-        $uri = $this->patternGate('https:?some=query', $subRoute)->uri(new Doubles\FakeUri(), []);
+        $uri      = $this->patternGate('https:?some=query', $subRoute)->uri(new Doubles\FakeUri(), []);
         $this->assertSame('https', $uri->getScheme());
         $this->assertSame('', $uri->getHost());
         $this->assertSame('/foo/bar', $uri->getPath());
         $this->assertSame('some=query', $uri->getQuery());
 
-        $uri = $this->patternGate('//example.com', $subRoute)->uri(new Doubles\FakeUri(), []);
+        $subRoute = Doubles\MockedRoute::withUri('/foo/bar');
+        $uri      = $this->patternGate('//example.com', $subRoute)->uri(new Doubles\FakeUri(), []);
         $this->assertSame('', $uri->getScheme());
         $this->assertSame('example.com', $uri->getHost());
         $this->assertSame('/foo/bar', $uri->getPath());
