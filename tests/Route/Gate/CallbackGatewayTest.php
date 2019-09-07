@@ -53,9 +53,8 @@ class CallbackGatewayTest extends TestCase
 
     public function testRoutesMethod_ReturnsUriTemplatesAssociatedToRoutePaths()
     {
-        $gate = $this->gate();
-        $uri  = Doubles\FakeUri::fromString('/foo/bar');
-        $this->assertSame(['foo.bar' => '/foo/bar'], $gate->routes('foo.bar', $uri));
+        $result = $this->gate($route)->routes('foo.bar', Doubles\FakeUri::fromString('/foo/bar'));
+        $this->assertSame($route->mappedPath, $result);
     }
 
     private function gate(?Route &$route = null)
