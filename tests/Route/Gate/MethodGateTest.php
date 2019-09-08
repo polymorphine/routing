@@ -98,7 +98,8 @@ class MethodGateTest extends TestCase
 
     public function testRoutesMethod_ReturnsUriTemplatesAssociatedToRoutePaths()
     {
-        $this->assertSame([], $this->gate()->routes('foo.bar', Doubles\FakeUri::fromString('/foo/bar')));
+        $result = $this->gate('GET', $route)->routes('foo.bar', Doubles\FakeUri::fromString('/foo/bar'));
+        $this->assertSame($route->mappedPath, $result);
     }
 
     private function gate(string $methods = 'GET', ?Route &$route = null)
