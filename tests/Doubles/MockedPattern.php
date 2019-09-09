@@ -18,21 +18,35 @@ use Psr\Http\Message\UriInterface;
 
 class MockedPattern implements Pattern
 {
+    public $uriPrototype;
+    public $uriParams;
+    public $uriResult;
+
+    public $passedRequest;
+    public $matchedRequest;
+
     private $path;
 
-    public function __construct($path)
+    public function __construct(?string $path = null)
     {
         $this->path = $path;
     }
 
     public function matchedRequest(ServerRequestInterface $request): ?ServerRequestInterface
     {
-        $uri = (string) $request->getUri();
-        return ($uri === $this->path) ? $request->withAttribute('pattern', 'passed') : null;
+        $this->passedRequest = $request;
+        return $this->path ? $this->matchedRequest = $request->withAttribute('pattern', 'passed') : null;
     }
 
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
-        return FakeUri::fromString($this->path);
+        $this->uriPrototype = $prototype;
+        $this->uriParams    = $params;
+        return $this->uriResult = $prototype->withPath($this->path ?: '/');
+    }
+
+    public function templateUri(UriInterface $uri): UriInterface
+    {
+        return $this->uri($uri, []);
     }
 }
