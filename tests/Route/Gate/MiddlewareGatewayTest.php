@@ -20,39 +20,39 @@ class MiddlewareGatewayTest extends TestCase
 {
     public function testInstantiation()
     {
-        $this->assertInstanceOf(Route::class, $this->middleware());
+        $this->assertInstanceOf(Route::class, $this->gate());
     }
 
     public function testMiddlewareForwardsRequest()
     {
-        $prototype = new Doubles\FakeResponse();
-        $request   = new Doubles\FakeServerRequest('POST');
-        $response  = $this->middleware()->forward($request->withAttribute('middleware', 'processed'), $prototype);
+        $request  = (new Doubles\FakeServerRequest('POST'))->withAttribute('middleware', 'processed');
+        $response = $this->gate($route)->forward($request, new Doubles\FakeResponse());
 
-        $this->assertNotSame($prototype, $response);
+        $this->assertSame($request, $route->forwardedRequest);
         $this->assertSame('processed: wrap response wrap', (string) $response->getBody());
     }
 
     public function testSelectCallsNextRouteWithSameParameter()
     {
-        $route = $this->middleware()->select('some.name');
-        $this->assertSame('some.name', $route->path);
+        $this->gate($subRoute)->select('some.name');
+        $this->assertSame('some.name', $subRoute->path);
     }
 
     public function testUriCallIsPassedToWrappedRoute()
     {
         $uri   = 'http://example.com/foo/bar?test=baz';
-        $route = new Route\Gate\MiddlewareGateway(new Doubles\FakeMiddleware(), Doubles\MockedRoute::withUri($uri));
-        $this->assertSame($uri, (string) $route->uri(new Doubles\FakeUri(), []));
+        $route = Doubles\MockedRoute::withUri($uri);
+        $this->assertSame($uri, (string) $this->gate($route)->uri(new Doubles\FakeUri(), []));
     }
 
     public function testRoutesMethod_ReturnsUriTemplatesAssociatedToRoutePaths()
     {
-        $this->assertSame([], $this->middleware()->routes('foo.bar', Doubles\FakeUri::fromString('/foo/bar')));
+        $this->assertSame([], $this->gate()->routes('foo.bar', Doubles\FakeUri::fromString('/foo/bar')));
     }
 
-    private function middleware()
+    private function gate(?Route &$route = null)
     {
-        return new Route\Gate\MiddlewareGateway(new Doubles\FakeMiddleware(), Doubles\MockedRoute::response('response'));
+        $route = $route ?? new Doubles\MockedRoute(new Doubles\FakeResponse('response'), new Doubles\FakeUri());
+        return new Route\Gate\MiddlewareGateway(new Doubles\FakeMiddleware(), $route);
     }
 }
