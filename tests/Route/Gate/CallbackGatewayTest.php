@@ -40,8 +40,9 @@ class CallbackGatewayTest extends TestCase
 
     public function testSelectCallsWrappedRouteWithSameParameter()
     {
-        $route = $this->gate()->select('some.name');
+        $selected = $this->gate($route)->select('some.name');
         $this->assertSame('some.name', $route->path);
+        $this->assertSame($selected, $route->subRoute);
     }
 
     public function testUriCallIsPassedToWrappedRoute()

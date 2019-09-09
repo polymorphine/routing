@@ -71,27 +71,27 @@ class ScanSwitchTest extends TestCase
 
     public function testSelectEndpointCall_ReturnsFoundRoute()
     {
-        $route = $this->splitter([
-            'A' => $routeA = new Doubles\MockedRoute(),
-            'B' => $routeB = new Doubles\MockedRoute()
+        $splitter = $this->splitter($routes = [
+            'A' => new Doubles\MockedRoute(),
+            'B' => new Doubles\MockedRoute()
         ]);
-        $this->assertSame($routeA, $route->select('A'));
-        $this->assertSame($routeB, $route->select('B'));
+        $this->assertSame($routes['A'], $splitter->select('A'));
+        $this->assertSame($routes['B'], $splitter->select('B'));
     }
 
     public function testSelectSwitchCallWithMorePathSegments_AsksNextSwitch()
     {
-        $splitter = $this->splitter([
-            'A' => $routeA = new Doubles\MockedRoute(),
-            'B' => $routeB = new Doubles\MockedRoute()
+        $splitter = $this->splitter($routes = [
+            'A' => new Doubles\MockedRoute(),
+            'B' => new Doubles\MockedRoute()
         ]);
         $selected = $splitter->select('A.nextA');
-        $this->assertSame($routeA, $selected);
-        $this->assertSame('nextA', $selected->path);
+        $this->assertSame($routes['A']->subRoute, $selected);
+        $this->assertSame('nextA', $routes['A']->path);
 
         $selected = $splitter->select('B.nextB.nextB2');
-        $this->assertSame($routeB, $selected);
-        $this->assertSame('nextB.nextB2', $selected->path);
+        $this->assertSame($routes['B']->subRoute, $selected);
+        $this->assertSame('nextB.nextB2', $routes['B']->path);
     }
 
     public function testSelectWithEmptyPath_ThrowsException()

@@ -53,9 +53,9 @@ class MethodGateTest extends TestCase
 
     public function testSelectCallIsPassedDirectlyToNextRoute()
     {
-        $gate = $this->gate('GET', $route);
-        $this->assertSame($route, $gate->select('some.path'));
-        $this->assertSame('some.path', $route->path);
+        $selected = $this->gate('GET', $route)->select('some.name');
+        $this->assertSame('some.name', $route->path);
+        $this->assertSame($selected, $route->subRoute);
     }
 
     public function testUriCallIsPassedDirectlyToNextRoute()

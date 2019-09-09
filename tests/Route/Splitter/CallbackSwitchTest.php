@@ -44,15 +44,30 @@ class CallbackSwitchTest extends TestCase
     public function testRoutesCanBeSelected()
     {
         $routes = [
-            'foo' => $this->responseRoute($fooResponse),
-            'bar' => $this->responseRoute($barResponse)
+            'foo' => new Doubles\MockedRoute(),
+            'bar' => new Doubles\MockedRoute()
         ];
-
         $splitter = $this->splitter($routes);
+
         $this->assertSame($routes['foo'], $splitter->select('foo'));
-        $this->assertSame($routes['foo'], $splitter->select('foo.bar.anything'));
         $this->assertSame($routes['bar'], $splitter->select('bar'));
-        $this->assertSame($routes['bar'], $splitter->select('bar.something'));
+    }
+
+    public function testSelectingSubRoutesCallsSelectOnSplitterRoutes()
+    {
+        $routes = [
+            'foo' => new Doubles\MockedRoute(),
+            'bar' => new Doubles\MockedRoute()
+        ];
+        $splitter = $this->splitter($routes);
+
+        $subRoute = $splitter->select('foo.bar.anything');
+        $this->assertSame($subRoute, $routes['foo']->subRoute);
+        $this->assertSame('bar.anything', $routes['foo']->path);
+
+        $subRoute = $splitter->select('bar.path');
+        $this->assertSame($subRoute, $routes['bar']->subRoute);
+        $this->assertSame('path', $routes['bar']->path);
     }
 
     public function testUriMethod_ThrowsException()

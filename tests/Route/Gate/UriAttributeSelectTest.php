@@ -34,9 +34,9 @@ class UriAttributeSelectTest extends TestCase
 
     public function testSelectMethod_SelectsResourceRoute()
     {
-        $gate = $this->gate($resource);
-        $this->assertSame($resource, $gate->select('some.path'));
+        $selected = $this->gate($resource)->select('some.path');
         $this->assertSame('some.path', $resource->path);
+        $this->assertSame($selected, $resource->subRoute);
     }
 
     public function testUriIsSelectedFromIndexResourceRouteBasedOnIdParam()

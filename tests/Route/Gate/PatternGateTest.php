@@ -61,11 +61,9 @@ class PatternGateTest extends TestCase
 
     public function testSelectMethod_ReturnsPatternGateWithSelectedSubRoute()
     {
-        $route    = new Doubles\MockedRoute();
         $selected = $this->gate($pattern, $route)->select('some.path');
-
         $this->assertSame('some.path', $route->path);
-        $this->assertEquals(new Gate\PatternGate($pattern, $route->select('some.path')), $selected);
+        $this->assertEquals($selected, new Gate\PatternGate($pattern, $route->subRoute));
     }
 
     public function testRoutesMethod_ReturnsUriTemplatesAssociatedToRoutePaths()
