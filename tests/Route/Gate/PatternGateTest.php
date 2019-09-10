@@ -68,7 +68,11 @@ class PatternGateTest extends TestCase
 
     public function testRoutesMethod_ReturnsUriTemplatesAssociatedToRoutePaths()
     {
-        $this->assertSame([], $this->gate()->routes('foo.bar', Doubles\FakeUri::fromString('/foo/bar')));
+        $pattern = new Doubles\MockedPattern('/foo/bar');
+        $routes  = $this->gate($pattern, $route)->routes('foo.bar', $uri = new Doubles\FakeUri());
+        $this->assertSame($routes, $route->mappedPath);
+        $this->assertSame($uri, $pattern->uriPrototype);
+        $this->assertSame($routes['foo.bar.end'], (string) $pattern->uriResult);
     }
 
     private function gate(?Gate\Pattern &$pattern = null, ?Route &$route = null)
