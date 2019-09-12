@@ -20,15 +20,15 @@ class UriAttributeSelectTest extends TestCase
 {
     public function testInstantiation()
     {
-        $this->assertInstanceOf(Route\Gate\UriAttributeSelect::class, $this->gate());
-        $this->assertInstanceOf(Route::class, $this->gate());
+        $this->assertInstanceOf(Route\Gate\UriAttributeSelect::class, $gate = $this->gate());
+        $this->assertInstanceOf(Route::class, $gate);
     }
 
     public function testRequestIsForwardedToResourceRoute()
     {
-        $request   = new Doubles\FakeServerRequest();
-        $prototype = new Doubles\FakeResponse();
-        $this->assertSame($prototype, $this->gate($resource)->forward($request, $prototype));
+        $request  = new Doubles\FakeServerRequest();
+        $response = $this->gate($resource)->forward($request, new Doubles\FakeResponse());
+        $this->assertSame($response, $resource->response);
         $this->assertSame($request, $resource->forwardedRequest);
     }
 
@@ -57,7 +57,7 @@ class UriAttributeSelectTest extends TestCase
 
     private function gate(Doubles\MockedRoute &$resource = null): Route\Gate\UriAttributeSelect
     {
-        $resource = new Doubles\MockedRoute();
+        $resource = new Doubles\MockedRoute(new Doubles\FakeResponse(), new Doubles\FakeUri());
         return new Route\Gate\UriAttributeSelect($resource, 'id', 'item', 'index');
     }
 }
