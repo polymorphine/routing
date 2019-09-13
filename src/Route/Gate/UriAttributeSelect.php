@@ -63,7 +63,6 @@ class UriAttributeSelect implements Route
 
     public function routes(string $path, UriInterface $uri): array
     {
-        // TODO: Implement routes() method.
-        return [];
+        return $this->resource->routes($path, $uri);
     }
 }

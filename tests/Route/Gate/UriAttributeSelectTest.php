@@ -52,7 +52,8 @@ class UriAttributeSelectTest extends TestCase
 
     public function testRoutesMethod_ReturnsUriTemplatesAssociatedToRoutePaths()
     {
-        $this->assertSame([], $this->gate()->routes('foo.bar', Doubles\FakeUri::fromString('/foo/bar')));
+        $result = $this->gate($route)->routes('foo.bar', Doubles\FakeUri::fromString('/foo/bar'));
+        $this->assertSame($route->mappedPath, $result);
     }
 
     private function gate(Doubles\MockedRoute &$resource = null): Route\Gate\UriAttributeSelect
