@@ -59,7 +59,10 @@ class CallbackSwitch implements Route
 
     public function routes(string $path, UriInterface $uri): array
     {
-        // TODO: Implement routes() method.
-        return [];
+        $routes = [];
+        foreach ($this->routes as $name => $route) {
+            $routes += $route->routes($path . '.' . $name, $uri);
+        }
+        return $routes;
     }
 }

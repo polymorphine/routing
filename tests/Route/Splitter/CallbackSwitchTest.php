@@ -79,7 +79,18 @@ class CallbackSwitchTest extends TestCase
 
     public function testRoutesMethod_ReturnsUriTemplatesAssociatedToRoutePaths()
     {
-        $this->assertSame([], $this->splitter()->routes('foo.bar', Doubles\FakeUri::fromString('/foo/bar')));
+        $uri = Doubles\FakeUri::fromString('/foo/bar');
+        $routes = [
+            'foo' => new Doubles\MockedRoute(),
+            'bar' => new Doubles\MockedRoute()
+        ];
+
+        $expected = [
+            'path.foo.end' => (string) $uri,
+            'path.bar.end' => (string) $uri
+        ];
+
+        $this->assertSame($expected, $this->splitter($routes)->routes('path', $uri));
     }
 
     private function splitter(array $routes = [])
