@@ -152,7 +152,18 @@ class MethodSwitchTest extends TestCase
 
     public function testRoutesMethod_ReturnsUriTemplatesAssociatedToRoutePaths()
     {
-        $this->assertSame([], $this->splitter()->routes('foo.bar', Doubles\FakeUri::fromString('/foo/bar')));
+        $uri = Doubles\FakeUri::fromString('/foo/bar');
+        $splitter = new MethodSwitch([
+            'GET'  => new Doubles\MockedRoute(),
+            'POST' => new Doubles\MockedRoute()
+        ]);
+
+        $expected = [
+            'path.GET.end'  => (string) $uri,
+            'path.POST.end' => (string) $uri
+        ];
+
+        $this->assertSame($expected, $splitter->routes('path', $uri));
     }
 
     private function splitter(array $methods = ['POST', 'GET', 'PUT', 'PATCH', 'DELETE']): MethodSwitch

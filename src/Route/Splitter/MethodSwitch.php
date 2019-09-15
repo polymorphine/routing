@@ -75,8 +75,11 @@ class MethodSwitch implements Route
 
     public function routes(string $path, UriInterface $uri): array
     {
-        // TODO: Implement routes() method.
-        return [];
+        $routes = [];
+        foreach ($this->routes as $name => $route) {
+            $routes += $route->routes($path . '.' . $name, $uri);
+        }
+        return $routes;
     }
 
     private function options(Request $request, Response $prototype): Response
