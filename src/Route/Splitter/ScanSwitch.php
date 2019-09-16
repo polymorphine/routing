@@ -74,8 +74,11 @@ class ScanSwitch implements Route
 
     public function routes(string $path, UriInterface $uri): array
     {
-        // TODO: Implement routes() method.
-        return [];
+        $routes = $this->defaultRoute ? $this->defaultRoute->routes($path, $uri) : [];
+        foreach ($this->routes as $name => $route) {
+            $routes += $route->routes($path . '.' . $name, $uri);
+        }
+        return $routes;
     }
 
     private function checkDefaultRoute(ServerRequestInterface $request, ResponseInterface $prototype)

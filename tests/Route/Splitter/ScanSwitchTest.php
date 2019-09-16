@@ -129,7 +129,21 @@ class ScanSwitchTest extends TestCase
 
     public function testRoutesMethod_ReturnsUriTemplatesAssociatedToRoutePaths()
     {
-        $this->assertSame([], $this->splitter()->routes('foo.bar', Doubles\FakeUri::fromString('/foo/bar')));
+        $uri = Doubles\FakeUri::fromString('/foo/bar');
+        $splitter = new Route\Splitter\ScanSwitch([
+            'foo' => new Doubles\MockedRoute(),
+            'bar' => new Doubles\MockedRoute(),
+            new Doubles\MockedRoute()
+        ], new Doubles\MockedRoute());
+
+        $expected = [
+            'path.end'     => (string) $uri,
+            'path.foo.end' => (string) $uri,
+            'path.bar.end' => (string) $uri,
+            'path.0.end'   => (string) $uri
+        ];
+
+        $this->assertSame($expected, $splitter->routes('path', $uri));
     }
 
     private function splitter(array $routes = [], Route $default = null)
