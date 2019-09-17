@@ -89,7 +89,11 @@ class PathSwitch implements Route
 
     public function routes(string $path, UriInterface $uri): array
     {
-        // TODO: Implement routes() method.
-        return [];
+        $routes = ($this->root) ? $this->root->routes($path . '.' . $this->rootLabel, $uri) : [];
+        foreach ($this->routes as $name => $route) {
+            $pattern = new Gate\Pattern\UriPart\PathSegment($name);
+            $routes += $route->routes($path . '.' . $name, $pattern->templateUri($uri));
+        }
+        return $routes;
     }
 }

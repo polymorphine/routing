@@ -172,7 +172,19 @@ class PathSwitchTest extends TestCase
 
     public function testRoutesMethod_ReturnsUriTemplatesAssociatedToRoutePaths()
     {
-        $this->assertSame([], $this->splitter()->routes('foo.bar', Doubles\FakeUri::fromString('/foo/bar')));
+        $uri = Doubles\FakeUri::fromString('/some/path');
+        $splitter = new PathSwitch([
+            'foo' => new Doubles\MockedRoute(),
+            'bar' => new Doubles\MockedRoute()
+        ], new Doubles\MockedRoute());
+
+        $expected = [
+            'path.ROOT.end' => (string) $uri,
+            'path.foo.end'  => (string) $uri->withPath('/some/path/foo'),
+            'path.bar.end'  => (string) $uri->withPath('/some/path/bar')
+        ];
+
+        $this->assertSame($expected, $splitter->routes('path', $uri));
     }
 
     public function segmentCombinations()
