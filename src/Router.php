@@ -80,4 +80,9 @@ class Router implements RequestHandlerInterface
     {
         return $this->route->select($path)->uri($this->baseUri, $params);
     }
+
+    public function routes(): array
+    {
+        return $this->route->routes('', $this->baseUri);
+    }
 }

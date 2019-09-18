@@ -75,6 +75,13 @@ class RouterTest extends TestCase
         $this->assertSame('new.context', $route->path);
     }
 
+    public function testRoutesMethod_ReturnsRoutesArrayFromRoutes()
+    {
+        $uri    = Doubles\FakeUri::fromString('/foo/bar');
+        $router = new Router(new Doubles\MockedRoute(), $uri, self::$prototype);
+        $this->assertSame(['.end' => (string) $uri], $router->routes());
+    }
+
     private function router(bool $matched = true, $uri = null)
     {
         $response = $matched ? new Doubles\FakeResponse('matched') : null;
