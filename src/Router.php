@@ -81,6 +81,9 @@ class Router implements RequestHandlerInterface
         return $this->route->select($path)->uri($this->baseUri, $params);
     }
 
+    /**
+     * @return array of routing paths associated with its URI templates
+     */
     public function routes(): array
     {
         return $this->route->routes('', $this->baseUri);
