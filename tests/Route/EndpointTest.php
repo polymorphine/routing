@@ -79,6 +79,8 @@ class EndpointTest extends TestCase
         $uri   = Doubles\FakeUri::fromString($uriString = 'https://example.com/foo/bar');
         $path  = 'some.routing.path';
 
-        $this->assertSame([$path => $uriString], $route->routes($path, $uri));
+        $expected = [$path => $uriString];
+        $this->assertSame($expected, $route->routes($path, $uri));
+        $this->assertSame($expected, $route->routes('.' . $path, $uri), 'Routing path separator should be trimmed');
     }
 }

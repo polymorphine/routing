@@ -72,6 +72,7 @@ class MockedRoute implements Route
 
     public function routes(string $path, UriInterface $uri): array
     {
-        return $this->mappedPath = [$path . '.end' => (string) $uri];
+        $path = ltrim($path . '.end', '.');
+        return $this->mappedPath = [$path => (string) $uri];
     }
 }

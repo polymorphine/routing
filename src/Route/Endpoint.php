@@ -49,6 +49,7 @@ abstract class Endpoint implements Route
 
     public function routes(string $path, UriInterface $uri): array
     {
+        $path = ltrim($path, Route::PATH_SEPARATOR);
         return [$path => (string) $uri];
     }
 
