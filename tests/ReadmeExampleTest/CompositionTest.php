@@ -47,11 +47,11 @@ class CompositionTest extends ReadmeExampleTest
             'articles' => new UriAttributeSelect(new MethodSwitch([
                 'GET' => new ScanSwitch([
                     'form' => new UriAttributeSelect(new ScanSwitch([
-                        'edit' => new PatternGate(
+                        'edit' => $edit = new PatternGate(
                             new PathRegexpSegment('id'),
                             new PatternGate(new PathSegment('form'), $this->callbackEndpoint('EditArticleForm'))
                         ),
-                        'new' => new PatternGate(
+                        'new' => $new = new PatternGate(
                             new CompositePattern([new PathSegment('new'), new PathSegment('form')]),
                             $this->callbackEndpoint('AddArticleForm')
                         )
@@ -61,7 +61,9 @@ class CompositionTest extends ReadmeExampleTest
                 ]),
                 'POST'   => $this->callbackEndpoint('AddArticle'),
                 'DELETE' => new PatternGate(new PathRegexpSegment('id'), $this->callbackEndpoint('DeleteArticle')),
-                'PATCH'  => new PatternGate(new PathRegexpSegment('id'), $this->callbackEndpoint('UpdateArticle'))
+                'PATCH'  => new PatternGate(new PathRegexpSegment('id'), $this->callbackEndpoint('UpdateArticle')),
+                'EDIT'   => $edit,
+                'NEW'    => $new
             ]), 'id', 'item', 'index')
         ], $this->callbackEndpoint('HomePage'), 'home');
 
