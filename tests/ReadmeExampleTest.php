@@ -38,7 +38,7 @@ abstract class ReadmeExampleTest extends TestCase
      * @param string                 $routePath
      * @param array                  $uriParams
      */
-    public function testRequestReachItsEndpoint(
+    public function testRequestCanReachItsEndpoint(
         string $expectedOutput,
         ServerRequestInterface $request,
         string $routePath,
@@ -95,6 +95,51 @@ abstract class ReadmeExampleTest extends TestCase
             'AdminPanel when not logged in' => [$this->request('', '/admin'), 'login'],
             'Login when already logged in'  => [$this->request('POST', '/login', ['authenticate' => 'admin']), 'home']
         ];
+    }
+
+    public function testRouterCanProduceRoutingMap()
+    {
+        $routes = $this->router()->routes();
+        $expected = [
+            'home'                     => '/',
+            'admin.GET'                => '/admin',
+            'admin.POST'               => '/admin',
+            'login'                    => '/login',
+            'logout'                   => '/logout',
+            'articles.POST'            => '/articles',
+            'articles.PATCH'           => '/articles/((#id))',
+            'articles.DELETE'          => '/articles/((#id))',
+            'articles.NEW'             => '/articles/new/form',
+            'articles.GET.form.new'    => '/articles/new/form',
+            'articles.EDIT'            => '/articles/((#id))/form',
+            'articles.GET.form.edit'   => '/articles/((#id))/form',
+            'articles.GET.item'        => '/articles/((#id))',
+            'articles.GET.index'       => '/articles',
+            '0.GET'                    => '/login',
+            '0.POST'                   => '/login',
+            '1'                        => '/logout',
+            '2'                        => '/admin',
+            '3.home'                   => '/',
+            '3.admin.GET'              => '/admin',
+            '3.admin.POST'             => '/admin',
+            '3.login'                  => '/login',
+            '3.logout'                 => '/logout',
+            '3.articles.POST'          => '/articles',
+            '3.articles.PATCH'         => '/articles/((#id))',
+            '3.articles.DELETE'        => '/articles/((#id))',
+            '3.articles.NEW'           => '/articles/new/form',
+            '3.articles.EDIT'          => '/articles/((#id))/form',
+            '3.articles.GET.form.edit' => '/articles/((#id))/form',
+            '3.articles.GET.form.new'  => '/articles/new/form',
+            '3.articles.GET.item'      => '/articles/((#id))',
+            '3.articles.GET.index'     => '/articles',
+            '4'                        => '/'
+        ];
+
+        ksort($expected);
+        ksort($routes);
+
+        $this->assertSame($expected, $routes);
     }
 
     abstract protected function router(): Router;
