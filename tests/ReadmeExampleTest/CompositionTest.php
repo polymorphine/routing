@@ -45,25 +45,25 @@ class CompositionTest extends ReadmeExampleTest
             }),
             'logout' => new MethodGate('POST', $this->callbackEndpoint('Logout')),
             'articles' => new UriAttributeSelect(new MethodSwitch([
+                'POST'   => $this->callbackEndpoint('AddArticle'),
+                'PATCH'  => new PatternGate(new PathRegexpSegment('id'), $this->callbackEndpoint('UpdateArticle')),
+                'DELETE' => new PatternGate(new PathRegexpSegment('id'), $this->callbackEndpoint('DeleteArticle')),
+                'NEW' => $new = new PatternGate(
+                    new CompositePattern([new PathSegment('new'), new PathSegment('form')]),
+                    $this->callbackEndpoint('AddArticleForm')
+                ),
+                'EDIT' => $edit = new PatternGate(
+                    new PathRegexpSegment('id'),
+                    new PatternGate(new PathSegment('form'), $this->callbackEndpoint('EditArticleForm'))
+                ),
                 'GET' => new ScanSwitch([
                     'form' => new UriAttributeSelect(new ScanSwitch([
-                        'edit' => $edit = new PatternGate(
-                            new PathRegexpSegment('id'),
-                            new PatternGate(new PathSegment('form'), $this->callbackEndpoint('EditArticleForm'))
-                        ),
-                        'new' => $new = new PatternGate(
-                            new CompositePattern([new PathSegment('new'), new PathSegment('form')]),
-                            $this->callbackEndpoint('AddArticleForm')
-                        )
+                        'edit' => $edit,
+                        'new'  => $new
                     ]), 'id', 'edit', 'new'),
                     'item'  => new PatternGate(new PathRegexpSegment('id'), $this->callbackEndpoint('ShowArticle')),
                     'index' => $this->callbackEndpoint('ShowArticles')
-                ]),
-                'POST'   => $this->callbackEndpoint('AddArticle'),
-                'DELETE' => new PatternGate(new PathRegexpSegment('id'), $this->callbackEndpoint('DeleteArticle')),
-                'PATCH'  => new PatternGate(new PathRegexpSegment('id'), $this->callbackEndpoint('UpdateArticle')),
-                'EDIT'   => $edit,
-                'NEW'    => $new
+                ])
             ]), 'id', 'item', 'index')
         ], $this->callbackEndpoint('HomePage'), 'home');
 

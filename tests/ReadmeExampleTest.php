@@ -110,9 +110,9 @@ abstract class ReadmeExampleTest extends TestCase
             'articles.PATCH'           => '/articles/((#id))',
             'articles.DELETE'          => '/articles/((#id))',
             'articles.NEW'             => '/articles/new/form',
-            'articles.GET.form.new'    => '/articles/new/form',
             'articles.EDIT'            => '/articles/((#id))/form',
             'articles.GET.form.edit'   => '/articles/((#id))/form',
+            'articles.GET.form.new'    => '/articles/new/form',
             'articles.GET.item'        => '/articles/((#id))',
             'articles.GET.index'       => '/articles',
             '0.GET'                    => '/login',
@@ -135,9 +135,6 @@ abstract class ReadmeExampleTest extends TestCase
             '3.articles.GET.index'     => '/articles',
             '4'                        => '/'
         ];
-
-        ksort($expected);
-        ksort($routes);
 
         $this->assertSame($expected, $routes);
     }
