@@ -13,6 +13,7 @@ namespace Polymorphine\Routing\Tests\Route\Gate;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Map;
 use Polymorphine\Routing\Tests\Doubles;
 
 
@@ -50,10 +51,11 @@ class UriAttributeSelectTest extends TestCase
         $this->assertSame('item', $resource->path);
     }
 
-    public function testRoutesMethod_ReturnsUriTemplatesAssociatedToRoutePaths()
+    public function testRoutesMethod_PassesTraceToNextRoute()
     {
-        $result = $this->gate($route)->routes('foo.bar', Doubles\FakeUri::fromString('/foo/bar'));
-        $this->assertSame($route->mappedPath, $result);
+        $trace = new Route\Trace(new Map(), new Doubles\FakeUri());
+        $this->gate($route)->routes($trace);
+        $this->assertSame($trace, $route->trace);
     }
 
     private function gate(Doubles\MockedRoute &$resource = null): Route\Gate\UriAttributeSelect

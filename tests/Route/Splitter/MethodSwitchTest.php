@@ -13,6 +13,7 @@ namespace Polymorphine\Routing\Tests\Route\Splitter;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Map;
 use Polymorphine\Routing\Route\Splitter\MethodSwitch;
 use Polymorphine\Routing\Exception\EndpointCallException;
 use Polymorphine\Routing\Tests\RoutingTestMethods;
@@ -150,20 +151,24 @@ class MethodSwitchTest extends TestCase
         $this->assertSame($response, $splitter->forward($request, new Doubles\FakeResponse()));
     }
 
-    public function testRoutesMethod_ReturnsUriTemplatesAssociatedToRoutePaths()
+    public function testRoutesMethod_AddsRouteTracesToRoutingMap()
     {
-        $uri = Doubles\FakeUri::fromString('/foo/bar');
         $splitter = new MethodSwitch([
             'GET'  => new Doubles\MockedRoute(),
             'POST' => new Doubles\MockedRoute()
         ]);
 
+        $map   = new Map();
+        $uri   = '/foo/bar';
+        $trace = (new Route\Trace($map, Doubles\FakeUri::fromString($uri)))->nextHop('path');
+
+        $splitter->routes($trace);
         $expected = [
-            'path.GET.end'  => (string) $uri,
-            'path.POST.end' => (string) $uri
+            'path.GET'  => $uri,
+            'path.POST' => $uri
         ];
 
-        $this->assertSame($expected, $splitter->routes('path', $uri));
+        $this->assertSame($expected, $map->toArray());
     }
 
     private function splitter(array $methods = ['POST', 'GET', 'PUT', 'PATCH', 'DELETE']): MethodSwitch

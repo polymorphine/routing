@@ -59,8 +59,8 @@ class PatternGate implements Route
         return $this->route->uri($prototype, $params);
     }
 
-    public function routes(string $path, UriInterface $uri): array
+    public function routes(Route\Trace $trace): void
     {
-        return $this->route->routes($path, $this->pattern->templateUri($uri));
+        $trace->withPattern($this->pattern)->follow($this->route);
     }
 }

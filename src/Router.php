@@ -11,6 +11,7 @@
 
 namespace Polymorphine\Routing;
 
+use Polymorphine\Routing\Route\Trace;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -86,6 +87,11 @@ class Router implements RequestHandlerInterface
      */
     public function routes(): array
     {
-        return $this->route->routes('', $this->baseUri);
+        $map   = new Map();
+        $trace = new Trace($map, $this->baseUri);
+
+        $trace->follow($this->route);
+
+        return $map->toArray();
     }
 }

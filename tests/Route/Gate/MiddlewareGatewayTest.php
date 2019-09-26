@@ -13,6 +13,7 @@ namespace Polymorphine\Routing\Tests\Route\Gate;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Map;
 use Polymorphine\Routing\Tests\Doubles;
 
 
@@ -45,10 +46,11 @@ class MiddlewareGatewayTest extends TestCase
         $this->assertSame($uri, (string) $this->gate($route)->uri(new Doubles\FakeUri(), []));
     }
 
-    public function testRoutesMethod_ReturnsUriTemplatesAssociatedToRoutePaths()
+    public function testRoutesMethod_PassesTraceToNextRoute()
     {
-        $result = $this->gate($route)->routes('foo.bar', Doubles\FakeUri::fromString('/foo/bar'));
-        $this->assertSame($route->mappedPath, $result);
+        $trace = new Route\Trace(new Map(), new Doubles\FakeUri());
+        $this->gate($route)->routes($trace);
+        $this->assertSame($trace, $route->trace);
     }
 
     private function gate(?Route &$route = null)

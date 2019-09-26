@@ -13,6 +13,7 @@ namespace Polymorphine\Routing\Tests\Route\Splitter;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Map;
 use Polymorphine\Routing\Exception;
 use Polymorphine\Routing\Tests\RoutingTestMethods;
 use Polymorphine\Routing\Tests\Doubles;
@@ -127,23 +128,27 @@ class ScanSwitchTest extends TestCase
         $this->assertSame($topRoute, $splitter->select('route'));
     }
 
-    public function testRoutesMethod_ReturnsUriTemplatesAssociatedToRoutePaths()
+    public function testRoutesMethod_AddsRouteTracesToRoutingMap()
     {
-        $uri = Doubles\FakeUri::fromString('/foo/bar');
-        $splitter = new Route\Splitter\ScanSwitch([
+        $splitter = $this->splitter([
             'foo' => new Doubles\MockedRoute(),
             'bar' => new Doubles\MockedRoute(),
             new Doubles\MockedRoute()
         ], new Doubles\MockedRoute());
 
+        $map   = new Map();
+        $uri   = '/foo/bar';
+        $trace = (new Route\Trace($map, Doubles\FakeUri::fromString($uri)))->nextHop('path');
+
+        $splitter->routes($trace);
         $expected = [
-            'path.end'     => (string) $uri,
-            'path.foo.end' => (string) $uri,
-            'path.bar.end' => (string) $uri,
-            'path.0.end'   => (string) $uri
+            'path'     => $uri,
+            'path.foo' => $uri,
+            'path.bar' => $uri,
+            'path.0'   => $uri
         ];
 
-        $this->assertSame($expected, $splitter->routes('path', $uri));
+        $this->assertSame($expected, $map->toArray());
     }
 
     private function splitter(array $routes = [], Route $default = null)

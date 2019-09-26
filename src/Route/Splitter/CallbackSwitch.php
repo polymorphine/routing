@@ -57,12 +57,10 @@ class CallbackSwitch implements Route
         throw new Exception\EndpointCallException('Cannot resolve specific Uri for callback switch');
     }
 
-    public function routes(string $path, UriInterface $uri): array
+    public function routes(Route\Trace $trace): void
     {
-        $routes = [];
         foreach ($this->routes as $name => $route) {
-            $routes += $route->routes($path . '.' . $name, $uri);
+            $trace->nextHop($name)->follow($route);
         }
-        return $routes;
     }
 }

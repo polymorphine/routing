@@ -13,6 +13,7 @@ namespace Polymorphine\Routing\Tests\Route;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Map;
 use Polymorphine\Routing\Exception;
 use Polymorphine\Routing\Tests\Doubles;
 
@@ -73,14 +74,14 @@ class EndpointTest extends TestCase
         $this->assertSame($prototype, $route->forward($request->withAttribute(Route::PATH_ATTRIBUTE, ['some', 'path']), $prototype));
     }
 
-    public function testRoutesMethod_ReturnsArrayMappingRoutePathToUri()
+    public function testRoutesMethod_AddsTraceToRoutingMap()
     {
-        $route = new Doubles\DummyEndpoint();
-        $uri   = Doubles\FakeUri::fromString($uriString = 'https://example.com/foo/bar');
-        $path  = 'some.routing.path';
+        $trace = new Route\Trace($map = new Map(), $uri = Doubles\FakeUri::fromString('https://example.com/foo/bar'));
+        $trace = $trace->nextHop($path = 'some.routing.path');
 
-        $expected = [$path => $uriString];
-        $this->assertSame($expected, $route->routes($path, $uri));
-        $this->assertSame($expected, $route->routes('.' . $path, $uri), 'Routing path separator should be trimmed');
+        $route = new Doubles\DummyEndpoint();
+        $route->routes($trace);
+
+        $this->assertSame([$path => (string) $uri], $map->toArray());
     }
 }

@@ -47,10 +47,9 @@ abstract class Endpoint implements Route
         return $prototype;
     }
 
-    public function routes(string $path, UriInterface $uri): array
+    public function routes(Trace $trace): void
     {
-        $path = ltrim($path, Route::PATH_SEPARATOR);
-        return [$path => (string) $uri];
+        $trace->endpoint();
     }
 
     /**

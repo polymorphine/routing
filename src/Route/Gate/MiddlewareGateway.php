@@ -52,8 +52,8 @@ class MiddlewareGateway implements Route
         return $this->route->uri($prototype, $params);
     }
 
-    public function routes(string $path, UriInterface $uri): array
+    public function routes(Route\Trace $trace): void
     {
-        return $this->route->routes($path, $uri);
+        $trace->follow($this->route);
     }
 }

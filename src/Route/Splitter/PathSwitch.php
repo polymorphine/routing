@@ -87,13 +87,14 @@ class PathSwitch implements Route
         return $this->root->uri($prototype, $params);
     }
 
-    public function routes(string $path, UriInterface $uri): array
+    public function routes(Route\Trace $trace): void
     {
-        $routes = ($this->root) ? $this->root->routes($path . '.' . $this->rootLabel, $uri) : [];
+        if ($this->root) {
+            $trace->nextHop($this->rootLabel)->follow($this->root);
+        }
         foreach ($this->routes as $name => $route) {
             $pattern = new Gate\Pattern\UriPart\PathSegment($name);
-            $routes += $route->routes($path . '.' . $name, $pattern->templateUri($uri));
+            $trace->nextHop($name)->withPattern($pattern)->follow($route);
         }
-        return $routes;
     }
 }

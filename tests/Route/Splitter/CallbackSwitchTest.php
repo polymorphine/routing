@@ -13,6 +13,7 @@ namespace Polymorphine\Routing\Tests\Route\Splitter;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Map;
 use Polymorphine\Routing\Exception;
 use Polymorphine\Routing\Tests\Doubles;
 use Psr\Http\Message\ServerRequestInterface;
@@ -77,20 +78,24 @@ class CallbackSwitchTest extends TestCase
         $splitter->uri(new Doubles\FakeUri(), []);
     }
 
-    public function testRoutesMethod_ReturnsUriTemplatesAssociatedToRoutePaths()
+    public function testRoutesMethod_AddsRouteTracesToRoutingMap()
     {
-        $uri = Doubles\FakeUri::fromString('/foo/bar');
-        $routes = [
+        $splitter = $this->splitter([
             'foo' => new Doubles\MockedRoute(),
             'bar' => new Doubles\MockedRoute()
-        ];
+        ]);
 
+        $uri   = '/foo/bar';
+        $map   = new Map();
+        $trace = (new Route\Trace($map, Doubles\FakeUri::fromString($uri)))->nextHop('path');
+
+        $splitter->routes($trace);
         $expected = [
-            'path.foo.end' => (string) $uri,
-            'path.bar.end' => (string) $uri
+            'path.foo' => $uri,
+            'path.bar' => $uri
         ];
 
-        $this->assertSame($expected, $this->splitter($routes)->routes('path', $uri));
+        $this->assertSame($expected, $map->toArray());
     }
 
     private function splitter(array $routes = [])

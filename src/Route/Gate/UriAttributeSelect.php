@@ -61,8 +61,8 @@ class UriAttributeSelect implements Route
             : $this->resource->select($this->indexPath)->uri($prototype, $params);
     }
 
-    public function routes(string $path, UriInterface $uri): array
+    public function routes(Route\Trace $trace): void
     {
-        return $this->resource->routes($path, $uri);
+        $trace->follow($this->resource);
     }
 }

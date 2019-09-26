@@ -49,9 +49,9 @@ class LazyRoute implements Route
         return $this->invokedRoute()->uri($prototype, $params);
     }
 
-    public function routes(string $path, UriInterface $uri): array
+    public function routes(Route\Trace $trace): void
     {
-        return $this->invokedRoute()->routes($path, $uri);
+        $trace->follow($this->invokedRoute());
     }
 
     protected function invokedRoute(): Route

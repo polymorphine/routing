@@ -24,7 +24,7 @@ class MockedRoute implements Route
     public $response;
     public $uri;
     public $path;
-    public $mappedPath;
+    public $trace;
     public $subRoute;
 
     public function __construct(?ResponseInterface $response = null, ?UriInterface $uri = null)
@@ -70,9 +70,9 @@ class MockedRoute implements Route
         return $this->uri = $prototype;
     }
 
-    public function routes(string $path, UriInterface $uri): array
+    public function routes(Route\Trace $trace): void
     {
-        $path = ltrim($path . '.end', '.');
-        return $this->mappedPath = [$path => (string) $uri];
+        $this->trace = $trace;
+        $trace->endpoint();
     }
 }
