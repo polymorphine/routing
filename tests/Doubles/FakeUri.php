@@ -21,8 +21,6 @@ class FakeUri implements UriInterface
         'https' => ['port' => 443]
     ];
 
-    private $uri;
-
     private $scheme   = '';
     private $userInfo = '';
     private $host     = '';
@@ -50,14 +48,7 @@ class FakeUri implements UriInterface
 
     public function __toString(): string
     {
-        isset($this->uri) or $this->uri = $this->buildUriString();
-
-        return $this->uri;
-    }
-
-    public function __clone()
-    {
-        unset($this->uri);
+        return $this->buildUriString();
     }
 
     public function getScheme(): string
