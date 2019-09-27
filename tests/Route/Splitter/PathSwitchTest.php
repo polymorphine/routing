@@ -184,9 +184,9 @@ class PathSwitchTest extends TestCase
 
         $splitter->routes($trace);
         $expected = [
-            'path.ROOT' => $uri,
-            'path.foo'  => $uri . '/foo',
-            'path.bar'  => $uri . '/bar'
+            'path.ROOT' => ['uri' => $uri, 'method' => '*'],
+            'path.foo'  => ['uri' => $uri . '/foo', 'method' => '*'],
+            'path.bar'  => ['uri' => $uri . '/bar', 'method' => '*']
         ];
 
         $this->assertSame($expected, $map->toArray());

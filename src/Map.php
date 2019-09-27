@@ -23,9 +23,9 @@ class Map
         $this->endpoints = $endpoints;
     }
 
-    public function addEndpoint(string $path, UriInterface $uri): void
+    public function addEndpoint(string $path, UriInterface $uri, string $method = '*'): void
     {
-        $this->endpoints[$path] = (string) $uri;
+        $this->endpoints[$path] = ['uri' => (string) $uri, 'method' => $method];
     }
 
     public function toArray(): array

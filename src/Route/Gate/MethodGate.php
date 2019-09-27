@@ -60,7 +60,7 @@ class MethodGate implements Route
 
     public function routes(Route\Trace $trace): void
     {
-        $trace->follow($this->route);
+        $trace->withMethod(...$this->methods)->follow($this->route);
     }
 
     private function options(Request $request, Response $prototype): Response

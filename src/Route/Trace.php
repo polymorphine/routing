@@ -20,6 +20,7 @@ class Trace
 {
     private $map;
     private $uri;
+    private $methods;
     private $path;
 
     public function __construct(Map $map, UriInterface $uri)
@@ -30,7 +31,9 @@ class Trace
 
     public function endpoint(): void
     {
-        $this->map->addEndpoint($this->path ?: '0', $this->uri);
+        foreach ($this->methods ?? ['*'] as $method) {
+            $this->map->addEndpoint($this->path ?: '0', $this->uri, $method);
+        }
     }
 
     public function follow(Route $route): void
@@ -49,6 +52,17 @@ class Trace
     {
         $clone = clone $this;
         $clone->uri = $pattern->templateUri($this->uri);
+        return $clone;
+    }
+
+    public function withMethod(string ...$methods): self
+    {
+        $methods = isset($this->methods)
+            ? array_intersect($this->methods, $methods)
+            : $methods;
+
+        $clone = clone $this;
+        $clone->methods = $methods;
         return $clone;
     }
 }

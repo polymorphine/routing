@@ -164,8 +164,8 @@ class MethodSwitchTest extends TestCase
 
         $splitter->routes($trace);
         $expected = [
-            'path.GET'  => $uri,
-            'path.POST' => $uri
+            'path.GET'  => ['uri' => $uri, 'method' => 'GET'],
+            'path.POST' => ['uri' => $uri, 'method' => 'POST']
         ];
 
         $this->assertSame($expected, $map->toArray());

@@ -142,10 +142,10 @@ class ScanSwitchTest extends TestCase
 
         $splitter->routes($trace);
         $expected = [
-            'path'     => $uri,
-            'path.foo' => $uri,
-            'path.bar' => $uri,
-            'path.0'   => $uri
+            'path'     => ['uri' => $uri, 'method' => '*'],
+            'path.foo' => ['uri' => $uri, 'method' => '*'],
+            'path.bar' => ['uri' => $uri, 'method' => '*'],
+            'path.0'   => ['uri' => $uri, 'method' => '*']
         ];
 
         $this->assertSame($expected, $map->toArray());

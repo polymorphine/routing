@@ -25,11 +25,14 @@ class MapTest extends TestCase
     public function testCanAddEndpoints()
     {
         $map = $this->map();
-        $map->addEndpoint('some.path', Doubles\FakeUri::fromString('/foo/bar'));
-        $this->assertSame(['some.path' => '/foo/bar'], $map->toArray());
+
+        $map->addEndpoint('some.path', Doubles\FakeUri::fromString('/foo/bar'), 'POST');
+        $expected = ['some.path' => ['uri' => '/foo/bar', 'method' => 'POST']];
+        $this->assertSame($expected, $map->toArray());
 
         $map->addEndpoint('other.path', Doubles\FakeUri::fromString('/foo/bar/baz'));
-        $this->assertSame(['some.path' => '/foo/bar', 'other.path' => '/foo/bar/baz'], $map->toArray());
+        $expected += ['other.path' => ['uri' => '/foo/bar/baz', 'method' => '*']];
+        $this->assertSame($expected, $map->toArray());
     }
 
     private function map(array $routes = []): Map
