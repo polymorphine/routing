@@ -20,6 +20,8 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class QueryTest extends TestCase
 {
+    use Pattern\UriTemplatePlaceholder;
+
     public function testInstantiation()
     {
         $pattern = $this->pattern('foo=bar');
@@ -145,8 +147,7 @@ class QueryTest extends TestCase
     {
         $pattern  = $this->pattern('foo&bar=&baz=qux');
         $uri      = Doubles\FakeUri::fromString('/fizz/buzz');
-        $param    = Pattern::PLACEHOLDER_LEFT . '*' . Pattern::PLACEHOLDER_RIGHT;
-        $expected = $uri->withQuery('foo=' . $param . '&bar=&baz=qux');
+        $expected = $uri->withQuery('foo=' . $this->placeholder('*') . '&bar=&baz=qux');
         $this->assertEquals($expected, $pattern->templateUri($uri));
     }
 

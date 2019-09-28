@@ -18,6 +18,8 @@ use Polymorphine\Routing\Tests\Doubles;
 
 class PathWildcardTest extends TestCase
 {
+    use Route\Gate\Pattern\UriTemplatePlaceholder;
+
     public function testInstantiation()
     {
         $this->assertInstanceOf(Route\Gate\Pattern::class, new Route\Gate\Pattern\UriPart\PathWildcard());
@@ -52,9 +54,7 @@ class PathWildcardTest extends TestCase
     {
         $pattern = new Route\Gate\Pattern\UriPart\PathWildcard();
         $uri     = Doubles\FakeUri::fromString('http://example.com/foo/bar?query=baz');
-        $param   = Route\Gate\Pattern::PLACEHOLDER_LEFT . '/*' . Route\Gate\Pattern::PLACEHOLDER_RIGHT;
-
-        $this->assertSame('http://example.com/foo/bar' . $param . '?query=baz', (string) $pattern->templateUri($uri));
+        $this->assertSame('http://example.com/foo/bar' . $this->placeholder('/*') . '?query=baz', (string) $pattern->templateUri($uri));
     }
 
     private function request(string $uri, string $relativePath = null)

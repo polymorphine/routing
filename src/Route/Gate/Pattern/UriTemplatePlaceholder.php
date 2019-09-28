@@ -18,6 +18,6 @@ trait UriTemplatePlaceholder
 {
     private function placeholder(string $definition)
     {
-        return Pattern::PLACEHOLDER_LEFT . $definition . Pattern::PLACEHOLDER_RIGHT;
+        return rawurlencode(Pattern::DELIM_LEFT . $definition . Pattern::DELIM_RIGHT);
     }
 }

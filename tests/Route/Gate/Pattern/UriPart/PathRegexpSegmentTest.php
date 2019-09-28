@@ -20,6 +20,8 @@ use Polymorphine\Routing\Tests\Doubles;
 
 class PathRegexpSegmentTest extends TestCase
 {
+    use Route\Gate\Pattern\UriTemplatePlaceholder;
+
     public function testFirstNumericPathSegmentIsMatchedAndCapturedFromRelativePath()
     {
         $request = $this->request('/post/7523/some-slug-part')->withAttribute(Route::PATH_ATTRIBUTE, ['7523', 'some-slug-part']);
@@ -59,8 +61,7 @@ class PathRegexpSegmentTest extends TestCase
     {
         $pattern  = $this->pattern('id', 'post-[0-9]+');
         $uri      = $uri = $this->uri('/foo/bar');
-        $param    = Route\Gate\Pattern::PLACEHOLDER_LEFT . 'id:post-[0-9]+' . Route\Gate\Pattern::PLACEHOLDER_RIGHT;
-        $expected = $uri->withPath($uri->getPath() . '/' . $param);
+        $expected = $uri->withPath($uri->getPath() . '/' . $this->placeholder('id:post-[0-9]+'));
         $this->assertEquals($expected, $pattern->templateUri($uri));
     }
 
@@ -68,8 +69,7 @@ class PathRegexpSegmentTest extends TestCase
     {
         $pattern  = $this->pattern('id', '[0-9]+');
         $uri      = $uri = $this->uri('/foo/bar');
-        $param    = Route\Gate\Pattern::PLACEHOLDER_LEFT . '%id' . Route\Gate\Pattern::PLACEHOLDER_RIGHT;
-        $expected = $uri->withPath($uri->getPath() . '/' . $param);
+        $expected = $uri->withPath($uri->getPath() . '/' . $this->placeholder('%id'));
         $this->assertEquals($expected, $pattern->templateUri($uri));
     }
 
