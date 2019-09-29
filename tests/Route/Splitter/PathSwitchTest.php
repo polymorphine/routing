@@ -180,7 +180,7 @@ class PathSwitchTest extends TestCase
 
         $map   = new Map();
         $uri   = '/path';
-        $trace = (new Route\Trace($map, Doubles\FakeUri::fromString($uri)))->nextHop('path');
+        $trace = (new Map\Trace($map, Doubles\FakeUri::fromString($uri)))->nextHop('path');
 
         $splitter->routes($trace);
         $expected = [

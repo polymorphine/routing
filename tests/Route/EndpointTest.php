@@ -77,7 +77,7 @@ class EndpointTest extends TestCase
     public function testRoutesMethod_AddsTraceToRoutingMap()
     {
         $uri   = 'https://example.com/foo/bar';
-        $trace = new Route\Trace($map = new Map(), Doubles\FakeUri::fromString($uri));
+        $trace = new Map\Trace($map = new Map(), Doubles\FakeUri::fromString($uri));
         $trace = $trace->nextHop($path = 'some.routing.path');
 
         $route = new Doubles\DummyEndpoint();

@@ -9,7 +9,7 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Route;
+namespace Polymorphine\Routing\Map;
 
 use Polymorphine\Routing\Map;
 use Polymorphine\Routing\Route;

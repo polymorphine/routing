@@ -11,7 +11,7 @@
 
 namespace Polymorphine\Routing;
 
-use Polymorphine\Routing\Route\Trace;
+use Polymorphine\Routing\Map\Trace;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;

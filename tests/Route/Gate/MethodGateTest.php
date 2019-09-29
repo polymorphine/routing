@@ -99,7 +99,7 @@ class MethodGateTest extends TestCase
 
     public function testRoutesMethod_PassesTraceToNextRoute()
     {
-        $trace  = new Route\Trace(new Map(), new Doubles\FakeUri());
+        $trace  = new Map\Trace(new Map(), new Doubles\FakeUri());
         $method = 'GET';
         $this->gate($method, $route)->routes($trace);
         $this->assertEquals($trace->withMethod($method), $route->trace);

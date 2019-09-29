@@ -69,7 +69,7 @@ class PatternGateTest extends TestCase
 
     public function testRoutesMethod_PassesTraceWithModifiedUriToNextRoute()
     {
-        $trace   = new Route\Trace(new Map(), new Doubles\FakeUri());
+        $trace   = new Map\Trace(new Map(), new Doubles\FakeUri());
         $pattern = new Doubles\MockedPattern('/foo/bar');
         $this->gate($pattern, $route)->routes($trace);
         $this->assertEquals($trace->withPattern($pattern), $route->trace);

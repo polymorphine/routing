@@ -12,6 +12,7 @@
 namespace Polymorphine\Routing\Route\Splitter;
 
 use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Map\Trace;
 use Polymorphine\Routing\Exception;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -73,7 +74,7 @@ class MethodSwitch implements Route
         throw new Exception\EndpointCallException('Cannot resolve specific Uri for switch route');
     }
 
-    public function routes(Route\Trace $trace): void
+    public function routes(Trace $trace): void
     {
         foreach ($this->routes as $name => $route) {
             $trace->nextHop($name)->withMethod($name)->follow($route);

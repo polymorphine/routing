@@ -160,7 +160,7 @@ class MethodSwitchTest extends TestCase
 
         $map   = new Map();
         $uri   = '/foo/bar';
-        $trace = (new Route\Trace($map, Doubles\FakeUri::fromString($uri)))->nextHop('path');
+        $trace = (new Map\Trace($map, Doubles\FakeUri::fromString($uri)))->nextHop('path');
 
         $splitter->routes($trace);
         $expected = [

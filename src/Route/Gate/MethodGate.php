@@ -12,6 +12,7 @@
 namespace Polymorphine\Routing\Route\Gate;
 
 use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Map\Trace;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\UriInterface;
@@ -58,7 +59,7 @@ class MethodGate implements Route
         return $this->route->uri($prototype, $params);
     }
 
-    public function routes(Route\Trace $trace): void
+    public function routes(Trace $trace): void
     {
         $trace->withMethod(...$this->methods)->follow($this->route);
     }

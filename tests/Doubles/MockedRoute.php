@@ -12,6 +12,7 @@
 namespace Polymorphine\Routing\Tests\Doubles;
 
 use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Map\Trace;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
@@ -70,7 +71,7 @@ class MockedRoute implements Route
         return $this->uri = $prototype;
     }
 
-    public function routes(Route\Trace $trace): void
+    public function routes(Trace $trace): void
     {
         $this->trace = $trace;
         $trace->endpoint();

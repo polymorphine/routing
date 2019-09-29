@@ -48,7 +48,7 @@ class MiddlewareGatewayTest extends TestCase
 
     public function testRoutesMethod_PassesTraceToNextRoute()
     {
-        $trace = new Route\Trace(new Map(), new Doubles\FakeUri());
+        $trace = new Map\Trace(new Map(), new Doubles\FakeUri());
         $this->gate($route)->routes($trace);
         $this->assertSame($trace, $route->trace);
     }
