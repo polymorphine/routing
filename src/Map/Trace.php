@@ -32,7 +32,7 @@ class Trace
     public function endpoint(): void
     {
         foreach ($this->methods ?? ['*'] as $method) {
-            $this->map->addEndpoint(new Path($this->path ?: '0', $method, $this->uri));
+            $this->map->addPath(new Path($this->path ?: '0', $method, $this->uri));
         }
     }
 

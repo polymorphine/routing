@@ -21,7 +21,7 @@ class Map
         $this->paths = $paths;
     }
 
-    public function addEndpoint(Map\Path $path): void
+    public function addPath(Map\Path $path): void
     {
         $this->paths[$path->name] = ['uri' => rawurldecode((string) $path->uri), 'method' => $path->method];
     }
