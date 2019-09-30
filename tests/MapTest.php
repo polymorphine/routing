@@ -26,11 +26,11 @@ class MapTest extends TestCase
     {
         $map = $this->map();
 
-        $map->addEndpoint('some.path', Doubles\FakeUri::fromString('/foo/bar'), 'POST');
+        $map->addEndpoint(new Map\Path('some.path', 'POST', Doubles\FakeUri::fromString('/foo/bar')));
         $expected = ['some.path' => ['uri' => '/foo/bar', 'method' => 'POST']];
         $this->assertSame($expected, $map->toArray());
 
-        $map->addEndpoint('other.path', Doubles\FakeUri::fromString('/foo/bar/baz'));
+        $map->addEndpoint(new Map\Path('other.path', '*', Doubles\FakeUri::fromString('/foo/bar/baz')));
         $expected += ['other.path' => ['uri' => '/foo/bar/baz', 'method' => '*']];
         $this->assertSame($expected, $map->toArray());
     }

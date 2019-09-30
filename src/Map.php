@@ -11,25 +11,23 @@
 
 namespace Polymorphine\Routing;
 
-use Psr\Http\Message\UriInterface;
-
 
 class Map
 {
-    private $endpoints;
+    private $paths;
 
-    public function __construct(array $endpoints = [])
+    public function __construct(array $paths = [])
     {
-        $this->endpoints = $endpoints;
+        $this->paths = $paths;
     }
 
-    public function addEndpoint(string $path, UriInterface $uri, string $method = '*'): void
+    public function addEndpoint(Map\Path $path): void
     {
-        $this->endpoints[$path] = ['uri' => rawurldecode((string) $uri), 'method' => $method];
+        $this->paths[$path->name] = ['uri' => rawurldecode((string) $path->uri), 'method' => $path->method];
     }
 
     public function toArray(): array
     {
-        return $this->endpoints;
+        return $this->paths;
     }
 }
