@@ -83,6 +83,6 @@ class EndpointTest extends TestCase
         $route = new Doubles\DummyEndpoint();
         $route->routes($trace);
 
-        $this->assertSame([$path => ['uri' => $uri, 'method' => '*']], $map->toArray());
+        $this->assertSame([$path => ['uri' => $uri, 'method' => '*']], $map->paths());
     }
 }

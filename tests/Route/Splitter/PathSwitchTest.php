@@ -189,7 +189,7 @@ class PathSwitchTest extends TestCase
             'path.bar'  => ['uri' => $uri . '/bar', 'method' => '*']
         ];
 
-        $this->assertSame($expected, $map->toArray());
+        $this->assertSame($expected, $map->paths());
     }
 
     public function segmentCombinations()

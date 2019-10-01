@@ -95,7 +95,7 @@ class CallbackSwitchTest extends TestCase
             'path.bar' => ['uri' => $uri, 'method' => '*']
         ];
 
-        $this->assertSame($expected, $map->toArray());
+        $this->assertSame($expected, $map->paths());
     }
 
     private function splitter(array $routes = [])

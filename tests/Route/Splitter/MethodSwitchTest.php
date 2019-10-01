@@ -168,7 +168,7 @@ class MethodSwitchTest extends TestCase
             'path.POST' => ['uri' => $uri, 'method' => 'POST']
         ];
 
-        $this->assertSame($expected, $map->toArray());
+        $this->assertSame($expected, $map->paths());
     }
 
     private function splitter(array $methods = ['POST', 'GET', 'PUT', 'PATCH', 'DELETE']): MethodSwitch

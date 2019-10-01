@@ -26,7 +26,7 @@ class Map
         $this->paths[$path->name] = ['uri' => rawurldecode((string) $path->uri), 'method' => $path->method];
     }
 
-    public function toArray(): array
+    public function paths(): array
     {
         return $this->paths;
     }

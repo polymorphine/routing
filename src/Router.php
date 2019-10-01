@@ -92,6 +92,6 @@ class Router implements RequestHandlerInterface
 
         $trace->follow($this->route);
 
-        return $map->toArray();
+        return $map->paths();
     }
 }
