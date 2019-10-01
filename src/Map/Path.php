@@ -11,8 +11,6 @@
 
 namespace Polymorphine\Routing\Map;
 
-use Psr\Http\Message\UriInterface;
-
 
 class Path
 {
@@ -23,7 +21,7 @@ class Path
     public function __construct(
         string $name,
         string $method,
-        UriInterface $uri
+        string $uri
     ) {
         $this->name   = $name;
         $this->method = $method;

@@ -23,7 +23,7 @@ class Map
 
     public function addPath(Map\Path $path): void
     {
-        $this->paths[$path->name] = ['uri' => rawurldecode((string) $path->uri), 'method' => $path->method];
+        $this->paths[$path->name] = ['uri' => $path->uri, 'method' => $path->method];
     }
 
     public function paths(): array
