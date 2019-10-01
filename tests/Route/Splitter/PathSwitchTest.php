@@ -171,7 +171,7 @@ class PathSwitchTest extends TestCase
         $this->assertSame(self::$prototype, $splitter->forward($request, self::$prototype));
     }
 
-    public function testRoutesMethod_AddsRouteTracesToRoutingMap()
+    public function testRoutesMethod_AddsRouteTracedPathsToRoutingMap()
     {
         $splitter = new PathSwitch([
             'foo' => new Doubles\MockedRoute(),
@@ -179,17 +179,16 @@ class PathSwitchTest extends TestCase
         ], new Doubles\MockedRoute());
 
         $map   = new Map();
-        $uri   = '/path';
-        $trace = (new Map\Trace($map, Doubles\FakeUri::fromString($uri)))->nextHop('path');
+        $trace = (new Map\Trace($map, Doubles\FakeUri::fromString('/path')))->nextHop('route');
 
         $splitter->routes($trace);
         $expected = [
-            'path.ROOT' => ['uri' => $uri, 'method' => '*'],
-            'path.foo'  => ['uri' => $uri . '/foo', 'method' => '*'],
-            'path.bar'  => ['uri' => $uri . '/bar', 'method' => '*']
+            new Map\Path('route.ROOT', '*', '/path'),
+            new Map\Path('route.foo', '*', '/path/foo'),
+            new Map\Path('route.bar', '*', '/path/bar')
         ];
 
-        $this->assertSame($expected, $map->paths());
+        $this->assertEquals($expected, $map->paths());
     }
 
     public function segmentCombinations()

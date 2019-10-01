@@ -74,15 +74,15 @@ class EndpointTest extends TestCase
         $this->assertSame($prototype, $route->forward($request->withAttribute(Route::PATH_ATTRIBUTE, ['some', 'path']), $prototype));
     }
 
-    public function testRoutesMethod_AddsTraceToRoutingMap()
+    public function testRoutesMethod_AddsTracedPathToRoutingMap()
     {
-        $uri   = 'https://example.com/foo/bar';
-        $trace = new Map\Trace($map = new Map(), Doubles\FakeUri::fromString($uri));
-        $trace = $trace->nextHop($path = 'some.routing.path');
+        $path  = new Map\Path('some.routing.path', '*', 'https://example.com/foo/bar');
+        $trace = new Map\Trace($map = new Map(), Doubles\FakeUri::fromString($path->uri));
+        $trace = $trace->nextHop($path->name);
 
         $route = new Doubles\DummyEndpoint();
         $route->routes($trace);
 
-        $this->assertSame([$path => ['uri' => $uri, 'method' => '*']], $map->paths());
+        $this->assertEquals([$path], $map->paths());
     }
 }

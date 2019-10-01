@@ -128,7 +128,7 @@ class ScanSwitchTest extends TestCase
         $this->assertSame($topRoute, $splitter->select('route'));
     }
 
-    public function testRoutesMethod_AddsRouteTracesToRoutingMap()
+    public function testRoutesMethod_AddsRouteTracedPathsToRoutingMap()
     {
         $splitter = $this->splitter([
             'foo' => new Doubles\MockedRoute(),
@@ -142,13 +142,13 @@ class ScanSwitchTest extends TestCase
 
         $splitter->routes($trace);
         $expected = [
-            'path'     => ['uri' => $uri, 'method' => '*'],
-            'path.foo' => ['uri' => $uri, 'method' => '*'],
-            'path.bar' => ['uri' => $uri, 'method' => '*'],
-            'path.0'   => ['uri' => $uri, 'method' => '*']
+            new Map\Path('path', '*', $uri),
+            new Map\Path('path.foo', '*', $uri),
+            new Map\Path('path.bar', '*', $uri),
+            new Map\Path('path.0', '*', $uri)
         ];
 
-        $this->assertSame($expected, $map->paths());
+        $this->assertEquals($expected, $map->paths());
     }
 
     private function splitter(array $routes = [], Route $default = null)

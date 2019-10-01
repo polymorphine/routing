@@ -151,7 +151,7 @@ class MethodSwitchTest extends TestCase
         $this->assertSame($response, $splitter->forward($request, new Doubles\FakeResponse()));
     }
 
-    public function testRoutesMethod_AddsRouteTracesToRoutingMap()
+    public function testRoutesMethod_AddsRouteTracedPathsToRoutingMap()
     {
         $splitter = new MethodSwitch([
             'GET'  => new Doubles\MockedRoute(),
@@ -164,11 +164,11 @@ class MethodSwitchTest extends TestCase
 
         $splitter->routes($trace);
         $expected = [
-            'path.GET'  => ['uri' => $uri, 'method' => 'GET'],
-            'path.POST' => ['uri' => $uri, 'method' => 'POST']
+            new Map\Path('path.GET', 'GET', $uri),
+            new Map\Path('path.POST', 'POST', $uri)
         ];
 
-        $this->assertSame($expected, $map->paths());
+        $this->assertEquals($expected, $map->paths());
     }
 
     private function splitter(array $methods = ['POST', 'GET', 'PUT', 'PATCH', 'DELETE']): MethodSwitch

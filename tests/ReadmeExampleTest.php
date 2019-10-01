@@ -12,6 +12,7 @@
 namespace Polymorphine\Routing\Tests;
 
 use PHPUnit\Framework\TestCase;
+use Polymorphine\Routing\Map\Path;
 use Polymorphine\Routing\Router;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -101,35 +102,35 @@ abstract class ReadmeExampleTest extends TestCase
     {
         $routes = $this->router()->routes();
         $expected = [
-            'home'                     => ['uri' => '/', 'method' => '*'],
-            'admin.GET'                => ['uri' => '/admin', 'method' => 'GET'],
-            'admin.POST'               => ['uri' => '/admin', 'method' => 'POST'],
-            'login'                    => ['uri' => '/login', 'method' => '*'],
-            'logout'                   => ['uri' => '/logout', 'method' => 'POST'],
-            'articles.POST'            => ['uri' => '/articles', 'method' => 'POST'],
-            'articles.PATCH'           => ['uri' => '/articles/{#id}', 'method' => 'PATCH'],
-            'articles.DELETE'          => ['uri' => '/articles/{#id}', 'method' => 'DELETE'],
-            'articles.NEW'             => ['uri' => '/articles/new/form', 'method' => 'NEW'],
-            'articles.EDIT'            => ['uri' => '/articles/{#id}/form', 'method' => 'EDIT'],
-            'articles.GET.form.edit'   => ['uri' => '/articles/{#id}/form', 'method' => 'GET'],
-            'articles.GET.form.new'    => ['uri' => '/articles/new/form', 'method' => 'GET'],
-            'articles.GET.item'        => ['uri' => '/articles/{#id}', 'method' => 'GET'],
-            'articles.GET.index'       => ['uri' => '/articles', 'method' => 'GET'],
-            '0.GET'                    => ['uri' => '/login', 'method' => 'GET'],
-            '0.POST'                   => ['uri' => '/login', 'method' => 'POST'],
-            '1'                        => ['uri' => '/logout', 'method' => '*'],
-            '2'                        => ['uri' => '/admin', 'method' => '*'],
-            '3.home'                   => ['uri' => '/', 'method' => 'GET'],
-            '3.admin.GET'              => ['uri' => '/admin', 'method' => 'GET'],
-            '3.login'                  => ['uri' => '/login', 'method' => 'GET'],
-            '3.articles.GET.form.edit' => ['uri' => '/articles/{#id}/form', 'method' => 'GET'],
-            '3.articles.GET.form.new'  => ['uri' => '/articles/new/form', 'method' => 'GET'],
-            '3.articles.GET.item'      => ['uri' => '/articles/{#id}', 'method' => 'GET'],
-            '3.articles.GET.index'     => ['uri' => '/articles', 'method' => 'GET'],
-            '4'                        => ['uri' => '/', 'method' => '*']
+            new Path('home', '*', '/'),
+            new Path('admin.GET', 'GET', '/admin'),
+            new Path('admin.POST', 'POST', '/admin'),
+            new Path('login', '*', '/login'),
+            new Path('logout', 'POST', '/logout'),
+            new Path('articles.POST', 'POST', '/articles'),
+            new Path('articles.PATCH', 'PATCH', '/articles/{#id}'),
+            new Path('articles.DELETE', 'DELETE', '/articles/{#id}'),
+            new Path('articles.NEW', 'NEW', '/articles/new/form'),
+            new Path('articles.EDIT', 'EDIT', '/articles/{#id}/form'),
+            new Path('articles.GET.form.edit', 'GET', '/articles/{#id}/form'),
+            new Path('articles.GET.form.new', 'GET', '/articles/new/form'),
+            new Path('articles.GET.item', 'GET', '/articles/{#id}'),
+            new Path('articles.GET.index', 'GET', '/articles'),
+            new Path('0.GET', 'GET', '/login'),
+            new Path('0.POST', 'POST', '/login'),
+            new Path('1', '*', '/logout'),
+            new Path('2', '*', '/admin'),
+            new Path('3.home', 'GET', '/'),
+            new Path('3.admin.GET', 'GET', '/admin'),
+            new Path('3.login', 'GET', '/login'),
+            new Path('3.articles.GET.form.edit', 'GET', '/articles/{#id}/form'),
+            new Path('3.articles.GET.form.new', 'GET', '/articles/new/form'),
+            new Path('3.articles.GET.item', 'GET', '/articles/{#id}'),
+            new Path('3.articles.GET.index', 'GET', '/articles'),
+            new Path('4', '*', '/')
         ];
 
-        $this->assertSame($expected, $routes);
+        $this->assertEquals($expected, $routes);
     }
 
     abstract protected function router(): Router;

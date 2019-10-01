@@ -78,7 +78,7 @@ class CallbackSwitchTest extends TestCase
         $splitter->uri(new Doubles\FakeUri(), []);
     }
 
-    public function testRoutesMethod_AddsRouteTracesToRoutingMap()
+    public function testRoutesMethod_AddsRouteTracedPathsToRoutingMap()
     {
         $splitter = $this->splitter([
             'foo' => new Doubles\MockedRoute(),
@@ -91,11 +91,11 @@ class CallbackSwitchTest extends TestCase
 
         $splitter->routes($trace);
         $expected = [
-            'path.foo' => ['uri' => $uri, 'method' => '*'],
-            'path.bar' => ['uri' => $uri, 'method' => '*']
+            new Map\Path('path.foo', '*', $uri),
+            new Map\Path('path.bar', '*', $uri)
         ];
 
-        $this->assertSame($expected, $map->paths());
+        $this->assertEquals($expected, $map->paths());
     }
 
     private function splitter(array $routes = [])

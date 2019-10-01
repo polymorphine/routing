@@ -19,24 +19,19 @@ class MapTest extends TestCase
 {
     public function testInstantiation()
     {
-        $this->assertInstanceOf(Map::class, $this->map());
+        $this->assertInstanceOf(Map::class, new Map());
     }
 
     public function testCanAddPaths()
     {
-        $map = $this->map();
+        $map = new Map();
 
-        $map->addPath(new Map\Path('some.path', 'POST', Doubles\FakeUri::fromString('/foo/bar')));
-        $expected = ['some.path' => ['uri' => '/foo/bar', 'method' => 'POST']];
-        $this->assertSame($expected, $map->paths());
+        $path1 = new Map\Path('some.path', 'POST', Doubles\FakeUri::fromString('/foo/bar'));
+        $map->addPath($path1);
+        $this->assertSame([$path1], $map->paths());
 
-        $map->addPath(new Map\Path('other.path', '*', Doubles\FakeUri::fromString('/foo/bar/baz')));
-        $expected += ['other.path' => ['uri' => '/foo/bar/baz', 'method' => '*']];
-        $this->assertSame($expected, $map->paths());
-    }
-
-    private function map(array $routes = []): Map
-    {
-        return new Map($routes);
+        $path2 = new Map\Path('other.path', '*', Doubles\FakeUri::fromString('/foo/bar/baz'));
+        $map->addPath($path2);
+        $this->assertSame([$path1, $path2], $map->paths());
     }
 }
