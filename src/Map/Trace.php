@@ -22,16 +22,18 @@ class Trace
     private $uri;
     private $methods;
     private $path;
+    private $rootLabel;
 
-    public function __construct(Map $map, UriInterface $uri)
+    public function __construct(Map $map, UriInterface $uri, string $rootLabel = 'ROOT')
     {
-        $this->map = $map;
-        $this->uri = $uri;
+        $this->map       = $map;
+        $this->uri       = $uri;
+        $this->rootLabel = $rootLabel;
     }
 
     public function endpoint(): void
     {
-        $path = $this->path ?: '0';
+        $path = $this->path ?: $this->rootLabel;
         $uri  = rawurldecode((string) $this->uri);
         foreach ($this->methods ?? ['*'] as $method) {
             $this->map->addPath(new Path($path, $method, $uri));

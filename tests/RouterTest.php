@@ -79,7 +79,7 @@ class RouterTest extends TestCase
     public function testRoutesMethod_ReturnsRoutePathsArray()
     {
         $router = new Router(new Doubles\MockedRoute(), Doubles\FakeUri::fromString('/foo/bar'), self::$prototype);
-        $this->assertEquals([new Path('0', '*', '/foo/bar')], $router->routes());
+        $this->assertEquals([new Path('ROOT', '*', '/foo/bar')], $router->routes());
     }
 
     private function router(bool $matched = true, $uri = null)
