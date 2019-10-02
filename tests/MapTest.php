@@ -34,4 +34,16 @@ class MapTest extends TestCase
         $map->addPath($path2);
         $this->assertSame([$path1, $path2], $map->paths());
     }
+
+    public function testTraceCanAddPaths()
+    {
+        $map   = new Map();
+        $trace = new Map\Trace($map, Doubles\FakeUri::fromString($uri = '/foo/bar'));
+
+        $trace->nextHop('some.path')->endpoint();
+        $this->assertEquals([new Map\Path('some.path', '*', $uri)], $map->paths());
+
+        $trace->nextHop('other.path')->endpoint();
+        $this->assertEquals([new Map\Path('some.path', '*', $uri), new Map\Path('other.path', '*', $uri)], $map->paths());
+    }
 }
