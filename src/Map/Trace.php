@@ -33,7 +33,7 @@ class Trace
 
     public function endpoint(): void
     {
-        $path = $this->path ?: $this->rootLabel;
+        $path = isset($this->path) ? $this->path : $this->rootLabel;
         $uri  = rawurldecode((string) $this->uri);
         foreach ($this->methods ?? ['*'] as $method) {
             $this->map->addPath(new Path($path, $method, $uri));

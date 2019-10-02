@@ -46,4 +46,22 @@ class MapTest extends TestCase
         $trace->nextHop('other.path')->endpoint();
         $this->assertEquals([new Map\Path('some.path', '*', $uri), new Map\Path('other.path', '*', $uri)], $map->paths());
     }
+
+    public function testNoPathTraceResolvesToRoot()
+    {
+        $map   = new Map();
+        $trace = new Map\Trace($map, Doubles\FakeUri::fromString($uri = '/foo/bar'), 'rootLabel');
+
+        $trace->endpoint();
+        $this->assertEquals([new Map\Path('rootLabel', '*', $uri)], $map->paths());
+    }
+
+    public function testFalsyPathTraceIsPreserved()
+    {
+        $map   = new Map();
+        $trace = new Map\Trace($map, Doubles\FakeUri::fromString($uri = '/foo/bar'), 'rootLabel');
+
+        $trace->nextHop('0')->endpoint();
+        $this->assertEquals([new Map\Path('0', '*', $uri)], $map->paths());
+    }
 }
