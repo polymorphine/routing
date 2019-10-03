@@ -42,7 +42,7 @@ class MethodSwitch implements Route
     public function __construct(array $routes, ?string $implicit = 'GET')
     {
         $this->routes   = $routes;
-        $this->implicit = $this->routes[$implicit] ?? null;
+        $this->implicit = isset($routes[$implicit]) ? $implicit : null;
     }
 
     public function forward(Request $request, Response $prototype): Response
@@ -61,7 +61,7 @@ class MethodSwitch implements Route
         [$id, $nextPath] = $this->splitPath($path);
 
         if ($id && !isset($this->routes[$id]) && $this->implicit) {
-            return $this->implicit->select($path);
+            return $this->routes[$this->implicit]->select($path);
         }
         return $this->getRoute($id, $nextPath);
     }
@@ -69,7 +69,7 @@ class MethodSwitch implements Route
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
         if ($this->implicit) {
-            return $this->implicit->uri($prototype, $params);
+            return $this->routes[$this->implicit]->uri($prototype, $params);
         }
         throw new Exception\EndpointCallException('Cannot resolve specific Uri for switch route');
     }
@@ -77,7 +77,7 @@ class MethodSwitch implements Route
     public function routes(Trace $trace): void
     {
         if ($this->implicit) {
-            $trace->withMethod(array_search($this->implicit, $this->routes, true))->follow($this->implicit);
+            $trace->withMethod($this->implicit)->follow($this->routes[$this->implicit]);
         }
         foreach ($this->routes as $name => $route) {
             $trace->nextHop($name)->withMethod($name)->follow($route);
