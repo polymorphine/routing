@@ -164,6 +164,7 @@ class MethodSwitchTest extends TestCase
 
         $splitter->routes($trace);
         $expected = [
+            new Map\Path('path', 'GET', $uri),
             new Map\Path('path.GET', 'GET', $uri),
             new Map\Path('path.POST', 'POST', $uri)
         ];

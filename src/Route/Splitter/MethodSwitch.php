@@ -76,6 +76,9 @@ class MethodSwitch implements Route
 
     public function routes(Trace $trace): void
     {
+        if ($this->implicit) {
+            $trace->withMethod(array_search($this->implicit, $this->routes, true))->follow($this->implicit);
+        }
         foreach ($this->routes as $name => $route) {
             $trace->nextHop($name)->withMethod($name)->follow($route);
         }
