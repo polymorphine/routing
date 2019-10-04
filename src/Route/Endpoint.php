@@ -12,6 +12,7 @@
 namespace Polymorphine\Routing\Route;
 
 use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Map\Trace;
 use Polymorphine\Routing\Exception;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -45,6 +46,11 @@ abstract class Endpoint implements Route
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
         return $prototype;
+    }
+
+    public function routes(Trace $trace): void
+    {
+        $trace->endpoint();
     }
 
     /**

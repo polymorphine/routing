@@ -12,6 +12,7 @@
 namespace Polymorphine\Routing\Tests\Doubles;
 
 use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Map\Trace;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
@@ -24,6 +25,8 @@ class MockedRoute implements Route
     public $response;
     public $uri;
     public $path;
+    public $trace;
+    public $subRoute;
 
     public function __construct(?ResponseInterface $response = null, ?UriInterface $uri = null)
     {
@@ -49,8 +52,10 @@ class MockedRoute implements Route
 
     public function select(string $path): Route
     {
-        $this->path = $path;
-        return $this;
+        $this->path     = $path;
+        $this->subRoute = clone $this;
+        unset($this->subRoute->path);
+        return $this->subRoute;
     }
 
     public function uri(UriInterface $prototype, array $params): UriInterface
@@ -63,6 +68,12 @@ class MockedRoute implements Route
         $part = $this->uri->getQuery() and $prototype = $prototype->withQuery($part);
         $part = $this->uri->getPort() and $prototype = $prototype->withPort($part);
 
-        return $prototype;
+        return $this->uri = $prototype;
+    }
+
+    public function routes(Trace $trace): void
+    {
+        $this->trace = $trace;
+        $trace->endpoint();
     }
 }

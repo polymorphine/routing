@@ -13,54 +13,59 @@ namespace Polymorphine\Routing\Tests\Route\Gate;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Tests;
+use Polymorphine\Routing\Map;
 use Polymorphine\Routing\Tests\Doubles;
 use Psr\Http\Message\ServerRequestInterface;
 
 
 class CallbackGatewayTest extends TestCase
 {
-    use Tests\RoutingTestMethods;
-
     public function testInstantiation()
     {
-        $this->assertInstanceOf(Route::class, $this->middleware());
+        $this->assertInstanceOf(Route::class, $this->gate());
     }
 
     public function testCallbackPreventsForwardingRequest()
     {
-        $request = new Doubles\FakeServerRequest();
-        $this->assertSame(self::$prototype, $this->middleware()->forward($request, self::$prototype));
+        $request   = new Doubles\FakeServerRequest();
+        $prototype = new Doubles\FakeResponse();
+        $this->assertSame($prototype, $this->gate()->forward($request, $prototype));
     }
 
-    public function testMiddlewareForwardsRequest()
+    public function testCallbackForwardsRequest()
     {
         $request = new Doubles\FakeServerRequest('POST');
-        $this->assertNotSame(self::$prototype, $this->middleware()->forward($request, self::$prototype));
+        $route   = new Doubles\MockedRoute($response = new Doubles\FakeResponse());
+        $this->assertSame($response, $this->gate($route)->forward($request, new Doubles\FakeResponse()));
     }
 
     public function testSelectCallsWrappedRouteWithSameParameter()
     {
-        $route = $this->middleware()->select('some.name');
+        $selected = $this->gate($route)->select('some.name');
         $this->assertSame('some.name', $route->path);
+        $this->assertSame($selected, $route->subRoute);
     }
 
     public function testUriCallIsPassedToWrappedRoute()
     {
         $uri   = 'http://example.com/foo/bar?test=baz';
-        $route = new Route\Gate\CallbackGateway($this->basicCallback(), Doubles\MockedRoute::withUri($uri));
-        $this->assertSame($uri, (string) $route->uri(new Doubles\FakeUri(), []));
+        $route = Doubles\MockedRoute::withUri($uri);
+        $this->assertSame($uri, (string) $this->gate($route)->uri(new Doubles\FakeUri(), []));
     }
 
-    private function middleware(callable $callback = null)
+    public function testRoutesMethod_PassesTraceToNextRoute()
     {
-        return new Route\Gate\CallbackGateway($callback ?: $this->basicCallback(), Doubles\MockedRoute::response('default'));
+        $trace = new Map\Trace(new Map(), new Doubles\FakeUri());
+        $this->gate($route)->routes($trace);
+        $this->assertSame($trace, $route->trace);
     }
 
-    private function basicCallback()
+    private function gate(?Route &$route = null)
     {
-        return function (ServerRequestInterface $request) {
+        $route = $route ?? Doubles\MockedRoute::response('default');
+        $callback = function (ServerRequestInterface $request) {
             return $request->getMethod() === 'POST' ? $request : null;
         };
+        return new Route\Gate\CallbackGateway($callback, $route);
     }
 }

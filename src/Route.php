@@ -11,6 +11,7 @@
 
 namespace Polymorphine\Routing;
 
+use Polymorphine\Routing\Map\Trace;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
@@ -76,4 +77,6 @@ interface Route
      * @return UriInterface
      */
     public function uri(UriInterface $prototype, array $params): UriInterface;
+
+    public function routes(Trace $trace): void;
 }

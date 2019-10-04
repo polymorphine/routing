@@ -20,6 +20,8 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class DynamicTargetMaskTest extends TestCase
 {
+    use Pattern\UriTemplatePlaceholder;
+
     public function testInstantiation()
     {
         $this->assertInstanceOf(Pattern\DynamicTargetMask::class, $this->pattern());
@@ -310,6 +312,24 @@ class DynamicTargetMaskTest extends TestCase
         $pattern   = $this->pattern('foo/{#id}');
         $prototype = new Doubles\FakeUri();
         $this->assertSame('/foo/34', (string) $pattern->uri($prototype, ['34']));
+    }
+
+    public function testTemplateUri_ReturnsPatternUriWithParameterPlaceholders()
+    {
+        $pattern = new Pattern\DynamicTargetMask('bar/{id}?name={name}', ['id' => '[1-9]', 'name' => '(bar|baz)']);
+        $uri     = Doubles\FakeUri::fromString('//example.com/foo?query=string');
+        $expected = $uri->withPath('/foo/bar/' . $this->placeholder('id:[1-9]'))
+                        ->withQuery('query=string&name=' . $this->placeholder('name:(bar|baz)'));
+        $this->assertEquals($expected, $pattern->templateUri($uri));
+    }
+
+    public function testUriTemplateWithPredefinedRegexp_ReturnsUriWithParameterTypePlaceholder()
+    {
+        $pattern = $this->pattern('bar/{#id}?name={$name}');
+        $uri     = Doubles\FakeUri::fromString('//example.com/foo?query=string');
+        $expected = $uri->withPath('/foo/bar/' . $this->placeholder('#id'))
+                        ->withQuery('query=string&name=' . $this->placeholder('$name'));
+        $this->assertEquals($expected, $pattern->templateUri($uri));
     }
 
     private function pattern($pattern = '')

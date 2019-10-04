@@ -26,6 +26,8 @@ use Psr\Http\Message\UriInterface;
  */
 class DynamicTargetMask implements Route\Gate\Pattern
 {
+    use UriTemplatePlaceholder;
+
     private $pattern;
     private $params;
     private $parsed = false;
@@ -81,14 +83,22 @@ class DynamicTargetMask implements Route\Gate\Pattern
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
         $this->parsed or $this->parsePattern();
+        return $this->replacePlaceholders($prototype, $this->uriPlaceholders($params));
+    }
 
-        $params = $this->uriPlaceholders($params);
-        $target = str_replace(array_keys($params), $params, $this->pattern);
+    public function templateUri(UriInterface $uri): UriInterface
+    {
+        $this->parsed or $this->parsePattern();
 
-        [$path, $query] = explode('?', $target, 2) + [false, null];
+        $placeholders = [];
+        foreach ($this->params as $name => $type) {
+            $token      = self::DELIM_LEFT . $name . self::DELIM_RIGHT;
+            $presetType = array_search($type, self::TYPE_REGEXP, true);
+            $definition = $presetType ? $presetType . $name : $name . ':' . $type;
+            $placeholders[$token] = $this->placeholder($definition);
+        }
 
-        $prototype = $this->setPath($path, $prototype);
-        return $this->queryParams ? $this->setQuery($query, $prototype) : $prototype;
+        return $this->replacePlaceholders($uri, $placeholders);
     }
 
     private function patternRegexp()
@@ -124,6 +134,15 @@ class DynamicTargetMask implements Route\Gate\Pattern
         }
 
         return $placeholders;
+    }
+
+    private function replacePlaceholders(UriInterface $uri, array $placeholders): UriInterface
+    {
+        $target = str_replace(array_keys($placeholders), $placeholders, $this->pattern);
+        [$path, $query] = explode('?', $target, 2) + [false, null];
+
+        $uri = $this->setPath($path, $uri);
+        return $this->queryParams ? $this->setQuery($query, $uri) : $uri;
     }
 
     private function validParam(string $name, string $type, $value): string

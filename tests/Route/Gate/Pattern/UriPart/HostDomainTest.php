@@ -43,6 +43,13 @@ class HostDomainTest extends TestCase
         $this->assertSame('https://example.com/foo/bar', (string) $domain->uri($prototype, []));
     }
 
+    public function testTemplateUri_ReturnsUriWithHostDomain()
+    {
+        $uri    = Doubles\FakeUri::fromString('https:/foo/bar');
+        $domain = $this->domain('example.com');
+        $this->assertSame('https://example.com/foo/bar', (string) $domain->templateUri($uri));
+    }
+
     public function testUriGivenPrototypeWithDifferentHost_ThrowsException()
     {
         $prototype = Doubles\FakeUri::fromString('https://example.pl/foo/bar');

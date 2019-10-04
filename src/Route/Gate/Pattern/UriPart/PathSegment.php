@@ -22,6 +22,7 @@ use Psr\Http\Message\UriInterface;
 class PathSegment implements Route\Gate\Pattern
 {
     use Route\Gate\Pattern\PathContextMethods;
+    use Route\Gate\Pattern\StaticUriTemplateMethod;
 
     private $name;
 

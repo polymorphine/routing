@@ -23,6 +23,8 @@ use Psr\Http\Message\UriInterface;
  */
 class HostDomain implements Route\Gate\Pattern
 {
+    use Route\Gate\Pattern\StaticUriTemplateMethod;
+
     private $domain;
 
     /**

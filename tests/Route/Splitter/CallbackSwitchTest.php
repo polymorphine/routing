@@ -13,6 +13,7 @@ namespace Polymorphine\Routing\Tests\Route\Splitter;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Map;
 use Polymorphine\Routing\Exception;
 use Polymorphine\Routing\Tests\Doubles;
 use Psr\Http\Message\ServerRequestInterface;
@@ -44,15 +45,30 @@ class CallbackSwitchTest extends TestCase
     public function testRoutesCanBeSelected()
     {
         $routes = [
-            'foo' => $this->responseRoute($fooResponse),
-            'bar' => $this->responseRoute($barResponse)
+            'foo' => new Doubles\MockedRoute(),
+            'bar' => new Doubles\MockedRoute()
         ];
-
         $splitter = $this->splitter($routes);
+
         $this->assertSame($routes['foo'], $splitter->select('foo'));
-        $this->assertSame($routes['foo'], $splitter->select('foo.bar.anything'));
         $this->assertSame($routes['bar'], $splitter->select('bar'));
-        $this->assertSame($routes['bar'], $splitter->select('bar.something'));
+    }
+
+    public function testSelectingSubRoutesCallsSelectOnSplitterRoutes()
+    {
+        $routes = [
+            'foo' => new Doubles\MockedRoute(),
+            'bar' => new Doubles\MockedRoute()
+        ];
+        $splitter = $this->splitter($routes);
+
+        $subRoute = $splitter->select('foo.bar.anything');
+        $this->assertSame($subRoute, $routes['foo']->subRoute);
+        $this->assertSame('bar.anything', $routes['foo']->path);
+
+        $subRoute = $splitter->select('bar.path');
+        $this->assertSame($subRoute, $routes['bar']->subRoute);
+        $this->assertSame('path', $routes['bar']->path);
     }
 
     public function testUriMethod_ThrowsException()
@@ -60,6 +76,26 @@ class CallbackSwitchTest extends TestCase
         $splitter = $this->splitter(['route' => new Doubles\MockedRoute()]);
         $this->expectException(Exception\EndpointCallException::class);
         $splitter->uri(new Doubles\FakeUri(), []);
+    }
+
+    public function testRoutesMethod_AddsRouteTracedPathsToRoutingMap()
+    {
+        $splitter = $this->splitter([
+            'foo' => new Doubles\MockedRoute(),
+            'bar' => new Doubles\MockedRoute()
+        ]);
+
+        $uri   = '/foo/bar';
+        $map   = new Map();
+        $trace = (new Map\Trace($map, Doubles\FakeUri::fromString($uri)))->nextHop('path');
+
+        $splitter->routes($trace);
+        $expected = [
+            new Map\Path('path.foo', '*', $uri),
+            new Map\Path('path.bar', '*', $uri)
+        ];
+
+        $this->assertEquals($expected, $map->paths());
     }
 
     private function splitter(array $routes = [])

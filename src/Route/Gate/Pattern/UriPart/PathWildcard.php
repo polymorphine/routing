@@ -22,6 +22,7 @@ use Psr\Http\Message\UriInterface;
 class PathWildcard implements Route\Gate\Pattern
 {
     use Route\Gate\Pattern\PathContextMethods;
+    use Route\Gate\Pattern\UriTemplatePlaceholder;
 
     public function __construct()
     {
@@ -36,5 +37,10 @@ class PathWildcard implements Route\Gate\Pattern
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
         return $prototype;
+    }
+
+    public function templateUri(UriInterface $uri): UriInterface
+    {
+        return $uri->withPath($uri->getPath() . $this->placeholder('/*'));
     }
 }

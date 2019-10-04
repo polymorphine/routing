@@ -50,4 +50,13 @@ class CompositePattern implements Pattern
 
         return $prototype;
     }
+
+    public function templateUri(UriInterface $uri): UriInterface
+    {
+        foreach ($this->patterns as $pattern) {
+            $uri = $pattern->templateUri($uri);
+        }
+
+        return $uri;
+    }
 }

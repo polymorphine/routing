@@ -13,6 +13,7 @@ namespace Polymorphine\Routing\Tests\Route;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Map;
 use Polymorphine\Routing\Exception;
 use Polymorphine\Routing\Tests\Doubles;
 
@@ -71,5 +72,17 @@ class EndpointTest extends TestCase
 
         $request->uri = Doubles\FakeUri::fromString('http://path.from.attribute');
         $this->assertSame($prototype, $route->forward($request->withAttribute(Route::PATH_ATTRIBUTE, ['some', 'path']), $prototype));
+    }
+
+    public function testRoutesMethod_AddsTracedPathToRoutingMap()
+    {
+        $path  = new Map\Path('some.routing.path', '*', 'https://example.com/foo/bar');
+        $trace = new Map\Trace($map = new Map(), Doubles\FakeUri::fromString($path->uri));
+        $trace = $trace->nextHop($path->name);
+
+        $route = new Doubles\DummyEndpoint();
+        $route->routes($trace);
+
+        $this->assertEquals([$path], $map->paths());
     }
 }

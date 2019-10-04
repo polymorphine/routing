@@ -12,6 +12,7 @@
 namespace Polymorphine\Routing\Route\Splitter;
 
 use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Map\Trace;
 use Polymorphine\Routing\Exception\EndpointCallException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -70,6 +71,14 @@ class ScanSwitch implements Route
         }
 
         throw new EndpointCallException('Cannot resolve specific Uri for switch route');
+    }
+
+    public function routes(Trace $trace): void
+    {
+        if ($this->defaultRoute) { $trace->follow($this->defaultRoute); }
+        foreach ($this->routes as $name => $route) {
+            $trace->nextHop($name)->follow($route);
+        }
     }
 
     private function checkDefaultRoute(ServerRequestInterface $request, ResponseInterface $prototype)

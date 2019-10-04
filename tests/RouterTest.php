@@ -12,6 +12,7 @@
 namespace Polymorphine\Routing\Tests;
 
 use PHPUnit\Framework\TestCase;
+use Polymorphine\Routing\Map\Path;
 use Polymorphine\Routing\Router;
 use Polymorphine\Routing\Tests\Doubles\FakeResponseFactory;
 use Polymorphine\Routing\Tests\Doubles\FakeUriFactory;
@@ -73,6 +74,12 @@ class RouterTest extends TestCase
         $router = $router->select('new.context');
         $this->assertInstanceOf(Router::class, $router);
         $this->assertSame('new.context', $route->path);
+    }
+
+    public function testRoutesMethod_ReturnsRoutePathsArray()
+    {
+        $router = new Router(new Doubles\MockedRoute(), Doubles\FakeUri::fromString('/foo/bar'), self::$prototype);
+        $this->assertEquals([new Path('ROOT', '*', '/foo/bar')], $router->routes());
     }
 
     private function router(bool $matched = true, $uri = null)

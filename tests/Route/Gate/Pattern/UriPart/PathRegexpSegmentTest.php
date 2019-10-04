@@ -20,6 +20,8 @@ use Polymorphine\Routing\Tests\Doubles;
 
 class PathRegexpSegmentTest extends TestCase
 {
+    use Route\Gate\Pattern\UriTemplatePlaceholder;
+
     public function testFirstNumericPathSegmentIsMatchedAndCapturedFromRelativePath()
     {
         $request = $this->request('/post/7523/some-slug-part')->withAttribute(Route::PATH_ATTRIBUTE, ['7523', 'some-slug-part']);
@@ -53,6 +55,22 @@ class PathRegexpSegmentTest extends TestCase
     {
         $this->expectException(Exception\InvalidUriParamsException::class);
         $this->pattern()->uri($this->uri('/foo/bar'), ['id' => 'id-00765']);
+    }
+
+    public function testUriTemplate_ReturnsUriWithParameterPlaceholder()
+    {
+        $pattern  = $this->pattern('id', 'post-[0-9]+');
+        $uri      = $uri = $this->uri('/foo/bar');
+        $expected = $uri->withPath($uri->getPath() . '/' . $this->placeholder('id:post-[0-9]+'));
+        $this->assertEquals($expected, $pattern->templateUri($uri));
+    }
+
+    public function testUriTemplateWithPredefinedRegexp_ReturnsUriWithParameterTypePlaceholder()
+    {
+        $pattern  = $this->pattern('id', '[0-9]+');
+        $uri      = $uri = $this->uri('/foo/bar');
+        $expected = $uri->withPath($uri->getPath() . '/' . $this->placeholder('%id'));
+        $this->assertEquals($expected, $pattern->templateUri($uri));
     }
 
     public function testNamedConstructorsEquivalentToConcretePatterns()

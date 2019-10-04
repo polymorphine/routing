@@ -13,6 +13,7 @@ namespace Polymorphine\Routing\Tests\Route\Splitter;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Map;
 use Polymorphine\Routing\Exception;
 use Polymorphine\Routing\Tests\RoutingTestMethods;
 use Polymorphine\Routing\Tests\Doubles;
@@ -71,27 +72,27 @@ class ScanSwitchTest extends TestCase
 
     public function testSelectEndpointCall_ReturnsFoundRoute()
     {
-        $route = $this->splitter([
-            'A' => $routeA = new Doubles\MockedRoute(),
-            'B' => $routeB = new Doubles\MockedRoute()
+        $splitter = $this->splitter($routes = [
+            'A' => new Doubles\MockedRoute(),
+            'B' => new Doubles\MockedRoute()
         ]);
-        $this->assertSame($routeA, $route->select('A'));
-        $this->assertSame($routeB, $route->select('B'));
+        $this->assertSame($routes['A'], $splitter->select('A'));
+        $this->assertSame($routes['B'], $splitter->select('B'));
     }
 
     public function testSelectSwitchCallWithMorePathSegments_AsksNextSwitch()
     {
-        $splitter = $this->splitter([
-            'A' => $routeA = new Doubles\MockedRoute(),
-            'B' => $routeB = new Doubles\MockedRoute()
+        $splitter = $this->splitter($routes = [
+            'A' => new Doubles\MockedRoute(),
+            'B' => new Doubles\MockedRoute()
         ]);
         $selected = $splitter->select('A.nextA');
-        $this->assertSame($routeA, $selected);
-        $this->assertSame('nextA', $selected->path);
+        $this->assertSame($routes['A']->subRoute, $selected);
+        $this->assertSame('nextA', $routes['A']->path);
 
         $selected = $splitter->select('B.nextB.nextB2');
-        $this->assertSame($routeB, $selected);
-        $this->assertSame('nextB.nextB2', $selected->path);
+        $this->assertSame($routes['B']->subRoute, $selected);
+        $this->assertSame('nextB.nextB2', $routes['B']->path);
     }
 
     public function testSelectWithEmptyPath_ThrowsException()
@@ -125,6 +126,29 @@ class ScanSwitchTest extends TestCase
         $nested   = $this->splitter(['route' => $subRoute = new Doubles\MockedRoute()]);
         $splitter = $this->splitter(['route' => $topRoute = new Doubles\MockedRoute()], $nested);
         $this->assertSame($topRoute, $splitter->select('route'));
+    }
+
+    public function testRoutesMethod_AddsRouteTracedPathsToRoutingMap()
+    {
+        $splitter = $this->splitter([
+            'foo' => new Doubles\MockedRoute(),
+            'bar' => new Doubles\MockedRoute(),
+            new Doubles\MockedRoute()
+        ], new Doubles\MockedRoute());
+
+        $map   = new Map();
+        $uri   = '/foo/bar';
+        $trace = (new Map\Trace($map, Doubles\FakeUri::fromString($uri)))->nextHop('path');
+
+        $splitter->routes($trace);
+        $expected = [
+            new Map\Path('path', '*', $uri),
+            new Map\Path('path.foo', '*', $uri),
+            new Map\Path('path.bar', '*', $uri),
+            new Map\Path('path.0', '*', $uri)
+        ];
+
+        $this->assertEquals($expected, $map->paths());
     }
 
     private function splitter(array $routes = [], Route $default = null)

@@ -20,6 +20,8 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class QueryTest extends TestCase
 {
+    use Pattern\UriTemplatePlaceholder;
+
     public function testInstantiation()
     {
         $pattern = $this->pattern('foo=bar');
@@ -139,6 +141,14 @@ class QueryTest extends TestCase
 
         $uri = $pattern->uri($uri, ['foo' => 'ignored', 'bar' => 'buzz']);
         $this->assertSame('foo=fizz&bar=buzz&baz=qux', $uri->getQuery());
+    }
+
+    public function testUriTemplate_ReturnsUriWithQueryPlaceholders()
+    {
+        $pattern  = $this->pattern('foo&bar=&baz=qux');
+        $uri      = Doubles\FakeUri::fromString('/fizz/buzz');
+        $expected = $uri->withQuery('foo=' . $this->placeholder('*') . '&bar=&baz=qux');
+        $this->assertEquals($expected, $pattern->templateUri($uri));
     }
 
     private function pattern(string $query): Pattern

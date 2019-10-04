@@ -12,6 +12,7 @@
 namespace Polymorphine\Routing\Tests;
 
 use PHPUnit\Framework\TestCase;
+use Polymorphine\Routing\Map\Path;
 use Polymorphine\Routing\Router;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -38,7 +39,7 @@ abstract class ReadmeExampleTest extends TestCase
      * @param string                 $routePath
      * @param array                  $uriParams
      */
-    public function testRequestReachItsEndpoint(
+    public function testRequestCanReachItsEndpoint(
         string $expectedOutput,
         ServerRequestInterface $request,
         string $routePath,
@@ -95,6 +96,52 @@ abstract class ReadmeExampleTest extends TestCase
             'AdminPanel when not logged in' => [$this->request('', '/admin'), 'login'],
             'Login when already logged in'  => [$this->request('POST', '/login', ['authenticate' => 'admin']), 'home']
         ];
+    }
+
+    public function testRouterCanProduceRoutingMap()
+    {
+        $routes = $this->router()->routes();
+        $expected = [
+            new Path('home', '*', '/'),
+            new Path('admin', 'GET', '/admin'),
+            new Path('admin.GET', 'GET', '/admin'),
+            new Path('admin.POST', 'POST', '/admin'),
+            new Path('login', '*', '/login'),
+            new Path('logout', 'POST', '/logout'),
+            new Path('articles.form.edit', 'GET', '/articles/{#id}/form'),
+            new Path('articles.form.new', 'GET', '/articles/new/form'),
+            new Path('articles.item', 'GET', '/articles/{#id}'),
+            new Path('articles.index', 'GET', '/articles'),
+            new Path('articles.POST', 'POST', '/articles'),
+            new Path('articles.PATCH', 'PATCH', '/articles/{#id}'),
+            new Path('articles.DELETE', 'DELETE', '/articles/{#id}'),
+            new Path('articles.NEW', 'NEW', '/articles/new/form'),
+            new Path('articles.EDIT', 'EDIT', '/articles/{#id}/form'),
+            new Path('articles.GET.form.edit', 'GET', '/articles/{#id}/form'),
+            new Path('articles.GET.form.new', 'GET', '/articles/new/form'),
+            new Path('articles.GET.item', 'GET', '/articles/{#id}'),
+            new Path('articles.GET.index', 'GET', '/articles'),
+            new Path('0', 'GET', '/login'),
+            new Path('0.GET', 'GET', '/login'),
+            new Path('0.POST', 'POST', '/login'),
+            new Path('1', '*', '/logout'),
+            new Path('2', '*', '/admin'),
+            new Path('3.home', 'GET', '/'),
+            new Path('3.admin', 'GET', '/admin'),
+            new Path('3.admin.GET', 'GET', '/admin'),
+            new Path('3.login', 'GET', '/login'),
+            new Path('3.articles.form.edit', 'GET', '/articles/{#id}/form'),
+            new Path('3.articles.form.new', 'GET', '/articles/new/form'),
+            new Path('3.articles.item', 'GET', '/articles/{#id}'),
+            new Path('3.articles.index', 'GET', '/articles'),
+            new Path('3.articles.GET.form.edit', 'GET', '/articles/{#id}/form'),
+            new Path('3.articles.GET.form.new', 'GET', '/articles/new/form'),
+            new Path('3.articles.GET.item', 'GET', '/articles/{#id}'),
+            new Path('3.articles.GET.index', 'GET', '/articles'),
+            new Path('4', '*', '/')
+        ];
+
+        $this->assertEquals($expected, $routes);
     }
 
     abstract protected function router(): Router;

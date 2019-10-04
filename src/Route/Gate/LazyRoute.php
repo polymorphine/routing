@@ -12,6 +12,7 @@
 namespace Polymorphine\Routing\Route\Gate;
 
 use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Map\Trace;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
@@ -47,6 +48,11 @@ class LazyRoute implements Route
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
         return $this->invokedRoute()->uri($prototype, $params);
+    }
+
+    public function routes(Trace $trace): void
+    {
+        $trace->follow($this->invokedRoute());
     }
 
     protected function invokedRoute(): Route

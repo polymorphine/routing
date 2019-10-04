@@ -12,6 +12,7 @@
 namespace Polymorphine\Routing\Route\Gate;
 
 use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Map\Trace;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
@@ -57,5 +58,10 @@ class PatternGate implements Route
     {
         $prototype = $this->pattern->uri($prototype, $params);
         return $this->route->uri($prototype, $params);
+    }
+
+    public function routes(Trace $trace): void
+    {
+        $trace->withPattern($this->pattern)->follow($this->route);
     }
 }

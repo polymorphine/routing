@@ -24,6 +24,8 @@ use Psr\Http\Message\UriInterface;
  */
 class HostSubdomain implements Route\Gate\Pattern
 {
+    use Route\Gate\Pattern\UriTemplatePlaceholder;
+
     private $id;
     private $values = [];
 
@@ -62,6 +64,12 @@ class HostSubdomain implements Route\Gate\Pattern
         }
 
         return $prototype->withHost($subdomain . '.' . $host);
+    }
+
+    public function templateUri(UriInterface $uri): UriInterface
+    {
+        $definition = $this->id . ':' . implode('|', $this->values);
+        return $uri->withHost($this->placeholder($definition) . '.' . $uri->getHost());
     }
 
     private function subdomainParameter(array $params): string

@@ -12,6 +12,7 @@
 namespace Polymorphine\Routing\Route\Gate;
 
 use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Map\Trace;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
@@ -59,5 +60,10 @@ class UriAttributeSelect implements Route
         return isset($params[$this->id])
             ? $this->resource->select($this->itemPath)->uri($prototype, $params)
             : $this->resource->select($this->indexPath)->uri($prototype, $params);
+    }
+
+    public function routes(Trace $trace): void
+    {
+        $trace->follow($this->resource);
     }
 }

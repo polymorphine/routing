@@ -13,6 +13,7 @@ namespace Polymorphine\Routing\Tests\Route\Splitter;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Map;
 use Polymorphine\Routing\Route\Splitter\PathSwitch;
 use Polymorphine\Routing\Route\Gate;
 use Polymorphine\Routing\Exception\EndpointCallException;
@@ -168,6 +169,26 @@ class PathSwitchTest extends TestCase
 
         $request = new Doubles\FakeServerRequest('GET', $prototype);
         $this->assertSame(self::$prototype, $splitter->forward($request, self::$prototype));
+    }
+
+    public function testRoutesMethod_AddsRouteTracedPathsToRoutingMap()
+    {
+        $splitter = new PathSwitch([
+            'foo' => new Doubles\MockedRoute(),
+            'bar' => new Doubles\MockedRoute()
+        ], new Doubles\MockedRoute());
+
+        $map   = new Map();
+        $trace = (new Map\Trace($map, Doubles\FakeUri::fromString('/path')))->nextHop('route');
+
+        $splitter->routes($trace);
+        $expected = [
+            new Map\Path('route.ROOT', '*', '/path'),
+            new Map\Path('route.foo', '*', '/path/foo'),
+            new Map\Path('route.bar', '*', '/path/bar')
+        ];
+
+        $this->assertEquals($expected, $map->paths());
     }
 
     public function segmentCombinations()

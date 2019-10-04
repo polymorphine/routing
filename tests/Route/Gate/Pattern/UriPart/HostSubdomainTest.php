@@ -19,6 +19,8 @@ use Polymorphine\Routing\Tests\Doubles;
 
 class HostSubdomainTest extends TestCase
 {
+    use Pattern\UriTemplatePlaceholder;
+
     public function testInstantiation()
     {
         $this->assertInstanceOf(Pattern::class, $this->subdomain('id', ['api', 'www']));
@@ -49,6 +51,14 @@ class HostSubdomainTest extends TestCase
         $subdomain = $this->subdomain('lang', ['en', 'pl', 'de']);
         $prototype = Doubles\FakeUri::fromString('//example.com/foo/bar?fizz=buzz');
         $this->assertSame('//pl.example.com/foo/bar?fizz=buzz', (string) $subdomain->uri($prototype, ['lang' => 'pl']));
+    }
+
+    public function testTemplateUri_ReturnsUriWithSubdomain()
+    {
+        $subdomain = $this->subdomain('lang', ['en', 'pl', 'de']);
+        $uri       = Doubles\FakeUri::fromString('//example.com/foo/bar?fizz=buzz');
+        $expected  = $uri->withHost($this->placeholder('lang:en|pl|de') . '.' . $uri->getHost());
+        $this->assertEquals($expected, $subdomain->templateUri($uri));
     }
 
     public function testMissingUriParam_ThrowsException()

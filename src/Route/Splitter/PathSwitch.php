@@ -13,6 +13,7 @@ namespace Polymorphine\Routing\Route\Splitter;
 
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate;
+use Polymorphine\Routing\Map\Trace;
 use Polymorphine\Routing\Exception\EndpointCallException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -85,5 +86,16 @@ class PathSwitch implements Route
         }
 
         return $this->root->uri($prototype, $params);
+    }
+
+    public function routes(Trace $trace): void
+    {
+        if ($this->root) {
+            $trace->nextHop($this->rootLabel)->follow($this->root);
+        }
+        foreach ($this->routes as $name => $route) {
+            $pattern = new Gate\Pattern\UriPart\PathSegment($name);
+            $trace->nextHop($name)->withPattern($pattern)->follow($route);
+        }
     }
 }
