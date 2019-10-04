@@ -78,7 +78,7 @@ class HostSubdomainTest extends TestCase
     public function testUndefinedParamValue_ThrowsException()
     {
         $subdomain = $this->subdomain('lang', ['en', 'pl', 'de']);
-        $this->expectException(Exception\UnreachableEndpointException::class);
+        $this->expectException(Exception\InvalidUriParamsException::class);
         $subdomain->uri(Doubles\FakeUri::fromString('http://example.com/foo/bar'), ['lang' => 'fr']);
     }
 

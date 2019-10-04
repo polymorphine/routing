@@ -82,7 +82,7 @@ class HostSubdomain implements Route\Gate\Pattern
         if (!in_array($params[$this->id], $this->values, true)) {
             $message = 'Invalid parameter value for `%s` subdomain (expected: `%s`)';
             $values  = implode(', ', $this->values);
-            throw new Exception\UnreachableEndpointException(sprintf($message, $this->id, $values));
+            throw new Exception\InvalidUriParamsException(sprintf($message, $this->id, $values));
         }
 
         return $params[$this->id];
