@@ -126,7 +126,7 @@ abstract class ReadmeExampleTest extends TestCase
             new Path('0.POST', 'POST', '/login'),
             new Path('1', '*', '/logout'),
             new Path('2', '*', '/admin'),
-            new Path('3.home', 'GET', '/'),
+            new Path('3', 'GET', '/'),
             new Path('3.admin', 'GET', '/admin'),
             new Path('3.admin.GET', 'GET', '/admin'),
             new Path('3.login', 'GET', '/login'),

@@ -65,7 +65,7 @@ class CompositionTest extends ReadmeExampleTest
                     'index' => $this->callbackEndpoint('ShowArticles')
                 ])
             ]), 'id', 'item', 'index')
-        ], $this->callbackEndpoint('HomePage'), 'home');
+        ], $this->callbackEndpoint('HomePage'));
 
         $route = new MiddlewareGateway(
             $this->csrfMiddleware(),
@@ -88,7 +88,7 @@ class CompositionTest extends ReadmeExampleTest
             )
         );
 
-        return $this->router = new Router($route, new Doubles\FakeUri(), new Doubles\FakeResponse());
+        return $this->router = new Router($route, new Doubles\FakeUri(), new Doubles\FakeResponse(), 'home');
     }
 
     private function callbackEndpoint(string $id): CallbackEndpoint

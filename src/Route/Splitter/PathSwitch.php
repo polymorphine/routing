@@ -29,29 +29,21 @@ class PathSwitch implements Route
     use RouteSelectMethods;
     use Gate\Pattern\PathContextMethods;
 
-    public const ROOT_PATH = 'ROOT';
-
     private $routes = [];
     private $root;
-    private $rootLabel;
 
     /**
-     * Root Route represents fully traversed path in routing structure,
-     * and can be selected explicitly with (provided od default) $rootLabel.
+     * Root Route represents fully traversed path in routing structure.
      * Only when root route is defined this aggregate instance can produce
      * its own URI, because it assumes that no further path will be required.
-     * Root route defined with path constraints will detect conflict at its
-     * URI build and UnreachableEndpointException will be thrown.
      *
      * @param Route[] $routes
      * @param Route   $root
-     * @param string  $rootLabel label used to select root path route (if defined)
      */
-    public function __construct(array $routes, ?Route $root = null, string $rootLabel = self::ROOT_PATH)
+    public function __construct(array $routes, ?Route $root = null)
     {
-        $this->routes    = $routes;
-        $this->root      = $root;
-        $this->rootLabel = $rootLabel;
+        $this->routes = $routes;
+        $this->root   = $root;
     }
 
     public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
@@ -70,10 +62,6 @@ class PathSwitch implements Route
 
     public function select(string $path): Route
     {
-        if ($path === $this->rootLabel && $this->root) {
-            return new self([], $this->root, $this->rootLabel);
-        }
-
         [$id, $path] = $this->splitPath($path);
         $pattern = new Gate\Pattern\UriPart\PathSegment($id);
         return new Gate\PatternGate($pattern, $this->getRoute($id, $path));
@@ -90,9 +78,7 @@ class PathSwitch implements Route
 
     public function routes(Trace $trace): void
     {
-        if ($this->root) {
-            $trace->nextHop($this->rootLabel)->follow($this->root);
-        }
+        if ($this->root) { $trace->follow($this->root); }
         foreach ($this->routes as $name => $route) {
             $pattern = new Gate\Pattern\UriPart\PathSegment($name);
             $trace->nextHop($name)->withPattern($pattern)->follow($route);

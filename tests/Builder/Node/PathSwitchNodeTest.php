@@ -68,25 +68,6 @@ class PathSwitchNodeTest extends TestCase
 
         $this->assertSame($root, $route->forward($relativeRootRequest, $prototype));
         $this->assertSame($root, $route->forward($absoluteRootRequest, $prototype));
-        $this->assertSame($root, $route->select(Route\Splitter\PathSwitch::ROOT_PATH)->forward($relativeRootRequest, $prototype));
-        $this->assertSame($root, $route->select(Route\Splitter\PathSwitch::ROOT_PATH)->forward($absoluteRootRequest, $prototype));
-    }
-
-    public function testRootRouteWithLabel()
-    {
-        $switch = $this->builder();
-        $switch->route('dummy')->callback($this->callbackResponse($dummy));
-        $switch->root('rootLabel')->callback($this->callbackResponse($root));
-        $route = $switch->build();
-
-        $prototype           = new Doubles\FakeResponse();
-        $relativeRootRequest = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString(''));
-        $absoluteRootRequest = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString('/'));
-
-        $this->assertSame($root, $route->forward($relativeRootRequest, $prototype));
-        $this->assertSame($root, $route->forward($absoluteRootRequest, $prototype));
-        $this->assertSame($root, $route->select('rootLabel')->forward($relativeRootRequest, $prototype));
-        $this->assertSame($root, $route->select('rootLabel')->forward($absoluteRootRequest, $prototype));
     }
 
     public function testSettingRootRouteSecondTime_ThrowsException()

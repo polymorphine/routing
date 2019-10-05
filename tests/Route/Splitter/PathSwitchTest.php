@@ -119,35 +119,17 @@ class PathSwitchTest extends TestCase
         $this->assertSame('root', (string) $splitter->uri(new Doubles\FakeUri(), []));
     }
 
-    public function testRootRouteCanBeSelected()
-    {
-        $splitter = $this->splitter([], $root = new Doubles\MockedRoute());
-        $root     = new PathSwitch([], $root);
-        $this->assertEquals($root, $splitter->select(PathSwitch::ROOT_PATH));
-    }
-
-    public function testRootRouteLabelCanBeSetAtInstantiation()
-    {
-        $splitter = new PathSwitch(['dummy' => new Doubles\MockedRoute()], $root = new Doubles\MockedRoute(), 'rootLabel');
-        $root     = new PathSwitch([], $root, 'rootLabel');
-        $this->assertEquals($root, $splitter->select('rootLabel'));
-    }
-
     public function testWithRootRoute_UriOrForward_ReturnsResultsEquivalentToRootRouteCalls()
     {
         $splitter  = $this->splitter([], $this->responseRoute($response));
         $structure = $this->createStructure($splitter, ['foo', 'bar']);
         $wrapped   = $this->patternGate('foo', $this->patternGate('bar', $splitter));
         $implicit  = $structure->select('foo.bar');
-        $explicit  = $structure->select('foo.bar.' . PathSwitch::ROOT_PATH);
         $request   = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString('/foo/bar'));
 
         $this->assertEquals($wrapped, $implicit);
-        $this->assertNotEquals($implicit, $explicit);
         $this->assertSame($response, $implicit->forward($request, self::$prototype));
-        $this->assertSame($response, $explicit->forward($request, self::$prototype));
         $this->assertEquals('/foo/bar', (string) $implicit->uri(new Doubles\FakeUri(), []));
-        $this->assertEquals('/foo/bar', (string) $explicit->uri(new Doubles\FakeUri(), []));
     }
 
     /**
@@ -183,7 +165,7 @@ class PathSwitchTest extends TestCase
 
         $splitter->routes($trace);
         $expected = [
-            new Map\Path('route.ROOT', '*', '/path'),
+            new Map\Path('route', '*', '/path'),
             new Map\Path('route.foo', '*', '/path/foo'),
             new Map\Path('route.bar', '*', '/path/bar')
         ];

@@ -30,7 +30,7 @@ class PathSwitchNode implements Node
     use CompositeBuilderMethods;
 
     private $resourcesForms;
-    private $rootLabel;
+    private $rootNode;
 
     public function __construct(Context $context, array $routes = [])
     {
@@ -105,22 +105,20 @@ class PathSwitchNode implements Node
      *
      * @return RouteNode
      */
-    public function root(string $label = null): RouteNode
+    public function root(): RouteNode
     {
-        if ($this->rootLabel) {
+        if ($this->rootNode) {
             throw new Exception\BuilderLogicException('Root path route already defined');
         }
 
-        $this->rootLabel = $label ?: Route\Splitter\PathSwitch::ROOT_PATH;
-        return $this->addBuilder($this->rootLabel);
+        $this->rootNode = $this->context->create();
+        return new RouteNode($this->rootNode);
     }
 
     protected function router(array $routes): Route
     {
-        $rootRoute = $routes[$this->rootLabel] ?? null;
-        if ($rootRoute) {
-            unset($routes[$this->rootLabel]);
-            return new Route\Splitter\PathSwitch($routes, $rootRoute, $this->rootLabel);
+        if ($this->rootNode) {
+            return new Route\Splitter\PathSwitch($routes, $this->rootNode->build());
         }
 
         return new Route\Splitter\PathSwitch($routes);

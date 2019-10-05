@@ -33,7 +33,7 @@ class BuilderTest extends ReadmeExampleTest
         $root    = $builder->rootNode()->middleware($csrf)->middleware($auth)->responseScan();
 
         $main = $root->defaultRoute()->callbackGate($adminGate)->link($filteredGuestRoute)->pathSwitch();
-        $main->root('home')->callback($this->endpoint('HomePage'));
+        $main->root()->callback($this->endpoint('HomePage'));
         $admin = $main->route('admin')->methodSwitch();
         $admin->route('GET')->callback($this->endpoint('AdminPanel'));
         $admin->route('POST')->callback($this->endpoint('ApplySettings'));
@@ -57,6 +57,6 @@ class BuilderTest extends ReadmeExampleTest
         $root->route()->method('GET')->joinLink($filteredGuestRoute);
         $root->route()->callback($notFound);
 
-        return $this->router = $builder->router(new Doubles\FakeUri(), new Doubles\FakeResponse());
+        return $this->router = $builder->router(new Doubles\FakeUri(), new Doubles\FakeResponse(), 'home');
     }
 }
