@@ -14,9 +14,6 @@ namespace Polymorphine\Routing\Tests;
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Map\Path;
 use Polymorphine\Routing\Router;
-use Polymorphine\Routing\Tests\Doubles\FakeResponseFactory;
-use Polymorphine\Routing\Tests\Doubles\FakeUriFactory;
-use Polymorphine\Routing\Tests\Doubles\MockedRoute;
 
 
 class RouterTest extends TestCase
@@ -32,9 +29,9 @@ class RouterTest extends TestCase
     {
         $this->assertInstanceOf(Router::class, $this->router());
         $this->assertInstanceOf(Router::class, Router::withPrototypeFactories(
-            new MockedRoute(),
-            new FakeUriFactory(),
-            new FakeResponseFactory()
+            new Doubles\MockedRoute(),
+            new Doubles\FakeUriFactory(),
+            new Doubles\FakeResponseFactory()
         ));
     }
 
@@ -61,13 +58,21 @@ class RouterTest extends TestCase
         $this->assertEquals($uri->withPath('matched'), $response);
     }
 
+    public function testUriWithRootPath_ReturnsUriDirectlyFromRoute()
+    {
+        $route  = new Doubles\MockedRoute();
+        $router = new Router($route, new Doubles\FakeUri(), new Doubles\FakeResponse());
+        $router->uri('ROOT');
+        $this->assertNull($route->path);
+
+        $router->uri('some.path');
+        $this->assertEquals('some.path', $route->path);
+    }
+
     public function testSelectMethod_ReturnsRouterInstanceWithNewRootRoute()
     {
-        $router = new Router(
-            $route = Doubles\MockedRoute::response('matched'),
-            $uri ?? new Doubles\FakeUri(),
-            self::$prototype
-        );
+        $route  = Doubles\MockedRoute::response('matched');
+        $router = new Router($route, new Doubles\FakeUri(), self::$prototype);
 
         $route->path = 'root.context';
 
@@ -76,10 +81,16 @@ class RouterTest extends TestCase
         $this->assertSame('new.context', $route->path);
     }
 
+    public function testSelectRootRoute_ReturnsSameRouterInstance()
+    {
+        $router = new Router(new Doubles\MockedRoute(), new Doubles\FakeUri(), self::$prototype, 'home');
+        $this->assertSame($router, $router->select('home'));
+    }
+
     public function testRoutesMethod_ReturnsRoutePathsArray()
     {
-        $router = new Router(new Doubles\MockedRoute(), Doubles\FakeUri::fromString('/foo/bar'), self::$prototype);
-        $this->assertEquals([new Path('ROOT', '*', '/foo/bar')], $router->routes());
+        $router = new Router(new Doubles\MockedRoute(), Doubles\FakeUri::fromString('/foo/bar'), self::$prototype, 'home');
+        $this->assertEquals([new Path('home', '*', '/foo/bar')], $router->routes());
     }
 
     private function router(bool $matched = true, $uri = null)

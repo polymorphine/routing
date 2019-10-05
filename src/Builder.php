@@ -81,17 +81,21 @@ class Builder
      * @param ResponseInterface $nullResponse recognized by Router as a product of unprocessed
      *                                        request (from Router::handle() method) or a base for
      *                                        creating response within one of its Routes
+     * @param string            $rootPath     routing path selecting root route
      *
      * @throws Exception\BuilderLogicException
      *
      * @return Router
      */
-    public function router(UriInterface $baseUri, ResponseInterface $nullResponse): Router
-    {
+    public function router(
+        UriInterface $baseUri,
+        ResponseInterface $nullResponse,
+        string $rootPath = 'ROOT'
+    ): Router {
         if (!$this->builder) {
             throw new Exception\BuilderLogicException('Root builder not defined');
         }
-        return $this->router = new Router($this->builder->build(), $baseUri, $nullResponse);
+        return $this->router = new Router($this->builder->build(), $baseUri, $nullResponse, $rootPath);
     }
 
     /**
@@ -100,6 +104,7 @@ class Builder
      *
      * @param UriFactoryInterface      $uriFactory
      * @param ResponseFactoryInterface $responseFactory
+     * @param string                   $rootPath        routing path selecting root route
      *
      * @throws Exception\BuilderLogicException
      *
@@ -107,9 +112,10 @@ class Builder
      */
     public function routerWithFactories(
         UriFactoryInterface $uriFactory,
-        ResponseFactoryInterface $responseFactory
+        ResponseFactoryInterface $responseFactory,
+        string $rootPath = 'ROOT'
     ): Router {
-        return $this->router($uriFactory->createUri(), $responseFactory->createResponse(404));
+        return $this->router($uriFactory->createUri(), $responseFactory->createResponse(404), $rootPath);
     }
 
     /**

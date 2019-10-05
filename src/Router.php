@@ -25,6 +25,7 @@ class Router implements RequestHandlerInterface
     private $route;
     private $baseUri;
     private $baseResponse;
+    private $rootPath;
 
     /**
      * Response prototype is used for responses handled within routing tree
@@ -40,20 +41,27 @@ class Router implements RequestHandlerInterface
      * @param Route             $route
      * @param UriInterface      $baseUri      prototype on which endpoint uri will be built
      * @param ResponseInterface $baseResponse prototype used as internal router response
+     * @param string            $rootPath     routing path selecting root route
      */
-    public function __construct(Route $route, UriInterface $baseUri, ResponseInterface $baseResponse)
-    {
+    public function __construct(
+        Route $route,
+        UriInterface $baseUri,
+        ResponseInterface $baseResponse,
+        string $rootPath = 'ROOT'
+    ) {
         $this->route        = $route;
         $this->baseUri      = $baseUri;
         $this->baseResponse = $baseResponse;
+        $this->rootPath     = $rootPath;
     }
 
     public static function withPrototypeFactories(
         Route $route,
         UriFactoryInterface $uriFactory,
-        ResponseFactoryInterface $responseFactory
+        ResponseFactoryInterface $responseFactory,
+        string $rootPath = 'ROOT'
     ): self {
-        return new self($route, $uriFactory->createUri(), $responseFactory->createResponse(404));
+        return new self($route, $uriFactory->createUri(), $responseFactory->createResponse(404), $rootPath);
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
@@ -66,9 +74,11 @@ class Router implements RequestHandlerInterface
      *
      * @return Router with changed root context
      */
-    public function select(string $path): Router
+    public function select(string $path): self
     {
-        return new static($this->route->select($path), $this->baseUri, $this->baseResponse);
+        return $path !== $this->rootPath
+            ? new static($this->route->select($path), $this->baseUri, $this->baseResponse)
+            : $this;
     }
 
     /**
@@ -79,7 +89,9 @@ class Router implements RequestHandlerInterface
      */
     public function uri(string $path, array $params = []): UriInterface
     {
-        return $this->route->select($path)->uri($this->baseUri, $params);
+        return $path !== $this->rootPath
+            ? $this->route->select($path)->uri($this->baseUri, $params)
+            : $this->route->uri($this->baseUri, $params);
     }
 
     /**
@@ -88,7 +100,7 @@ class Router implements RequestHandlerInterface
     public function routes(): array
     {
         $map   = new Map();
-        $trace = new Trace($map, $this->baseUri);
+        $trace = new Trace($map, $this->baseUri, $this->rootPath);
 
         $trace->follow($this->route);
 
