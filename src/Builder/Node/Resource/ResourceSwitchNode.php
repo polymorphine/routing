@@ -172,7 +172,7 @@ class ResourceSwitchNode implements Node
         return $this;
     }
 
-    protected function formsRoute(array $routes): array
+    protected function formsRoute(array &$routes): array
     {
         if (!isset($routes['EDIT']) && !isset($routes['NEW'])) { return []; }
 
@@ -199,7 +199,7 @@ class ResourceSwitchNode implements Node
         return new PatternGate(new PathRegexpSegment($this->idName, $this->idRegexp), $route);
     }
 
-    private function composeLogicStructure(array $routes): Route
+    private function composeLogicStructure(array &$routes): Route
     {
         $getRoutes = $this->formsRoute($routes) + [
             'item'  => $this->pullRoute('GET', $routes),

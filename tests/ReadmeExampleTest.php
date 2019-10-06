@@ -115,8 +115,6 @@ abstract class ReadmeExampleTest extends TestCase
             new Path('articles.POST', 'POST', '/articles'),
             new Path('articles.PATCH', 'PATCH', '/articles/{#id}'),
             new Path('articles.DELETE', 'DELETE', '/articles/{#id}'),
-            new Path('articles.NEW', 'NEW', '/articles/new/form'),
-            new Path('articles.EDIT', 'EDIT', '/articles/{#id}/form'),
             new Path('articles.GET.form.edit', 'GET', '/articles/{#id}/form'),
             new Path('articles.GET.form.new', 'GET', '/articles/new/form'),
             new Path('articles.GET.item', 'GET', '/articles/{#id}'),

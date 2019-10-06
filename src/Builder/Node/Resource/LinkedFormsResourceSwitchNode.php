@@ -52,7 +52,7 @@ class LinkedFormsResourceSwitchNode extends ResourceSwitchNode
         return $this;
     }
 
-    protected function formsRoute(array $routes): array
+    protected function formsRoute(array &$routes): array
     {
         return [];
     }

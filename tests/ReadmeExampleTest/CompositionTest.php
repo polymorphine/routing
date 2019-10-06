@@ -48,18 +48,16 @@ class CompositionTest extends ReadmeExampleTest
                 'POST'   => $this->callbackEndpoint('AddArticle'),
                 'PATCH'  => new PatternGate(new PathRegexpSegment('id'), $this->callbackEndpoint('UpdateArticle')),
                 'DELETE' => new PatternGate(new PathRegexpSegment('id'), $this->callbackEndpoint('DeleteArticle')),
-                'NEW' => $new = new PatternGate(
-                    new CompositePattern([new PathSegment('new'), new PathSegment('form')]),
-                    $this->callbackEndpoint('AddArticleForm')
-                ),
-                'EDIT' => $edit = new PatternGate(
-                    new PathRegexpSegment('id'),
-                    new PatternGate(new PathSegment('form'), $this->callbackEndpoint('EditArticleForm'))
-                ),
                 'GET' => new ScanSwitch([
                     'form' => new UriAttributeSelect(new ScanSwitch([
-                        'edit' => $edit,
-                        'new'  => $new
+                        'edit' => new PatternGate(
+                            new PathRegexpSegment('id'),
+                            new PatternGate(new PathSegment('form'), $this->callbackEndpoint('EditArticleForm'))
+                        ),
+                        'new' => new PatternGate(
+                            new CompositePattern([new PathSegment('new'), new PathSegment('form')]),
+                            $this->callbackEndpoint('AddArticleForm')
+                        )
                     ]), 'id', 'edit', 'new'),
                     'item'  => new PatternGate(new PathRegexpSegment('id'), $this->callbackEndpoint('ShowArticle')),
                     'index' => $this->callbackEndpoint('ShowArticles')
