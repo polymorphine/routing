@@ -206,9 +206,9 @@ class ResourceSwitchNode implements Node
             'index' => $this->pullRoute('INDEX', $routes)
         ];
 
-        $routes['GET'] = new ScanSwitch($getRoutes);
+        $routes['GET'] = new UriAttributeSelect(new ScanSwitch($getRoutes), $this->idName, 'item', 'index');
 
-        return new UriAttributeSelect(new MethodSwitch($routes, 'GET'), $this->idName, 'item', 'index');
+        return new MethodSwitch($routes, 'GET');
     }
 
     private function pullRoute(string $name, array &$routes): ?Route

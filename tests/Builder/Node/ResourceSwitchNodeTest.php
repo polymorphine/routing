@@ -29,9 +29,9 @@ class ResourceSwitchNodeTest extends TestCase
         $this->assertInstanceOf(Node\Resource\ResourceSwitchNode::class, $this->builder());
     }
 
-    public function testBuild_ReturnsResponseScanSwitch()
+    public function testBuild_ReturnsMethodSwitch()
     {
-        $this->assertInstanceOf(Route\Gate\UriAttributeSelect::class, $this->builder()->build());
+        $this->assertInstanceOf(Route\Splitter\MethodSwitch::class, $this->builder()->build());
     }
 
     public function testRoutesCanBeAdded()
