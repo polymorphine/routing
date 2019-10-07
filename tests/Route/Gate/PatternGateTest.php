@@ -55,9 +55,10 @@ class PatternGateTest extends TestCase
         $uri       = $this->gate($pattern, $route)->uri($prototype, $params = ['some' => 'params']);
 
         $this->assertSame($prototype, $pattern->uriPrototype);
-        $this->assertSame($pattern->uriResult, $route->uri);
-        $this->assertSame($uri, $route->uri);
         $this->assertSame($params, $pattern->uriParams);
+        $this->assertSame($pattern->uriResult, $route->prototype);
+        $this->assertSame($params, $route->params);
+        $this->assertSame($uri, $route->uri);
     }
 
     public function testSelectMethod_ReturnsPatternGateWithSelectedSubRoute()

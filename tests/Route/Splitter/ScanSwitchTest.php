@@ -66,8 +66,8 @@ class ScanSwitchTest extends TestCase
 
     public function testUriIsCalledFromDefaultRoute()
     {
-        $router = $this->splitter([], Doubles\MockedRoute::withUri('/foo/bar'));
-        $this->assertSame('http://example.com/foo/bar', (string) $router->uri(Doubles\FakeUri::fromString('http://example.com'), []));
+        $router = $this->splitter([], new Doubles\MockedRoute(null, $uri = new Doubles\FakeUri()));
+        $this->assertSame($uri, $router->uri(new Doubles\FakeUri(), []));
     }
 
     public function testSelectEndpointCall_ReturnsFoundRoute()

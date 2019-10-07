@@ -24,6 +24,8 @@ class MockedRoute implements Route
     public $forwardedRequest;
     public $response;
     public $uri;
+    public $prototype;
+    public $params;
     public $path;
     public $trace;
     public $subRoute;
@@ -60,15 +62,9 @@ class MockedRoute implements Route
 
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
-        if (!$this->uri) { return $prototype; }
-
-        $part = $this->uri->getScheme() and $prototype = $prototype->withScheme($part);
-        $part = $this->uri->getHost() and $prototype = $prototype->withHost($part);
-        $part = $this->uri->getPath() and $prototype = $prototype->withPath($part);
-        $part = $this->uri->getQuery() and $prototype = $prototype->withQuery($part);
-        $part = $this->uri->getPort() and $prototype = $prototype->withPort($part);
-
-        return $this->uri = $prototype;
+        $this->prototype = $prototype;
+        $this->params    = $params;
+        return $this->uri ?: $prototype;
     }
 
     public function routes(Trace $trace): void

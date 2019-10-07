@@ -42,12 +42,11 @@ class UriAttributeSelectTest extends TestCase
 
     public function testUriIsSelectedFromIndexResourceRouteBasedOnIdParam()
     {
-        $gate      = $this->gate($resource);
-        $prototype = new Doubles\FakeUri();
-        $this->assertSame($prototype, $gate->uri($prototype, ['notId' => 'something']));
+        $gate = $this->gate($resource);
+        $this->assertSame($resource->uri, $gate->uri(new Doubles\FakeUri(), ['notId' => 'something']));
         $this->assertSame('index', $resource->path);
 
-        $this->assertSame($prototype, $gate->uri($prototype, ['id' => 'something']));
+        $this->assertSame($resource->uri, $gate->uri(new Doubles\FakeUri(), ['id' => 'something']));
         $this->assertSame('item', $resource->path);
     }
 
