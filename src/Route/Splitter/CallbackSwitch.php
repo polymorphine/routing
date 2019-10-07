@@ -29,15 +29,23 @@ class CallbackSwitch implements Route
 
     private $routes;
     private $idCallback;
+    private $implicit;
 
     /**
-     * @param Route[]  $routes     associative array with route name keys
-     * @param callable $idCallback function (ServerRequestInterface): string
+     * Implicit Route name is for convenience only - it is assumed when route
+     * is not specified in selection path. It will be used when creating URI
+     * directly for this switch context or select path will not match any of
+     * defined routes.
+     *
+     * @param Route[]     $routes     associative array with route name keys
+     * @param callable    $idCallback function (ServerRequestInterface): string
+     * @param null|string $implicit   key from provided $routes (ignored if none match)
      */
-    public function __construct(array $routes, callable $idCallback)
+    public function __construct(array $routes, callable $idCallback, ?string $implicit = null)
     {
         $this->routes     = $routes;
         $this->idCallback = $idCallback;
+        $this->implicit   = isset($routes[$implicit]) ? $implicit : null;
     }
 
     public function forward(Request $request, Response $prototype): Response
@@ -50,11 +58,20 @@ class CallbackSwitch implements Route
 
     public function select(string $path): Route
     {
-        return $this->getRoute(...$this->splitPath($path));
+        [$id, $nextPath] = $this->splitPath($path);
+
+        if ($id && !isset($this->routes[$id]) && $this->implicit) {
+            return $this->routes[$this->implicit]->select($path);
+        }
+
+        return $this->getRoute($id, $nextPath);
     }
 
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
+        if ($this->implicit) {
+            return $this->routes[$this->implicit]->uri($prototype, $params);
+        }
         throw new Exception\EndpointCallException('Cannot resolve specific Uri for callback switch');
     }
 

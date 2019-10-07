@@ -71,11 +71,34 @@ class CallbackSwitchTest extends TestCase
         $this->assertSame('path', $routes['bar']->path);
     }
 
-    public function testUriMethod_ThrowsException()
+    public function testSelectingUndefinedRoute_ForwardsSelectionToImplicitRoute()
+    {
+        $routes = [
+            'route1' => new Doubles\MockedRoute(),
+            'route2' => new Doubles\MockedRoute()
+        ];
+        $splitter = $this->splitter($routes, 'route2');
+
+        $selected = $splitter->select('some.path');
+        $this->assertSame($selected, $routes['route2']->subRoute);
+        $this->assertSame('some.path', $routes['route2']->path);
+    }
+
+    public function testUriMethodWithoutImplicitRoute_ThrowsException()
     {
         $splitter = $this->splitter(['route' => new Doubles\MockedRoute()]);
         $this->expectException(Exception\EndpointCallException::class);
         $splitter->uri(new Doubles\FakeUri(), []);
+    }
+
+    public function testUriMethodWithImplicitRoute_ReturnsImplicitRouteUri()
+    {
+        $routes = [
+            'route1' => new Doubles\MockedRoute(),
+            'route2' => new Doubles\MockedRoute(null, $uri = new Doubles\FakeUri())
+        ];
+        $splitter = $this->splitter($routes, 'route2');
+        $this->assertSame($uri, $splitter->uri(new Doubles\FakeUri(), []));
     }
 
     public function testRoutesMethod_AddsRouteTracedPathsToRoutingMap()
@@ -98,12 +121,12 @@ class CallbackSwitchTest extends TestCase
         $this->assertEquals($expected, $map->paths());
     }
 
-    private function splitter(array $routes = [])
+    private function splitter(array $routes = [], ?string $implicit = null)
     {
         $idCallback = function (ServerRequestInterface $request): string {
             return $request->getAttribute(self::TEST_ID, 'not.found');
         };
-        return new Route\Splitter\CallbackSwitch($routes, $idCallback);
+        return new Route\Splitter\CallbackSwitch($routes, $idCallback, $implicit);
     }
 
     private function responseRoute(&$response, string $body = '')
