@@ -12,6 +12,7 @@
 namespace Polymorphine\Routing\Tests;
 
 use PHPUnit\Framework\TestCase;
+use Polymorphine\Routing\Exception;
 use Polymorphine\Routing\Map;
 
 
@@ -63,5 +64,12 @@ class MapTest extends TestCase
 
         $trace->nextHop('0')->endpoint();
         $this->assertEquals([new Map\Path('0', '*', $uri)], $map->paths());
+    }
+
+    public function testExcludedTraceHop_ThrowsException()
+    {
+        $trace = (new Map\Trace(new Map(), new Doubles\FakeUri()))->withExcludedHops(['foo', 'bar', 'baz']);
+        $this->expectException(Exception\UnreachableEndpointException::class);
+        $trace->nextHop('bar');
     }
 }

@@ -13,6 +13,7 @@ namespace Polymorphine\Routing\Map;
 
 use Polymorphine\Routing\Map;
 use Polymorphine\Routing\Route;
+use Polymorphine\Routing\Exception;
 use Psr\Http\Message\UriInterface;
 
 
@@ -22,6 +23,7 @@ class Trace
     private $uri;
     private $methods;
     private $path;
+    private $excluded = [];
     private $rootLabel;
 
     public function __construct(Map $map, UriInterface $uri, string $rootLabel = 'ROOT')
@@ -47,8 +49,22 @@ class Trace
 
     public function nextHop(string $name): self
     {
+        if ($this->excluded && in_array($name, $this->excluded, true)) {
+            $message = 'Unselectable route `%s` on implicit path of `%s` splitter';
+            $path    = $this->path ?? $this->rootLabel;
+            throw new Exception\UnreachableEndpointException(sprintf($message, $name, $path));
+        }
+
         $clone = clone $this;
-        $clone->path = isset($this->path) ? $this->path . Route::PATH_SEPARATOR . $name : $name;
+        $clone->path     = isset($this->path) ? $this->path . Route::PATH_SEPARATOR . $name : $name;
+        $clone->excluded = [];
+        return $clone;
+    }
+
+    public function withExcludedHops(array $exclude): self
+    {
+        $clone = clone $this;
+        $clone->excluded = $this->excluded ? array_merge($this->excluded, $exclude) : $exclude;
         return $clone;
     }
 
