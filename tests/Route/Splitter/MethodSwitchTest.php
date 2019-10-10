@@ -14,10 +14,9 @@ namespace Polymorphine\Routing\Tests\Route\Splitter;
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Map;
-use Polymorphine\Routing\Route\Splitter\MethodSwitch;
-use Polymorphine\Routing\Exception\EndpointCallException;
-use Polymorphine\Routing\Tests\RoutingTestMethods;
+use Polymorphine\Routing\Exception;
 use Polymorphine\Routing\Tests\Doubles;
+use Polymorphine\Routing\Tests\RoutingTestMethods;
 
 
 class MethodSwitchTest extends TestCase
@@ -31,7 +30,7 @@ class MethodSwitchTest extends TestCase
 
     public function testRequestMatchingMethod_ReturnsResponseFromMatchedRoute()
     {
-        $splitter = new MethodSwitch([
+        $splitter = new Route\Splitter\MethodSwitch([
             'POST'   => $this->responseRoute($post),
             'GET'    => $this->responseRoute($get),
             'DELETE' => $this->responseRoute($delete),
@@ -57,7 +56,7 @@ class MethodSwitchTest extends TestCase
 
     public function testSelectMatchingRouteWithMethodName_ReturnsRouteForThisMethod()
     {
-        $splitter = new MethodSwitch($routes = [
+        $splitter = new Route\Splitter\MethodSwitch($routes = [
             'POST'   => new Doubles\MockedRoute(),
             'DELETE' => new Doubles\MockedRoute()
         ]);
@@ -72,7 +71,7 @@ class MethodSwitchTest extends TestCase
 
     public function testSelectMatchingRouteWithPath_ReturnsRouteFromNextSwitches()
     {
-        $splitter = new MethodSwitch($routes = [
+        $splitter = new Route\Splitter\MethodSwitch($routes = [
             'GET' => new Doubles\MockedRoute(),
             'PUT' => new Doubles\MockedRoute()
         ]);
@@ -87,7 +86,7 @@ class MethodSwitchTest extends TestCase
 
     public function testSelectMatchingRouteWithImplicitPath_ReturnsRouteFromNextSwitches()
     {
-        $splitter = new MethodSwitch($routes = [
+        $splitter = new Route\Splitter\MethodSwitch($routes = [
             'GET' => $routeGet = new Doubles\MockedRoute(),
             'PUT' => $routePut = new Doubles\MockedRoute()
         ], 'GET');
@@ -102,17 +101,17 @@ class MethodSwitchTest extends TestCase
 
     public function testUriMethodWithoutImplicitMethod_ThrowsException()
     {
-        $splitter = new MethodSwitch([
+        $splitter = new Route\Splitter\MethodSwitch([
             'GET'  => Doubles\MockedRoute::withUri('get'),
             'POST' => Doubles\MockedRoute::withUri('post')
         ], null);
-        $this->expectException(EndpointCallException::class);
+        $this->expectException(Exception\EndpointCallException::class);
         $splitter->uri(new Doubles\FakeUri(), []);
     }
 
     public function testUriMethodWithImplicitMethod_ForwardsCallToImplicitRoute()
     {
-        $splitter = new MethodSwitch([
+        $splitter = new Route\Splitter\MethodSwitch([
             'GET'  => Doubles\MockedRoute::withUri('get/implicit'),
             'POST' => Doubles\MockedRoute::withUri('post')
         ], 'GET');
@@ -124,7 +123,7 @@ class MethodSwitchTest extends TestCase
         $methodsAllowed = ['GET', 'POST', 'PUT', 'DELETE'];
         $methodsTested  = ['GET', 'PUT', 'DELETE', 'PATCH'];
 
-        $splitter = new MethodSwitch(array_fill_keys($methodsAllowed, new Doubles\DummyEndpoint()));
+        $splitter = new Route\Splitter\MethodSwitch(array_fill_keys($methodsAllowed, new Doubles\DummyEndpoint()));
         $request  = (new Doubles\FakeServerRequest('OPTIONS'))->withAttribute(Route::METHODS_ATTRIBUTE, $methodsTested);
         $this->assertSame(['GET, PUT, DELETE'], $splitter->forward($request, new Doubles\FakeResponse())->getHeader('Allow'));
     }
@@ -134,7 +133,7 @@ class MethodSwitchTest extends TestCase
         $methodsAllowed = ['POST', 'PATCH'];
         $methodsTested  = ['GET', 'PUT', 'DELETE'];
 
-        $splitter  = new MethodSwitch(array_fill_keys($methodsAllowed, new Doubles\DummyEndpoint()));
+        $splitter  = new Route\Splitter\MethodSwitch(array_fill_keys($methodsAllowed, new Doubles\DummyEndpoint()));
         $request   = (new Doubles\FakeServerRequest('OPTIONS'))->withAttribute(Route::METHODS_ATTRIBUTE, $methodsTested);
         $prototype = new Doubles\FakeResponse();
         $this->assertSame($prototype, $splitter->forward($request, $prototype));
@@ -146,14 +145,14 @@ class MethodSwitchTest extends TestCase
         $methodsTested  = ['GET', 'PUT', 'DELETE', 'PATCH'];
 
         $response = new Doubles\FakeResponse();
-        $splitter = new MethodSwitch(array_fill_keys($methodsAllowed, new Doubles\MockedRoute($response)));
+        $splitter = new Route\Splitter\MethodSwitch(array_fill_keys($methodsAllowed, new Doubles\MockedRoute($response)));
         $request  = (new Doubles\FakeServerRequest('OPTIONS'))->withAttribute(Route::METHODS_ATTRIBUTE, $methodsTested);
         $this->assertSame($response, $splitter->forward($request, new Doubles\FakeResponse()));
     }
 
     public function testRoutesMethod_AddsRouteTracedPathsToRoutingMap()
     {
-        $splitter = new MethodSwitch([
+        $splitter = new Route\Splitter\MethodSwitch([
             'GET'  => new Doubles\MockedRoute(),
             'POST' => new Doubles\MockedRoute()
         ]);
@@ -172,13 +171,27 @@ class MethodSwitchTest extends TestCase
         $this->assertEquals($expected, $map->paths());
     }
 
-    private function splitter(array $methods = ['POST', 'GET', 'PUT', 'PATCH', 'DELETE']): MethodSwitch
+    public function testImplicitRouteNameConflict_ThrowsException()
+    {
+        $splitter = new Route\Splitter\MethodSwitch([
+            'GET' => new Route\Splitter\MethodSwitch([
+                'POST' => new Doubles\MockedRoute()
+            ]),
+            'POST' => new Doubles\MockedRoute()
+        ]);
+
+        $trace = new Map\Trace(new Map(), new Doubles\FakeUri());
+        $this->expectException(Exception\UnreachableEndpointException::class);
+        $splitter->routes($trace);
+    }
+
+    private function splitter(array $methods = ['POST', 'GET', 'PUT', 'PATCH', 'DELETE']): Route\Splitter\MethodSwitch
     {
         $routes = [];
         foreach ($methods as $method) {
             $routes[$method] = new Doubles\MockedRoute(new Doubles\FakeResponse($method));
         }
 
-        return new MethodSwitch($routes);
+        return new Route\Splitter\MethodSwitch($routes);
     }
 }
