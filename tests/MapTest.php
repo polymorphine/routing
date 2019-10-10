@@ -68,9 +68,19 @@ class MapTest extends TestCase
 
     public function testExcludedTraceHop_ThrowsException()
     {
-        $trace = (new Map\Trace(new Map(), new Doubles\FakeUri()))->withExcludedHops(['foo', 'bar', 'baz']);
+        $trace = new Map\Trace(new Map(), new Doubles\FakeUri());
+        $trace = $trace->withExcludedHops(['foo', 'bar', 'baz']);
         $this->expectException(Exception\UnreachableEndpointException::class);
         $trace->nextHop('bar');
+    }
+
+    public function testExcludedHopsAreAddedUntilNextNamedHop()
+    {
+        $trace = new Map\Trace(new Map(), new Doubles\FakeUri());
+        $trace = $trace->withExcludedHops(['foo', 'bar', 'baz']);
+        $trace = $trace->withExcludedHops(['fizz', 'buzz']);
+        $this->expectException(Exception\UnreachableEndpointException::class);
+        $trace->nextHop('foo');
     }
 
     public function testExcludedRootLabelForRootEndpoint_ThrowsException()
