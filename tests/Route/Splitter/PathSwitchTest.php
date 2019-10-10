@@ -14,11 +14,9 @@ namespace Polymorphine\Routing\Tests\Route\Splitter;
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Map;
-use Polymorphine\Routing\Route\Splitter\PathSwitch;
-use Polymorphine\Routing\Route\Gate;
-use Polymorphine\Routing\Exception\EndpointCallException;
-use Polymorphine\Routing\Tests\RoutingTestMethods;
+use Polymorphine\Routing\Exception;
 use Polymorphine\Routing\Tests\Doubles;
+use Polymorphine\Routing\Tests\RoutingTestMethods;
 use Psr\Http\Message\ResponseInterface;
 
 
@@ -60,12 +58,12 @@ class PathSwitchTest extends TestCase
 
     public function testNestedSwitchForwardMatchingRequest_ReturnsEndpointRouteResponse()
     {
-        $splitter = new PathSwitch([
-            'A' => new PathSwitch([
+        $splitter = new Route\Splitter\PathSwitch([
+            'A' => new Route\Splitter\PathSwitch([
                 'A' => $this->responseRoute($responseAA),
                 'B' => $this->responseRoute($responseAB)
             ]),
-            'B' => new PathSwitch([
+            'B' => new Route\Splitter\PathSwitch([
                 'A' => $this->responseRoute($responseBA),
                 'B' => $this->responseRoute($responseBB)
             ])
@@ -78,7 +76,7 @@ class PathSwitchTest extends TestCase
 
     public function testSelect_ReturnsMatchingRouteWithPathWrapper()
     {
-        $splitter = new PathSwitch([
+        $splitter = new Route\Splitter\PathSwitch([
             'A' => $routeA = new Doubles\MockedRoute(),
             'B' => $routeB = new Doubles\MockedRoute()
         ]);
@@ -109,7 +107,7 @@ class PathSwitchTest extends TestCase
 
     public function testWhenNoRootRoute_UriMethodCall_ThrowsException()
     {
-        $this->expectException(EndpointCallException::class);
+        $this->expectException(Exception\EndpointCallException::class);
         $this->splitter()->uri(new Doubles\FakeUri(), []);
     }
 
@@ -153,9 +151,18 @@ class PathSwitchTest extends TestCase
         $this->assertSame(self::$prototype, $splitter->forward($request, self::$prototype));
     }
 
+    public function segmentCombinations()
+    {
+        return [
+            [['foo', 'bar'], 'http://example.com?query=string', 'http://example.com/foo/bar?query=string'],
+            [['foo', 'bar', 'baz'], 'http://example.com?query=string', 'http://example.com/foo/bar/baz?query=string'],
+            [['foo'], 'http:?query', 'http:/foo?query']
+        ];
+    }
+
     public function testRoutesMethod_AddsRouteTracedPathsToRoutingMap()
     {
-        $splitter = new PathSwitch([
+        $splitter = new Route\Splitter\PathSwitch([
             'foo' => new Doubles\MockedRoute(),
             'bar' => new Doubles\MockedRoute()
         ], new Doubles\MockedRoute());
@@ -173,13 +180,18 @@ class PathSwitchTest extends TestCase
         $this->assertEquals($expected, $map->paths());
     }
 
-    public function segmentCombinations()
+    public function testNameConflictWithDefaultRoute_ThrowsException()
     {
-        return [
-            [['foo', 'bar'], 'http://example.com?query=string', 'http://example.com/foo/bar?query=string'],
-            [['foo', 'bar', 'baz'], 'http://example.com?query=string', 'http://example.com/foo/bar/baz?query=string'],
-            [['foo'], 'http:?query', 'http:/foo?query']
-        ];
+        $splitter = new Route\Splitter\PathSwitch([
+            'foo' => new Doubles\MockedRoute(),
+            'bar' => new Doubles\MockedRoute()
+        ], new Route\Splitter\PathSwitch([
+            'foo' => new Doubles\MockedRoute()
+        ]));
+
+        $trace = new Map\Trace(new Map(), new Doubles\FakeUri());
+        $this->expectException(Exception\UnreachableEndpointException::class);
+        $splitter->routes($trace);
     }
 
     private function routeForwardCall(Route $route, string $requestUri = null): ResponseInterface
@@ -192,7 +204,7 @@ class PathSwitchTest extends TestCase
     private function createStructure(Route $route, array $segments)
     {
         while ($segment = array_pop($segments)) {
-            $route = new PathSwitch([$segment => $route]);
+            $route = new Route\Splitter\PathSwitch([$segment => $route]);
         }
         return $route;
     }
@@ -200,11 +212,11 @@ class PathSwitchTest extends TestCase
     private function splitter(array $routes = [], Route $root = null)
     {
         $routes = $routes ?: ['dummy' => new Doubles\MockedRoute()];
-        return $root ? new PathSwitch($routes, $root) : new PathSwitch($routes);
+        return $root ? new Route\Splitter\PathSwitch($routes, $root) : new Route\Splitter\PathSwitch($routes);
     }
 
-    private function patternGate(string $name, Route $route): Gate\PatternGate
+    private function patternGate(string $name, Route $route): Route\Gate\PatternGate
     {
-        return new Gate\PatternGate(new Gate\Pattern\UriPart\PathSegment($name), $route);
+        return new Route\Gate\PatternGate(new Route\Gate\Pattern\UriPart\PathSegment($name), $route);
     }
 }
