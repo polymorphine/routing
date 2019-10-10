@@ -106,7 +106,7 @@ class CallbackSwitchTest extends TestCase
         $splitter = $this->splitter([
             'foo' => new Doubles\MockedRoute(),
             'bar' => new Doubles\MockedRoute()
-        ]);
+        ], 'bar');
 
         $uri   = '/foo/bar';
         $map   = new Map();
@@ -114,6 +114,7 @@ class CallbackSwitchTest extends TestCase
 
         $splitter->routes($trace);
         $expected = [
+            new Map\Path('path', '*', $uri),
             new Map\Path('path.foo', '*', $uri),
             new Map\Path('path.bar', '*', $uri)
         ];
