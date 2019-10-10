@@ -35,7 +35,7 @@ class Trace
 
     public function endpoint(): void
     {
-        $path = isset($this->path) ? $this->path : $this->rootLabel;
+        $path = $this->path ?? $this->accessibleRootLabel();
         $uri  = rawurldecode((string) $this->uri);
         foreach ($this->methods ?? ['*'] as $method) {
             $this->map->addPath(new Path($path, $method, $uri));
@@ -84,5 +84,15 @@ class Trace
         $clone = clone $this;
         $clone->methods = $methods;
         return $clone;
+    }
+
+    private function accessibleRootLabel(): string
+    {
+        if ($this->excluded && in_array($this->rootLabel, $this->excluded, true)) {
+            $message = 'Unselectable root route `%s` (check route name conflict on first splitter)';
+            throw new Exception\UnreachableEndpointException(sprintf($message, $this->rootLabel));
+        }
+
+        return $this->rootLabel;
     }
 }
