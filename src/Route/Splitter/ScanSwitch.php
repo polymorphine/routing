@@ -75,9 +75,13 @@ class ScanSwitch implements Route
 
     public function routes(Trace $trace): void
     {
-        if ($this->defaultRoute) { $trace->follow($this->defaultRoute); }
+        if ($this->defaultRoute) {
+            $trace->withExcludedHops(array_keys($this->routes))
+                  ->follow($this->defaultRoute);
+        }
         foreach ($this->routes as $name => $route) {
-            $trace->nextHop($name)->follow($route);
+            $trace->nextHop($name)
+                  ->follow($route);
         }
     }
 

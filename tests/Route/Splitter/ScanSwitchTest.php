@@ -15,8 +15,8 @@ use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Map;
 use Polymorphine\Routing\Exception;
-use Polymorphine\Routing\Tests\RoutingTestMethods;
 use Polymorphine\Routing\Tests\Doubles;
+use Polymorphine\Routing\Tests\RoutingTestMethods;
 
 
 class ScanSwitchTest extends TestCase
@@ -149,6 +149,21 @@ class ScanSwitchTest extends TestCase
         ];
 
         $this->assertEquals($expected, $map->paths());
+    }
+
+    public function testNameConflictWithinDefaultRoute_ThrowsException()
+    {
+        $splitter = $this->splitter([
+            'foo' => new Doubles\MockedRoute(),
+            'bar' => new Doubles\MockedRoute(),
+            new Doubles\MockedRoute()
+        ], $this->splitter([
+            'foo' => new Doubles\MockedRoute()
+        ]));
+
+        $trace = (new Map\Trace(new Map(), new Doubles\FakeUri()))->nextHop('path');
+        $this->expectException(Exception\UnreachableEndpointException::class);
+        $splitter->routes($trace);
     }
 
     private function splitter(array $routes = [], Route $default = null)
