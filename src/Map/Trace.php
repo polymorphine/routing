@@ -20,23 +20,24 @@ use Psr\Http\Message\UriInterface;
 class Trace
 {
     private $map;
-    private $uri;
+    private $routingPath;
+    private $uriTemplate;
     private $methods;
-    private $path;
-    private $excluded = [];
+
+    private $excludedLabels = [];
     private $rootLabel;
 
-    public function __construct(Map $map, UriInterface $uri, string $rootLabel = 'ROOT')
+    public function __construct(Map $map, UriInterface $uriTemplate, string $rootLabel = 'ROOT')
     {
-        $this->map       = $map;
-        $this->uri       = $uri;
-        $this->rootLabel = $rootLabel;
+        $this->map         = $map;
+        $this->uriTemplate = $uriTemplate;
+        $this->rootLabel   = $rootLabel;
     }
 
     public function endpoint(): void
     {
-        $path = $this->path ?? $this->accessibleRootLabel();
-        $uri  = rawurldecode((string) $this->uri);
+        $path = $this->routingPath ?? $this->accessibleRootLabel();
+        $uri  = rawurldecode((string) $this->uriTemplate);
         foreach ($this->methods ?? ['*'] as $method) {
             $this->map->addPath(new Path($path, $method, $uri));
         }
@@ -47,52 +48,58 @@ class Trace
         $route->routes($this);
     }
 
-    public function nextHop(string $name): self
+    public function nextHop(string $label): self
     {
-        if ($this->excluded && in_array($name, $this->excluded, true)) {
-            $message = 'Unselectable route `%s` on implicit path of `%s` splitter';
-            $path    = $this->path ?? $this->rootLabel;
-            throw new Exception\UnreachableEndpointException(sprintf($message, $name, $path));
-        }
-
         $clone = clone $this;
-        $clone->path     = isset($this->path) ? $this->path . Route::PATH_SEPARATOR . $name : $name;
-        $clone->excluded = [];
+        $clone->routingPath    = $this->expandPath($label);
+        $clone->excludedLabels = [];
         return $clone;
     }
 
-    public function withExcludedHops(array $exclude): self
+    public function withExcludedHops(array $labels): self
     {
         $clone = clone $this;
-        $clone->excluded = $this->excluded ? array_merge($this->excluded, $exclude) : $exclude;
+        $clone->excludedLabels = array_merge($this->excludedLabels, $labels);
         return $clone;
     }
 
     public function withPattern(Route\Gate\Pattern $pattern): self
     {
         $clone = clone $this;
-        $clone->uri = $pattern->templateUri($this->uri);
+        $clone->uriTemplate = $pattern->templateUri($this->uriTemplate);
         return $clone;
     }
 
     public function withMethod(string ...$methods): self
     {
-        $methods = isset($this->methods)
-            ? array_intersect($this->methods, $methods)
-            : $methods;
-
         $clone = clone $this;
-        $clone->methods = $methods;
+        $clone->methods = isset($this->methods) ? array_intersect($this->methods, $methods) : $methods;
         return $clone;
     }
 
     private function accessibleRootLabel(): string
     {
-        if ($this->excluded && in_array($this->rootLabel, $this->excluded, true)) {
+        if ($this->isExcluded($this->rootLabel)) {
             $message = 'Unselectable root route `%s` (check route name conflict on first splitter)';
             throw new Exception\UnreachableEndpointException(sprintf($message, $this->rootLabel));
         }
 
         return $this->rootLabel;
+    }
+
+    private function expandPath(string $label): string
+    {
+        if ($this->isExcluded($label)) {
+            $message = 'Unselectable route `%s` on implicit path of `%s` splitter';
+            $path    = $this->routingPath ?? $this->rootLabel;
+            throw new Exception\UnreachableEndpointException(sprintf($message, $label, $path));
+        }
+
+        return isset($this->routingPath) ? $this->routingPath . Route::PATH_SEPARATOR . $label : $label;
+    }
+
+    private function isExcluded(string $label): bool
+    {
+        return $this->excludedLabels && in_array($label, $this->excludedLabels, true);
     }
 }
