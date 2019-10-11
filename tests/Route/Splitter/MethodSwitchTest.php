@@ -174,9 +174,9 @@ class MethodSwitchTest extends TestCase
     public function testImplicitRouteNameConflict_ThrowsException()
     {
         $splitter = new Route\Splitter\MethodSwitch([
-            'GET' => new Route\Splitter\MethodSwitch([
-                'POST' => new Doubles\MockedRoute()
-            ]),
+            'GET' => Doubles\MockedRoute::withTraceCallback(function (Map\Trace $trace) {
+                $trace->nextHop('POST');
+            }),
             'POST' => new Doubles\MockedRoute()
         ]);
 

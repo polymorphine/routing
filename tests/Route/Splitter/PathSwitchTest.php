@@ -185,9 +185,9 @@ class PathSwitchTest extends TestCase
         $splitter = new Route\Splitter\PathSwitch([
             'foo' => new Doubles\MockedRoute(),
             'bar' => new Doubles\MockedRoute()
-        ], new Route\Splitter\PathSwitch([
-            'foo' => new Doubles\MockedRoute()
-        ]));
+        ], Doubles\MockedRoute::withTraceCallback(function (Map\Trace $trace) {
+            $trace->nextHop('foo');
+        }));
 
         $trace = new Map\Trace(new Map(), new Doubles\FakeUri());
         $this->expectException(Exception\UnreachableEndpointException::class);

@@ -157,9 +157,9 @@ class ScanSwitchTest extends TestCase
             'foo' => new Doubles\MockedRoute(),
             'bar' => new Doubles\MockedRoute(),
             new Doubles\MockedRoute()
-        ], $this->splitter([
-            'foo' => new Doubles\MockedRoute()
-        ]));
+        ], Doubles\MockedRoute::withTraceCallback(function (Map\Trace $trace) {
+            $trace->nextHop('bar');
+        }));
 
         $trace = (new Map\Trace(new Map(), new Doubles\FakeUri()))->nextHop('path');
         $this->expectException(Exception\UnreachableEndpointException::class);

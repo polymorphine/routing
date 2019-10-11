@@ -125,9 +125,9 @@ class CallbackSwitchTest extends TestCase
     public function testRoutesWithNameConflictOnImplicitRoute_ThrowsException()
     {
         $splitter = $this->splitter([
-            'foo' => $this->splitter([
-                'bar' => new Doubles\MockedRoute()
-            ]),
+            'foo' => Doubles\MockedRoute::withTraceCallback(function (Map\Trace $trace) {
+                $trace->nextHop('bar');
+            }),
             'bar' => new Doubles\MockedRoute()
         ], 'foo');
 
