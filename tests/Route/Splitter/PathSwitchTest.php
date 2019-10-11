@@ -194,6 +194,20 @@ class PathSwitchTest extends TestCase
         $splitter->routes($trace);
     }
 
+    public function testRoutesMethodWithRootRoutePathExpansion_ThrowsException()
+    {
+        $splitter = new Route\Splitter\PathSwitch([
+            'foo' => new Doubles\MockedRoute(),
+            'bar' => new Doubles\MockedRoute()
+        ], Doubles\MockedRoute::withTraceCallback(function (Map\Trace $trace) {
+            $trace->withPattern(new Route\Gate\Pattern\UriPart\PathSegment('baz'));
+        }));
+
+        $trace = new Map\Trace(new Map(), new Doubles\FakeUri());
+        $this->expectException(Exception\UnreachableEndpointException::class);
+        $splitter->routes($trace);
+    }
+
     private function routeForwardCall(Route $route, string $requestUri = null): ResponseInterface
     {
         $uri     = $requestUri ? Doubles\FakeUri::fromString($requestUri) : new Doubles\FakeUri();

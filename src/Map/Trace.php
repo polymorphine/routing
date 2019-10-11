@@ -25,6 +25,7 @@ class Trace
     private $methods;
 
     private $excludedLabels = [];
+    private $lockedUriPath  = false;
     private $rootLabel;
 
     public function __construct(Map $map, UriInterface $uriTemplate, string $rootLabel = 'ROOT')
@@ -56,6 +57,20 @@ class Trace
         return $clone;
     }
 
+    public function withMethod(string ...$methods): self
+    {
+        $clone = clone $this;
+        $clone->methods = isset($this->methods) ? array_intersect($this->methods, $methods) : $methods;
+        return $clone;
+    }
+
+    public function withPattern(Route\Gate\Pattern $pattern): self
+    {
+        $clone = clone $this;
+        $clone->uriTemplate = $this->buildUriTemplate($pattern);
+        return $clone;
+    }
+
     public function withExcludedHops(array $labels): self
     {
         $clone = clone $this;
@@ -63,18 +78,22 @@ class Trace
         return $clone;
     }
 
-    public function withPattern(Route\Gate\Pattern $pattern): self
+    public function withLockedUriPath(): self
     {
         $clone = clone $this;
-        $clone->uriTemplate = $pattern->templateUri($this->uriTemplate);
+        $clone->lockedUriPath = true;
         return $clone;
     }
 
-    public function withMethod(string ...$methods): self
+    private function buildUriTemplate(Route\Gate\Pattern $pattern): UriInterface
     {
-        $clone = clone $this;
-        $clone->methods = isset($this->methods) ? array_intersect($this->methods, $methods) : $methods;
-        return $clone;
+        $template = $pattern->templateUri($this->uriTemplate);
+        if ($this->lockedUriPath && $template->getPath() !== $this->uriTemplate->getPath()) {
+            $message = 'Cannot append path segment to root PathSwitch context on route `%s`';
+            throw new Exception\UnreachableEndpointException(sprintf($message, $this->routingPath));
+        }
+
+        return $template;
     }
 
     private function accessibleRootLabel(): string
