@@ -23,8 +23,6 @@ use Psr\Http\Message\UriInterface;
  */
 abstract class UriPart implements Route\Gate\Pattern
 {
-    use StaticUriTemplateMethod;
-
     protected $pattern;
 
     /**
@@ -53,13 +51,18 @@ abstract class UriPart implements Route\Gate\Pattern
 
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
-        $uriPart = $this->getUriPart($prototype);
+        return $this->setUriPart($prototype);
+    }
+
+    public function templateUri(UriInterface $uri): UriInterface
+    {
+        $uriPart = $this->getUriPart($uri);
         if ($uriPart && $uriPart !== $this->pattern) {
-            $message = sprintf('Pattern conflict for `%s` in `%s` uri', (string) $this->pattern, (string) $prototype);
+            $message = sprintf('Pattern conflict for `%s` in `%s` uri', (string) $this->pattern, (string) $uri);
             throw new Exception\UnreachableEndpointException($message);
         }
 
-        return $this->setUriPart($prototype);
+        return $this->setUriPart($uri);
     }
 
     /**

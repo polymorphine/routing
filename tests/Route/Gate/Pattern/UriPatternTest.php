@@ -120,36 +120,6 @@ class UriPatternTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider prototypeConflict
-     *
-     * @param $patternString
-     * @param $uriString
-     */
-    public function testUriOverwritingPrototypeSegment_ThrowsException($patternString, $uriString)
-    {
-        $this->expectException(Exception\UnreachableEndpointException::class);
-        $this->pattern($patternString)->uri(Doubles\FakeUri::fromString($uriString), []);
-    }
-
-    public function prototypeConflict()
-    {
-        return [
-            ['http:', 'https://example.com'],
-            ['https://www.example.com', 'https://example.com'],
-            ['//user:pass@example.com', '//www.example.com'],
-            ['?foo=bar&some=value', '?foo=bar&some=otherValue'],
-            ['?foo=&some=value', '?foo=something&some=value']
-        ];
-    }
-
-    public function testEmptySegmentConstraintForNotEmptyPrototype_ThrowsException()
-    {
-        $pattern = new Route\Gate\Pattern\UriPart\Port('');
-        $this->expectException(Exception\UnreachableEndpointException::class);
-        $pattern->uri(Doubles\FakeUri::fromString('//example.com:123'), []);
-    }
-
     public function testUriMatchingPrototypeSegment_ReturnsUriWithMissingPartAppended()
     {
         $pattern   = $this->pattern('bar/baz');
@@ -208,6 +178,38 @@ class UriPatternTest extends TestCase
         $uri     = Doubles\FakeUri::fromString('/foo/bar');
 
         $this->assertSame('https://example.com:5000/foo/bar', (string) $pattern->templateUri($uri));
+    }
+
+    /**
+     * @dataProvider prototypeConflict
+     *
+     * @param $patternString
+     * @param $uriString
+     */
+    public function testTemplateUriOverwritingPrototypeSegment_ThrowsException($patternString, $uriString)
+    {
+        $pattern = $this->pattern($patternString);
+        $this->expectException(Exception\UnreachableEndpointException::class);
+        $pattern->templateUri(Doubles\FakeUri::fromString($uriString));
+    }
+
+    public function prototypeConflict()
+    {
+        return [
+            ['http:', 'https://example.com'],
+            ['https://www.example.com', 'https://example.com'],
+            ['//user:pass@example.com', '//www.example.com'],
+            ['?foo=bar&some=value', '?foo=bar&some=otherValue'],
+            ['?foo=&some=value', '?foo=something&some=value']
+        ];
+    }
+
+    public function testEmptySegmentConstraintForNotEmptyTemplatePrototype_ThrowsException()
+    {
+        $pattern   = new Route\Gate\Pattern\UriPart\Port('');
+        $prototype = Doubles\FakeUri::fromString('//example.com:123');
+        $this->expectException(Exception\UnreachableEndpointException::class);
+        $pattern->templateUri($prototype);
     }
 
     private function pattern(string $uri)
