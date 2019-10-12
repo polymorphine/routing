@@ -50,11 +50,12 @@ class HostDomainTest extends TestCase
         $this->assertSame('https://example.com/foo/bar', (string) $domain->templateUri($uri));
     }
 
-    public function testUriGivenPrototypeWithDifferentHost_ThrowsException()
+    public function testTemplateUriGivenPrototypeWithDifferentHost_ThrowsException()
     {
+        $domain    = $this->domain('example.com');
         $prototype = Doubles\FakeUri::fromString('https://example.pl/foo/bar');
         $this->expectException(Exception\UnreachableEndpointException::class);
-        $this->assertSame('https://example.com/foo/bar', $this->domain('example.com')->uri($prototype, []));
+        $domain->templateUri($prototype);
     }
 
     private function domain(string $domain)
