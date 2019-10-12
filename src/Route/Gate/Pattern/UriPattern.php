@@ -97,7 +97,7 @@ class UriPattern implements Pattern
             case 'path':
                 return $value ? $this->pathPattern($value) : null;
             case 'query':
-                return new Uri\Query($value);
+                return Uri\Query::fromQueryString($value);
         }
 
         return null;

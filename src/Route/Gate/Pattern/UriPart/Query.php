@@ -29,22 +29,36 @@ class Query implements Route\Gate\Pattern
     private $query;
 
     /**
-     * Query string parameter MUST NOT begin with `?` character.
-     *
-     * Given query string will be matched against defined params only
-     * without specified order. Keys without equal sign (eg. `foo&bar`)
-     * will check only if these keys are defined within query string, and
-     * keys with empty value (like `foo` in `foo=&bar=something`) will
-     * require that value to be empty.
+     * Given query string params will be matched against defined params
+     * only. Keys without defined value (null) will check only if these
+     * keys are defined within query string, and keys with empty string
+     * will require that value to be empty.
      *
      * Building URI on prototype with defined key-value pair not matching
      * current constraint will throw UnreachableEndpointException
      *
-     * @param string $queryString
+     * @param array $queryValues
      */
-    public function __construct(string $queryString)
+    public function __construct(array $queryValues)
     {
-        $this->query = $queryString;
+        $this->query = $queryValues;
+    }
+
+    /**
+     * Query string parameter MUST NOT begin with `?` character.
+     *
+     * Given query string will be exploded into associative array with
+     * undefined values (foo&bar) as null and empty (foo=&bar=) values
+     * as empty string.
+     *
+     *
+     * @param string $query
+     *
+     * @return self
+     */
+    public static function fromQueryString(string $query): self
+    {
+        return new self(self::queryValues($query));
     }
 
     public function matchedRequest(ServerRequestInterface $request): ?ServerRequestInterface
@@ -59,28 +73,23 @@ class Query implements Route\Gate\Pattern
 
     public function templateUri(UriInterface $uri): UriInterface
     {
-        $wildcardSegments = array_keys(array_filter($this->queryValues($this->query), 'is_null'));
+        $wildcardSegments = array_keys(array_filter($this->query, 'is_null'));
         return $this->uri($uri, array_fill_keys($wildcardSegments, $this->placeholder('*')));
     }
 
     private function combinedQuery(string $prototypeQuery, array $params): string
     {
-        if (empty($prototypeQuery) && !$params) { return $this->query; }
+        if (empty($prototypeQuery) && !$params) {
+            return $this->queryString($this->query);
+        }
 
-        $required  = $this->queryValues($this->query);
         $prototype = $this->queryValues($prototypeQuery);
-
-        foreach ($required as $name => $value) {
+        foreach ($this->query as $name => $value) {
             if ($this->isDefined($prototype, $name, $value)) { continue; }
             $prototype[$name] = $value ?? $params[$name] ?? null;
         }
 
-        $query = [];
-        foreach ($prototype as $name => $value) {
-            $query[] = isset($value) ? $name . '=' . $value : $name;
-        }
-
-        return implode('&', $query);
+        return $this->queryString($prototype);
     }
 
     private function isDefined(array $prototype, string $name, ?string $value): bool
@@ -88,7 +97,8 @@ class Query implements Route\Gate\Pattern
         if (!isset($prototype[$name])) { return false; }
         if (isset($value) && $prototype[$name] !== $value) {
             $message = 'Query param conflict for `%s` key in `%s` query pattern';
-            throw new Exception\UnreachableEndpointException(sprintf($message, $name, $this->query));
+            $query   = $this->queryString($this->query);
+            throw new Exception\UnreachableEndpointException(sprintf($message, $name, $query));
         }
         return true;
     }
@@ -97,10 +107,8 @@ class Query implements Route\Gate\Pattern
     {
         if (empty($requestQuery)) { return false; }
 
-        $requiredSegments = $this->queryValues($this->query);
-        $requestSegments  = $this->queryValues($requestQuery);
-
-        foreach ($requiredSegments as $key => $value) {
+        $requestSegments = self::queryValues($requestQuery);
+        foreach ($this->query as $key => $value) {
             if (!array_key_exists($key, $requestSegments)) { return false; }
             if (!isset($value)) { continue; }
             if ($value !== $requestSegments[$key]) { return false; }
@@ -109,7 +117,7 @@ class Query implements Route\Gate\Pattern
         return true;
     }
 
-    private function queryValues(string $query): array
+    private static function queryValues(string $query): array
     {
         $segments = $query ? explode('&', $query) : [];
 
@@ -120,5 +128,15 @@ class Query implements Route\Gate\Pattern
         }
 
         return $segmentValues;
+    }
+
+    private function queryString(array $values): string
+    {
+        $query = [];
+        foreach ($values as $name => $value) {
+            $query[] = isset($value) ? $name . '=' . $value : $name;
+        }
+
+        return implode('&', $query);
     }
 }

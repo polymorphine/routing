@@ -153,7 +153,7 @@ class QueryTest extends TestCase
 
     private function pattern(string $query): Pattern
     {
-        return new Pattern\UriPart\Query($query);
+        return Pattern\UriPart\Query::fromQueryString($query);
     }
 
     private function request(string $uri)
