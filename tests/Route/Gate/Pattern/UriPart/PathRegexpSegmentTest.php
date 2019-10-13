@@ -47,13 +47,13 @@ class PathRegexpSegmentTest extends TestCase
 
     public function testUriWithoutRequiredParam_ThrowsException()
     {
-        $this->expectException(Exception\InvalidUriParamsException::class);
+        $this->expectException(Exception\InvalidUriParamException::class);
         $this->pattern()->uri($this->uri('/foo/bar'), ['foo' => '00765']);
     }
 
     public function testUriWithNotMatchingParam_ThrowsException()
     {
-        $this->expectException(Exception\InvalidUriParamsException::class);
+        $this->expectException(Exception\InvalidUriParamException::class);
         $this->pattern()->uri($this->uri('/foo/bar'), ['id' => 'id-00765']);
     }
 

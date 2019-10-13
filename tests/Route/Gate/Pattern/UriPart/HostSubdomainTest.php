@@ -64,7 +64,7 @@ class HostSubdomainTest extends TestCase
     public function testMissingUriParam_ThrowsException()
     {
         $subdomain = $this->subdomain('lang', ['en', 'pl', 'de']);
-        $this->expectException(Exception\InvalidUriParamsException::class);
+        $this->expectException(Exception\InvalidUriParamException::class);
         $subdomain->uri(Doubles\FakeUri::fromString('http://example.com/foo/bar'), ['language' => 'en']);
     }
 
@@ -78,7 +78,7 @@ class HostSubdomainTest extends TestCase
     public function testUndefinedParamValue_ThrowsException()
     {
         $subdomain = $this->subdomain('lang', ['en', 'pl', 'de']);
-        $this->expectException(Exception\InvalidUriParamsException::class);
+        $this->expectException(Exception\InvalidUriParamException::class);
         $subdomain->uri(Doubles\FakeUri::fromString('http://example.com/foo/bar'), ['lang' => 'fr']);
     }
 

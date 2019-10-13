@@ -71,7 +71,7 @@ interface Route
      * @param UriInterface $prototype
      *
      * @throws Exception\EndpointCallException
-     * @throws Exception\InvalidUriParamsException
+     * @throws Exception\InvalidUriParamException
      * @throws Exception\UnreachableEndpointException
      *
      * @return UriInterface

@@ -121,14 +121,14 @@ class DynamicTargetMaskTest extends TestCase
     public function testUriInsufficientParams_ThrowsException()
     {
         $pattern = $this->pattern('/some-{#number}/{$slug}');
-        $this->expectException(Exception\InvalidUriParamsException::class);
+        $this->expectException(Exception\InvalidUriParamException::class);
         $pattern->uri(new Doubles\FakeUri(), [22]);
     }
 
     public function testUriInvalidTypeParams_ThrowsException()
     {
         $pattern = $this->pattern('/user/{#countryId}');
-        $this->expectException(Exception\InvalidUriParamsException::class);
+        $this->expectException(Exception\InvalidUriParamException::class);
         $pattern->uri(new Doubles\FakeUri(), ['Poland']);
     }
 
@@ -278,7 +278,7 @@ class DynamicTargetMaskTest extends TestCase
     public function testUriInvalidParamWithProvidedPattern_ThrowsException()
     {
         $pattern = new Pattern\DynamicTargetMask('/{lang}/foo', ['lang' => '(en|pl|fr)']);
-        $this->expectException(Exception\InvalidUriParamsException::class);
+        $this->expectException(Exception\InvalidUriParamException::class);
         $pattern->uri(new Doubles\FakeUri(), ['es']);
     }
 

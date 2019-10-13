@@ -80,12 +80,12 @@ class PathRegexpSegment implements Route\Gate\Pattern
     {
         if (!$id = $params[$this->name] ?? null) {
             $message = 'Missing id parameter for `%s` uri';
-            throw new Exception\InvalidUriParamsException(sprintf($message, (string) $prototype));
+            throw new Exception\InvalidUriParamException(sprintf($message, (string) $prototype));
         }
 
         if (!$this->validFormat($id)) {
             $message = 'Invalid id format for `%s` uri (expected pattern: `%s`)';
-            throw new Exception\InvalidUriParamsException(sprintf($message, (string) $prototype, $this->regexp));
+            throw new Exception\InvalidUriParamException(sprintf($message, (string) $prototype, $this->regexp));
         }
 
         return $prototype->withPath($prototype->getPath() . '/' . $id);

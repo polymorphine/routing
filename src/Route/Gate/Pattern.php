@@ -59,7 +59,8 @@ interface Pattern
      * @param array        $params
      * @param UriInterface $prototype
      *
-     * @throws Exception\InvalidUriParamsException|Exception\UnreachableEndpointException
+     * @throws Exception\InvalidUriParamException
+     * @throws Exception\UnreachableEndpointException
      *
      * @return UriInterface
      */
