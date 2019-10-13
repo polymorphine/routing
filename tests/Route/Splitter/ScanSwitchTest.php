@@ -97,13 +97,13 @@ class ScanSwitchTest extends TestCase
 
     public function testSelectWithEmptyPath_ThrowsException()
     {
-        $this->expectException(Exception\SwitchCallException::class);
+        $this->expectException(Exception\RouteNotFoundException::class);
         $this->splitter()->select('');
     }
 
     public function testSelectWithUnknownPathName_ThrowsException()
     {
-        $this->expectException(Exception\SwitchCallException::class);
+        $this->expectException(Exception\RouteNotFoundException::class);
         $this->splitter()->select('NotDefined');
     }
 

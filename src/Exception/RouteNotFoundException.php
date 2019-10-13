@@ -14,6 +14,6 @@ namespace Polymorphine\Routing\Exception;
 use InvalidArgumentException;
 
 
-class SwitchCallException extends InvalidArgumentException
+class RouteNotFoundException extends InvalidArgumentException
 {
 }

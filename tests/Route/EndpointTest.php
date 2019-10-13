@@ -28,7 +28,7 @@ class EndpointTest extends TestCase
     public function testSelectCall_ThrowsException()
     {
         $route = new Doubles\DummyEndpoint();
-        $this->expectException(Exception\SwitchCallException::class);
+        $this->expectException(Exception\RouteNotFoundException::class);
         $route->select('foo');
     }
 

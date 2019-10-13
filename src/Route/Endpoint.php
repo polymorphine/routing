@@ -40,7 +40,7 @@ abstract class Endpoint implements Route
 
     public function select(string $path): Route
     {
-        throw new Exception\SwitchCallException(sprintf('Gateway not found for path `%s`', $path));
+        throw new Exception\RouteNotFoundException(sprintf('Gateway not found for path `%s`', $path));
     }
 
     public function uri(UriInterface $prototype, array $params): UriInterface
