@@ -198,7 +198,7 @@ class UriPatternTest extends TestCase
         return [
             ['http:', 'https://example.com'],
             ['https://www.example.com', 'https://example.com'],
-            ['//user:pass@example.com', '//www.example.com'],
+            ['//user:pass@example.com', '//user@example.com'],
             ['?foo=bar&some=value', '?foo=bar&some=otherValue'],
             ['?foo=&some=value', '?foo=something&some=value']
         ];
