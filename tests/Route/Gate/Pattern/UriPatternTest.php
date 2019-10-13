@@ -189,7 +189,7 @@ class UriPatternTest extends TestCase
     public function testTemplateUriOverwritingPrototypeSegment_ThrowsException($patternString, $uriString)
     {
         $pattern = $this->pattern($patternString);
-        $this->expectException(Exception\UnreachableEndpointException::class);
+        $this->expectException(Exception\InvalidUriPrototypeException::class);
         $pattern->templateUri(Doubles\FakeUri::fromString($uriString));
     }
 
@@ -208,7 +208,7 @@ class UriPatternTest extends TestCase
     {
         $pattern   = new Route\Gate\Pattern\UriPart\Port('');
         $prototype = Doubles\FakeUri::fromString('//example.com:123');
-        $this->expectException(Exception\UnreachableEndpointException::class);
+        $this->expectException(Exception\InvalidUriPrototypeException::class);
         $pattern->templateUri($prototype);
     }
 

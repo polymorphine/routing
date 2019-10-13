@@ -71,7 +71,7 @@ class HostSubdomainTest extends TestCase
     public function testMissingPrototypeHost_ThrowsException()
     {
         $subdomain = $this->subdomain('lang', ['en', 'pl', 'de']);
-        $this->expectException(Exception\UnreachableEndpointException::class);
+        $this->expectException(Exception\InvalidUriPrototypeException::class);
         $subdomain->uri(Doubles\FakeUri::fromString('http:/foo/bar'), ['lang' => 'en']);
     }
 

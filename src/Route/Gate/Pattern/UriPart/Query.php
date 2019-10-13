@@ -98,7 +98,7 @@ class Query implements Route\Gate\Pattern
         if (isset($value) && $prototype[$name] !== $value) {
             $message = 'Query param conflict for `%s` key in `%s` query pattern';
             $query   = $this->queryString($this->query);
-            throw new Exception\UnreachableEndpointException(sprintf($message, $name, $query));
+            throw new Exception\InvalidUriPrototypeException(sprintf($message, $name, $query));
         }
         return true;
     }

@@ -60,7 +60,7 @@ class HostSubdomain implements Route\Gate\Pattern
 
         if (!$host = $prototype->getHost()) {
             $message = 'Cannot attach `%s` subdomain to prototype without host';
-            throw new Exception\UnreachableEndpointException(sprintf($message, $params[$this->id]));
+            throw new Exception\InvalidUriPrototypeException(sprintf($message, $params[$this->id]));
         }
 
         return $prototype->withHost($subdomain . '.' . $host);

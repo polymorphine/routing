@@ -54,7 +54,7 @@ class HostDomainTest extends TestCase
     {
         $domain    = $this->domain('example.com');
         $prototype = Doubles\FakeUri::fromString('https://example.pl/foo/bar');
-        $this->expectException(Exception\UnreachableEndpointException::class);
+        $this->expectException(Exception\InvalidUriPrototypeException::class);
         $domain->templateUri($prototype);
     }
 

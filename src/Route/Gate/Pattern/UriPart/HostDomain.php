@@ -44,17 +44,17 @@ class HostDomain implements Route\Gate\Pattern
 
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
+        $host = $prototype->getHost();
+        if ($host && $host !== $this->domain) {
+            $message = 'Cannot overwrite prototype domain `%s` with `%s`';
+            throw new Exception\InvalidUriPrototypeException(sprintf($message, $host, $this->domain));
+        }
+
         return $prototype->withHost($this->domain);
     }
 
     public function templateUri(UriInterface $uri): UriInterface
     {
-        $host = $uri->getHost();
-        if ($host && $host !== $this->domain) {
-            $message = 'Cannot overwrite prototype domain `%s` with `%s`';
-            throw new Exception\UnreachableEndpointException(sprintf($message, $host, $this->domain));
-        }
-
-        return $uri->withHost($this->domain);
+        return $this->uri($uri, []);
     }
 }

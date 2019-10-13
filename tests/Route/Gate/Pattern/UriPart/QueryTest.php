@@ -117,7 +117,7 @@ class QueryTest extends TestCase
     {
         $pattern   = $this->pattern($pattern);
         $prototype = $this->uri('http://example.com/path?' . $prototype);
-        $this->expectException(Exception\UnreachableEndpointException::class);
+        $this->expectException(Exception\InvalidUriPrototypeException::class);
         $pattern->uri($prototype, []);
     }
 

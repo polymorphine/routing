@@ -220,7 +220,7 @@ class DynamicTargetMaskTest extends TestCase
     public function testUriOverwritingPrototypeSegment_ThrowsException($pattern, $uri)
     {
         $pattern = $this->pattern($pattern);
-        $this->expectException(Exception\UnreachableEndpointException::class);
+        $this->expectException(Exception\InvalidUriPrototypeException::class);
         $pattern->uri(Doubles\FakeUri::fromString($uri), ['id' => 1500]);
     }
 
