@@ -78,10 +78,15 @@ class PathSwitch implements Route
 
     public function routes(Trace $trace): void
     {
-        if ($this->root) { $trace->follow($this->root); }
+        if ($this->root) {
+            $trace->withLockedUriPath()
+                  ->withExcludedHops(array_keys($this->routes))
+                  ->follow($this->root);
+        }
         foreach ($this->routes as $name => $route) {
-            $pattern = new Gate\Pattern\UriPart\PathSegment($name);
-            $trace->nextHop($name)->withPattern($pattern)->follow($route);
+            $trace->nextHop($name)
+                  ->withPattern(new Gate\Pattern\UriPart\PathSegment($name))
+                  ->follow($route);
         }
     }
 }

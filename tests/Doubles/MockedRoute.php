@@ -28,6 +28,7 @@ class MockedRoute implements Route
     public $params;
     public $path;
     public $trace;
+    public $traceCallback;
     public $subRoute;
 
     public function __construct(?ResponseInterface $response = null, ?UriInterface $uri = null)
@@ -36,14 +37,21 @@ class MockedRoute implements Route
         $this->uri      = $uri;
     }
 
-    public static function response(string $response)
+    public static function response(string $response): self
     {
         return new self(new FakeResponse($response), null);
     }
 
-    public static function withUri(string $uri)
+    public static function withUri(string $uri): self
     {
         return new self(null, FakeUri::fromString($uri));
+    }
+
+    public static function withTraceCallback(callable $callback): self
+    {
+        $route = new self();
+        $route->traceCallback = $callback;
+        return $route;
     }
 
     public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
@@ -69,6 +77,7 @@ class MockedRoute implements Route
 
     public function routes(Trace $trace): void
     {
+        if ($this->traceCallback) { ($this->traceCallback)($trace); }
         $this->trace = $trace;
         $trace->endpoint();
     }

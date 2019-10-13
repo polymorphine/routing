@@ -77,8 +77,14 @@ class CallbackSwitch implements Route
 
     public function routes(Trace $trace): void
     {
+        if ($this->implicit) {
+            $trace->withExcludedHops(array_keys($this->routes))
+                  ->follow($this->routes[$this->implicit]);
+        }
+
         foreach ($this->routes as $name => $route) {
-            $trace->nextHop($name)->follow($route);
+            $trace->nextHop($name)
+                  ->follow($route);
         }
     }
 }

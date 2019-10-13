@@ -106,7 +106,7 @@ class CallbackSwitchTest extends TestCase
         $splitter = $this->splitter([
             'foo' => new Doubles\MockedRoute(),
             'bar' => new Doubles\MockedRoute()
-        ]);
+        ], 'bar');
 
         $uri   = '/foo/bar';
         $map   = new Map();
@@ -114,11 +114,26 @@ class CallbackSwitchTest extends TestCase
 
         $splitter->routes($trace);
         $expected = [
+            new Map\Path('path', '*', $uri),
             new Map\Path('path.foo', '*', $uri),
             new Map\Path('path.bar', '*', $uri)
         ];
 
         $this->assertEquals($expected, $map->paths());
+    }
+
+    public function testRoutesWithNameConflictOnImplicitRoute_ThrowsException()
+    {
+        $splitter = $this->splitter([
+            'foo' => Doubles\MockedRoute::withTraceCallback(function (Map\Trace $trace) {
+                $trace->nextHop('bar');
+            }),
+            'bar' => new Doubles\MockedRoute()
+        ], 'foo');
+
+        $trace = new Map\Trace(new Map(), new Doubles\FakeUri());
+        $this->expectException(Exception\UnreachableEndpointException::class);
+        $splitter->routes($trace);
     }
 
     private function splitter(array $routes = [], ?string $implicit = null)
