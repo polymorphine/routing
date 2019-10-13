@@ -12,6 +12,6 @@
 namespace Polymorphine\Routing\Exception;
 
 
-class InvalidUriParamException extends UriBuildException
+class InvalidUriPrototypeException extends UriBuildException
 {
 }
