@@ -41,7 +41,7 @@ interface Route
      * @param string $path by default dot separated switch identifiers relative
      *                     to current position in routing tree
      *
-     * @throws Exception\SwitchCallException if Route specified with $path cannot be found
+     * @throws Exception\RouteNotFoundException
      *
      * @return Route
      */
@@ -59,24 +59,31 @@ interface Route
      * Other segments SHOULD NOT be added, and $prototype MUST NOT define
      * different segments than returned from current route instance.
      * If any Uri part defined in $prototype is overwritten with different
-     * value UnreachableEndpointException SHOULD be thrown.
+     * value InvalidUriPrototypeException SHOULD be thrown.
      *
      * If Route is not an endpoint for any ServerRequestInterface or cannot be
-     * resolved into endpoint's Uri EndpointCallException MUST be thrown
+     * resolved into endpoint's Uri UndefinedUriException MUST be thrown
      *
      * Redundant $params SHOULD be ignored, but if Uri cannot be built with
-     * given $params method MUST throw UriParamsException
+     * given $params method MUST throw InvalidUriParamException
      *
      * @param array        $params
      * @param UriInterface $prototype
      *
-     * @throws Exception\EndpointCallException
-     * @throws Exception\InvalidUriParamException
-     * @throws Exception\UnreachableEndpointException
+     * @throws Exception\UriBuildException
+     * @throws Exception\UndefinedUriException
      *
      * @return UriInterface
      */
     public function uri(UriInterface $prototype, array $params): UriInterface;
 
+    /**
+     * Gathers and stores inside Map object all routing paths associated with
+     * information about request methods and URI templates.
+     *
+     * @param Trace $trace
+     *
+     * @throws Exception\UnreachableEndpointException
+     */
     public function routes(Trace $trace): void;
 }

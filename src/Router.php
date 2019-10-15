@@ -70,7 +70,9 @@ class Router implements RequestHandlerInterface
     }
 
     /**
-     * @param string $path as defined in uri() method
+     * @param string $path by default dot separated list of switch identifiers
+     *
+     * @throws Exception\RouteNotFoundException
      *
      * @return Router with changed root context
      */
@@ -82,8 +84,12 @@ class Router implements RequestHandlerInterface
     }
 
     /**
-     * @param string $path   by default dot separated list of switch identifiers
+     * @param string $path   defined in select() method
      * @param array  $params named or ordered variables for dynamic uri patterns
+     *
+     * @throws Exception\RouteNotFoundException
+     * @throws Exception\UriBuildException
+     * @throws Exception\UndefinedUriException
      *
      * @return UriInterface
      */
@@ -95,7 +101,12 @@ class Router implements RequestHandlerInterface
     }
 
     /**
-     * @return array of routing paths associated with its URI templates
+     * Builds routing map with path names and corresponding request
+     * methods and URI templates.
+     *
+     * @throws Exception\UnreachableEndpointException
+     *
+     * @return Map\Path[]
      */
     public function routes(): array
     {
