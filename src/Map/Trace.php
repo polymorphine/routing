@@ -87,7 +87,12 @@ class Trace
 
     private function buildUriTemplate(Route\Gate\Pattern $pattern): UriInterface
     {
-        $template = $pattern->templateUri($this->uriTemplate);
+        try {
+            $template = $pattern->templateUri($this->uriTemplate);
+        } catch (Exception\InvalidUriPrototypeException $e) {
+            throw new Exception\UnreachableEndpointException($e->getMessage());
+        }
+
         if ($this->lockedUriPath && $template->getPath() !== $this->uriTemplate->getPath()) {
             $message = 'Cannot append path segment to root PathSwitch context on route `%s`';
             throw new Exception\UnreachableEndpointException(sprintf($message, $this->routingPath));
