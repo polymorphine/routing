@@ -14,6 +14,6 @@ namespace Polymorphine\Routing\Exception;
 use RuntimeException;
 
 
-class EndpointCallException extends RuntimeException
+class UndefinedUriException extends RuntimeException
 {
 }

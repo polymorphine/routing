@@ -14,7 +14,7 @@ namespace Polymorphine\Routing\Route\Splitter;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate;
 use Polymorphine\Routing\Map\Trace;
-use Polymorphine\Routing\Exception\EndpointCallException;
+use Polymorphine\Routing\Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
@@ -70,7 +70,7 @@ class PathSwitch implements Route
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
         if (!$this->root) {
-            throw new EndpointCallException('Uri not defined in gateway route');
+            throw new Exception\UndefinedUriException('Uri not defined in gateway route');
         }
 
         return $this->root->uri($prototype, $params);

@@ -107,7 +107,7 @@ class PathSwitchTest extends TestCase
 
     public function testWhenNoRootRoute_UriMethodCall_ThrowsException()
     {
-        $this->expectException(Exception\EndpointCallException::class);
+        $this->expectException(Exception\UndefinedUriException::class);
         $this->splitter()->uri(new Doubles\FakeUri(), []);
     }
 

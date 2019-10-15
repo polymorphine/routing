@@ -71,7 +71,7 @@ class MethodSwitch implements Route
         if ($this->implicit) {
             return $this->routes[$this->implicit]->uri($prototype, $params);
         }
-        throw new Exception\EndpointCallException('Cannot resolve specific Uri for switch route');
+        throw new Exception\UndefinedUriException('Cannot resolve specific Uri for switch route');
     }
 
     public function routes(Trace $trace): void
