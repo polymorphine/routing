@@ -100,4 +100,15 @@ class MapTest extends TestCase
         $this->expectException(Exception\UnreachableEndpointException::class);
         $trace->withPattern(new Pattern\UriPart\PathSegment('baz'));
     }
+
+    public function testTraceWithPatternPrototypeConflict_ThrowsException()
+    {
+        $trace   = new Map\Trace(new Map(), new Doubles\FakeUri());
+        $pattern = new Doubles\MockedPattern();
+
+        $pattern->exception = Exception\InvalidUriPrototypeException::class;
+
+        $this->expectException(Exception\UnreachableEndpointException::class);
+        $trace->withPattern($pattern);
+    }
 }
