@@ -57,19 +57,13 @@ class HostSubdomain implements Route\Gate\Pattern
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
         $subdomain = $this->subdomainParameter($params);
-
-        if (!$host = $prototype->getHost()) {
-            $message = 'Cannot attach `%s` subdomain to prototype without host';
-            throw new Exception\InvalidUriPrototypeException(sprintf($message, $params[$this->id]));
-        }
-
-        return $prototype->withHost($subdomain . '.' . $host);
+        return $this->expandedDomain($subdomain, $prototype);
     }
 
     public function templateUri(UriInterface $uri): UriInterface
     {
-        $definition = $this->id . ':' . implode('|', $this->values);
-        return $uri->withHost($this->placeholder($definition) . '.' . $uri->getHost());
+        $subdomain = $this->placeholder($this->id . ':' . implode('|', $this->values));
+        return $this->expandedDomain($subdomain, $uri);
     }
 
     private function subdomainParameter(array $params): string
@@ -86,5 +80,15 @@ class HostSubdomain implements Route\Gate\Pattern
         }
 
         return $params[$this->id];
+    }
+
+    private function expandedDomain(string $subdomain, UriInterface $prototype): UriInterface
+    {
+        if (!$host = $prototype->getHost()) {
+            $message = 'Cannot attach `%s` subdomain to prototype without host';
+            throw new Exception\InvalidUriPrototypeException(sprintf($message, $subdomain));
+        }
+
+        return $prototype->withHost($subdomain . '.' . $host);
     }
 }

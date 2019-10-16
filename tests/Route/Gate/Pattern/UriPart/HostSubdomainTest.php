@@ -53,14 +53,6 @@ class HostSubdomainTest extends TestCase
         $this->assertSame('//pl.example.com/foo/bar?fizz=buzz', (string) $subdomain->uri($prototype, ['lang' => 'pl']));
     }
 
-    public function testTemplateUri_ReturnsUriWithSubdomain()
-    {
-        $subdomain = $this->subdomain('lang', ['en', 'pl', 'de']);
-        $uri       = Doubles\FakeUri::fromString('//example.com/foo/bar?fizz=buzz');
-        $expected  = $uri->withHost($this->placeholder('lang:en|pl|de') . '.' . $uri->getHost());
-        $this->assertEquals($expected, $subdomain->templateUri($uri));
-    }
-
     public function testMissingUriParam_ThrowsException()
     {
         $subdomain = $this->subdomain('lang', ['en', 'pl', 'de']);
@@ -80,6 +72,21 @@ class HostSubdomainTest extends TestCase
         $subdomain = $this->subdomain('lang', ['en', 'pl', 'de']);
         $this->expectException(Exception\InvalidUriParamException::class);
         $subdomain->uri(Doubles\FakeUri::fromString('http://example.com/foo/bar'), ['lang' => 'fr']);
+    }
+
+    public function testTemplateUri_ReturnsUriWithSubdomain()
+    {
+        $subdomain = $this->subdomain('lang', ['en', 'pl', 'de']);
+        $uri       = Doubles\FakeUri::fromString('//example.com/foo/bar?fizz=buzz');
+        $expected  = $uri->withHost($this->placeholder('lang:en|pl|de') . '.' . $uri->getHost());
+        $this->assertEquals($expected, $subdomain->templateUri($uri));
+    }
+
+    public function testTemplateUriForMissingPrototypeHost_ThrowsException()
+    {
+        $subdomain = $this->subdomain('lang', ['en', 'pl', 'de']);
+        $this->expectException(Exception\InvalidUriPrototypeException::class);
+        $subdomain->templateUri(Doubles\FakeUri::fromString('http:/foo/bar'));
     }
 
     private function subdomain(string $id, array $values)
