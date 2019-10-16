@@ -151,6 +151,20 @@ class QueryTest extends TestCase
         $this->assertEquals($expected, $pattern->templateUri($uri));
     }
 
+    /**
+     * @dataProvider prototypeConflicts
+     *
+     * @param string $pattern
+     * @param string $prototype
+     */
+    public function testTemplateUriForNotMatchingPrototypeParam_ThrowsException(string $pattern, string $prototype)
+    {
+        $pattern   = $this->pattern($pattern);
+        $prototype = $this->uri('http://example.com/path?' . $prototype);
+        $this->expectException(Exception\InvalidUriPrototypeException::class);
+        $pattern->templateUri($prototype);
+    }
+
     private function pattern(string $query): Pattern
     {
         return Pattern\UriPart\Query::fromQueryString($query);

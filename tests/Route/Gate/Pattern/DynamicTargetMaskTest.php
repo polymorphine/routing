@@ -323,13 +323,26 @@ class DynamicTargetMaskTest extends TestCase
         $this->assertEquals($expected, $pattern->templateUri($uri));
     }
 
-    public function testUriTemplateWithPredefinedRegexp_ReturnsUriWithParameterTypePlaceholder()
+    public function testTemplateUriWithPredefinedRegexp_ReturnsUriWithParameterTypePlaceholder()
     {
         $pattern = $this->pattern('bar/{#id}?name={$name}');
         $uri     = Doubles\FakeUri::fromString('//example.com/foo?query=string');
         $expected = $uri->withPath('/foo/bar/' . $this->placeholder('#id'))
                         ->withQuery('query=string&name=' . $this->placeholder('$name'));
         $this->assertEquals($expected, $pattern->templateUri($uri));
+    }
+
+    /**
+     * @dataProvider prototypeConflict
+     *
+     * @param $pattern
+     * @param $uri
+     */
+    public function testTemplateUriOverwritingPrototypeSegment_ThrowsException($pattern, $uri)
+    {
+        $pattern = $this->pattern($pattern);
+        $this->expectException(Exception\InvalidUriPrototypeException::class);
+        $pattern->templateUri(Doubles\FakeUri::fromString($uri));
     }
 
     private function pattern($pattern = '')
