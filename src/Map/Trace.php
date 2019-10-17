@@ -37,10 +37,9 @@ class Trace
 
     public function endpoint(): void
     {
-        $path = $this->routingPath ?? $this->accessibleRootLabel();
-        $uri  = rawurldecode((string) $this->uriTemplate);
+        $uri = rawurldecode((string) $this->uriTemplate);
         foreach ($this->methods ?? ['*'] as $method) {
-            $this->map->addPath(new Path($path, $method, $uri));
+            $this->map->addPath(new Path($this->routingPathString(), $method, $uri));
         }
     }
 
@@ -90,36 +89,37 @@ class Trace
         try {
             $template = $pattern->templateUri($this->uriTemplate);
         } catch (Exception\InvalidUriPrototypeException $e) {
-            throw new Exception\UnreachableEndpointException($e->getMessage());
+            throw Exception\UnreachableEndpointException::uriConflict($e, $this->routingPathString());
         }
 
         if ($this->lockedUriPath && $template->getPath() !== $this->uriTemplate->getPath()) {
-            $message = 'Cannot append path segment to root PathSwitch context on route `%s`';
-            throw new Exception\UnreachableEndpointException(sprintf($message, $this->routingPath));
+            throw Exception\UnreachableEndpointException::unexpectedPathSegment($this->routingPathString());
         }
 
         return $template;
     }
 
-    private function accessibleRootLabel(): string
-    {
-        if ($this->isExcluded($this->rootLabel)) {
-            $message = 'Unselectable root route `%s` (check route name conflict on first splitter)';
-            throw new Exception\UnreachableEndpointException(sprintf($message, $this->rootLabel));
-        }
-
-        return $this->rootLabel;
-    }
-
     private function expandPath(string $label): string
     {
         if ($this->isExcluded($label)) {
-            $message = 'Unselectable route `%s` on implicit path of `%s` splitter';
-            $path    = $this->routingPath ?? $this->rootLabel;
-            throw new Exception\UnreachableEndpointException(sprintf($message, $label, $path));
+            throw Exception\UnreachableEndpointException::labelConflict($label, $this->routingPathString());
         }
 
         return isset($this->routingPath) ? $this->routingPath . Route::PATH_SEPARATOR . $label : $label;
+    }
+
+    private function routingPathString()
+    {
+        return $this->routingPath ?? $this->accessibleRootLabel();
+    }
+
+    private function accessibleRootLabel(): string
+    {
+        if ($this->isExcluded($this->rootLabel)) {
+            throw Exception\UnreachableEndpointException::rootLabelConflict($this->rootLabel);
+        }
+
+        return $this->rootLabel;
     }
 
     private function isExcluded(string $label): bool
