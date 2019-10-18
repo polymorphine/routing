@@ -120,9 +120,7 @@ class DynamicTargetMask implements Route\Gate\Pattern
     private function uriPlaceholders(array $params): array
     {
         if (count($params) < count($this->params)) {
-            $message = 'Route requires %s params for `%s` path - %s provided';
-            $message = sprintf($message, count($this->params), $this->pattern, count($params));
-            throw new Exception\InvalidUriParamException($message);
+            throw Exception\InvalidUriParamException::insufficientParams(count($this->params), count($params));
         }
 
         $placeholders = [];
@@ -149,8 +147,7 @@ class DynamicTargetMask implements Route\Gate\Pattern
     {
         $value = (string) $value;
         if (!preg_match('/^' . $type . '$/', $value)) {
-            $message = 'Invalid param `%s` type for `%s` route path';
-            throw new Exception\InvalidUriParamException(sprintf($message, $name, $this->pattern));
+            throw Exception\InvalidUriParamException::formatMismatch($name, $type);
         }
 
         return $value;

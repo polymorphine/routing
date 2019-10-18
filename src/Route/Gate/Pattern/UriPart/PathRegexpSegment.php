@@ -79,13 +79,11 @@ class PathRegexpSegment implements Route\Gate\Pattern
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
         if (!$id = $params[$this->name] ?? null) {
-            $message = 'Missing id parameter for `%s` uri';
-            throw new Exception\InvalidUriParamException(sprintf($message, (string) $prototype));
+            throw Exception\InvalidUriParamException::missingParam($this->name);
         }
 
         if (!$this->validFormat($id)) {
-            $message = 'Invalid id format for `%s` uri (expected pattern: `%s`)';
-            throw new Exception\InvalidUriParamException(sprintf($message, (string) $prototype, $this->regexp));
+            throw Exception\InvalidUriParamException::formatMismatch($this->name, $this->regexp);
         }
 
         return $prototype->withPath($prototype->getPath() . '/' . $id);
