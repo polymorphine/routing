@@ -186,8 +186,7 @@ class DynamicTargetMask implements Route\Gate\Pattern
         }
 
         if ($prototypePath && strpos($path, $prototypePath) !== 0) {
-            $message = 'Uri conflict detected prototype `%s` path does not match route `%s` path';
-            throw new Exception\InvalidUriPrototypeException(sprintf($message, $prototypePath, $path));
+            throw Exception\InvalidUriPrototypeException::pathConflict($path, $prototype);
         }
 
         return $prototype->withPath($path);
@@ -224,8 +223,7 @@ class DynamicTargetMask implements Route\Gate\Pattern
         if ($value === null) { return $routeParams[$name]; }
 
         if (isset($routeParams[$name]) && $routeParams[$name] !== $value) {
-            $message = 'Uri build conflict - attempt to overwrite `%s` query param value `%s` with `%s`';
-            throw new Exception\InvalidUriPrototypeException(sprintf($message, $name, $value, $routeParams[$name]));
+            throw Exception\InvalidUriPrototypeException::queryConflict($name, $value, $routeParams[$name]);
         }
 
         return $value;

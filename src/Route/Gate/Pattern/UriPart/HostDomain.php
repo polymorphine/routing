@@ -46,8 +46,7 @@ class HostDomain implements Route\Gate\Pattern
     {
         $host = $prototype->getHost();
         if ($host && $host !== $this->domain) {
-            $message = 'Cannot overwrite prototype domain `%s` with `%s`';
-            throw new Exception\InvalidUriPrototypeException(sprintf($message, $host, $this->domain));
+            throw Exception\InvalidUriPrototypeException::domainConflict($this->domain, $prototype);
         }
 
         return $prototype->withHost($this->domain);

@@ -53,8 +53,7 @@ abstract class UriPart implements Route\Gate\Pattern
     {
         $uriPart = $this->getUriPart($prototype);
         if ($uriPart && $uriPart !== $this->pattern) {
-            $message = sprintf('Pattern conflict for `%s` in `%s` uri', (string) $this->pattern, (string) $prototype);
-            throw new Exception\InvalidUriPrototypeException($message);
+            throw Exception\InvalidUriPrototypeException::segmentConflict($this->pattern, $uriPart, $prototype);
         }
         return $this->setUriPart($prototype);
     }

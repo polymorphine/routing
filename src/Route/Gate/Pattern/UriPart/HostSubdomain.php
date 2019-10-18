@@ -83,8 +83,7 @@ class HostSubdomain implements Route\Gate\Pattern
     private function expandedDomain(string $subdomain, UriInterface $prototype): UriInterface
     {
         if (!$host = $prototype->getHost()) {
-            $message = 'Cannot attach `%s` subdomain to prototype without host';
-            throw new Exception\InvalidUriPrototypeException(sprintf($message, $subdomain));
+            throw Exception\InvalidUriPrototypeException::missingHost($subdomain);
         }
 
         return $prototype->withHost($subdomain . '.' . $host);
