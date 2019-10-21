@@ -164,8 +164,7 @@ class ResourceSwitchNode implements Node
     protected function withIdRegexp(string $regexp)
     {
         if (preg_match('#' . $regexp . '#', 'new')) {
-            $message = 'Uri keyword conflict: `resource/new/form` matches `resource/{id}/form` path';
-            throw new Exception\BuilderLogicException($message);
+            throw Exception\BuilderLogicException::uriPatternKeywordConflict($this->idName);
         }
 
         $this->idRegexp = $regexp;

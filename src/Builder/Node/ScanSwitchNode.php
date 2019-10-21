@@ -42,7 +42,7 @@ class ScanSwitchNode implements Node
     public function defaultRoute(): RouteNode
     {
         if ($this->hasDefaultRoute) {
-            throw new Exception\BuilderLogicException('Default route already set');
+            throw Exception\BuilderLogicException::defaultRouteAlreadyDefined();
         }
 
         array_unshift($this->builders, $defaultRouteBuilder = $this->context->create());
@@ -98,7 +98,7 @@ class ScanSwitchNode implements Node
     public function withResourcesFormsPath(string $name): self
     {
         if ($this->resourcesForms) {
-            throw new Exception\BuilderLogicException('Route path for resource forms already defined');
+            throw Exception\BuilderLogicException::resourceFormsAlreadySet();
         }
 
         $this->resourcesForms = $this->route($name)->path($name)->pathSwitch();

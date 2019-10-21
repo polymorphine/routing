@@ -93,7 +93,7 @@ class Builder
         string $rootPath = 'ROOT'
     ): Router {
         if (!$this->builder) {
-            throw new Exception\BuilderLogicException('Root builder not defined');
+            throw Exception\BuilderLogicException::undefinedRootContext();
         }
         return $this->router = new Router($this->builder->build(), $baseUri, $nullResponse, $rootPath);
     }
@@ -127,7 +127,7 @@ class Builder
     public function rootNode(): Node\RouteNode
     {
         if ($this->builder) {
-            throw new Exception\BuilderLogicException('Root builder already defined');
+            throw Exception\BuilderLogicException::rootContextAlreadyDefined();
         }
         return $this->builder = new Node\RouteNode(new Context($this->mappedRoutes));
     }

@@ -37,7 +37,7 @@ class Context
     {
         if ($this->route) { return $this->route; }
         if (!$this->builder) {
-            throw new Exception\BuilderLogicException('Route type not selected');
+            throw Exception\BuilderLogicException::incompleteRouteDefinition();
         }
         return $this->route = $this->wrapRoute($this->builder->build());
     }
@@ -137,6 +137,6 @@ class Context
     private function stateCheck(): void
     {
         if (!$this->route && !$this->builder) { return; }
-        throw new Exception\BuilderLogicException('Route already built');
+        throw Exception\BuilderLogicException::contextRouteAlreadyDefined();
     }
 }
