@@ -364,7 +364,7 @@ class RouteNodeTest extends TestCase
         $path    = $builder->pathSwitch();
         $path->route('admin')->pattern(new Uri\PathSegment('redirected'))->joinRoute(new Doubles\MockedRoute());
         $node = $path->route('redirect');
-        $this->expectException(Routing\Builder\Exception\BuilderLogicException::class);
+        $this->expectException(Routing\Builder\Exception\ConfigException::class);
         $node->redirect('admin');
     }
 
@@ -384,7 +384,7 @@ class RouteNodeTest extends TestCase
     public function testMappedGateWithoutIdResolver_ThrowsException()
     {
         $builder = $this->builder();
-        $this->expectException(Routing\Builder\Exception\BuilderLogicException::class);
+        $this->expectException(Routing\Builder\Exception\ConfigException::class);
         $builder->gate('something');
     }
 
@@ -406,7 +406,7 @@ class RouteNodeTest extends TestCase
     public function testMappedEndpointWithoutIdResolver_ThrowsException()
     {
         $builder = $this->builder();
-        $this->expectException(Routing\Builder\Exception\BuilderLogicException::class);
+        $this->expectException(Routing\Builder\Exception\ConfigException::class);
         $builder->endpoint('something');
     }
 

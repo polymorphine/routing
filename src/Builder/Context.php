@@ -82,16 +82,32 @@ class Context
         $this->setRoute(new Route\Gate\LazyRoute($routeCallback));
     }
 
+    /**
+     * @param string $routingPath
+     * @param int    $code
+     *
+     * @throws Exception\ConfigException
+     */
     public function setRedirectRoute(string $routingPath, int $code = 301): void
     {
         $this->setRoute($this->mappedRoutes->redirect($routingPath, $code));
     }
 
+    /**
+     * @param string $id
+     *
+     * @throws Exception\ConfigException
+     */
     public function mapEndpoint(string $id): void
     {
         $this->setRoute($this->mappedRoutes->endpoint($id));
     }
 
+    /**
+     * @param string $id
+     *
+     * @throws Exception\ConfigException
+     */
     public function mapGate(string $id): void
     {
         $this->addGate($this->mappedRoutes->gateway($id));

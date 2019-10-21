@@ -104,8 +104,7 @@ class MappedRoutes
     public function redirect(string $id, int $code): Route
     {
         if (!$this->router) {
-            $message = 'Required router callback to build redirect route for `%s` identifier';
-            throw new Exception\BuilderLogicException(sprintf($message, $id));
+            throw Exception\ConfigException::requiredRouterCallback($id);
         }
 
         return new Route\Endpoint\RedirectEndpoint(function () use ($id) {
@@ -116,8 +115,7 @@ class MappedRoutes
     public function endpoint(string $id): Route
     {
         if (!$this->endpoint) {
-            $message = 'Required endpoint mapping to build endpoint for `%s` identifier';
-            throw new Exception\BuilderLogicException(sprintf($message, $id));
+            throw Exception\ConfigException::requiredEndpointMapping($id);
         }
 
         return ($this->endpoint)($id);
@@ -126,8 +124,7 @@ class MappedRoutes
     public function gateway(string $id): callable
     {
         if (!$this->gateway) {
-            $message = 'Required middleware mapping to build middleware for `%s` identifier';
-            throw new Exception\BuilderLogicException(sprintf($message, $id));
+            throw Exception\ConfigException::requiredGatewayMapping($id);
         }
 
         return function (Route $route) use ($id): Route {

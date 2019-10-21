@@ -120,14 +120,14 @@ trait GateBuildMethods
      * Adds gate Route resolved from passed identifier.
      *
      * NOTE: In order to use this method gate callback in
-     * MappedRoutes has to be defined. BuilderLogicException
-     * will be thrown otherwise.
+     * MappedRoutes has to be defined or ConfigException
+     * will be thrown.
      *
-     * @see \Polymorphine\Routing\Builder\MappedRoutes
+     * @see \Polymorphine\Routing\Builder\MappedRoutes::gateway()
      *
      * @param string $id
      *
-     * @throws Exception\BuilderLogicException
+     * @throws Exception\ConfigException
      *
      * @return static
      */
