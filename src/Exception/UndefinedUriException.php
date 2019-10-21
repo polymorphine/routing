@@ -16,4 +16,8 @@ use RuntimeException;
 
 class UndefinedUriException extends RuntimeException
 {
+    public static function forSwitchContext(): self
+    {
+        return new self('Cannot create distinct URI for switch route');
+    }
 }

@@ -70,7 +70,7 @@ class PathSwitch implements Route
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
         if (!$this->root) {
-            throw new Exception\UndefinedUriException('Uri not defined in gateway route');
+            throw Exception\UndefinedUriException::forSwitchContext();
         }
 
         return $this->root->uri($prototype, $params);

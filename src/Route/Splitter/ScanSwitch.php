@@ -70,7 +70,7 @@ class ScanSwitch implements Route
             return $this->defaultRoute->uri($prototype, $params);
         }
 
-        throw new Exception\UndefinedUriException('Cannot resolve specific Uri for switch route');
+        throw Exception\UndefinedUriException::forSwitchContext();
     }
 
     public function routes(Trace $trace): void

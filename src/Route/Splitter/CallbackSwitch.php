@@ -72,7 +72,7 @@ class CallbackSwitch implements Route
         if ($this->implicit) {
             return $this->routes[$this->implicit]->uri($prototype, $params);
         }
-        throw new Exception\UndefinedUriException('Cannot resolve specific Uri for callback switch');
+        throw Exception\UndefinedUriException::forSwitchContext();
     }
 
     public function routes(Trace $trace): void
