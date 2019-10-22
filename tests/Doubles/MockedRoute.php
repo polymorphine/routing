@@ -30,6 +30,7 @@ class MockedRoute implements Route
     public $trace;
     public $traceCallback;
     public $subRoute;
+    public $exception;
 
     public function __construct(?ResponseInterface $response = null, ?UriInterface $uri = null)
     {
@@ -70,6 +71,8 @@ class MockedRoute implements Route
 
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
+        if ($this->exception) { throw $this->exception; }
+
         $this->prototype = $prototype;
         $this->params    = $params;
         return $this->uri ?: $prototype;
