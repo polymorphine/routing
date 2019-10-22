@@ -83,7 +83,7 @@ interface Route
      *
      * @param Trace $trace
      *
-     * @throws Exception\UnreachableEndpointException
+     * @throws Map\Exception\UnreachableEndpointException
      */
     public function routes(Trace $trace): void;
 }

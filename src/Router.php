@@ -112,7 +112,7 @@ class Router implements RequestHandlerInterface
      * Builds routing map with path names and corresponding request
      * methods and URI templates.
      *
-     * @throws Exception\UnreachableEndpointException
+     * @throws Map\Exception\UnreachableEndpointException
      *
      * @return Map\Path[]
      */

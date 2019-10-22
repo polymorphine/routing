@@ -181,7 +181,7 @@ class MethodSwitchTest extends TestCase
         ]);
 
         $trace = new Map\Trace(new Map(), new Doubles\FakeUri());
-        $this->expectException(Exception\UnreachableEndpointException::class);
+        $this->expectException(Map\Exception\UnreachableEndpointException::class);
         $splitter->routes($trace);
     }
 

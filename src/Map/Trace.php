@@ -89,11 +89,11 @@ class Trace
         try {
             $template = $pattern->templateUri($this->uriTemplate);
         } catch (Exception\InvalidUriPrototypeException $e) {
-            throw Exception\UnreachableEndpointException::uriConflict($e, $this->routingPathString());
+            throw Map\Exception\UnreachableEndpointException::uriConflict($e, $this->routingPathString());
         }
 
         if ($this->lockedUriPath && $template->getPath() !== $this->uriTemplate->getPath()) {
-            throw Exception\UnreachableEndpointException::unexpectedPathSegment($this->routingPathString());
+            throw Map\Exception\UnreachableEndpointException::unexpectedPathSegment($this->routingPathString());
         }
 
         return $template;
@@ -102,7 +102,7 @@ class Trace
     private function expandPath(string $label): string
     {
         if ($this->isExcluded($label)) {
-            throw Exception\UnreachableEndpointException::labelConflict($label, $this->routingPathString());
+            throw Map\Exception\UnreachableEndpointException::labelConflict($label, $this->routingPathString());
         }
 
         return isset($this->routingPath) ? $this->routingPath . Route::PATH_SEPARATOR . $label : $label;
@@ -116,7 +116,7 @@ class Trace
     private function accessibleRootLabel(): string
     {
         if ($this->isExcluded($this->rootLabel)) {
-            throw Exception\UnreachableEndpointException::rootLabelConflict($this->rootLabel);
+            throw Map\Exception\UnreachableEndpointException::rootLabelConflict($this->rootLabel);
         }
 
         return $this->rootLabel;

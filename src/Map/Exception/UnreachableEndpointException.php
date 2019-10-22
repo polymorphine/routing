@@ -9,9 +9,10 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Exception;
+namespace Polymorphine\Routing\Map\Exception;
 
 use InvalidArgumentException;
+use Polymorphine\Routing\Exception;
 
 
 class UnreachableEndpointException extends InvalidArgumentException
@@ -34,7 +35,7 @@ class UnreachableEndpointException extends InvalidArgumentException
         return new self(sprintf($message, $rootLabel));
     }
 
-    public static function uriConflict(InvalidUriPrototypeException $e, string $routePath): self
+    public static function uriConflict(Exception\InvalidUriPrototypeException $e, string $routePath): self
     {
         $message = $e->getMessage() . ' (route: `%s`)';
         return new self(sprintf($message, $routePath));
