@@ -32,4 +32,9 @@ class RouteNotFoundException extends InvalidArgumentException
         $message = 'Endpoint reached - cannot resolve further routing for `%s` path';
         return new self(sprintf($message, $path));
     }
+
+    public function withPathInfo(string $path): self
+    {
+        return new self($this->message . ' (called route: ' . $path . ')');
+    }
 }

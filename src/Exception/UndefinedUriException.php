@@ -20,4 +20,9 @@ class UndefinedUriException extends RuntimeException
     {
         return new self('Cannot create distinct URI for switch route');
     }
+
+    public function withPathInfo(string $path): self
+    {
+        return new self($this->message . ' (called route: ' . $path . ')');
+    }
 }

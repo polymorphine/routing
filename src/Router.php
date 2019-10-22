@@ -95,9 +95,17 @@ class Router implements RequestHandlerInterface
      */
     public function uri(string $path, array $params = []): UriInterface
     {
-        return $path !== $this->rootPath
-            ? $this->route->select($path)->uri($this->baseUri, $params)
-            : $this->route->uri($this->baseUri, $params);
+        try {
+            return $path !== $this->rootPath
+                ? $this->route->select($path)->uri($this->baseUri, $params)
+                : $this->route->uri($this->baseUri, $params);
+        } catch (Exception\RouteNotFoundException $e) {
+            throw $e->withPathInfo($path);
+        } catch (Exception\UriBuildException $e) {
+            throw $e->withPathInfo($path);
+        } catch (Exception\UndefinedUriException $e) {
+            throw $e->withPathInfo($path);
+        }
     }
 
     /**
