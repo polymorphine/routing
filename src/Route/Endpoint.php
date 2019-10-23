@@ -13,7 +13,6 @@ namespace Polymorphine\Routing\Route;
 
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Map\Trace;
-use Polymorphine\Routing\Exception;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\UriInterface;
@@ -40,7 +39,7 @@ abstract class Endpoint implements Route
 
     public function select(string $path): Route
     {
-        throw new Exception\SwitchCallException(sprintf('Gateway not found for path `%s`', $path));
+        throw Exception\RouteNotFoundException::unexpectedEndpoint($path);
     }
 
     public function uri(UriInterface $prototype, array $params): UriInterface

@@ -14,7 +14,6 @@ namespace Polymorphine\Routing\Tests\Builder\Node;
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Builder;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Exception;
 use Polymorphine\Routing\Tests;
 use Polymorphine\Routing\Tests\Doubles;
 use InvalidArgumentException;
@@ -83,7 +82,7 @@ class MethodSwitchNodeTest extends TestCase
         $route = $switch->build();
         $this->assertSame('/routePOST', (string) $route->select('POST')->uri(new Doubles\FakeUri(), []));
 
-        $this->expectException(Exception\EndpointCallException::class);
+        $this->expectException(Route\Exception\AmbiguousEndpointException::class);
         $route->uri(new Doubles\FakeUri(), []);
     }
 

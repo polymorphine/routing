@@ -11,7 +11,6 @@
 
 namespace Polymorphine\Routing;
 
-use Polymorphine\Routing\Map\Trace;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -70,7 +69,9 @@ class Router implements RequestHandlerInterface
     }
 
     /**
-     * @param string $path as defined in uri() method
+     * @param string $path by default dot separated list of switch identifiers
+     *
+     * @throws Route\Exception\RouteNotFoundException
      *
      * @return Router with changed root context
      */
@@ -82,25 +83,39 @@ class Router implements RequestHandlerInterface
     }
 
     /**
-     * @param string $path   by default dot separated list of switch identifiers
+     * @param string $path   defined in select() method
      * @param array  $params named or ordered variables for dynamic uri patterns
+     *
+     * @throws Route\Exception\RouteNotFoundException
+     * @throws Route\Exception\UriBuildException
      *
      * @return UriInterface
      */
     public function uri(string $path, array $params = []): UriInterface
     {
-        return $path !== $this->rootPath
-            ? $this->route->select($path)->uri($this->baseUri, $params)
-            : $this->route->uri($this->baseUri, $params);
+        try {
+            return $path !== $this->rootPath
+                ? $this->route->select($path)->uri($this->baseUri, $params)
+                : $this->route->uri($this->baseUri, $params);
+        } catch (Route\Exception\RouteNotFoundException $e) {
+            throw $e->withPathInfo($path);
+        } catch (Route\Exception\UriBuildException $e) {
+            throw $e->withPathInfo($path);
+        }
     }
 
     /**
-     * @return array of routing paths associated with its URI templates
+     * Builds routing map with path names and corresponding request
+     * methods and URI templates.
+     *
+     * @throws Map\Exception\UnreachableEndpointException
+     *
+     * @return Map\Path[]
      */
     public function routes(): array
     {
         $map   = new Map();
-        $trace = new Trace($map, $this->baseUri, $this->rootPath);
+        $trace = new Map\Trace($map, $this->baseUri, $this->rootPath);
 
         $trace->follow($this->route);
 

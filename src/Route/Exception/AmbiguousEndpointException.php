@@ -9,15 +9,13 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Route\Gate\Pattern;
-
-use Psr\Http\Message\UriInterface;
+namespace Polymorphine\Routing\Route\Exception;
 
 
-trait StaticUriTemplateMethod
+class AmbiguousEndpointException extends UriBuildException
 {
-    public function templateUri(UriInterface $uri): UriInterface
+    public static function forSwitchContext(): self
     {
-        return $this->uri($uri, []);
+        return new self('Cannot create distinct URI for switch route');
     }
 }

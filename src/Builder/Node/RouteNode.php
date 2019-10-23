@@ -87,14 +87,15 @@ class RouteNode implements Node
      *
      * To call this method BuilderContext the class was instantiated with
      * needs to be able to provide Router callback that this endpoint
-     * depends on - otherwise BuilderLogicException will be thrown.
+     * depends on - otherwise ConfigException will be thrown.
      *
      * @see \Polymorphine\Routing\Route\Endpoint\RedirectEndpoint
+     * @see \Polymorphine\Routing\Builder\MappedRoutes::redirect()
      *
      * @param string $routingPath
      * @param int    $code
      *
-     * @throws Exception\BuilderLogicException
+     * @throws Exception\ConfigException
      */
     public function redirect(string $routingPath, int $code = 301): void
     {
@@ -105,14 +106,14 @@ class RouteNode implements Node
      * Adds endpoint Route resolved from passed identifier.
      *
      * NOTE: In order to use this method endpoint callback in
-     * MappedRoutes has to be defined. BuilderLogicException
-     * will be thrown otherwise.
+     * MappedRoutes has to be defined or ConfigException will
+     * be thrown.
      *
-     * @see \Polymorphine\Routing\Builder\MappedRoutes
+     * @see \Polymorphine\Routing\Builder\MappedRoutes::endpoint()
      *
      * @param string $id
      *
-     * @throws Exception\BuilderLogicException
+     * @throws Exception\ConfigException
      */
     public function endpoint(string $id): void
     {

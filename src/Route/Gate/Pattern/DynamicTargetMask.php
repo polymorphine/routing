@@ -12,7 +12,6 @@
 namespace Polymorphine\Routing\Route\Gate\Pattern;
 
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 
@@ -120,9 +119,7 @@ class DynamicTargetMask implements Route\Gate\Pattern
     private function uriPlaceholders(array $params): array
     {
         if (count($params) < count($this->params)) {
-            $message = 'Route requires %s params for `%s` path - %s provided';
-            $message = sprintf($message, count($this->params), $this->pattern, count($params));
-            throw new Exception\InvalidUriParamsException($message);
+            throw Route\Exception\InvalidUriParamException::insufficientParams(count($this->params), count($params));
         }
 
         $placeholders = [];
@@ -149,8 +146,7 @@ class DynamicTargetMask implements Route\Gate\Pattern
     {
         $value = (string) $value;
         if (!preg_match('/^' . $type . '$/', $value)) {
-            $message = 'Invalid param `%s` type for `%s` route path';
-            throw new Exception\InvalidUriParamsException(sprintf($message, $name, $this->pattern));
+            throw Route\Exception\InvalidUriParamException::formatMismatch($name, $type);
         }
 
         return $value;
@@ -189,8 +185,7 @@ class DynamicTargetMask implements Route\Gate\Pattern
         }
 
         if ($prototypePath && strpos($path, $prototypePath) !== 0) {
-            $message = 'Uri conflict detected prototype `%s` path does not match route `%s` path';
-            throw new Exception\UnreachableEndpointException(sprintf($message, $prototypePath, $path));
+            throw Route\Exception\InvalidUriPrototypeException::pathConflict($path, $prototype);
         }
 
         return $prototype->withPath($path);
@@ -227,8 +222,7 @@ class DynamicTargetMask implements Route\Gate\Pattern
         if ($value === null) { return $routeParams[$name]; }
 
         if (isset($routeParams[$name]) && $routeParams[$name] !== $value) {
-            $message = 'Uri build conflict - attempt to overwrite `%s` query param value `%s` with `%s`';
-            throw new Exception\UnreachableEndpointException(sprintf($message, $name, $value, $routeParams[$name]));
+            throw Route\Exception\InvalidUriPrototypeException::queryConflict($name, $value, $routeParams[$name]);
         }
 
         return $value;

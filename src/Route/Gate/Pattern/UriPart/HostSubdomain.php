@@ -12,7 +12,6 @@
 namespace Polymorphine\Routing\Route\Gate\Pattern\UriPart;
 
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 
@@ -57,34 +56,35 @@ class HostSubdomain implements Route\Gate\Pattern
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
         $subdomain = $this->subdomainParameter($params);
-
-        if (!$host = $prototype->getHost()) {
-            $message = 'Cannot attach `%s` subdomain to prototype without host';
-            throw new Exception\UnreachableEndpointException(sprintf($message, $params[$this->id]));
-        }
-
-        return $prototype->withHost($subdomain . '.' . $host);
+        return $this->expandedDomain($subdomain, $prototype);
     }
 
     public function templateUri(UriInterface $uri): UriInterface
     {
-        $definition = $this->id . ':' . implode('|', $this->values);
-        return $uri->withHost($this->placeholder($definition) . '.' . $uri->getHost());
+        $subdomain = $this->placeholder($this->id . ':' . implode('|', $this->values));
+        return $this->expandedDomain($subdomain, $uri);
     }
 
     private function subdomainParameter(array $params): string
     {
         if (!isset($params[$this->id])) {
-            $message = 'Missing subdomain `%s` parameter';
-            throw new Exception\InvalidUriParamsException(sprintf($message, $this->id));
+            throw Route\Exception\InvalidUriParamException::missingParam($this->id);
         }
 
         if (!in_array($params[$this->id], $this->values, true)) {
-            $message = 'Invalid parameter value for `%s` subdomain (expected: `%s`)';
-            $values  = implode(', ', $this->values);
-            throw new Exception\InvalidUriParamsException(sprintf($message, $this->id, $values));
+            $format = '(' . implode('|', $this->values) . ')';
+            throw Route\Exception\InvalidUriParamException::formatMismatch($this->id, $format);
         }
 
         return $params[$this->id];
+    }
+
+    private function expandedDomain(string $subdomain, UriInterface $prototype): UriInterface
+    {
+        if (!$host = $prototype->getHost()) {
+            throw Route\Exception\InvalidUriPrototypeException::missingHost($subdomain);
+        }
+
+        return $prototype->withHost($subdomain . '.' . $host);
     }
 }

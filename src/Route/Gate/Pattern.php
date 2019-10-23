@@ -11,7 +11,7 @@
 
 namespace Polymorphine\Routing\Route\Gate;
 
-use Polymorphine\Routing\Exception;
+use Polymorphine\Routing\Route\Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 
@@ -59,19 +59,19 @@ interface Pattern
      * @param array        $params
      * @param UriInterface $prototype
      *
-     * @throws Exception\InvalidUriParamsException|Exception\UnreachableEndpointException
+     * @throws Exception\UriBuildException
      *
      * @return UriInterface
      */
     public function uri(UriInterface $prototype, array $params): UriInterface;
 
     /**
-     * Returns UriInterface replacing dynamic parts of pattern
-     * with its placeholders.
+     * Returns UriInterface with applied pattern replacing dynamic
+     * parts of pattern with its placeholders.
      *
      * @param UriInterface $uri
      *
-     * @throws Exception\UnreachableEndpointException
+     * @throws Exception\InvalidUriPrototypeException
      *
      * @return UriInterface
      */

@@ -13,8 +13,7 @@ namespace Polymorphine\Routing\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Map;
-use Polymorphine\Routing\Exception;
-use Polymorphine\Routing\Route\Gate\Pattern;
+use Polymorphine\Routing\Route;
 
 
 class MapTest extends TestCase
@@ -71,7 +70,7 @@ class MapTest extends TestCase
     {
         $trace = new Map\Trace(new Map(), new Doubles\FakeUri());
         $trace = $trace->withExcludedHops(['foo', 'bar', 'baz']);
-        $this->expectException(Exception\UnreachableEndpointException::class);
+        $this->expectException(Map\Exception\UnreachableEndpointException::class);
         $trace->nextHop('bar');
     }
 
@@ -80,24 +79,34 @@ class MapTest extends TestCase
         $trace = new Map\Trace(new Map(), new Doubles\FakeUri());
         $trace = $trace->withExcludedHops(['foo', 'bar', 'baz']);
         $trace = $trace->withExcludedHops(['fizz', 'buzz']);
-        $this->expectException(Exception\UnreachableEndpointException::class);
+        $this->expectException(Map\Exception\UnreachableEndpointException::class);
         $trace->nextHop('foo');
     }
 
     public function testExcludedRootLabelForRootEndpoint_ThrowsException()
     {
-        $trace = (new Map\Trace(new Map(), new Doubles\FakeUri(), 'foo'));
+        $trace = new Map\Trace(new Map(), new Doubles\FakeUri(), 'foo');
         $trace = $trace->withExcludedHops(['foo', 'bar', 'baz']);
-        $this->expectException(Exception\UnreachableEndpointException::class);
+        $this->expectException(Map\Exception\UnreachableEndpointException::class);
         $trace->endpoint();
     }
 
     public function testPathPatternForTraceWithLockedUriPath_ThrowsException()
     {
-        $trace = (new Map\Trace(new Map(), Doubles\FakeUri::fromString('/foo')));
-        $trace = $trace->withPattern(new Pattern\UriPart\PathSegment('bar'));
+        $trace = new Map\Trace(new Map(), Doubles\FakeUri::fromString('/foo'));
         $trace = $trace->withLockedUriPath();
-        $this->expectException(Exception\UnreachableEndpointException::class);
-        $trace->withPattern(new Pattern\UriPart\PathSegment('baz'));
+        $this->expectException(Map\Exception\UnreachableEndpointException::class);
+        $trace->withPattern(new Doubles\MockedPattern('/baz'));
+    }
+
+    public function testTraceWithPatternPrototypeConflict_ThrowsException()
+    {
+        $trace   = new Map\Trace(new Map(), new Doubles\FakeUri());
+        $pattern = new Doubles\MockedPattern();
+
+        $pattern->exception = Route\Exception\InvalidUriPrototypeException::class;
+
+        $this->expectException(Map\Exception\UnreachableEndpointException::class);
+        $trace->withPattern($pattern);
     }
 }

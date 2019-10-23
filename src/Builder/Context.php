@@ -37,7 +37,7 @@ class Context
     {
         if ($this->route) { return $this->route; }
         if (!$this->builder) {
-            throw new Exception\BuilderLogicException('Route type not selected');
+            throw Exception\BuilderLogicException::incompleteRouteDefinition();
         }
         return $this->route = $this->wrapRoute($this->builder->build());
     }
@@ -82,16 +82,32 @@ class Context
         $this->setRoute(new Route\Gate\LazyRoute($routeCallback));
     }
 
+    /**
+     * @param string $routingPath
+     * @param int    $code
+     *
+     * @throws Exception\ConfigException
+     */
     public function setRedirectRoute(string $routingPath, int $code = 301): void
     {
         $this->setRoute($this->mappedRoutes->redirect($routingPath, $code));
     }
 
+    /**
+     * @param string $id
+     *
+     * @throws Exception\ConfigException
+     */
     public function mapEndpoint(string $id): void
     {
         $this->setRoute($this->mappedRoutes->endpoint($id));
     }
 
+    /**
+     * @param string $id
+     *
+     * @throws Exception\ConfigException
+     */
     public function mapGate(string $id): void
     {
         $this->addGate($this->mappedRoutes->gateway($id));
@@ -121,6 +137,6 @@ class Context
     private function stateCheck(): void
     {
         if (!$this->route && !$this->builder) { return; }
-        throw new Exception\BuilderLogicException('Route already built');
+        throw Exception\BuilderLogicException::contextRouteAlreadyDefined();
     }
 }

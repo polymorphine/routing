@@ -30,6 +30,8 @@ class PathSwitchNode implements Node
     use CompositeBuilderMethods;
 
     private $resourcesForms;
+
+    /** @var Context */
     private $rootNode;
 
     public function __construct(Context $context, array $routes = [])
@@ -87,7 +89,7 @@ class PathSwitchNode implements Node
     public function withResourcesFormsPath(string $name): self
     {
         if ($this->resourcesForms) {
-            throw new Exception\BuilderLogicException('Route path for resource forms already defined');
+            throw Exception\BuilderLogicException::resourceFormsAlreadySet();
         }
 
         $this->resourcesForms = $this->route($name)->pathSwitch();
@@ -101,14 +103,12 @@ class PathSwitchNode implements Node
      * @see \Polymorphine\Routing\Route\Splitter\PathSwitch constructor
      * description for more information on root route.
      *
-     * @param null|string $label
-     *
      * @return RouteNode
      */
     public function root(): RouteNode
     {
         if ($this->rootNode) {
-            throw new Exception\BuilderLogicException('Root path route already defined');
+            throw Exception\BuilderLogicException::rootPathRouteAlreadyDefined();
         }
 
         $this->rootNode = $this->context->create();

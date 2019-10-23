@@ -86,14 +86,15 @@ class EndpointRouteBuilder
      *
      * To call this method BuilderContext the class was instantiated with
      * needs to be able to provide Router callback that this endpoint
-     * depends on - otherwise BuilderLogicException will be thrown.
+     * depends on - otherwise ConfigException will be thrown.
      *
      * @see \Polymorphine\Routing\Route\Endpoint\RedirectEndpoint
+     * @see \Polymorphine\Routing\Builder\MappedRoutes::redirect()
      *
      * @param string $routingPath
      * @param int    $code
      *
-     * @throws Exception\BuilderLogicException
+     * @throws Exception\ConfigException
      *
      * @return Route
      */
@@ -106,14 +107,15 @@ class EndpointRouteBuilder
     /**
      * Creates endpoint Route by resolving passed identifier.
      *
-     * NOTE: Base Context class does not define identifier resolving
-     * procedure, so in order to use this method subclass of Context
-     * must be used overriding Context::mapEndpoint() method.
-     * BuilderLogicException will be thrown otherwise.
+     * NOTE: In order to use this method endpoint callback in
+     * MappedRoutes has to be defined or ConfigException will
+     * be thrown.
+     *
+     * @see \Polymorphine\Routing\Builder\MappedRoutes::endpoint()
      *
      * @param string $id
      *
-     * @throws Exception\BuilderLogicException
+     * @throws Exception\ConfigException
      *
      * @return Route
      */

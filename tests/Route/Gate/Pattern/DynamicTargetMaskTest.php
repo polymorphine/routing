@@ -13,7 +13,7 @@ namespace Polymorphine\Routing\Tests\Route\Gate\Pattern;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route\Gate\Pattern;
-use Polymorphine\Routing\Exception;
+use Polymorphine\Routing\Route\Exception;
 use Polymorphine\Routing\Tests\Doubles;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -121,14 +121,14 @@ class DynamicTargetMaskTest extends TestCase
     public function testUriInsufficientParams_ThrowsException()
     {
         $pattern = $this->pattern('/some-{#number}/{$slug}');
-        $this->expectException(Exception\InvalidUriParamsException::class);
+        $this->expectException(Exception\InvalidUriParamException::class);
         $pattern->uri(new Doubles\FakeUri(), [22]);
     }
 
     public function testUriInvalidTypeParams_ThrowsException()
     {
         $pattern = $this->pattern('/user/{#countryId}');
-        $this->expectException(Exception\InvalidUriParamsException::class);
+        $this->expectException(Exception\InvalidUriParamException::class);
         $pattern->uri(new Doubles\FakeUri(), ['Poland']);
     }
 
@@ -220,7 +220,7 @@ class DynamicTargetMaskTest extends TestCase
     public function testUriOverwritingPrototypeSegment_ThrowsException($pattern, $uri)
     {
         $pattern = $this->pattern($pattern);
-        $this->expectException(Exception\UnreachableEndpointException::class);
+        $this->expectException(Exception\InvalidUriPrototypeException::class);
         $pattern->uri(Doubles\FakeUri::fromString($uri), ['id' => 1500]);
     }
 
@@ -278,7 +278,7 @@ class DynamicTargetMaskTest extends TestCase
     public function testUriInvalidParamWithProvidedPattern_ThrowsException()
     {
         $pattern = new Pattern\DynamicTargetMask('/{lang}/foo', ['lang' => '(en|pl|fr)']);
-        $this->expectException(Exception\InvalidUriParamsException::class);
+        $this->expectException(Exception\InvalidUriParamException::class);
         $pattern->uri(new Doubles\FakeUri(), ['es']);
     }
 
@@ -323,13 +323,26 @@ class DynamicTargetMaskTest extends TestCase
         $this->assertEquals($expected, $pattern->templateUri($uri));
     }
 
-    public function testUriTemplateWithPredefinedRegexp_ReturnsUriWithParameterTypePlaceholder()
+    public function testTemplateUriWithPredefinedRegexp_ReturnsUriWithParameterTypePlaceholder()
     {
         $pattern = $this->pattern('bar/{#id}?name={$name}');
         $uri     = Doubles\FakeUri::fromString('//example.com/foo?query=string');
         $expected = $uri->withPath('/foo/bar/' . $this->placeholder('#id'))
                         ->withQuery('query=string&name=' . $this->placeholder('$name'));
         $this->assertEquals($expected, $pattern->templateUri($uri));
+    }
+
+    /**
+     * @dataProvider prototypeConflict
+     *
+     * @param $pattern
+     * @param $uri
+     */
+    public function testTemplateUriOverwritingPrototypeSegment_ThrowsException($pattern, $uri)
+    {
+        $pattern = $this->pattern($pattern);
+        $this->expectException(Exception\InvalidUriPrototypeException::class);
+        $pattern->templateUri(Doubles\FakeUri::fromString($uri));
     }
 
     private function pattern($pattern = '')

@@ -12,7 +12,6 @@
 namespace Polymorphine\Routing\Route\Gate\Pattern\UriPart;
 
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 
@@ -96,9 +95,7 @@ class Query implements Route\Gate\Pattern
     {
         if (!isset($prototype[$name])) { return false; }
         if (isset($value) && $prototype[$name] !== $value) {
-            $message = 'Query param conflict for `%s` key in `%s` query pattern';
-            $query   = $this->queryString($this->query);
-            throw new Exception\UnreachableEndpointException(sprintf($message, $name, $query));
+            throw Route\Exception\InvalidUriPrototypeException::queryConflict($name, $prototype[$name], $value);
         }
         return true;
     }

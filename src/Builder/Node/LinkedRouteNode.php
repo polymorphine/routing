@@ -41,7 +41,7 @@ class LinkedRouteNode implements Node
     public function build(): Route
     {
         if (!$this->futureRoute instanceof Route) {
-            throw new Exception\BuilderLogicException('Linked Route not built (check for circular reference)');
+            throw Exception\BuilderLogicException::unresolvedLinkedRoute();
         }
 
         return $this->futureRoute;

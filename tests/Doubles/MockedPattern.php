@@ -25,6 +25,8 @@ class MockedPattern implements Pattern
     public $passedRequest;
     public $matchedRequest;
 
+    public $exception;
+
     private $path;
 
     public function __construct(?string $path = null)
@@ -40,6 +42,11 @@ class MockedPattern implements Pattern
 
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
+        if ($this->exception) {
+            $exception = $this->exception;
+            throw new $exception();
+        }
+
         $this->uriPrototype = $prototype;
         $this->uriParams    = $params;
         return $this->uriResult = $prototype->withPath($this->path ?: '/');

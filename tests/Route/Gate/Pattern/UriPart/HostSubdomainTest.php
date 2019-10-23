@@ -13,7 +13,7 @@ namespace Polymorphine\Routing\Tests\Route\Gate\Pattern\UriPart;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route\Gate\Pattern;
-use Polymorphine\Routing\Exception;
+use Polymorphine\Routing\Route\Exception;
 use Polymorphine\Routing\Tests\Doubles;
 
 
@@ -53,6 +53,27 @@ class HostSubdomainTest extends TestCase
         $this->assertSame('//pl.example.com/foo/bar?fizz=buzz', (string) $subdomain->uri($prototype, ['lang' => 'pl']));
     }
 
+    public function testMissingUriParam_ThrowsException()
+    {
+        $subdomain = $this->subdomain('lang', ['en', 'pl', 'de']);
+        $this->expectException(Exception\InvalidUriParamException::class);
+        $subdomain->uri(Doubles\FakeUri::fromString('http://example.com/foo/bar'), ['language' => 'en']);
+    }
+
+    public function testMissingPrototypeHost_ThrowsException()
+    {
+        $subdomain = $this->subdomain('lang', ['en', 'pl', 'de']);
+        $this->expectException(Exception\InvalidUriPrototypeException::class);
+        $subdomain->uri(Doubles\FakeUri::fromString('http:/foo/bar'), ['lang' => 'en']);
+    }
+
+    public function testUndefinedParamValue_ThrowsException()
+    {
+        $subdomain = $this->subdomain('lang', ['en', 'pl', 'de']);
+        $this->expectException(Exception\InvalidUriParamException::class);
+        $subdomain->uri(Doubles\FakeUri::fromString('http://example.com/foo/bar'), ['lang' => 'fr']);
+    }
+
     public function testTemplateUri_ReturnsUriWithSubdomain()
     {
         $subdomain = $this->subdomain('lang', ['en', 'pl', 'de']);
@@ -61,25 +82,11 @@ class HostSubdomainTest extends TestCase
         $this->assertEquals($expected, $subdomain->templateUri($uri));
     }
 
-    public function testMissingUriParam_ThrowsException()
+    public function testTemplateUriForMissingPrototypeHost_ThrowsException()
     {
         $subdomain = $this->subdomain('lang', ['en', 'pl', 'de']);
-        $this->expectException(Exception\InvalidUriParamsException::class);
-        $subdomain->uri(Doubles\FakeUri::fromString('http://example.com/foo/bar'), ['language' => 'en']);
-    }
-
-    public function testMissingPrototypeHost_ThrowsException()
-    {
-        $subdomain = $this->subdomain('lang', ['en', 'pl', 'de']);
-        $this->expectException(Exception\UnreachableEndpointException::class);
-        $subdomain->uri(Doubles\FakeUri::fromString('http:/foo/bar'), ['lang' => 'en']);
-    }
-
-    public function testUndefinedParamValue_ThrowsException()
-    {
-        $subdomain = $this->subdomain('lang', ['en', 'pl', 'de']);
-        $this->expectException(Exception\InvalidUriParamsException::class);
-        $subdomain->uri(Doubles\FakeUri::fromString('http://example.com/foo/bar'), ['lang' => 'fr']);
+        $this->expectException(Exception\InvalidUriPrototypeException::class);
+        $subdomain->templateUri(Doubles\FakeUri::fromString('http:/foo/bar'));
     }
 
     private function subdomain(string $id, array $values)

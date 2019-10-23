@@ -12,8 +12,10 @@
 namespace Polymorphine\Routing\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Map\Path;
 use Polymorphine\Routing\Router;
+use Polymorphine\Routing\Map\Path;
+use Polymorphine\Routing\Route\Exception;
+use InvalidArgumentException;
 
 
 class RouterTest extends TestCase
@@ -85,6 +87,35 @@ class RouterTest extends TestCase
     {
         $router = new Router(new Doubles\MockedRoute(), new Doubles\FakeUri(), self::$prototype, 'home');
         $this->assertSame($router, $router->select('home'));
+    }
+
+    /**
+     * @dataProvider routeExceptions
+     *
+     * @param \Exception $exception
+     */
+    public function testThrownExceptionIncludesRoutePathInfo(\Exception $exception)
+    {
+        $route = new Doubles\MockedRoute();
+        $route->exception = $exception;
+
+        $router = new Router($route, new Doubles\FakeUri(), self::$prototype);
+        try {
+            $router->uri('foo.bar.baz');
+        } catch (InvalidArgumentException $e) {
+            $this->assertSame('test (called route: foo.bar.baz)', $e->getMessage());
+            $this->assertInstanceOf(get_class($exception), $e);
+        }
+    }
+
+    public function routeExceptions(): array
+    {
+        return [
+            [new Exception\RouteNotFoundException('test')],
+            [new Exception\AmbiguousEndpointException('test')],
+            [new Exception\InvalidUriPrototypeException('test')],
+            [new Exception\InvalidUriParamException('test')]
+        ];
     }
 
     public function testRoutesMethod_ReturnsRoutePathsArray()

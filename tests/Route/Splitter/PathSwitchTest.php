@@ -14,7 +14,6 @@ namespace Polymorphine\Routing\Tests\Route\Splitter;
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Map;
-use Polymorphine\Routing\Exception;
 use Polymorphine\Routing\Tests\Doubles;
 use Polymorphine\Routing\Tests\RoutingTestMethods;
 use Psr\Http\Message\ResponseInterface;
@@ -107,7 +106,7 @@ class PathSwitchTest extends TestCase
 
     public function testWhenNoRootRoute_UriMethodCall_ThrowsException()
     {
-        $this->expectException(Exception\EndpointCallException::class);
+        $this->expectException(Route\Exception\AmbiguousEndpointException::class);
         $this->splitter()->uri(new Doubles\FakeUri(), []);
     }
 
@@ -190,7 +189,7 @@ class PathSwitchTest extends TestCase
         }));
 
         $trace = new Map\Trace(new Map(), new Doubles\FakeUri());
-        $this->expectException(Exception\UnreachableEndpointException::class);
+        $this->expectException(Map\Exception\UnreachableEndpointException::class);
         $splitter->routes($trace);
     }
 
@@ -204,7 +203,7 @@ class PathSwitchTest extends TestCase
         }));
 
         $trace = new Map\Trace(new Map(), new Doubles\FakeUri());
-        $this->expectException(Exception\UnreachableEndpointException::class);
+        $this->expectException(Map\Exception\UnreachableEndpointException::class);
         $splitter->routes($trace);
     }
 

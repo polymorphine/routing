@@ -12,7 +12,6 @@
 namespace Polymorphine\Routing\Route\Gate\Pattern;
 
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 
@@ -23,8 +22,6 @@ use Psr\Http\Message\UriInterface;
  */
 abstract class UriPart implements Route\Gate\Pattern
 {
-    use StaticUriTemplateMethod;
-
     protected $pattern;
 
     /**
@@ -55,11 +52,14 @@ abstract class UriPart implements Route\Gate\Pattern
     {
         $uriPart = $this->getUriPart($prototype);
         if ($uriPart && $uriPart !== $this->pattern) {
-            $message = sprintf('Pattern conflict for `%s` in `%s` uri', (string) $this->pattern, (string) $prototype);
-            throw new Exception\UnreachableEndpointException($message);
+            throw Route\Exception\InvalidUriPrototypeException::segmentConflict($this->pattern, $uriPart, $prototype);
         }
-
         return $this->setUriPart($prototype);
+    }
+
+    public function templateUri(UriInterface $uri): UriInterface
+    {
+        return $this->uri($uri, []);
     }
 
     /**

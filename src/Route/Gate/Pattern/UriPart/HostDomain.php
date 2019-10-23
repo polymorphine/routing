@@ -12,7 +12,6 @@
 namespace Polymorphine\Routing\Route\Gate\Pattern\UriPart;
 
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 
@@ -23,8 +22,6 @@ use Psr\Http\Message\UriInterface;
  */
 class HostDomain implements Route\Gate\Pattern
 {
-    use Route\Gate\Pattern\StaticUriTemplateMethod;
-
     private $domain;
 
     /**
@@ -48,10 +45,14 @@ class HostDomain implements Route\Gate\Pattern
     {
         $host = $prototype->getHost();
         if ($host && $host !== $this->domain) {
-            $message = 'Cannot overwrite prototype domain `%s` with `%s`';
-            throw new Exception\UnreachableEndpointException(sprintf($message, $host, $this->domain));
+            throw Route\Exception\InvalidUriPrototypeException::domainConflict($this->domain, $prototype);
         }
 
         return $prototype->withHost($this->domain);
+    }
+
+    public function templateUri(UriInterface $uri): UriInterface
+    {
+        return $this->uri($uri, []);
     }
 }

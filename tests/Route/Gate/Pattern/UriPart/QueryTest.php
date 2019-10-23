@@ -13,7 +13,7 @@ namespace Polymorphine\Routing\Tests\Route\Gate\Pattern\UriPart;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route\Gate\Pattern;
-use Polymorphine\Routing\Exception;
+use Polymorphine\Routing\Route\Exception;
 use Polymorphine\Routing\Tests\Doubles;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -117,7 +117,7 @@ class QueryTest extends TestCase
     {
         $pattern   = $this->pattern($pattern);
         $prototype = $this->uri('http://example.com/path?' . $prototype);
-        $this->expectException(Exception\UnreachableEndpointException::class);
+        $this->expectException(Exception\InvalidUriPrototypeException::class);
         $pattern->uri($prototype, []);
     }
 
@@ -149,6 +149,20 @@ class QueryTest extends TestCase
         $uri      = Doubles\FakeUri::fromString('/fizz/buzz');
         $expected = $uri->withQuery('foo=' . $this->placeholder('*') . '&bar=&baz=qux');
         $this->assertEquals($expected, $pattern->templateUri($uri));
+    }
+
+    /**
+     * @dataProvider prototypeConflicts
+     *
+     * @param string $pattern
+     * @param string $prototype
+     */
+    public function testTemplateUriForNotMatchingPrototypeParam_ThrowsException(string $pattern, string $prototype)
+    {
+        $pattern   = $this->pattern($pattern);
+        $prototype = $this->uri('http://example.com/path?' . $prototype);
+        $this->expectException(Exception\InvalidUriPrototypeException::class);
+        $pattern->templateUri($prototype);
     }
 
     private function pattern(string $query): Pattern

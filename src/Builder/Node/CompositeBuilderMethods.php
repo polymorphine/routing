@@ -60,8 +60,7 @@ trait CompositeBuilderMethods
     private function validName(string $name): string
     {
         if (isset($this->builders[$name]) || isset($this->routes[$name])) {
-            $message = 'Route name `%s` already exists in this scope';
-            throw new Exception\BuilderLogicException(sprintf($message, $name));
+            throw Exception\BuilderLogicException::routeNameAlreadyDefined($name);
         }
 
         return $name;

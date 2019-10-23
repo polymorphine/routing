@@ -22,7 +22,6 @@ use Psr\Http\Message\UriInterface;
 class PathSegment implements Route\Gate\Pattern
 {
     use Route\Gate\Pattern\PathContextMethods;
-    use Route\Gate\Pattern\StaticUriTemplateMethod;
 
     private $name;
 
@@ -41,5 +40,10 @@ class PathSegment implements Route\Gate\Pattern
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
         return $prototype->withPath($prototype->getPath() . '/' . $this->name);
+    }
+
+    public function templateUri(UriInterface $uri): UriInterface
+    {
+        return $this->uri($uri, []);
     }
 }
