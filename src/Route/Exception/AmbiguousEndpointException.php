@@ -11,18 +11,11 @@
 
 namespace Polymorphine\Routing\Route\Exception;
 
-use RuntimeException;
 
-
-class UndefinedUriException extends RuntimeException
+class AmbiguousEndpointException extends UriBuildException
 {
     public static function forSwitchContext(): self
     {
         return new self('Cannot create distinct URI for switch route');
-    }
-
-    public function withPathInfo(string $path): self
-    {
-        return new self($this->message . ' (called route: ' . $path . ')');
     }
 }

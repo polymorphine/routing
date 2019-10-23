@@ -88,7 +88,6 @@ class Router implements RequestHandlerInterface
      *
      * @throws Route\Exception\RouteNotFoundException
      * @throws Route\Exception\UriBuildException
-     * @throws Route\Exception\UndefinedUriException
      *
      * @return UriInterface
      */
@@ -101,8 +100,6 @@ class Router implements RequestHandlerInterface
         } catch (Route\Exception\RouteNotFoundException $e) {
             throw $e->withPathInfo($path);
         } catch (Route\Exception\UriBuildException $e) {
-            throw $e->withPathInfo($path);
-        } catch (Route\Exception\UndefinedUriException $e) {
             throw $e->withPathInfo($path);
         }
     }

@@ -41,7 +41,7 @@ interface Route
      * @param string $path by default dot separated switch identifiers relative
      *                     to current position in routing tree
      *
-     * @throws Exception\RouteNotFoundException
+     * @throws Route\Exception\RouteNotFoundException
      *
      * @return Route
      */
@@ -70,8 +70,7 @@ interface Route
      * @param array        $params
      * @param UriInterface $prototype
      *
-     * @throws Exception\UriBuildException
-     * @throws Exception\UndefinedUriException
+     * @throws Route\Exception\UriBuildException
      *
      * @return UriInterface
      */

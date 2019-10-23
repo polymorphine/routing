@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Router;
 use Polymorphine\Routing\Map\Path;
 use Polymorphine\Routing\Route\Exception;
-use Polymorphine\Routing\Tests\Doubles\FakeUri;
+use InvalidArgumentException;
 
 
 class RouterTest extends TestCase
@@ -99,10 +99,10 @@ class RouterTest extends TestCase
         $route = new Doubles\MockedRoute();
         $route->exception = $exception;
 
-        $router = new Router($route, new FakeUri(), self::$prototype);
+        $router = new Router($route, new Doubles\FakeUri(), self::$prototype);
         try {
             $router->uri('foo.bar.baz');
-        } catch (\Exception $e) {
+        } catch (InvalidArgumentException $e) {
             $this->assertSame('test (called route: foo.bar.baz)', $e->getMessage());
             $this->assertInstanceOf(get_class($exception), $e);
         }
@@ -112,7 +112,7 @@ class RouterTest extends TestCase
     {
         return [
             [new Exception\RouteNotFoundException('test')],
-            [new Exception\UndefinedUriException('test')],
+            [new Exception\AmbiguousEndpointException('test')],
             [new Exception\InvalidUriPrototypeException('test')],
             [new Exception\InvalidUriParamException('test')]
         ];

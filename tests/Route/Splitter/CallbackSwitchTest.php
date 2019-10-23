@@ -86,7 +86,7 @@ class CallbackSwitchTest extends TestCase
     public function testUriMethodWithoutImplicitRoute_ThrowsException()
     {
         $splitter = $this->splitter(['route' => new Doubles\MockedRoute()]);
-        $this->expectException(Route\Exception\UndefinedUriException::class);
+        $this->expectException(Route\Exception\AmbiguousEndpointException::class);
         $splitter->uri(new Doubles\FakeUri(), []);
     }
 

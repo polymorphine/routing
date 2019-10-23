@@ -70,7 +70,7 @@ class MethodSwitch implements Route
         if ($this->implicit) {
             return $this->routes[$this->implicit]->uri($prototype, $params);
         }
-        throw Route\Exception\UndefinedUriException::forSwitchContext();
+        throw Route\Exception\AmbiguousEndpointException::forSwitchContext();
     }
 
     public function routes(Trace $trace): void

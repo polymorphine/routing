@@ -69,7 +69,7 @@ class PathSwitch implements Route
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
         if (!$this->root) {
-            throw Route\Exception\UndefinedUriException::forSwitchContext();
+            throw Route\Exception\AmbiguousEndpointException::forSwitchContext();
         }
 
         return $this->root->uri($prototype, $params);

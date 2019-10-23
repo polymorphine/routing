@@ -82,7 +82,7 @@ class MethodSwitchNodeTest extends TestCase
         $route = $switch->build();
         $this->assertSame('/routePOST', (string) $route->select('POST')->uri(new Doubles\FakeUri(), []));
 
-        $this->expectException(Route\Exception\UndefinedUriException::class);
+        $this->expectException(Route\Exception\AmbiguousEndpointException::class);
         $route->uri(new Doubles\FakeUri(), []);
     }
 

@@ -59,7 +59,7 @@ class ScanSwitchTest extends TestCase
 
     public function testUriMethodWithoutDefinedDefaultRoute_ThrowsException()
     {
-        $this->expectException(Route\Exception\UndefinedUriException::class);
+        $this->expectException(Route\Exception\AmbiguousEndpointException::class);
         $this->splitter()->uri(new Doubles\FakeUri(), []);
     }
 
