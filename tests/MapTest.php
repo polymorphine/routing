@@ -14,7 +14,6 @@ namespace Polymorphine\Routing\Tests;
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Map;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Route\Gate\Pattern;
 
 
 class MapTest extends TestCase
@@ -86,7 +85,7 @@ class MapTest extends TestCase
 
     public function testExcludedRootLabelForRootEndpoint_ThrowsException()
     {
-        $trace = (new Map\Trace(new Map(), new Doubles\FakeUri(), 'foo'));
+        $trace = new Map\Trace(new Map(), new Doubles\FakeUri(), 'foo');
         $trace = $trace->withExcludedHops(['foo', 'bar', 'baz']);
         $this->expectException(Map\Exception\UnreachableEndpointException::class);
         $trace->endpoint();
@@ -94,11 +93,10 @@ class MapTest extends TestCase
 
     public function testPathPatternForTraceWithLockedUriPath_ThrowsException()
     {
-        $trace = (new Map\Trace(new Map(), Doubles\FakeUri::fromString('/foo')));
-        $trace = $trace->withPattern(new Pattern\UriPart\PathSegment('bar'));
+        $trace = new Map\Trace(new Map(), Doubles\FakeUri::fromString('/foo'));
         $trace = $trace->withLockedUriPath();
         $this->expectException(Map\Exception\UnreachableEndpointException::class);
-        $trace->withPattern(new Pattern\UriPart\PathSegment('baz'));
+        $trace->withPattern(new Doubles\MockedPattern('/baz'));
     }
 
     public function testTraceWithPatternPrototypeConflict_ThrowsException()
