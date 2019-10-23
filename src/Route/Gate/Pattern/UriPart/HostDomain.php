@@ -12,7 +12,6 @@
 namespace Polymorphine\Routing\Route\Gate\Pattern\UriPart;
 
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 
@@ -46,7 +45,7 @@ class HostDomain implements Route\Gate\Pattern
     {
         $host = $prototype->getHost();
         if ($host && $host !== $this->domain) {
-            throw Exception\InvalidUriPrototypeException::domainConflict($this->domain, $prototype);
+            throw Route\Exception\InvalidUriPrototypeException::domainConflict($this->domain, $prototype);
         }
 
         return $prototype->withHost($this->domain);

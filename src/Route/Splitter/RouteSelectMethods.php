@@ -12,7 +12,6 @@
 namespace Polymorphine\Routing\Route\Splitter;
 
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Exception;
 
 
 trait RouteSelectMethods
@@ -25,11 +24,11 @@ trait RouteSelectMethods
     private function getRoute(?string $id, ?string $path): Route
     {
         if (!$id) {
-            throw Exception\RouteNotFoundException::invalidGatewayPath();
+            throw Route\Exception\RouteNotFoundException::invalidGatewayPath();
         }
 
         if (!isset($this->routes[$id])) {
-            throw Exception\RouteNotFoundException::undefinedGateway($id);
+            throw Route\Exception\RouteNotFoundException::undefinedGateway($id);
         }
 
         return $path ? $this->nextSwitchRoute($this->routes[$id], $path) : $this->routes[$id];

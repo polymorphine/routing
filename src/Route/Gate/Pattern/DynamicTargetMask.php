@@ -12,7 +12,6 @@
 namespace Polymorphine\Routing\Route\Gate\Pattern;
 
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 
@@ -120,7 +119,7 @@ class DynamicTargetMask implements Route\Gate\Pattern
     private function uriPlaceholders(array $params): array
     {
         if (count($params) < count($this->params)) {
-            throw Exception\InvalidUriParamException::insufficientParams(count($this->params), count($params));
+            throw Route\Exception\InvalidUriParamException::insufficientParams(count($this->params), count($params));
         }
 
         $placeholders = [];
@@ -147,7 +146,7 @@ class DynamicTargetMask implements Route\Gate\Pattern
     {
         $value = (string) $value;
         if (!preg_match('/^' . $type . '$/', $value)) {
-            throw Exception\InvalidUriParamException::formatMismatch($name, $type);
+            throw Route\Exception\InvalidUriParamException::formatMismatch($name, $type);
         }
 
         return $value;
@@ -186,7 +185,7 @@ class DynamicTargetMask implements Route\Gate\Pattern
         }
 
         if ($prototypePath && strpos($path, $prototypePath) !== 0) {
-            throw Exception\InvalidUriPrototypeException::pathConflict($path, $prototype);
+            throw Route\Exception\InvalidUriPrototypeException::pathConflict($path, $prototype);
         }
 
         return $prototype->withPath($path);
@@ -223,7 +222,7 @@ class DynamicTargetMask implements Route\Gate\Pattern
         if ($value === null) { return $routeParams[$name]; }
 
         if (isset($routeParams[$name]) && $routeParams[$name] !== $value) {
-            throw Exception\InvalidUriPrototypeException::queryConflict($name, $value, $routeParams[$name]);
+            throw Route\Exception\InvalidUriPrototypeException::queryConflict($name, $value, $routeParams[$name]);
         }
 
         return $value;

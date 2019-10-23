@@ -12,7 +12,7 @@
 namespace Polymorphine\Routing\Map\Exception;
 
 use InvalidArgumentException;
-use Polymorphine\Routing\Exception;
+use Polymorphine\Routing\Route\Exception;
 
 
 class UnreachableEndpointException extends InvalidArgumentException

@@ -13,7 +13,7 @@ namespace Polymorphine\Routing\Tests\Route\Gate\Pattern;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route\Gate\Pattern;
-use Polymorphine\Routing\Exception;
+use Polymorphine\Routing\Route\Exception;
 use Polymorphine\Routing\Tests\Doubles;
 use Psr\Http\Message\ServerRequestInterface;
 

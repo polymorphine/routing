@@ -13,7 +13,6 @@ namespace Polymorphine\Routing\Route\Splitter;
 
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Map\Trace;
-use Polymorphine\Routing\Exception;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\UriInterface;
@@ -71,7 +70,7 @@ class MethodSwitch implements Route
         if ($this->implicit) {
             return $this->routes[$this->implicit]->uri($prototype, $params);
         }
-        throw Exception\UndefinedUriException::forSwitchContext();
+        throw Route\Exception\UndefinedUriException::forSwitchContext();
     }
 
     public function routes(Trace $trace): void

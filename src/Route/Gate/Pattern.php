@@ -11,7 +11,7 @@
 
 namespace Polymorphine\Routing\Route\Gate;
 
-use Polymorphine\Routing\Exception;
+use Polymorphine\Routing\Route\Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 

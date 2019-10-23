@@ -13,7 +13,6 @@ namespace Polymorphine\Routing\Map;
 
 use Polymorphine\Routing\Map;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Exception;
 use Psr\Http\Message\UriInterface;
 
 
@@ -88,7 +87,7 @@ class Trace
     {
         try {
             $template = $pattern->templateUri($this->uriTemplate);
-        } catch (Exception\InvalidUriPrototypeException $e) {
+        } catch (Route\Exception\InvalidUriPrototypeException $e) {
             throw Map\Exception\UnreachableEndpointException::uriConflict($e, $this->routingPathString());
         }
 

@@ -14,7 +14,6 @@ namespace Polymorphine\Routing\Tests\Route\Splitter;
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Map;
-use Polymorphine\Routing\Exception;
 use Polymorphine\Routing\Tests\Doubles;
 use Polymorphine\Routing\Tests\RoutingTestMethods;
 
@@ -60,7 +59,7 @@ class ScanSwitchTest extends TestCase
 
     public function testUriMethodWithoutDefinedDefaultRoute_ThrowsException()
     {
-        $this->expectException(Exception\UndefinedUriException::class);
+        $this->expectException(Route\Exception\UndefinedUriException::class);
         $this->splitter()->uri(new Doubles\FakeUri(), []);
     }
 
@@ -97,13 +96,13 @@ class ScanSwitchTest extends TestCase
 
     public function testSelectWithEmptyPath_ThrowsException()
     {
-        $this->expectException(Exception\RouteNotFoundException::class);
+        $this->expectException(Route\Exception\RouteNotFoundException::class);
         $this->splitter()->select('');
     }
 
     public function testSelectWithUnknownPathName_ThrowsException()
     {
-        $this->expectException(Exception\RouteNotFoundException::class);
+        $this->expectException(Route\Exception\RouteNotFoundException::class);
         $this->splitter()->select('NotDefined');
     }
 

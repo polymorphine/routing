@@ -14,7 +14,6 @@ namespace Polymorphine\Routing\Tests\Route\Gate\Pattern\UriPart;
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\Pattern\UriPart\PathRegexpSegment;
-use Polymorphine\Routing\Exception;
 use Polymorphine\Routing\Tests\Doubles;
 
 
@@ -47,13 +46,13 @@ class PathRegexpSegmentTest extends TestCase
 
     public function testUriWithoutRequiredParam_ThrowsException()
     {
-        $this->expectException(Exception\InvalidUriParamException::class);
+        $this->expectException(Route\Exception\InvalidUriParamException::class);
         $this->pattern()->uri($this->uri('/foo/bar'), ['foo' => '00765']);
     }
 
     public function testUriWithNotMatchingParam_ThrowsException()
     {
-        $this->expectException(Exception\InvalidUriParamException::class);
+        $this->expectException(Route\Exception\InvalidUriParamException::class);
         $this->pattern()->uri($this->uri('/foo/bar'), ['id' => 'id-00765']);
     }
 

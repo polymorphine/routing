@@ -12,7 +12,6 @@
 namespace Polymorphine\Routing\Route\Gate\Pattern;
 
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 
@@ -53,7 +52,7 @@ abstract class UriPart implements Route\Gate\Pattern
     {
         $uriPart = $this->getUriPart($prototype);
         if ($uriPart && $uriPart !== $this->pattern) {
-            throw Exception\InvalidUriPrototypeException::segmentConflict($this->pattern, $uriPart, $prototype);
+            throw Route\Exception\InvalidUriPrototypeException::segmentConflict($this->pattern, $uriPart, $prototype);
         }
         return $this->setUriPart($prototype);
     }

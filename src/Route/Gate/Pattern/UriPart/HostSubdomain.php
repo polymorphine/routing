@@ -12,7 +12,6 @@
 namespace Polymorphine\Routing\Route\Gate\Pattern\UriPart;
 
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 
@@ -69,12 +68,12 @@ class HostSubdomain implements Route\Gate\Pattern
     private function subdomainParameter(array $params): string
     {
         if (!isset($params[$this->id])) {
-            throw Exception\InvalidUriParamException::missingParam($this->id);
+            throw Route\Exception\InvalidUriParamException::missingParam($this->id);
         }
 
         if (!in_array($params[$this->id], $this->values, true)) {
             $format = '(' . implode('|', $this->values) . ')';
-            throw Exception\InvalidUriParamException::formatMismatch($this->id, $format);
+            throw Route\Exception\InvalidUriParamException::formatMismatch($this->id, $format);
         }
 
         return $params[$this->id];
@@ -83,7 +82,7 @@ class HostSubdomain implements Route\Gate\Pattern
     private function expandedDomain(string $subdomain, UriInterface $prototype): UriInterface
     {
         if (!$host = $prototype->getHost()) {
-            throw Exception\InvalidUriPrototypeException::missingHost($subdomain);
+            throw Route\Exception\InvalidUriPrototypeException::missingHost($subdomain);
         }
 
         return $prototype->withHost($subdomain . '.' . $host);

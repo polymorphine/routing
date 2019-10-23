@@ -13,7 +13,7 @@ namespace Polymorphine\Routing\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Map;
-use Polymorphine\Routing\Exception;
+use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Route\Gate\Pattern;
 
 
@@ -106,7 +106,7 @@ class MapTest extends TestCase
         $trace   = new Map\Trace(new Map(), new Doubles\FakeUri());
         $pattern = new Doubles\MockedPattern();
 
-        $pattern->exception = Exception\InvalidUriPrototypeException::class;
+        $pattern->exception = Route\Exception\InvalidUriPrototypeException::class;
 
         $this->expectException(Map\Exception\UnreachableEndpointException::class);
         $trace->withPattern($pattern);

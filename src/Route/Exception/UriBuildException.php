@@ -9,18 +9,13 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Exception;
+namespace Polymorphine\Routing\Route\Exception;
 
-use RuntimeException;
+use InvalidArgumentException;
 
 
-class UndefinedUriException extends RuntimeException
+class UriBuildException extends InvalidArgumentException
 {
-    public static function forSwitchContext(): self
-    {
-        return new self('Cannot create distinct URI for switch route');
-    }
-
     public function withPathInfo(string $path): self
     {
         return new self($this->message . ' (called route: ' . $path . ')');

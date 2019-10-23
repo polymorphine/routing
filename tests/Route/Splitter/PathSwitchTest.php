@@ -14,7 +14,6 @@ namespace Polymorphine\Routing\Tests\Route\Splitter;
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Map;
-use Polymorphine\Routing\Exception;
 use Polymorphine\Routing\Tests\Doubles;
 use Polymorphine\Routing\Tests\RoutingTestMethods;
 use Psr\Http\Message\ResponseInterface;
@@ -107,7 +106,7 @@ class PathSwitchTest extends TestCase
 
     public function testWhenNoRootRoute_UriMethodCall_ThrowsException()
     {
-        $this->expectException(Exception\UndefinedUriException::class);
+        $this->expectException(Route\Exception\UndefinedUriException::class);
         $this->splitter()->uri(new Doubles\FakeUri(), []);
     }
 

@@ -11,13 +11,10 @@
 
 namespace Polymorphine\Routing\Tests;
 
-use Exception;
 use PHPUnit\Framework\TestCase;
-use Polymorphine\Routing\Exception\RouteNotFoundException;
-use Polymorphine\Routing\Exception\UndefinedUriException;
-use Polymorphine\Routing\Exception\UriBuildException;
-use Polymorphine\Routing\Map\Path;
 use Polymorphine\Routing\Router;
+use Polymorphine\Routing\Map\Path;
+use Polymorphine\Routing\Route\Exception;
 use Polymorphine\Routing\Tests\Doubles\FakeUri;
 
 
@@ -95,9 +92,9 @@ class RouterTest extends TestCase
     /**
      * @dataProvider routeExceptions
      *
-     * @param Exception $exception
+     * @param \Exception $exception
      */
-    public function testThrownExceptionIncludesRoutePathInfo(Exception $exception)
+    public function testThrownExceptionIncludesRoutePathInfo(\Exception $exception)
     {
         $route = new Doubles\MockedRoute();
         $route->exception = $exception;
@@ -105,7 +102,7 @@ class RouterTest extends TestCase
         $router = new Router($route, new FakeUri(), self::$prototype);
         try {
             $router->uri('foo.bar.baz');
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->assertSame('test (called route: foo.bar.baz)', $e->getMessage());
         }
     }
@@ -113,9 +110,9 @@ class RouterTest extends TestCase
     public function routeExceptions(): array
     {
         return [
-            [new RouteNotFoundException('test')],
-            [new UriBuildException('test')],
-            [new UndefinedUriException('test')]
+            [new Exception\RouteNotFoundException('test')],
+            [new Exception\UriBuildException('test')],
+            [new Exception\UndefinedUriException('test')]
         ];
     }
 

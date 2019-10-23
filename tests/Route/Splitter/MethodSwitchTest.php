@@ -14,7 +14,6 @@ namespace Polymorphine\Routing\Tests\Route\Splitter;
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Map;
-use Polymorphine\Routing\Exception;
 use Polymorphine\Routing\Tests\Doubles;
 use Polymorphine\Routing\Tests\RoutingTestMethods;
 
@@ -105,7 +104,7 @@ class MethodSwitchTest extends TestCase
             'GET'  => Doubles\MockedRoute::withUri('get'),
             'POST' => Doubles\MockedRoute::withUri('post')
         ], null);
-        $this->expectException(Exception\UndefinedUriException::class);
+        $this->expectException(Route\Exception\UndefinedUriException::class);
         $splitter->uri(new Doubles\FakeUri(), []);
     }
 

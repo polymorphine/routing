@@ -13,7 +13,6 @@ namespace Polymorphine\Routing\Route\Splitter;
 
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Map\Trace;
-use Polymorphine\Routing\Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
@@ -70,7 +69,7 @@ class ScanSwitch implements Route
             return $this->defaultRoute->uri($prototype, $params);
         }
 
-        throw Exception\UndefinedUriException::forSwitchContext();
+        throw Route\Exception\UndefinedUriException::forSwitchContext();
     }
 
     public function routes(Trace $trace): void

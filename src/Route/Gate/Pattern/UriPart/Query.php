@@ -12,7 +12,6 @@
 namespace Polymorphine\Routing\Route\Gate\Pattern\UriPart;
 
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 
@@ -96,7 +95,7 @@ class Query implements Route\Gate\Pattern
     {
         if (!isset($prototype[$name])) { return false; }
         if (isset($value) && $prototype[$name] !== $value) {
-            throw Exception\InvalidUriPrototypeException::queryConflict($name, $prototype[$name], $value);
+            throw Route\Exception\InvalidUriPrototypeException::queryConflict($name, $prototype[$name], $value);
         }
         return true;
     }

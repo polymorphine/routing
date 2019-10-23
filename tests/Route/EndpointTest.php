@@ -14,7 +14,6 @@ namespace Polymorphine\Routing\Tests\Route;
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Map;
-use Polymorphine\Routing\Exception;
 use Polymorphine\Routing\Tests\Doubles;
 
 
@@ -28,7 +27,7 @@ class EndpointTest extends TestCase
     public function testSelectCall_ThrowsException()
     {
         $route = new Doubles\DummyEndpoint();
-        $this->expectException(Exception\RouteNotFoundException::class);
+        $this->expectException(Route\Exception\RouteNotFoundException::class);
         $route->select('foo');
     }
 

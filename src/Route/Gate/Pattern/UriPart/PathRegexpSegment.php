@@ -12,7 +12,6 @@
 namespace Polymorphine\Routing\Route\Gate\Pattern\UriPart;
 
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 
@@ -79,11 +78,11 @@ class PathRegexpSegment implements Route\Gate\Pattern
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
         if (!$id = $params[$this->name] ?? null) {
-            throw Exception\InvalidUriParamException::missingParam($this->name);
+            throw Route\Exception\InvalidUriParamException::missingParam($this->name);
         }
 
         if (!$this->validFormat($id)) {
-            throw Exception\InvalidUriParamException::formatMismatch($this->name, $this->regexp);
+            throw Route\Exception\InvalidUriParamException::formatMismatch($this->name, $this->regexp);
         }
 
         return $prototype->withPath($prototype->getPath() . '/' . $id);

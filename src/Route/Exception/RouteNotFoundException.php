@@ -9,7 +9,7 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Polymorphine\Routing\Exception;
+namespace Polymorphine\Routing\Route\Exception;
 
 use InvalidArgumentException;
 

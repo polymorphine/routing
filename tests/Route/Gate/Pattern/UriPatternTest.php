@@ -13,7 +13,6 @@ namespace Polymorphine\Routing\Tests\Route\Gate\Pattern;
 
 use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Exception;
 use Polymorphine\Routing\Tests\Doubles;
 use Psr\Http\Message\ServerRequestInterface;
 use InvalidArgumentException;
@@ -181,7 +180,7 @@ class UriPatternTest extends TestCase
     public function testUriOverwritingPrototypeSegment_ThrowsException($patternString, $uriString)
     {
         $pattern = $this->pattern($patternString);
-        $this->expectException(Exception\InvalidUriPrototypeException::class);
+        $this->expectException(Route\Exception\InvalidUriPrototypeException::class);
         $pattern->uri(Doubles\FakeUri::fromString($uriString), []);
     }
 
@@ -200,7 +199,7 @@ class UriPatternTest extends TestCase
     {
         $pattern   = new Route\Gate\Pattern\UriPart\Port('');
         $prototype = Doubles\FakeUri::fromString('//example.com:123');
-        $this->expectException(Exception\InvalidUriPrototypeException::class);
+        $this->expectException(Route\Exception\InvalidUriPrototypeException::class);
         $pattern->uri($prototype, []);
     }
 
@@ -221,7 +220,7 @@ class UriPatternTest extends TestCase
     public function testTemplateUriOverwritingPrototypeSegment_ThrowsException($patternString, $uriString)
     {
         $pattern = $this->pattern($patternString);
-        $this->expectException(Exception\InvalidUriPrototypeException::class);
+        $this->expectException(Route\Exception\InvalidUriPrototypeException::class);
         $pattern->templateUri(Doubles\FakeUri::fromString($uriString));
     }
 
@@ -229,7 +228,7 @@ class UriPatternTest extends TestCase
     {
         $pattern   = new Route\Gate\Pattern\UriPart\Port('');
         $prototype = Doubles\FakeUri::fromString('//example.com:123');
-        $this->expectException(Exception\InvalidUriPrototypeException::class);
+        $this->expectException(Route\Exception\InvalidUriPrototypeException::class);
         $pattern->templateUri($prototype);
     }
 
