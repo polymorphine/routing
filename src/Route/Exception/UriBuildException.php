@@ -18,6 +18,6 @@ class UriBuildException extends InvalidArgumentException
 {
     public function withPathInfo(string $path): self
     {
-        return new self($this->message . ' (called route: ' . $path . ')');
+        return new static($this->message . ' (called route: ' . $path . ')');
     }
 }

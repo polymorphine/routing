@@ -104,6 +104,7 @@ class RouterTest extends TestCase
             $router->uri('foo.bar.baz');
         } catch (\Exception $e) {
             $this->assertSame('test (called route: foo.bar.baz)', $e->getMessage());
+            $this->assertInstanceOf(get_class($exception), $e);
         }
     }
 
@@ -111,8 +112,9 @@ class RouterTest extends TestCase
     {
         return [
             [new Exception\RouteNotFoundException('test')],
-            [new Exception\UriBuildException('test')],
-            [new Exception\UndefinedUriException('test')]
+            [new Exception\UndefinedUriException('test')],
+            [new Exception\InvalidUriPrototypeException('test')],
+            [new Exception\InvalidUriParamException('test')]
         ];
     }
 
