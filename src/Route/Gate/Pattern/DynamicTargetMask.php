@@ -82,7 +82,14 @@ class DynamicTargetMask implements Route\Gate\Pattern
     public function uri(UriInterface $prototype, array $params): UriInterface
     {
         $this->parsed or $this->parsePattern();
-        return $this->replacePlaceholders($prototype, $this->uriPlaceholders($params));
+
+        $placeholders = [];
+        foreach ($this->params as $name => $type) {
+            $token = self::DELIM_LEFT . $name . self::DELIM_RIGHT;
+            $placeholders[$token] = $this->validParam($name, $type, $params);
+        }
+
+        return $this->replacePlaceholders($prototype, $placeholders);
     }
 
     public function templateUri(UriInterface $uri): UriInterface
@@ -116,23 +123,6 @@ class DynamicTargetMask implements Route\Gate\Pattern
         return '#' . $regexp . '$#';
     }
 
-    private function uriPlaceholders(array $params): array
-    {
-        if (count($params) < count($this->params)) {
-            throw Route\Exception\InvalidUriParamException::insufficientParams(count($this->params), count($params));
-        }
-
-        $placeholders = [];
-        foreach ($this->params as $name => $type) {
-            $param = $params[$name] ?? array_shift($params);
-            $token = self::DELIM_LEFT . $name . self::DELIM_RIGHT;
-
-            $placeholders[$token] = $this->validParam($name, $type, $param);
-        }
-
-        return $placeholders;
-    }
-
     private function replacePlaceholders(UriInterface $uri, array $placeholders): UriInterface
     {
         $target = str_replace(array_keys($placeholders), $placeholders, $this->pattern);
@@ -142,9 +132,13 @@ class DynamicTargetMask implements Route\Gate\Pattern
         return $this->queryParams ? $this->setQuery($query, $uri) : $uri;
     }
 
-    private function validParam(string $name, string $type, $value): string
+    private function validParam(string $name, string $type, array $params): string
     {
-        $value = (string) $value;
+        if (!isset($params[$name])) {
+            throw Route\Exception\InvalidUriParamException::missingParam($name);
+        }
+
+        $value = (string) $params[$name];
         if (!preg_match('/^' . $type . '$/', $value)) {
             throw Route\Exception\InvalidUriParamException::formatMismatch($name, $type);
         }
