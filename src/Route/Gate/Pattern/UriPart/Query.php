@@ -12,8 +12,8 @@
 namespace Polymorphine\Routing\Route\Gate\Pattern\UriPart;
 
 use Polymorphine\Routing\Route;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\UriInterface;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\UriInterface as Uri;
 
 
 /**
@@ -25,7 +25,7 @@ class Query implements Route\Gate\Pattern
 {
     use Route\Gate\Pattern\UriTemplatePlaceholder;
 
-    private $query;
+    private $params;
 
     /**
      * Given query string params will be matched against defined params
@@ -36,11 +36,11 @@ class Query implements Route\Gate\Pattern
      * Building URI on prototype with defined key-value pair not matching
      * current constraint will throw UnreachableEndpointException
      *
-     * @param array $queryValues
+     * @param array $params associative array of query params and their values
      */
-    public function __construct(array $queryValues)
+    public function __construct(array $params)
     {
-        $this->query = $queryValues;
+        $this->params = $params;
     }
 
     /**
@@ -49,7 +49,6 @@ class Query implements Route\Gate\Pattern
      * Given query string will be exploded into associative array with
      * undefined values (foo&bar) as null and empty (foo=&bar=) values
      * as empty string.
-     *
      *
      * @param string $query
      *
@@ -60,58 +59,59 @@ class Query implements Route\Gate\Pattern
         return new self(self::queryValues($query));
     }
 
-    public function matchedRequest(ServerRequestInterface $request): ?ServerRequestInterface
+    public function matchedRequest(Request $request): ?Request
     {
-        return $this->queryMatch($request->getUri()->getQuery()) ? $request : null;
+        if (!$query = $request->getUri()->getQuery()) { return null; }
+
+        $segments = self::queryValues($query);
+        foreach ($this->params as $name => $expected) {
+            if (!array_key_exists($name, $segments)) { return null; }
+            if (is_null($expected)) { continue; }
+            if ($expected !== $segments[$name]) { return null; }
+        }
+
+        return $request;
     }
 
-    public function uri(UriInterface $prototype, array $params): UriInterface
+    public function uri(Uri $prototype, array $params): Uri
     {
-        return $prototype->withQuery($this->combinedQuery($prototype->getQuery(), $params));
+        $query = $prototype->getQuery();
+        if (!$query && !$params) {
+            return $prototype->withQuery($this->queryString($this->params));
+        }
+
+        $values = self::queryValues($query);
+        foreach ($this->params as $name => $expected) {
+            if ($this->isDefined($values, $name, $expected)) { continue; }
+            $values[$name] = $expected ?? $params[$name] ?? null;
+        }
+
+        return $prototype->withQuery($this->queryString($values));
     }
 
-    public function templateUri(UriInterface $uri): UriInterface
+    public function templateUri(Uri $uri): Uri
     {
-        $wildcardSegments = array_keys(array_filter($this->query, 'is_null'));
+        $wildcardSegments = array_keys(array_filter($this->params, 'is_null'));
         return $this->uri($uri, array_fill_keys($wildcardSegments, $this->placeholder('*')));
     }
 
-    private function combinedQuery(string $prototypeQuery, array $params): string
-    {
-        if (empty($prototypeQuery) && !$params) {
-            return $this->queryString($this->query);
-        }
-
-        $prototype = $this->queryValues($prototypeQuery);
-        foreach ($this->query as $name => $value) {
-            if ($this->isDefined($prototype, $name, $value)) { continue; }
-            $prototype[$name] = $value ?? $params[$name] ?? null;
-        }
-
-        return $this->queryString($prototype);
-    }
-
-    private function isDefined(array $prototype, string $name, ?string $value): bool
+    private function isDefined(array $prototype, string $name, ?string $expected): bool
     {
         if (!isset($prototype[$name])) { return false; }
-        if (isset($value) && $prototype[$name] !== $value) {
-            throw Route\Exception\InvalidUriPrototypeException::queryConflict($name, $prototype[$name], $value);
+        if (!is_null($expected) && $prototype[$name] !== $expected) {
+            throw Route\Exception\InvalidUriPrototypeException::queryConflict($name, $prototype[$name], $expected);
         }
         return true;
     }
 
-    private function queryMatch($requestQuery): bool
+    private function queryString(array $params): string
     {
-        if (empty($requestQuery)) { return false; }
-
-        $requestSegments = self::queryValues($requestQuery);
-        foreach ($this->query as $key => $value) {
-            if (!array_key_exists($key, $requestSegments)) { return false; }
-            if (!isset($value)) { continue; }
-            if ($value !== $requestSegments[$key]) { return false; }
+        $query = [];
+        foreach ($params as $name => $value) {
+            $query[] = isset($value) ? $name . '=' . $value : $name;
         }
 
-        return true;
+        return implode('&', $query);
     }
 
     private static function queryValues(string $query): array
@@ -125,15 +125,5 @@ class Query implements Route\Gate\Pattern
         }
 
         return $segmentValues;
-    }
-
-    private function queryString(array $values): string
-    {
-        $query = [];
-        foreach ($values as $name => $value) {
-            $query[] = isset($value) ? $name . '=' . $value : $name;
-        }
-
-        return implode('&', $query);
     }
 }
