@@ -92,6 +92,8 @@ class DynamicTargetMask implements Route\Gate\Pattern
 
         [$path, $query] = explode('?', $pattern, 2) + [false, null];
 
+        $path = trim($path, '/');
+
         $parsed = array_filter([
             $path ? new Route\Gate\Pattern\UriPart\RegexpPath($path, $this->getParams($path)) : null,
             $query ? new Route\Gate\Pattern\UriPart\RegexpQuery($query, $this->getParams($query)) : null

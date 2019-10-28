@@ -18,6 +18,7 @@ use Psr\Http\Message\UriInterface as Uri;
 
 class RegexpPath implements Route\Gate\Pattern
 {
+    use Route\Gate\Pattern\PathContextMethods;
     use Route\Gate\Pattern\UriTemplatePlaceholder;
 
     private $path;
@@ -31,7 +32,8 @@ class RegexpPath implements Route\Gate\Pattern
 
     public function matchedRequest(Request $request): ?Request
     {
-        $path = $request->getUri()->getPath();
+        if (!$path = $this->relativePath($request)) { return null; }
+        $path = implode('/', $path);
 
         $pattern = $this->patternRegexp();
         if (!preg_match($pattern, $path, $attributes)) { return null; }
@@ -40,7 +42,7 @@ class RegexpPath implements Route\Gate\Pattern
             $request = $request->withAttribute($name, $param);
         }
 
-        return $request;
+        return $request->withAttribute(Route::PATH_ATTRIBUTE, []);
     }
 
     public function uri(Uri $prototype, array $params): Uri
@@ -76,11 +78,7 @@ class RegexpPath implements Route\Gate\Pattern
             $regexp      = str_replace($placeholder, $replace, $regexp);
         }
 
-        if ($this->path[0] === '/') {
-            $regexp = '^' . $regexp;
-        }
-
-        return '#' . $regexp . '$#';
+        return '#^' . $regexp . '$#';
     }
 
     private function validParam(string $name, string $type, array $params): string
@@ -100,21 +98,6 @@ class RegexpPath implements Route\Gate\Pattern
     private function replacePlaceholders(Uri $uri, array $placeholders): Uri
     {
         $path = str_replace(array_keys($placeholders), $placeholders, $this->path);
-
-        return $this->setPath($path, $uri);
-    }
-
-    private function setPath(string $path, Uri $prototype): Uri
-    {
-        $prototypePath = $prototype->getPath();
-        if ($path[0] !== '/') {
-            return $prototype->withPath($prototypePath . '/' . $path);
-        }
-
-        if ($prototypePath && strpos($path, $prototypePath) !== 0) {
-            throw Route\Exception\InvalidUriPrototypeException::pathConflict($path, $prototype);
-        }
-
-        return $prototype->withPath($path);
+        return $uri->withPath($uri->getPath() . '/' . $path);
     }
 }

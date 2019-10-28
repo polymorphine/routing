@@ -33,11 +33,6 @@ class InvalidUriPrototypeException extends UriBuildException
         return self::patternConflict('domain', $value, $prototype);
     }
 
-    public static function pathConflict(string $value, UriInterface $prototype)
-    {
-        return self::patternConflict('path', $value, $prototype);
-    }
-
     public static function queryConflict(string $name, string $prototypeValue, string $value)
     {
         $message = 'Uri build conflict - attempt to overwrite `%s` query param value `%s` with `%s`';
