@@ -42,7 +42,8 @@ class RegexpPath implements Route\Gate\Pattern
             $request = $request->withAttribute($name, $param);
         }
 
-        return $request->withAttribute(Route::PATH_ATTRIBUTE, []);
+        $remainingPath = array_slice($this->relativePath($request), count(explode('/', $this->path)));
+        return $request->withAttribute(Route::PATH_ATTRIBUTE, $remainingPath);
     }
 
     public function uri(Uri $prototype, array $params): Uri
@@ -78,7 +79,7 @@ class RegexpPath implements Route\Gate\Pattern
             $regexp      = str_replace($placeholder, $replace, $regexp);
         }
 
-        return '#^' . $regexp . '$#';
+        return '#^' . $regexp . '#';
     }
 
     private function validParam(string $name, string $type, array $params): string

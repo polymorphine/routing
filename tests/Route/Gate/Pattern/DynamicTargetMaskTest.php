@@ -284,15 +284,15 @@ class DynamicTargetMaskTest extends TestCase
     public function testRelativePathIsMatched()
     {
         $pattern = $this->pattern('{#id}');
-        $request = $this->request('/foo/bar/234')->withAttribute(Route::PATH_ATTRIBUTE, ['234']);
+        $request = $this->request('/foo/bar/234/baz')->withAttribute(Route::PATH_ATTRIBUTE, ['234', 'baz']);
         $matched = $pattern->matchedRequest($request);
         $this->assertInstanceOf(ServerRequestInterface::class, $matched);
-        $this->assertSame(['id' => '234'], $this->attributes($matched));
+        $this->assertSame([Route::PATH_ATTRIBUTE => ['baz'], 'id' => '234'], $matched->getAttributes());
 
         $pattern = $this->pattern('end/{@of}/{$path}');
         $request = $this->request('/root/end/of/path-slug')->withAttribute(Route::PATH_ATTRIBUTE, ['end', 'of', 'path-slug']);
         $matched = $pattern->matchedRequest($request);
-        $this->assertSame(['of' => 'of', 'path' => 'path-slug'], $this->attributes($matched));
+        $this->assertSame([Route::PATH_ATTRIBUTE => [], 'of' => 'of', 'path' => 'path-slug'], $matched->getAttributes());
     }
 
     public function testUriFromRelativePathWithRootInPrototype_ReturnsUriWithAppendedPath()
