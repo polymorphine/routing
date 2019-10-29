@@ -32,8 +32,14 @@ class DynamicTargetMaskTest extends TestCase
     public function testNotMatchingRequest_ReturnsNull()
     {
         $pattern = $this->pattern('/page/{#no}');
-        $this->assertNull($pattern->matchedRequest($this->request('/page/next')));
+        $this->assertNull($pattern->matchedRequest($this->request('')));
         $this->assertNull($pattern->matchedRequest($this->request('/page')));
+        $this->assertNull($pattern->matchedRequest($this->request('/page/next')));
+
+        $pattern = $this->pattern('?page={#no}');
+        $this->assertNull($pattern->matchedRequest($this->request('')));
+        $this->assertNull($pattern->matchedRequest($this->request('?page=')));
+        $this->assertNull($pattern->matchedRequest($this->request('?page=next')));
     }
 
     /**
