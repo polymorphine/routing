@@ -19,7 +19,7 @@ use InvalidArgumentException;
 
 
 /**
- * Static Pattern resolved into composition of individual URI segment Patterns.
+ * Lazy pattern parsing pattern templates for individual URI parts.
  */
 class UriPattern implements Pattern
 {
@@ -29,7 +29,7 @@ class UriPattern implements Pattern
 
     /**
      * @param array $segments associative array of URI segments as returned by parse_url() function
-     * @param array $regexp   associative array of RegExp patterns for uri path segments
+     * @param array $regexp   associative array of REGEXP patterns for uri parameters
      */
     public function __construct(array $segments, array $regexp = [])
     {
@@ -39,7 +39,7 @@ class UriPattern implements Pattern
 
     public static function fromUriString(string $uri, array $regexp = []): self
     {
-        $uri = str_replace(self::DELIM_LEFT . '#', self::DELIM_LEFT, $uri);
+        self::parseTypedParams($uri, $regexp);
         if (!$segments = parse_url($uri)) {
             throw new InvalidArgumentException(sprintf('Malformed URI string: `%s`', $uri));
         }
@@ -49,6 +49,7 @@ class UriPattern implements Pattern
 
     public static function path(string $path, array $regexp = []): self
     {
+        self::parseTypedParams($path, $regexp);
         return new self(['path' => $path], $regexp);
     }
 
@@ -97,7 +98,7 @@ class UriPattern implements Pattern
             case 'path':
                 return $value ? $this->pathPattern($value) : null;
             case 'query':
-                return Uri\Query::fromQueryString($value);
+                return $this->queryPattern($value);
         }
 
         return null;
@@ -107,6 +108,13 @@ class UriPattern implements Pattern
     {
         $wildcard = (substr($path, -1) !== '*') ? null : new Uri\PathWildcard();
         $path     = trim($path, '/*');
+
+        $internalParams = '#(?:[^/]' . self::DELIM_LEFT . '|' . self::DELIM_RIGHT . '[^/])#';
+        if (preg_match($internalParams, $path)) {
+            $pattern = new Pattern\Regexp\RegexpPath($path, $this->getParams($path));
+            return $wildcard ? new CompositePattern([$pattern, $wildcard]) : $pattern;
+        }
+
         $segments = $path ? explode('/', $path) : [];
         $patterns = [];
         foreach ($segments as $segment) {
@@ -120,26 +128,49 @@ class UriPattern implements Pattern
         return count($patterns) === 1 ? $patterns[0] : new Pattern\CompositePattern($patterns);
     }
 
-    private function pathSegment(string $segment): ?Pattern
+    private function pathSegment(string $segment): Pattern
     {
-        if (!$id = $this->patternId($segment)) {
+        if ($segment[0] !== self::DELIM_LEFT) {
             return new Uri\PathSegment($segment);
         }
 
-        return isset(self::TYPE_REGEXP[$id[0]])
-            ? new Uri\PathRegexpSegment(substr($id, 1), self::TYPE_REGEXP[$id[0]])
-            : new Uri\PathRegexpSegment($id, $this->regexp[$id] ?? self::TYPE_REGEXP[self::TYPE_NUMBER]);
-    }
-
-    private function patternId(string $segment): ?string
-    {
-        if ($segment[0] !== self::DELIM_LEFT) { return null; }
         $id = substr($segment, 1, -1);
-        return $segment === self::param($id) ? $id : null;
+        return new Uri\PathRegexpSegment($id, $this->regexp[$id] ?? self::TYPE_REGEXP[self::TYPE_NUMBER]);
     }
 
-    private static function param(string $id): string
+    private function queryPattern(string $query): Pattern
     {
-        return self::DELIM_LEFT . $id . self::DELIM_RIGHT;
+        return strpos($query, self::DELIM_LEFT)
+            ? new Pattern\Regexp\RegexpQuery($query, $this->getParams($query))
+            : Uri\Query::fromQueryString($query);
+    }
+
+    private function getParams(string $pattern): array
+    {
+        $params = [];
+        foreach ($this->regexp as $name => $value) {
+            $token = self::DELIM_LEFT . $name . self::DELIM_RIGHT;
+            if (strpos($pattern, $token) !== false) {
+                $params[$name] = $value;
+            }
+        }
+        return $params;
+    }
+
+    private static function parseTypedParams(string &$uri, array &$params): void
+    {
+        if (strpos($uri, self::DELIM_LEFT) === false) { return; }
+
+        $types     = array_keys(self::TYPE_REGEXP);
+        $idPattern = '(?P<type>[' . preg_quote(implode('', $types), '/') . '])(?P<id>[a-zA-Z]+)';
+        $regexp    = '/' . self::DELIM_LEFT . $idPattern . self::DELIM_RIGHT . '/';
+
+        preg_match_all($regexp, $uri, $matches, PREG_SET_ORDER);
+        foreach ($matches as $match) {
+            $params[$match['id']] = self::TYPE_REGEXP[$match['type']];
+        }
+
+        $replace = array_map(function ($type) { return self::DELIM_LEFT . $type; }, $types);
+        $uri     = str_replace($replace, self::DELIM_LEFT, $uri);
     }
 }

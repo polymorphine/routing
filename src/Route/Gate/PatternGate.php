@@ -35,11 +35,7 @@ class PatternGate implements Route
 
     public static function fromPatternString(string $uriPattern, Route $route, array $params = [])
     {
-        $pattern = strpos($uriPattern, Pattern::DELIM_RIGHT)
-            ? new Pattern\DynamicTargetMask($uriPattern, $params)
-            : Pattern\UriPattern::fromUriString($uriPattern);
-
-        return new self($pattern, $route);
+        return new self(Pattern\UriPattern::fromUriString($uriPattern, $params), $route);
     }
 
     public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface
