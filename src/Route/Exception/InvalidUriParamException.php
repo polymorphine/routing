@@ -25,10 +25,4 @@ class InvalidUriParamException extends UriBuildException
         $message = 'Invalid `%s` parameter format - expected value matching `%s` pattern';
         return new self(sprintf($message, $name, $pattern));
     }
-
-    public static function insufficientParams(int $paramsRequired, int $paramsGiven): self
-    {
-        $message = 'Pattern requires %s params - %s provided';
-        return new self(sprintf($message, $paramsRequired, $paramsGiven));
-    }
 }
