@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -79,7 +79,7 @@ class ScanSwitch implements Route
                   ->follow($this->defaultRoute);
         }
         foreach ($this->routes as $name => $route) {
-            $trace->nextHop($name)
+            $trace->nextHop((string) $name)
                   ->follow($route);
         }
     }

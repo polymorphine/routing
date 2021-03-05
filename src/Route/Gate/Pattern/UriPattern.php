@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -91,7 +91,7 @@ class UriPattern implements Pattern
             case 'host':
                 return ($value[0] === '*') ? new Uri\HostDomain(ltrim($value, '*')) : new Uri\Host($value);
             case 'port':
-                return new Uri\Port($value);
+                return new Uri\Port((string) $value);
             case 'user':
                 $pass = isset($this->uri['pass']) ? ':' . $this->uri['pass'] : '';
                 return new Uri\UserInfo($value . $pass);

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -27,11 +27,11 @@ class MapTest extends TestCase
     {
         $map = new Map();
 
-        $path1 = new Map\Path('some.path', 'POST', Doubles\FakeUri::fromString('/foo/bar'));
+        $path1 = new Map\Path('some.path', 'POST', (string) Doubles\FakeUri::fromString('/foo/bar'));
         $map->addPath($path1);
         $this->assertSame([$path1], $map->paths());
 
-        $path2 = new Map\Path('other.path', '*', Doubles\FakeUri::fromString('/foo/bar/baz'));
+        $path2 = new Map\Path('other.path', '*', (string) Doubles\FakeUri::fromString('/foo/bar/baz'));
         $map->addPath($path2);
         $this->assertSame([$path1, $path2], $map->paths());
     }
