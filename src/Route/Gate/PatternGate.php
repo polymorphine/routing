@@ -24,8 +24,8 @@ use Psr\Http\Message\UriInterface;
  */
 class PatternGate implements Route
 {
-    private $pattern;
-    private $route;
+    private Pattern $pattern;
+    private Route   $route;
 
     /**
      * @param Pattern $pattern

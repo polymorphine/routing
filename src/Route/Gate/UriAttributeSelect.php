@@ -26,10 +26,10 @@ use Psr\Http\Message\UriInterface;
  */
 class UriAttributeSelect implements Route
 {
-    private $id;
-    private $itemPath;
-    private $indexPath;
-    private $resource;
+    private Route  $resource;
+    private string $id;
+    private string $itemPath;
+    private string $indexPath;
 
     /**
      * @param Route  $resource  composite route with both $itemPath and $indexPath routes

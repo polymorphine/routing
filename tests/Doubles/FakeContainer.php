@@ -16,7 +16,7 @@ use Psr\Container\ContainerInterface;
 
 class FakeContainer implements ContainerInterface
 {
-    public $records = [];
+    public array $records = [];
 
     public function __construct(array $records = [])
     {

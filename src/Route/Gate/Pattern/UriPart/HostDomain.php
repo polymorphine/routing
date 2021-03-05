@@ -22,7 +22,7 @@ use Psr\Http\Message\UriInterface;
  */
 class HostDomain implements Route\Gate\Pattern
 {
-    private $domain;
+    private string $domain;
 
     /**
      * Domain is matched and built starting from top domain level

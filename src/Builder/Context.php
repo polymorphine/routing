@@ -17,16 +17,13 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class Context
 {
-    private $mappedRoutes;
+    private MappedRoutes $mappedRoutes;
 
-    /** @var Route|null */
-    private $route;
+    private ?Route $route   = null;
+    private ?Node  $builder = null;
 
-    /** @var Node|null */
-    private $builder;
-
-    /** @var callable[] */
-    private $gates = [];
+    /** @var callable[] fn(Route) => Route */
+    private array $gates = [];
 
     /**
      * @param MappedRoutes $mappedRoutes

@@ -24,13 +24,9 @@ use Psr\Http\Message\UriFactoryInterface;
 
 class Builder
 {
-    private $mappedRoutes;
-
-    /** @var Node */
-    private $builder;
-
-    /** @var Router */
-    private $router;
+    private ?MappedRoutes $mappedRoutes;
+    private ?Node         $builder = null;
+    private ?Router       $router  = null;
 
     /**
      * If object is instantiated without $mappedRoutes parameter

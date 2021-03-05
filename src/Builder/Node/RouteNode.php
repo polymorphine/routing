@@ -32,8 +32,6 @@ class RouteNode implements Node
 {
     use GateBuildMethods;
 
-    private $context;
-
     /**
      * @param Context $context
      */

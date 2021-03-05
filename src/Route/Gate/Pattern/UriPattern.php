@@ -23,9 +23,10 @@ use InvalidArgumentException;
  */
 class UriPattern implements Pattern
 {
-    private $uri;
-    private $regexp;
-    private $pattern;
+    private array $uri;
+    private array $regexp;
+
+    private Pattern $pattern;
 
     /**
      * @param array $segments associative array of URI segments as returned by parse_url() function
@@ -70,15 +71,7 @@ class UriPattern implements Pattern
 
     private function pattern(): Pattern
     {
-        if ($this->pattern) { return $this->pattern; }
-
-        $patterns = [];
-        foreach ($this->uri as $name => $value) {
-            if (!$pattern = $this->resolveUriPart($name, $value)) { continue; }
-            $patterns[] = $pattern;
-        }
-
-        return $this->pattern = (count($patterns) === 1) ? $patterns[0] : new CompositePattern($patterns);
+        return $this->pattern ??= $this->resolvedPattern();
     }
 
     private function resolveUriPart(string $name, $value): ?Pattern
@@ -172,5 +165,16 @@ class UriPattern implements Pattern
 
         $replace = array_map(function ($type) { return self::DELIM_LEFT . $type; }, $types);
         $uri     = str_replace($replace, self::DELIM_LEFT, $uri);
+    }
+
+    private function resolvedPattern(): Pattern
+    {
+        $patterns = [];
+        foreach ($this->uri as $name => $value) {
+            if (!$pattern = $this->resolveUriPart($name, $value)) { continue; }
+            $patterns[] = $pattern;
+        }
+
+        return count($patterns) === 1 ? $patterns[0] : new CompositePattern($patterns);
     }
 }

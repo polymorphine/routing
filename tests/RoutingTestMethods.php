@@ -14,7 +14,7 @@ namespace Polymorphine\Routing\Tests;
 
 trait RoutingTestMethods
 {
-    private static $prototype;
+    private static Doubles\FakeResponse $prototype;
 
     public static function setUpBeforeClass(): void
     {

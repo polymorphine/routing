@@ -29,10 +29,8 @@ class PathSwitchNode implements Node
 {
     use CompositeBuilderMethods;
 
-    private $resourcesForms;
-
-    /** @var Context */
-    private $rootNode;
+    private ?PathSwitchNode $resourcesForms = null;
+    private ?Context        $rootNode       = null;
 
     /**
      * @param Context $context

@@ -18,14 +18,13 @@ use Psr\Http\Message\UriInterface;
 
 class Trace
 {
-    private $map;
-    private $routingPath;
-    private $uriTemplate;
-    private $methods;
-
-    private $excludedLabels = [];
-    private $lockedUriPath  = false;
-    private $rootLabel;
+    private Map          $map;
+    private ?string      $routingPath;
+    private UriInterface $uriTemplate;
+    private array        $methods;
+    private array        $excludedLabels = [];
+    private bool         $lockedUriPath = false;
+    private string       $rootLabel;
 
     /**
      * @param Map          $map

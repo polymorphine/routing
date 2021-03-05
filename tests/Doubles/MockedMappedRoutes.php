@@ -16,7 +16,7 @@ use Polymorphine\Routing\Builder\MappedRoutes;
 
 class MockedMappedRoutes extends MappedRoutes
 {
-    public $modified = false;
+    public bool $modified = false;
 
     public function withRouterCallback(callable $router): MappedRoutes
     {

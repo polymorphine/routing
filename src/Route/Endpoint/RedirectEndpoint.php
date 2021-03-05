@@ -23,7 +23,7 @@ use Psr\Http\Message\ResponseInterface;
 class RedirectEndpoint extends Endpoint
 {
     private $uriCallback;
-    private $statusCode;
+    private int $statusCode;
 
     /**
      * @param callable $uriCallback fn() => string

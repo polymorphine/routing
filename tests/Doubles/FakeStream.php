@@ -16,7 +16,7 @@ use Psr\Http\Message\StreamInterface;
 
 class FakeStream implements StreamInterface
 {
-    private $body;
+    private string $body;
 
     public function __construct(string $body = '')
     {

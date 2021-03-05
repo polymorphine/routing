@@ -23,8 +23,7 @@ use RuntimeException;
 
 abstract class ReadmeExampleTest extends TestCase
 {
-    /** @var Router */
-    protected $router;
+    protected ?Router $router = null;
 
     public function testInstantiation()
     {

@@ -22,7 +22,7 @@ use Psr\Http\Message\ResponseInterface;
  */
 class HandlerEndpoint extends Endpoint
 {
-    private $handler;
+    private RequestHandlerInterface $handler;
 
     /**
      * @param RequestHandlerInterface $handler

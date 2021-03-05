@@ -26,9 +26,9 @@ class CallbackSwitch implements Route
 {
     use RouteSelectMethods;
 
-    private $routes;
+    private array $routes;
     private $idCallback;
-    private $implicit;
+    private ?string $implicit;
 
     /**
      * Implicit Route name is for convenience only - it is assumed when route

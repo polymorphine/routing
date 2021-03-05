@@ -25,8 +25,8 @@ class PathRegexpSegment implements Route\Gate\Pattern
     use Route\Gate\Pattern\PathContextMethods;
     use Route\Gate\Pattern\UriTemplatePlaceholder;
 
-    private $name;
-    private $regexp;
+    private string $name;
+    private string $regexp;
 
     /**
      * URI path segment will be built using given $name param, and

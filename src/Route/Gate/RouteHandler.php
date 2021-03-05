@@ -23,8 +23,8 @@ use Polymorphine\Routing\Route;
  */
 class RouteHandler implements RequestHandlerInterface
 {
-    private $route;
-    private $prototype;
+    private Route             $route;
+    private ResponseInterface $prototype;
 
     /**
      * @param Route             $route

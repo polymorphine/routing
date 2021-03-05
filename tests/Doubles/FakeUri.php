@@ -16,18 +16,18 @@ use Psr\Http\Message\UriInterface;
 
 class FakeUri implements UriInterface
 {
-    protected $supportedSchemes = [
+    protected array $supportedSchemes = [
         'http'  => ['port' => 80],
         'https' => ['port' => 443]
     ];
 
-    private $scheme   = '';
-    private $userInfo = '';
-    private $host     = '';
-    private $port;
-    private $path     = '';
-    private $query    = '';
-    private $fragment = '';
+    private string $scheme   = '';
+    private string $userInfo = '';
+    private string $host     = '';
+    private string $path     = '';
+    private string $query    = '';
+    private string $fragment = '';
+    private ?int   $port = null;
 
     public function __construct(array $segments = [])
     {

@@ -27,8 +27,6 @@ class EndpointRouteBuilder
 {
     use Node\GateBuildMethods;
 
-    private $context;
-
     /**
      * @param Context $context
      */

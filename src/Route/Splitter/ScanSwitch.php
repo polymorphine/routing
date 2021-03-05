@@ -26,8 +26,8 @@ class ScanSwitch implements Route
 {
     use RouteSelectMethods;
 
-    protected $routes = [];
-    protected $defaultRoute;
+    protected array  $routes;
+    protected ?Route $defaultRoute;
 
     /**
      * Default Route is resolved using following rules:
@@ -38,7 +38,7 @@ class ScanSwitch implements Route
      *   from collection of routes.
      *
      * @param Route[] $routes
-     * @param Route   $defaultRoute
+     * @param ?Route  $defaultRoute
      */
     public function __construct(array $routes, Route $defaultRoute = null)
     {

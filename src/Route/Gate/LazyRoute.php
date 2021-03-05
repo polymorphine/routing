@@ -25,7 +25,7 @@ use Psr\Http\Message\UriInterface;
 class LazyRoute implements Route
 {
     private $routeCallback;
-    private $route;
+    private Route $route;
 
     /**
      * @param callable $routeCallback fn() => Route
@@ -57,6 +57,6 @@ class LazyRoute implements Route
 
     protected function invokedRoute(): Route
     {
-        return $this->route ?? $this->route = ($this->routeCallback)();
+        return $this->route ??= ($this->routeCallback)();
     }
 }

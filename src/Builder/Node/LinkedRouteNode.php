@@ -27,7 +27,7 @@ use Polymorphine\Routing\Route;
  */
 class LinkedRouteNode implements Node
 {
-    private $futureRoute;
+    private ?Route $futureRoute;
 
     /**
      * @param Route|null $futureRoute deferred Route build resolved by builder at

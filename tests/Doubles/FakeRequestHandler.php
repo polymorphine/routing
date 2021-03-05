@@ -18,7 +18,7 @@ use Psr\Http\Message\ResponseInterface;
 
 class FakeRequestHandler implements RequestHandlerInterface
 {
-    private $response;
+    private ResponseInterface $response;
 
     public function __construct(ResponseInterface $response)
     {

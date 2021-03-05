@@ -20,8 +20,7 @@ use Psr\Http\Server\MiddlewareInterface;
 
 trait GateBuildMethods
 {
-    /** @var Context */
-    private $context;
+    private Context $context;
 
     /**
      * Generic gate wrapper that creates gate Route with given callback

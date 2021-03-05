@@ -20,7 +20,7 @@ use InvalidArgumentException;
 
 class RouterTest extends TestCase
 {
-    private static $prototype;
+    private static Doubles\FakeResponse $prototype;
 
     public static function setUpBeforeClass(): void
     {

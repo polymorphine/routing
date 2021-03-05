@@ -23,7 +23,7 @@ class PathSegment implements Route\Gate\Pattern
 {
     use Route\Gate\Pattern\PathContextMethods;
 
-    private $name;
+    private string $name;
 
     /**
      * @param string $name

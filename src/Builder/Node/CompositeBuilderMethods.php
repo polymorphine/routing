@@ -12,37 +12,23 @@
 namespace Polymorphine\Routing\Builder\Node;
 
 use Polymorphine\Routing\Route;
-use Polymorphine\Routing\Builder\Node;
 use Polymorphine\Routing\Builder\Context;
 use Polymorphine\Routing\Builder\Exception;
 
 
 trait CompositeBuilderMethods
 {
-    /** @var Node[] */
-    protected $builders = [];
-
-    /** @var Route[] */
-    protected $routes = [];
-
-    /** @var Route */
-    protected $switch;
-
-    /** @var Context */
-    protected $context;
+    protected Route   $switch;
+    protected Context $context;
+    protected array   $builders = [];
+    protected array   $routes   = [];
 
     /**
      * @return Route
      */
     public function build(): Route
     {
-        if ($this->switch) { return $this->switch; }
-
-        foreach ($this->builders as $name => $builder) {
-            $this->routes[$name] = $builder->build();
-        }
-
-        return $this->switch = $this->router($this->routes);
+        return $this->switch ??= $this->newSwitchInstance();
     }
 
     abstract protected function router(array $routes): Route;
@@ -67,5 +53,14 @@ trait CompositeBuilderMethods
         }
 
         return $name;
+    }
+
+    private function newSwitchInstance(): Route
+    {
+        foreach ($this->builders as $name => $builder) {
+            $this->routes[$name] = $builder->build();
+        }
+
+        return $this->router($this->routes);
     }
 }

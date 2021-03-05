@@ -21,9 +21,9 @@ class ScanSwitchNode implements Node
 {
     use CompositeBuilderMethods;
 
-    /** @var bool */
-    private $hasDefaultRoute = false;
-    private $resourcesForms;
+    private bool $hasDefaultRoute = false;
+
+    private ?PathSwitchNode $resourcesForms = null;
 
     /**
      * @param Context $context

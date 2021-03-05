@@ -28,8 +28,8 @@ class PathSwitch implements Route
     use RouteSelectMethods;
     use Gate\Pattern\PathContextMethods;
 
-    private $routes = [];
-    private $root;
+    private array  $routes;
+    private ?Route $root;
 
     /**
      * Root Route represents fully traversed path in routing structure.

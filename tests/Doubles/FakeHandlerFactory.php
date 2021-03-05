@@ -17,7 +17,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class FakeHandlerFactory
 {
-    private $container;
+    private ContainerInterface $container;
 
     public function __construct(ContainerInterface $container)
     {

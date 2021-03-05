@@ -21,10 +21,10 @@ use Psr\Http\Message\ResponseFactoryInterface;
 
 class Router implements RequestHandlerInterface
 {
-    private $route;
-    private $baseUri;
-    private $baseResponse;
-    private $rootPath;
+    private Route             $route;
+    private UriInterface      $baseUri;
+    private ResponseInterface $baseResponse;
+    private string            $rootPath;
 
     /**
      * Response prototype is used for responses handled within routing tree

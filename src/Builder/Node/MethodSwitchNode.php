@@ -27,8 +27,8 @@ class MethodSwitchNode implements Node
 {
     use CompositeBuilderMethods;
 
-    private $implicitMethod = 'GET';
-    private $methods        = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'HEAD', 'OPTIONS'];
+    private ?string $implicitMethod = 'GET';
+    private array   $methods = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'HEAD', 'OPTIONS'];
 
     /**
      * @param Context $context

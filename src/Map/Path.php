@@ -14,9 +14,9 @@ namespace Polymorphine\Routing\Map;
 
 class Path
 {
-    public $name;
-    public $method;
-    public $uri;
+    public string $name;
+    public string $method;
+    public string $uri;
 
     /**
      * @param string $name

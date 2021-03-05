@@ -22,7 +22,7 @@ use Psr\Http\Message\UriInterface;
  */
 class CompositePattern implements Pattern
 {
-    private $patterns;
+    private array $patterns;
 
     /**
      * @param Pattern[] $patterns

@@ -25,7 +25,7 @@ use Psr\Http\Message\UriInterface;
 class CallbackGateway implements Route
 {
     private $callback;
-    private $route;
+    private Route $route;
 
     /**
      * $callback returns either:

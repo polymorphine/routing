@@ -20,8 +20,8 @@ abstract class Regexp implements Route\Gate\Pattern
 {
     use UriTemplatePlaceholder;
 
-    protected $pattern;
-    protected $params;
+    protected string $pattern;
+    protected array  $params;
 
     /**
      * @param string $pattern URI pattern with placeholder names

@@ -14,7 +14,7 @@ namespace Polymorphine\Routing;
 
 class Map
 {
-    private $paths;
+    private array $paths;
 
     /**
      * @param Map\Path[] $paths

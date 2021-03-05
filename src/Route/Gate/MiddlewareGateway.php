@@ -25,8 +25,8 @@ use Psr\Http\Message\UriInterface;
  */
 class MiddlewareGateway implements Route
 {
-    private $middleware;
-    private $route;
+    private MiddlewareInterface $middleware;
+    private Route               $route;
 
     /**
      * @param MiddlewareInterface $middleware
