@@ -16,7 +16,7 @@ trait RoutingTestMethods
 {
     private static $prototype;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         self::$prototype = new Doubles\FakeResponse();
     }

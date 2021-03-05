@@ -21,7 +21,7 @@ class LazyRouteTest extends TestCase
 {
     private $invokedRoute;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->invokedRoute = null;
     }
