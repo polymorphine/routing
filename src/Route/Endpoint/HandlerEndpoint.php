@@ -24,6 +24,9 @@ class HandlerEndpoint extends Endpoint
 {
     private $handler;
 
+    /**
+     * @param RequestHandlerInterface $handler
+     */
     public function __construct(RequestHandlerInterface $handler)
     {
         $this->handler = $handler;

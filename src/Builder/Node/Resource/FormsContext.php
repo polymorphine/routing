@@ -24,12 +24,21 @@ class FormsContext
     private $formsBuilder;
     private $resourceName;
 
+    /**
+     * @param string              $resourceName
+     * @param Node\PathSwitchNode $formsBuilder
+     */
     public function __construct(string $resourceName, Node\PathSwitchNode $formsBuilder)
     {
         $this->resourceName = $resourceName;
         $this->formsBuilder = $formsBuilder;
     }
 
+    /**
+     * @param string $id
+     *
+     * @return Node\ScanSwitchNode
+     */
     public function builder(string $id): Node\ScanSwitchNode
     {
         $routeWrapper = function (Route $route) use ($id) {

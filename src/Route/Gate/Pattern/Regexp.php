@@ -23,6 +23,10 @@ abstract class Regexp implements Route\Gate\Pattern
     protected $pattern;
     protected $params;
 
+    /**
+     * @param string $pattern URI pattern with placeholder names
+     * @param array  $params  Name to regexp mapping
+     */
     public function __construct(string $pattern, array $params)
     {
         $this->pattern = $pattern;

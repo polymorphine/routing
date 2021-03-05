@@ -26,7 +26,7 @@ class RedirectEndpoint extends Endpoint
     private $statusCode;
 
     /**
-     * @param callable $uriCallback function(): string
+     * @param callable $uriCallback fn() => string
      * @param int      $statusCode
      */
     public function __construct(callable $uriCallback, int $statusCode = 301)

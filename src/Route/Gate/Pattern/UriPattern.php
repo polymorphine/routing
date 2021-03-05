@@ -68,7 +68,7 @@ class UriPattern implements Pattern
         return $this->pattern()->templateUri($uri);
     }
 
-    public function pattern(): Pattern
+    private function pattern(): Pattern
     {
         if ($this->pattern) { return $this->pattern; }
 

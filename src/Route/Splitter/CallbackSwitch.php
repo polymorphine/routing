@@ -37,7 +37,7 @@ class CallbackSwitch implements Route
      * defined routes.
      *
      * @param Route[]     $routes     associative array with route name keys
-     * @param callable    $idCallback function (ServerRequestInterface): string
+     * @param callable    $idCallback fn(ServerRequestInterface) => string
      * @param string|null $implicit   key from provided $routes (ignored if none match)
      */
     public function __construct(array $routes, callable $idCallback, ?string $implicit = null)

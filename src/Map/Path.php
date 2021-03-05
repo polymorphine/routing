@@ -18,6 +18,11 @@ class Path
     public $method;
     public $uri;
 
+    /**
+     * @param string $name
+     * @param string $method
+     * @param string $uri
+     */
     public function __construct(
         string $name,
         string $method,

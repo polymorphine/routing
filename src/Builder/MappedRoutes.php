@@ -42,9 +42,9 @@ class MappedRoutes
      * that also serves as more detailed example of main constructor
      * parameters.
      *
-     * @param callable|null $router   function(): Router
-     * @param callable|null $endpoint function(string): Endpoint|Route
-     * @param callable|null $gateway  function(string, Route): Route
+     * @param callable|null $router   fn() => Router
+     * @param callable|null $endpoint fn(string) => Endpoint|Route
+     * @param callable|null $gateway  fn(string, Route) => Route
      */
     public function __construct(?callable $router, ?callable $endpoint, ?callable $gateway)
     {
@@ -65,7 +65,7 @@ class MappedRoutes
      *
      * @param ContainerInterface $container
      *
-     * @return MappedRoutes
+     * @return static
      */
     public static function withContainerMapping(ContainerInterface $container): self
     {
@@ -90,28 +90,47 @@ class MappedRoutes
         return new self(null, $endpoint, $gate);
     }
 
+    /**
+     * @return bool Whether Router callback was defined
+     */
     public function hasRouterCallback(): bool
     {
         return isset($this->router);
     }
 
+    /**
+     * @param callable $router fn() => Router
+     *
+     * @return static
+     */
     public function withRouterCallback(callable $router): self
     {
         $this->router = $router;
         return $this;
     }
 
-    public function redirect(string $id, int $code): Route
+    /**
+     * @param string $path Routing path this Route should redirect to
+     * @param int    $code Http redirect Response code (preferably 3xx)
+     *
+     * @return Route
+     */
+    public function redirect(string $path, int $code): Route
     {
         if (!$this->router) {
-            throw Exception\ConfigException::requiredRouterCallback($id);
+            throw Exception\ConfigException::requiredRouterCallback($path);
         }
 
-        return new Route\Endpoint\RedirectEndpoint(function () use ($id) {
-            return (string) ($this->router)()->uri($id);
+        return new Route\Endpoint\RedirectEndpoint(function () use ($path) {
+            return (string) ($this->router)()->uri($path);
         }, $code);
     }
 
+    /**
+     * @param string $id
+     *
+     * @return Route Endpoint Route resolved from given $id
+     */
     public function endpoint(string $id): Route
     {
         if (!$this->endpoint) {
@@ -121,6 +140,15 @@ class MappedRoutes
         return ($this->endpoint)($id);
     }
 
+    /**
+     * Method resolves given $id to Route gateway and returns
+     * callback able to wrap passed Route with that gateway.
+     *
+     * @param string $id
+     *
+     * @return callable fn(Route) => Route
+     *                  Gateway wrapper to given Route
+     */
     public function gateway(string $id): callable
     {
         if (!$this->gateway) {

@@ -24,10 +24,6 @@ class PathWildcard implements Route\Gate\Pattern
     use Route\Gate\Pattern\PathContextMethods;
     use Route\Gate\Pattern\UriTemplatePlaceholder;
 
-    public function __construct()
-    {
-    }
-
     public function matchedRequest(ServerRequestInterface $request): ?ServerRequestInterface
     {
         $path = implode('/', $this->relativePath($request));

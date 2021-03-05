@@ -26,6 +26,10 @@ class RouteHandler implements RequestHandlerInterface
     private $route;
     private $prototype;
 
+    /**
+     * @param Route             $route
+     * @param ResponseInterface $prototype
+     */
     public function __construct(Route $route, ResponseInterface $prototype)
     {
         $this->route     = $route;

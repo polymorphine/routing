@@ -28,6 +28,11 @@ class CallbackSwitchNode implements Node
 
     private $idCallback;
 
+    /**
+     * @param Context  $context
+     * @param callable $idCallback fn(ServerRequestInterface) => string
+     * @param array    $routes
+     */
     public function __construct(Context $context, callable $idCallback, array $routes = [])
     {
         $this->context    = $context;

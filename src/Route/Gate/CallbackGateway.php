@@ -35,7 +35,7 @@ class CallbackGateway implements Route
      * NOTE: If request uri is verified it will not be resembled by Uri built
      * with gateway's uri() method - Pattern gate should be used instead.
      *
-     * @param callable $callback function(ServerRequestInterface): ?ServerRequestInterface
+     * @param callable $callback fn(ServerRequestInterface) => ?ServerRequestInterface
      * @param Route    $route
      */
     public function __construct(callable $callback, Route $route)

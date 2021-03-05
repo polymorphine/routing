@@ -27,6 +27,10 @@ class PatternGate implements Route
     private $pattern;
     private $route;
 
+    /**
+     * @param Pattern $pattern
+     * @param Route   $route
+     */
     public function __construct(Pattern $pattern, Route $route)
     {
         $this->pattern = $pattern;

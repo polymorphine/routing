@@ -25,6 +25,9 @@ class PathSegment implements Route\Gate\Pattern
 
     private $name;
 
+    /**
+     * @param string $name
+     */
     public function __construct(string $name)
     {
         $this->name = $name;

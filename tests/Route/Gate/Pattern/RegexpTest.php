@@ -23,12 +23,6 @@ class RegexpTest extends TestCase
 {
     use Pattern\UriTemplatePlaceholder;
 
-    public function testInstantiation()
-    {
-        $this->assertInstanceOf(Pattern\Regexp\RegexpPath::class, $this->pattern('foo{$param}/bar'));
-        $this->assertInstanceOf(Pattern\Regexp\RegexpQuery::class, $this->pattern('?foo={$param}'));
-    }
-
     public function testNotMatchingRequest_ReturnsNull()
     {
         $pattern = $this->pattern('/page/id-{#no}');
@@ -351,7 +345,7 @@ class RegexpTest extends TestCase
 
     private function pattern($pattern = '', array $params = []): Pattern
     {
-        return Pattern\UriPattern::fromUriString($pattern, $params)->pattern();
+        return Pattern\UriPattern::fromUriString($pattern, $params);
     }
 
     private function request($path)

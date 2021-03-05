@@ -16,16 +16,25 @@ class Map
 {
     private $paths;
 
+    /**
+     * @param Map\Path[] $paths
+     */
     public function __construct(array $paths = [])
     {
         $this->paths = $paths;
     }
 
+    /**
+     * @param Map\Path $path
+     */
     public function addPath(Map\Path $path): void
     {
         $this->paths[] = $path;
     }
 
+    /**
+     * @return Map\Path[]
+     */
     public function paths(): array
     {
         return $this->paths;

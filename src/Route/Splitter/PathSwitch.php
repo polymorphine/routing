@@ -36,8 +36,8 @@ class PathSwitch implements Route
      * Only when root route is defined this aggregate instance can produce
      * its own URI, because it assumes that no further path will be required.
      *
-     * @param Route[] $routes
-     * @param Route   $root
+     * @param Route[]    $routes
+     * @param Route|null $root
      */
     public function __construct(array $routes, ?Route $root = null)
     {

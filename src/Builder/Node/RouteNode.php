@@ -34,6 +34,9 @@ class RouteNode implements Node
 
     private $context;
 
+    /**
+     * @param Context $context
+     */
     public function __construct(Context $context)
     {
         $this->context = $context;
@@ -49,7 +52,7 @@ class RouteNode implements Node
      *
      * @see \Polymorphine\Routing\Route\Endpoint\CallbackEndpoint
      *
-     * @param callable $callback function(ServerRequestInterface): ResponseInterface
+     * @param callable $callback fn(ServerRequestInterface) => ResponseInterface
      */
     public function callback(callable $callback): void
     {
@@ -74,7 +77,7 @@ class RouteNode implements Node
      *
      * @see \Polymorphine\Routing\Route\Gate\LazyRoute
      *
-     * @param callable $routeCallback function(): Route
+     * @param callable $routeCallback fn() => Route
      */
     public function lazy(callable $routeCallback): void
     {
@@ -199,7 +202,7 @@ class RouteNode implements Node
      *
      * @see \Polymorphine\Routing\Route\Splitter\CallbackSwitch
      *
-     * @param callable $idCallback function(ServerRequestInterface): string
+     * @param callable $idCallback fn(ServerRequestInterface) => string
      * @param array    $routes
      *
      * @return CallbackSwitchNode
@@ -247,7 +250,7 @@ class RouteNode implements Node
         );
     }
 
-    private function contextBuilder(Node $builder)
+    private function contextBuilder($builder)
     {
         $this->context->setBuilder($builder);
         return $builder;

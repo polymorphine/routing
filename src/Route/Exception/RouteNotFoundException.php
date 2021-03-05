@@ -33,6 +33,11 @@ class RouteNotFoundException extends InvalidArgumentException
         return new self(sprintf($message, $path));
     }
 
+    /**
+     * @param string $path Called route path to display in message
+     *
+     * @return static
+     */
     public function withPathInfo(string $path): self
     {
         return new self($this->message . ' (called route: ' . $path . ')');

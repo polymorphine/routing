@@ -31,6 +31,9 @@ trait CompositeBuilderMethods
     /** @var Context */
     protected $context;
 
+    /**
+     * @return Route
+     */
     public function build(): Route
     {
         if ($this->switch) { return $this->switch; }

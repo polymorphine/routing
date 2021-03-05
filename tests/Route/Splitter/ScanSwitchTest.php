@@ -132,7 +132,7 @@ class ScanSwitchTest extends TestCase
         $splitter = $this->splitter([
             'foo' => new Doubles\MockedRoute(),
             'bar' => new Doubles\MockedRoute(),
-            new Doubles\MockedRoute()
+            0     => new Doubles\MockedRoute()
         ], new Doubles\MockedRoute());
 
         $map   = new Map();
@@ -155,7 +155,7 @@ class ScanSwitchTest extends TestCase
         $splitter = $this->splitter([
             'foo' => new Doubles\MockedRoute(),
             'bar' => new Doubles\MockedRoute(),
-            new Doubles\MockedRoute()
+            0     => new Doubles\MockedRoute()
         ], Doubles\MockedRoute::withTraceCallback(function (Map\Trace $trace) {
             $trace->nextHop('bar');
         }));

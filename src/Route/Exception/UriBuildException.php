@@ -16,6 +16,11 @@ use InvalidArgumentException;
 
 class UriBuildException extends InvalidArgumentException
 {
+    /**
+     * @param string $path Called route path to display in message
+     *
+     * @return static
+     */
     public function withPathInfo(string $path): self
     {
         return new static($this->message . ' (called route: ' . $path . ')');

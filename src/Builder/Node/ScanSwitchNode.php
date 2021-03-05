@@ -25,6 +25,10 @@ class ScanSwitchNode implements Node
     private $hasDefaultRoute = false;
     private $resourcesForms;
 
+    /**
+     * @param Context $context
+     * @param Route[] $routes
+     */
     public function __construct(Context $context, array $routes = [])
     {
         $this->context = $context;

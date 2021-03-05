@@ -27,6 +27,11 @@ class Trace
     private $lockedUriPath  = false;
     private $rootLabel;
 
+    /**
+     * @param Map          $map
+     * @param UriInterface $uriTemplate
+     * @param string       $rootLabel
+     */
     public function __construct(Map $map, UriInterface $uriTemplate, string $rootLabel = 'ROOT')
     {
         $this->map         = $map;
@@ -34,6 +39,9 @@ class Trace
         $this->rootLabel   = $rootLabel;
     }
 
+    /**
+     * Adds fully traced path to routing Map.
+     */
     public function endpoint(): void
     {
         $uri = rawurldecode((string) $this->uriTemplate);
@@ -42,11 +50,21 @@ class Trace
         }
     }
 
+    /**
+     * Continues to follow concrete Route path.
+     *
+     * @param Route $route
+     */
     public function follow(Route $route): void
     {
         $route->routes($this);
     }
 
+    /**
+     * @param string $label
+     *
+     * @return static New instance with routing path expanded with new label
+     */
     public function nextHop(string $label): self
     {
         $clone = clone $this;
@@ -55,6 +73,11 @@ class Trace
         return $clone;
     }
 
+    /**
+     * @param string ...$methods
+     *
+     * @return static New instance with filtered http Methods
+     */
     public function withMethod(string ...$methods): self
     {
         $clone = clone $this;
@@ -62,6 +85,11 @@ class Trace
         return $clone;
     }
 
+    /**
+     * @param Route\Gate\Pattern $pattern
+     *
+     * @return static New instance with expanded URI pattern
+     */
     public function withPattern(Route\Gate\Pattern $pattern): self
     {
         $clone = clone $this;
@@ -69,6 +97,11 @@ class Trace
         return $clone;
     }
 
+    /**
+     * @param array $labels
+     *
+     * @return static New instance with labels that Route cannot reach
+     */
     public function withExcludedHops(array $labels): self
     {
         $clone = clone $this;
@@ -76,6 +109,9 @@ class Trace
         return $clone;
     }
 
+    /**
+     * @return static New instance with finished path constraint
+     */
     public function withLockedUriPath(): self
     {
         $clone = clone $this;

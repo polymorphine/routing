@@ -34,6 +34,10 @@ class PathSwitchNode implements Node
     /** @var Context */
     private $rootNode;
 
+    /**
+     * @param Context $context
+     * @param Route[] $routes
+     */
     public function __construct(Context $context, array $routes = [])
     {
         $this->context = $context;
