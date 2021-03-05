@@ -1,9 +1,9 @@
 # Polymorphine/Routing
 [![Latest Stable Version](https://poser.pugx.org/polymorphine/routing/version)](https://packagist.org/packages/polymorphine/routing)
-[![Build Status](https://travis-ci.org/shudd3r/polymorphine-routing.svg?branch=develop)](https://travis-ci.org/shudd3r/polymorphine-routing)
-[![Coverage status](https://coveralls.io/repos/github/shudd3r/polymorphine-routing/badge.svg?branch=develop)](https://coveralls.io/github/shudd3r/polymorphine-routing?branch=develop)
+[![Build status](https://github.com/polymorphine/routing/workflows/build/badge.svg)](https://github.com/polymorphine/routing/actions)
+[![Coverage status](https://coveralls.io/repos/github/polymorphine/routing/badge.svg?branch=develop)](https://coveralls.io/github/polymorphine/routing?branch=develop)
 [![PHP version](https://img.shields.io/packagist/php-v/polymorphine/routing.svg)](https://packagist.org/packages/polymorphine/routing)
-[![LICENSE](https://img.shields.io/github/license/shudd3r/polymorphine-routing.svg?color=blue)](LICENSE)
+[![LICENSE](https://img.shields.io/github/license/polymorphine/routing.svg?color=blue)](LICENSE)
 ### Composite routing library for HTTP applications
 
 #### Concept feature: *Tree structure finding matching route and resolving urls*
