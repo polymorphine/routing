@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -26,8 +26,8 @@ class MethodGate implements Route
 {
     private const METHOD_SEPARATOR = '|';
 
-    private $methods;
-    private $route;
+    private array $methods;
+    private Route $route;
 
     /**
      * @param string $methods single http method or pipe separated method set (example: 'GET|POST|DELETE')

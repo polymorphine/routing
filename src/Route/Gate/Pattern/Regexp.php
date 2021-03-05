@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -20,9 +20,13 @@ abstract class Regexp implements Route\Gate\Pattern
 {
     use UriTemplatePlaceholder;
 
-    protected $pattern;
-    protected $params;
+    protected string $pattern;
+    protected array  $params;
 
+    /**
+     * @param string $pattern URI pattern with placeholder names
+     * @param array  $params  Name to regexp mapping
+     */
     public function __construct(string $pattern, array $params)
     {
         $this->pattern = $pattern;

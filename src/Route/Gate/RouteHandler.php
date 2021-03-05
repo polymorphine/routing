@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -23,9 +23,13 @@ use Polymorphine\Routing\Route;
  */
 class RouteHandler implements RequestHandlerInterface
 {
-    private $route;
-    private $prototype;
+    private Route             $route;
+    private ResponseInterface $prototype;
 
+    /**
+     * @param Route             $route
+     * @param ResponseInterface $prototype
+     */
     public function __construct(Route $route, ResponseInterface $prototype)
     {
         $this->route     = $route;

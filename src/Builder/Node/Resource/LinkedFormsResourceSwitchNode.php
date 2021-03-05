@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -23,8 +23,8 @@ use Polymorphine\Routing\Route\Gate\Pattern\UriPart\PathRegexpSegment;
  */
 class LinkedFormsResourceSwitchNode extends ResourceSwitchNode
 {
-    private $forms;
-    private $formSwitch;
+    private FormsContext   $forms;
+    private ScanSwitchNode $formSwitch;
 
     public function __construct(
         FormsContext $forms,
@@ -59,7 +59,7 @@ class LinkedFormsResourceSwitchNode extends ResourceSwitchNode
 
     private function formSwitch(): ScanSwitchNode
     {
-        return $this->formSwitch ?: $this->formSwitch = $this->forms->builder($this->idName);
+        return $this->formSwitch ??= $this->forms->builder($this->idName);
     }
 
     private function removeFormRoutes(array $routes): array

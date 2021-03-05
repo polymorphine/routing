@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -16,18 +16,18 @@ use Psr\Http\Message\UriInterface;
 
 class FakeUri implements UriInterface
 {
-    protected $supportedSchemes = [
+    protected array $supportedSchemes = [
         'http'  => ['port' => 80],
         'https' => ['port' => 443]
     ];
 
-    private $scheme   = '';
-    private $userInfo = '';
-    private $host     = '';
-    private $port;
-    private $path     = '';
-    private $query    = '';
-    private $fragment = '';
+    private string $scheme   = '';
+    private string $userInfo = '';
+    private string $host     = '';
+    private string $path     = '';
+    private string $query    = '';
+    private string $fragment = '';
+    private ?int   $port = null;
 
     public function __construct(array $segments = [])
     {
@@ -41,7 +41,7 @@ class FakeUri implements UriInterface
         isset($segments['fragment']) and $this->fragment = $segments['fragment'];
     }
 
-    public static function fromString($uri = '')
+    public static function fromString($uri = ''): self
     {
         return new self(parse_url($uri));
     }

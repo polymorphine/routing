@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -14,7 +14,7 @@ namespace Polymorphine\Routing\Tests;
 
 trait RoutingTestMethods
 {
-    private static $prototype;
+    private static Doubles\FakeResponse $prototype;
 
     public static function setUpBeforeClass(): void
     {

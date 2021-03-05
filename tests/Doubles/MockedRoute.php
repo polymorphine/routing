@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -16,21 +16,23 @@ use Polymorphine\Routing\Map\Trace;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
+use Exception;
 
 
 class MockedRoute implements Route
 {
-    /** @var ServerRequestInterface */
-    public $forwardedRequest;
-    public $response;
-    public $uri;
-    public $prototype;
-    public $params;
-    public $path;
-    public $trace;
+    public ServerRequestInterface $forwardedRequest;
+    public ?ResponseInterface     $response;
+    public ?UriInterface          $uri;
+    public UriInterface           $prototype;
+    public array                  $params;
+    public ?string                $path  = null;
+    public ?Trace                 $trace = null;
+    public MockedRoute            $subRoute;
+    public ?Exception             $exception = null;
+
+    /** @var callable */
     public $traceCallback;
-    public $subRoute;
-    public $exception;
 
     public function __construct(?ResponseInterface $response = null, ?UriInterface $uri = null)
     {

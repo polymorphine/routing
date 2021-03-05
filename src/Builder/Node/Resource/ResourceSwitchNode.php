@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -36,8 +36,8 @@ class ResourceSwitchNode implements Node
 {
     use CompositeBuilderMethods;
 
-    protected $idName   = 'resource.id';
-    protected $idRegexp = '[1-9][0-9]*';
+    protected string $idName   = 'resource.id';
+    protected string $idRegexp = '[1-9][0-9]*';
 
     /**
      * Possible route names are: GET|POST|PUT|PATCH|DELETE and INDEX|ADD|EDIT.
@@ -56,7 +56,7 @@ class ResourceSwitchNode implements Node
      * (default: resource.id => [1-9][0-9]*).
      *
      * @param string      $name
-     * @param null|string $regexp
+     * @param string|null $regexp
      *
      * @return ResourceSwitchNode
      */

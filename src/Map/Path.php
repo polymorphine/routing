@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -14,10 +14,15 @@ namespace Polymorphine\Routing\Map;
 
 class Path
 {
-    public $name;
-    public $method;
-    public $uri;
+    public string $name;
+    public string $method;
+    public string $uri;
 
+    /**
+     * @param string $name
+     * @param string $method
+     * @param string $uri
+     */
     public function __construct(
         string $name,
         string $method,

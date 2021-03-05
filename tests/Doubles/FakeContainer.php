@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -16,7 +16,7 @@ use Psr\Container\ContainerInterface;
 
 class FakeContainer implements ContainerInterface
 {
-    public $records = [];
+    public array $records = [];
 
     public function __construct(array $records = [])
     {

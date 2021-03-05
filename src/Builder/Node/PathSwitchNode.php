@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -29,11 +29,13 @@ class PathSwitchNode implements Node
 {
     use CompositeBuilderMethods;
 
-    private $resourcesForms;
+    private ?PathSwitchNode $resourcesForms = null;
+    private ?Context        $rootNode       = null;
 
-    /** @var Context */
-    private $rootNode;
-
+    /**
+     * @param Context $context
+     * @param Route[] $routes
+     */
     public function __construct(Context $context, array $routes = [])
     {
         $this->context = $context;

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -23,8 +23,7 @@ use RuntimeException;
 
 abstract class ReadmeExampleTest extends TestCase
 {
-    /** @var Router */
-    protected $router;
+    protected ?Router $router = null;
 
     public function testInstantiation()
     {

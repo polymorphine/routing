@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -18,7 +18,7 @@ use Psr\Http\Message\ResponseInterface;
 
 class FakeRequestHandler implements RequestHandlerInterface
 {
-    private $response;
+    private ResponseInterface $response;
 
     public function __construct(ResponseInterface $response)
     {

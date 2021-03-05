@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -17,22 +17,25 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class Context
 {
-    private $mappedRoutes;
+    private MappedRoutes $mappedRoutes;
 
-    /** @var null|Route */
-    private $route;
+    private ?Route $route   = null;
+    private ?Node  $builder = null;
 
-    /** @var null|Node */
-    private $builder;
+    /** @var callable[] fn(Route) => Route */
+    private array $gates = [];
 
-    /** @var callable[] */
-    private $gates = [];
-
+    /**
+     * @param MappedRoutes $mappedRoutes
+     */
     public function __construct(MappedRoutes $mappedRoutes)
     {
         $this->mappedRoutes = $mappedRoutes;
     }
 
+    /**
+     * @return Route
+     */
     public function build(): Route
     {
         if ($this->route) { return $this->route; }
@@ -42,6 +45,9 @@ class Context
         return $this->route = $this->wrapRoute($this->builder->build());
     }
 
+    /**
+     * @return Context
+     */
     public function create(): Context
     {
         $newContext = clone $this;
@@ -54,7 +60,7 @@ class Context
     }
 
     /**
-     * @param callable $routeWrapper function(Route): Route
+     * @param callable $routeWrapper fn(Route) => Route
      */
     public function addGate(callable $routeWrapper): void
     {
@@ -62,20 +68,23 @@ class Context
     }
 
     /**
-     * @param callable $callback function(ServerRequestInterface): ResponseInterface
+     * @param callable $callback fn(ServerRequestInterface) => ResponseInterface
      */
     public function setCallbackRoute(callable $callback): void
     {
         $this->setRoute(new Route\Endpoint\CallbackEndpoint($callback));
     }
 
+    /**
+     * @param RequestHandlerInterface $handler
+     */
     public function setHandlerRoute(RequestHandlerInterface $handler): void
     {
         $this->setRoute(new Route\Endpoint\HandlerEndpoint($handler));
     }
 
     /**
-     * @param callable $routeCallback function(): Route
+     * @param callable $routeCallback fn() => Route
      */
     public function setLazyRoute(callable $routeCallback): void
     {
@@ -113,12 +122,18 @@ class Context
         $this->addGate($this->mappedRoutes->gateway($id));
     }
 
+    /**
+     * @param Route $route
+     */
     public function setRoute(Route $route): void
     {
         $this->stateCheck();
         $this->route = $this->wrapRoute($route);
     }
 
+    /**
+     * @param Node $builder
+     */
     public function setBuilder(Node $builder): void
     {
         $this->stateCheck();

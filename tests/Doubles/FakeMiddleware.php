@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -19,8 +19,8 @@ use Psr\Http\Message\ResponseInterface;
 
 class FakeMiddleware implements MiddlewareInterface
 {
-    public $bodyWrap;
-    public $inContext = false;
+    public string $bodyWrap;
+    public bool   $inContext = false;
 
     public function __construct(string $bodyWrap = 'wrap')
     {

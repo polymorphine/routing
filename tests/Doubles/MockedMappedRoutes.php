@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -16,7 +16,7 @@ use Polymorphine\Routing\Builder\MappedRoutes;
 
 class MockedMappedRoutes extends MappedRoutes
 {
-    public $modified = false;
+    public bool $modified = false;
 
     public function withRouterCallback(callable $router): MappedRoutes
     {

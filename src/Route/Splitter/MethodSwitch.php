@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -26,8 +26,8 @@ class MethodSwitch implements Route
 {
     use RouteSelectMethods;
 
-    private $routes;
-    private $implicit;
+    private array   $routes;
+    private ?string $implicit;
 
     /**
      * Implicit method Route is for convenience only - it is assumed when method

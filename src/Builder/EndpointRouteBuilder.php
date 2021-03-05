@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -27,8 +27,9 @@ class EndpointRouteBuilder
 {
     use Node\GateBuildMethods;
 
-    private $context;
-
+    /**
+     * @param Context $context
+     */
     public function __construct(Context $context)
     {
         $this->context = $context;
@@ -39,7 +40,7 @@ class EndpointRouteBuilder
      *
      * @see \Polymorphine\Routing\Route\Endpoint\CallbackEndpoint
      *
-     * @param callable $callback function(ServerRequestInterface): ResponseInterface
+     * @param callable $callback fn(ServerRequestInterface) => ResponseInterface
      *
      * @return Route
      */
@@ -70,7 +71,7 @@ class EndpointRouteBuilder
      *
      * @see \Polymorphine\Routing\Route\Gate\LazyRoute
      *
-     * @param callable $routeCallback function(): Route
+     * @param callable $routeCallback fn() => Route
      *
      * @return Route
      */

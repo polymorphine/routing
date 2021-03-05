@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -22,7 +22,7 @@ use Psr\Http\Message\UriInterface;
  */
 class CompositePattern implements Pattern
 {
-    private $patterns;
+    private array $patterns;
 
     /**
      * @param Pattern[] $patterns

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -27,9 +27,13 @@ class MethodSwitchNode implements Node
 {
     use CompositeBuilderMethods;
 
-    private $implicitMethod = 'GET';
-    private $methods        = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'HEAD', 'OPTIONS'];
+    private ?string $implicitMethod = 'GET';
+    private array   $methods = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'HEAD', 'OPTIONS'];
 
+    /**
+     * @param Context $context
+     * @param Route[] $routes
+     */
     public function __construct(Context $context, array $routes = [])
     {
         $this->context = $context;

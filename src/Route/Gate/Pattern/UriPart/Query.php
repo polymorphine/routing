@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -25,7 +25,7 @@ class Query implements Route\Gate\Pattern
 {
     use Route\Gate\Pattern\UriTemplatePlaceholder;
 
-    private $params;
+    private array $params;
 
     /**
      * Given query string params will be matched against defined params

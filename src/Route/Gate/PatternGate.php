@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -24,9 +24,13 @@ use Psr\Http\Message\UriInterface;
  */
 class PatternGate implements Route
 {
-    private $pattern;
-    private $route;
+    private Pattern $pattern;
+    private Route   $route;
 
+    /**
+     * @param Pattern $pattern
+     * @param Route   $route
+     */
     public function __construct(Pattern $pattern, Route $route)
     {
         $this->pattern = $pattern;

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -27,10 +27,10 @@ use Polymorphine\Routing\Route;
  */
 class LinkedRouteNode implements Node
 {
-    private $futureRoute;
+    private ?Route $futureRoute;
 
     /**
-     * @param null|Route $futureRoute deferred Route build resolved by builder at
+     * @param Route|null $futureRoute deferred Route build resolved by builder at
      *                                composition stage
      */
     public function __construct(?Route &$futureRoute)

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -20,14 +20,13 @@ use Psr\Http\Server\MiddlewareInterface;
 
 trait GateBuildMethods
 {
-    /** @var Context */
-    private $context;
+    private Context $context;
 
     /**
      * Generic gate wrapper that creates gate Route with given callback
      * that will wrap Route passed as its argument.
      *
-     * @param callable $routeWrapper function(Route): Route
+     * @param callable $routeWrapper fn(Route) => Route
      *
      * @return GateBuildMethods
      */
@@ -41,7 +40,7 @@ trait GateBuildMethods
      * Creates MethodGate and (optionally) PatternGate wrapper for built route.
      *
      * @param string       $methods single http method or pipe separated method set like 'GET|POST|DELETE'
-     * @param null|Pattern $pattern
+     * @param Pattern|null $pattern
      *
      * @return static
      */
@@ -89,7 +88,7 @@ trait GateBuildMethods
     /**
      * Creates CallbackGateway wrapper for built route.
      *
-     * @param callable $callback function(ServerRequestInterface): ?ServerRequestInterface
+     * @param callable $callback fn(ServerRequestInterface) => ?ServerRequestInterface
      *
      * @return static
      */
@@ -154,36 +153,71 @@ trait GateBuildMethods
         return $this;
     }
 
+    /**
+     * @param Pattern|null $pattern
+     *
+     * @return static
+     */
     public function get(Pattern $pattern = null): self
     {
         return $this->method('GET', $pattern);
     }
 
+    /**
+     * @param Pattern|null $pattern
+     *
+     * @return static
+     */
     public function post(Pattern $pattern = null): self
     {
         return $this->method('POST', $pattern);
     }
 
+    /**
+     * @param Pattern|null $pattern
+     *
+     * @return static
+     */
     public function put(Pattern $pattern = null): self
     {
         return $this->method('PUT', $pattern);
     }
 
+    /**
+     * @param Pattern|null $pattern
+     *
+     * @return static
+     */
     public function patch(Pattern $pattern = null): self
     {
         return $this->method('PATCH', $pattern);
     }
 
+    /**
+     * @param Pattern|null $pattern
+     *
+     * @return static
+     */
     public function delete(Pattern $pattern = null): self
     {
         return $this->method('DELETE', $pattern);
     }
 
+    /**
+     * @param Pattern|null $pattern
+     *
+     * @return static
+     */
     public function head(Pattern $pattern = null): self
     {
         return $this->method('HEAD', $pattern);
     }
 
+    /**
+     * @param Pattern|null $pattern
+     *
+     * @return static
+     */
     public function options(Pattern $pattern = null): self
     {
         return $this->method('OPTIONS', $pattern);

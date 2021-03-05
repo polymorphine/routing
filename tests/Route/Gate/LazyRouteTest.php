@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -19,13 +19,6 @@ use Polymorphine\Routing\Tests\Doubles;
 
 class LazyRouteTest extends TestCase
 {
-    private $invokedRoute;
-
-    public function setUp(): void
-    {
-        $this->invokedRoute = null;
-    }
-
     public function testInstantiation()
     {
         $this->assertInstanceOf(Route::class, $this->gate());

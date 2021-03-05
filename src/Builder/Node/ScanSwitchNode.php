@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -21,10 +21,14 @@ class ScanSwitchNode implements Node
 {
     use CompositeBuilderMethods;
 
-    /** @var bool */
-    private $hasDefaultRoute = false;
-    private $resourcesForms;
+    private bool $hasDefaultRoute = false;
 
+    private ?PathSwitchNode $resourcesForms = null;
+
+    /**
+     * @param Context $context
+     * @param Route[] $routes
+     */
     public function __construct(Context $context, array $routes = [])
     {
         $this->context = $context;
@@ -57,7 +61,7 @@ class ScanSwitchNode implements Node
      * but may be accessed with URI built with another (alternative)
      * route.
      *
-     * @param null|string $name
+     * @param string|null $name
      *
      * @return RouteNode
      */

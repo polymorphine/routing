@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -18,16 +18,16 @@ use Psr\Http\Message\UriInterface;
 
 class MockedPattern implements Pattern
 {
-    public $uriPrototype;
-    public $uriParams;
-    public $uriResult;
+    public UriInterface $uriPrototype;
+    public array        $uriParams;
+    public UriInterface $uriResult;
 
-    public $passedRequest;
-    public $matchedRequest;
+    public ServerRequestInterface $passedRequest;
+    public ServerRequestInterface $matchedRequest;
 
-    public $exception;
+    public ?string $exception = null;
 
-    private $path;
+    private ?string $path;
 
     public function __construct(?string $path = null)
     {

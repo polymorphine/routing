@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -22,8 +22,11 @@ use Psr\Http\Message\ResponseInterface;
  */
 class HandlerEndpoint extends Endpoint
 {
-    private $handler;
+    private RequestHandlerInterface $handler;
 
+    /**
+     * @param RequestHandlerInterface $handler
+     */
     public function __construct(RequestHandlerInterface $handler)
     {
         $this->handler = $handler;

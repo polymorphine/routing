@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -26,9 +26,9 @@ class CallbackSwitch implements Route
 {
     use RouteSelectMethods;
 
-    private $routes;
+    private array $routes;
     private $idCallback;
-    private $implicit;
+    private ?string $implicit;
 
     /**
      * Implicit Route name is for convenience only - it is assumed when route
@@ -37,8 +37,8 @@ class CallbackSwitch implements Route
      * defined routes.
      *
      * @param Route[]     $routes     associative array with route name keys
-     * @param callable    $idCallback function (ServerRequestInterface): string
-     * @param null|string $implicit   key from provided $routes (ignored if none match)
+     * @param callable    $idCallback fn(ServerRequestInterface) => string
+     * @param string|null $implicit   key from provided $routes (ignored if none match)
      */
     public function __construct(array $routes, callable $idCallback, ?string $implicit = null)
     {

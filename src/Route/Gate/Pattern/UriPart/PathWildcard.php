@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -23,10 +23,6 @@ class PathWildcard implements Route\Gate\Pattern
 {
     use Route\Gate\Pattern\PathContextMethods;
     use Route\Gate\Pattern\UriTemplatePlaceholder;
-
-    public function __construct()
-    {
-    }
 
     public function matchedRequest(ServerRequestInterface $request): ?ServerRequestInterface
     {

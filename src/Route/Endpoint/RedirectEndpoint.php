@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -23,10 +23,10 @@ use Psr\Http\Message\ResponseInterface;
 class RedirectEndpoint extends Endpoint
 {
     private $uriCallback;
-    private $statusCode;
+    private int $statusCode;
 
     /**
-     * @param callable $uriCallback function(): string
+     * @param callable $uriCallback fn() => string
      * @param int      $statusCode
      */
     public function __construct(callable $uriCallback, int $statusCode = 301)

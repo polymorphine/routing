@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -24,7 +24,7 @@ class CallbackEndpoint extends Endpoint
     private $callback;
 
     /**
-     * @param callable $callback function(ServerRequestInterface): ResponseInterface
+     * @param callable $callback fn(ServerRequestInterface) => ResponseInterface
      */
     public function __construct(callable $callback)
     {

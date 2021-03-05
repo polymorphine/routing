@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -26,8 +26,8 @@ class ScanSwitch implements Route
 {
     use RouteSelectMethods;
 
-    protected $routes = [];
-    protected $defaultRoute;
+    protected array  $routes;
+    protected ?Route $defaultRoute;
 
     /**
      * Default Route is resolved using following rules:
@@ -38,7 +38,7 @@ class ScanSwitch implements Route
      *   from collection of routes.
      *
      * @param Route[] $routes
-     * @param Route   $defaultRoute
+     * @param ?Route  $defaultRoute
      */
     public function __construct(array $routes, Route $defaultRoute = null)
     {
@@ -79,7 +79,7 @@ class ScanSwitch implements Route
                   ->follow($this->defaultRoute);
         }
         foreach ($this->routes as $name => $route) {
-            $trace->nextHop($name)
+            $trace->nextHop((string) $name)
                   ->follow($route);
         }
     }

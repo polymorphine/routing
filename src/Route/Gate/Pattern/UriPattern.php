@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -23,9 +23,10 @@ use InvalidArgumentException;
  */
 class UriPattern implements Pattern
 {
-    private $uri;
-    private $regexp;
-    private $pattern;
+    private array $uri;
+    private array $regexp;
+
+    private Pattern $pattern;
 
     /**
      * @param array $segments associative array of URI segments as returned by parse_url() function
@@ -68,17 +69,9 @@ class UriPattern implements Pattern
         return $this->pattern()->templateUri($uri);
     }
 
-    public function pattern(): Pattern
+    private function pattern(): Pattern
     {
-        if ($this->pattern) { return $this->pattern; }
-
-        $patterns = [];
-        foreach ($this->uri as $name => $value) {
-            if (!$pattern = $this->resolveUriPart($name, $value)) { continue; }
-            $patterns[] = $pattern;
-        }
-
-        return $this->pattern = (count($patterns) === 1) ? $patterns[0] : new CompositePattern($patterns);
+        return $this->pattern ??= $this->resolvedPattern();
     }
 
     private function resolveUriPart(string $name, $value): ?Pattern
@@ -91,7 +84,7 @@ class UriPattern implements Pattern
             case 'host':
                 return ($value[0] === '*') ? new Uri\HostDomain(ltrim($value, '*')) : new Uri\Host($value);
             case 'port':
-                return new Uri\Port($value);
+                return new Uri\Port((string) $value);
             case 'user':
                 $pass = isset($this->uri['pass']) ? ':' . $this->uri['pass'] : '';
                 return new Uri\UserInfo($value . $pass);
@@ -172,5 +165,16 @@ class UriPattern implements Pattern
 
         $replace = array_map(function ($type) { return self::DELIM_LEFT . $type; }, $types);
         $uri     = str_replace($replace, self::DELIM_LEFT, $uri);
+    }
+
+    private function resolvedPattern(): Pattern
+    {
+        $patterns = [];
+        foreach ($this->uri as $name => $value) {
+            if (!$pattern = $this->resolveUriPart($name, $value)) { continue; }
+            $patterns[] = $pattern;
+        }
+
+        return count($patterns) === 1 ? $patterns[0] : new CompositePattern($patterns);
     }
 }

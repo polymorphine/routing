@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -11,7 +11,8 @@
 
 namespace Polymorphine\Routing\Builder\Node\Resource;
 
-use Polymorphine\Routing\Builder\Node;
+use Polymorphine\Routing\Builder\Node\PathSwitchNode;
+use Polymorphine\Routing\Builder\Node\ScanSwitchNode;
 use Polymorphine\Routing\Route;
 
 
@@ -21,16 +22,25 @@ use Polymorphine\Routing\Route;
  */
 class FormsContext
 {
-    private $formsBuilder;
-    private $resourceName;
+    private string         $resourceName;
+    private PathSwitchNode $formsBuilder;
 
-    public function __construct(string $resourceName, Node\PathSwitchNode $formsBuilder)
+    /**
+     * @param string         $resourceName
+     * @param PathSwitchNode $formsBuilder
+     */
+    public function __construct(string $resourceName, PathSwitchNode $formsBuilder)
     {
         $this->resourceName = $resourceName;
         $this->formsBuilder = $formsBuilder;
     }
 
-    public function builder(string $id): Node\ScanSwitchNode
+    /**
+     * @param string $id
+     *
+     * @return ScanSwitchNode
+     */
+    public function builder(string $id): ScanSwitchNode
     {
         $routeWrapper = function (Route $route) use ($id) {
             return new Route\Gate\UriAttributeSelect($route, $id, 'edit', 'new');

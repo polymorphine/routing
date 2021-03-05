@@ -43,7 +43,7 @@ interface Pattern
      *
      * @param ServerRequestInterface $request
      *
-     * @return null|ServerRequestInterface
+     * @return ServerRequestInterface|null
      */
     public function matchedRequest(ServerRequestInterface $request): ?ServerRequestInterface;
 

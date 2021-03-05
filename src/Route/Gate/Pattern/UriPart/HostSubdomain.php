@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -25,8 +25,8 @@ class HostSubdomain implements Route\Gate\Pattern
 {
     use Route\Gate\Pattern\UriTemplatePlaceholder;
 
-    private $id;
-    private $values = [];
+    private string $id;
+    private array  $values = [];
 
     /**
      * Building URI with subdomain requires prototype with existing

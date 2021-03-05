@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -18,11 +18,12 @@ use Psr\Http\Message\UriInterface;
 
 class FakeServerRequest implements ServerRequestInterface
 {
-    public $uri;
-    public $method;
-    public $attr    = [];
-    public $cookies = [];
-    public $parsed  = [];
+    public string        $method;
+    public ?UriInterface $uri;
+
+    public array $attr    = [];
+    public array $cookies = [];
+    public array $parsed  = [];
 
     public function __construct(string $method = 'GET', UriInterface $uri = null)
     {

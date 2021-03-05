@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -25,10 +25,10 @@ use Psr\Http\Message\UriInterface;
 class LazyRoute implements Route
 {
     private $routeCallback;
-    private $route;
+    private Route $route;
 
     /**
-     * @param callable $routeCallback function(): Route
+     * @param callable $routeCallback fn() => Route
      */
     public function __construct(callable $routeCallback)
     {
@@ -57,6 +57,6 @@ class LazyRoute implements Route
 
     protected function invokedRoute(): Route
     {
-        return $this->route ?? $this->route = ($this->routeCallback)();
+        return $this->route ??= ($this->routeCallback)();
     }
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -25,8 +25,8 @@ use Psr\Http\Message\UriInterface;
  */
 class MiddlewareGateway implements Route
 {
-    private $middleware;
-    private $route;
+    private MiddlewareInterface $middleware;
+    private Route               $route;
 
     /**
      * @param MiddlewareInterface $middleware

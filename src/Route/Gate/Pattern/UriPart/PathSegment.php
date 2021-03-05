@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Polymorphine/Routing package.
@@ -23,8 +23,11 @@ class PathSegment implements Route\Gate\Pattern
 {
     use Route\Gate\Pattern\PathContextMethods;
 
-    private $name;
+    private string $name;
 
+    /**
+     * @param string $name
+     */
     public function __construct(string $name)
     {
         $this->name = $name;
