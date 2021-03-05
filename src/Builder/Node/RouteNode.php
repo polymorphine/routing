@@ -135,7 +135,7 @@ class RouteNode implements Node
      * If Route in that context will not be created until this builder
      * will attempt to build it BuilderLogicException will be thrown.
      *
-     * @param null|Route &$route reference to current of future Route
+     * @param Route|null &$route reference to current of future Route
      */
     public function joinLink(?Route &$route): void
     {
@@ -234,7 +234,7 @@ class RouteNode implements Node
      * @see ScanSwitchNode::resource()
      *
      * @param array             $routes
-     * @param null|FormsContext $formsBuilder
+     * @param FormsContext|null $formsBuilder
      *
      * @return ResourceSwitchNode
      */

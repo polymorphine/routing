@@ -57,7 +57,7 @@ class ScanSwitchNode implements Node
      * but may be accessed with URI built with another (alternative)
      * route.
      *
-     * @param null|string $name
+     * @param string|null $name
      *
      * @return RouteNode
      */

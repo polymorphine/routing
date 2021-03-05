@@ -56,7 +56,7 @@ class ResourceSwitchNode implements Node
      * (default: resource.id => [1-9][0-9]*).
      *
      * @param string      $name
-     * @param null|string $regexp
+     * @param string|null $regexp
      *
      * @return ResourceSwitchNode
      */

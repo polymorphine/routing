@@ -17,8 +17,8 @@ use Polymorphine\Routing\Builder\Context;
 use Polymorphine\Routing\Builder\Exception;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\UriInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\Http\Message\UriInterface;
 use Psr\Http\Message\UriFactoryInterface;
 
 
@@ -41,11 +41,11 @@ class Builder
      * Also if provided MappedRoutes instance does not define router
      * callback it will be set by this class.
      *
-     * @param null|MappedRoutes $mappedRoutes
+     * @param MappedRoutes|null $mappedRoutes
      */
     public function __construct(MappedRoutes $mappedRoutes = null)
     {
-        $routerCallback = function () { return $this->router; };
+        $routerCallback = fn () => $this->router;
         if ($mappedRoutes && !$mappedRoutes->hasRouterCallback()) {
             $this->mappedRoutes = $mappedRoutes->withRouterCallback($routerCallback);
         } else {
@@ -69,19 +69,17 @@ class Builder
     }
 
     /**
-     * Creates Router instance based on builder nodes defined on root
-     * node.
+     * Creates Router instance based on builder nodes defined on root node.
      *
      * Throws BuilderLogicException if routes are not (fully) defined
      * and builder nodes cannot be resolved into Route instances.
-     *
      *
      * @param UriInterface      $baseUri      prototype for uri instances produced with
      *                                        Router::uri() method
      * @param ResponseInterface $nullResponse recognized by Router as a product of unprocessed
      *                                        request (from Router::handle() method) or a base for
      *                                        creating response within one of its Routes
-     * @param string            $rootPath     routing path selecting root route
+     * @param string|null       $rootPath     routing path selecting root route
      *
      * @throws Exception\BuilderLogicException
      *
@@ -99,12 +97,12 @@ class Builder
     }
 
     /**
-     * Creates Router instance based on builder nodes defined on root
-     * node. Uses PSR-17 factories to create base URI and null response.
+     * Creates Router instance based on builder nodes defined on root node.
+     * Uses PSR-17 factories to create base URI and null response.
      *
      * @param UriFactoryInterface      $uriFactory
      * @param ResponseFactoryInterface $responseFactory
-     * @param string                   $rootPath        routing path selecting root route
+     * @param string|null              $rootPath        routing path selecting root route
      *
      * @throws Exception\BuilderLogicException
      *

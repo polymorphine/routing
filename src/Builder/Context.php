@@ -19,10 +19,10 @@ class Context
 {
     private $mappedRoutes;
 
-    /** @var null|Route */
+    /** @var Route|null */
     private $route;
 
-    /** @var null|Node */
+    /** @var Node|null */
     private $builder;
 
     /** @var callable[] */

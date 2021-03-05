@@ -42,9 +42,9 @@ class MappedRoutes
      * that also serves as more detailed example of main constructor
      * parameters.
      *
-     * @param null|callable $router   function(): Router
-     * @param null|callable $endpoint function(string): Endpoint|Route
-     * @param null|callable $gateway  function(string, Route): Route
+     * @param callable|null $router   function(): Router
+     * @param callable|null $endpoint function(string): Endpoint|Route
+     * @param callable|null $gateway  function(string, Route): Route
      */
     public function __construct(?callable $router, ?callable $endpoint, ?callable $gateway)
     {

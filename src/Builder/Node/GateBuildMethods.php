@@ -41,7 +41,7 @@ trait GateBuildMethods
      * Creates MethodGate and (optionally) PatternGate wrapper for built route.
      *
      * @param string       $methods single http method or pipe separated method set like 'GET|POST|DELETE'
-     * @param null|Pattern $pattern
+     * @param Pattern|null $pattern
      *
      * @return static
      */
