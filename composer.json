@@ -5,7 +5,7 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": "^7.4",
+        "php": "^7.4 || ^8.0",
         "psr/http-message": "^1.0",
         "psr/http-factory": "^1.0",
         "psr/http-server-middleware": "^1.0",
@@ -30,5 +30,12 @@
         "psr-4": {
             "Polymorphine\\Routing\\Tests\\": "tests/"
         }
+    },
+    "scripts": {
+        "test-cs": [
+            "vendor/bin/php-cs-fixer --dry-run -v --config=cs-fixer.php.dist --path-mode=intersection fix src tests",
+            "vendor/bin/phpcs --extensions=php --standard=vendor/polymorphine/dev/phpcs.xml src",
+            "vendor/bin/phpcs --extensions=php --standard=vendor/polymorphine/dev/phpcs.xml --ignore=*/CodeSamples/* tests"
+        ]
     }
 }
