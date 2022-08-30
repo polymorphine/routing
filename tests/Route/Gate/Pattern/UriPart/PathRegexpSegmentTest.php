@@ -75,6 +75,7 @@ class PathRegexpSegmentTest extends TestCase
     public function testNamedConstructorsEquivalentToConcretePatterns()
     {
         $this->assertEquals($this->pattern('id', '[0-9]+'), PathRegexpSegment::numeric());
+        $this->assertEquals($this->pattern('id', '[0-9]{14}'), PathRegexpSegment::numeric('id', 14));
         $this->assertEquals($this->pattern('id', '[1-9][0-9]*'), PathRegexpSegment::number());
         $this->assertEquals($this->pattern('slug', '[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9]'), PathRegexpSegment::slug());
         $this->assertEquals($this->pattern('name', '[a-zA-Z0-9]+'), PathRegexpSegment::name());

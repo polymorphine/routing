@@ -46,9 +46,9 @@ class PathRegexpSegment implements Route\Gate\Pattern
         $this->regexp = $regexp;
     }
 
-    public static function numeric(string $name = 'id')
+    public static function numeric(string $name = 'id', int $length = null)
     {
-        return new static($name, self::TYPE_REGEXP[self::TYPE_NUMERIC]);
+        return new static($name, $length ? '[0-9]{' . $length . '}' : self::TYPE_REGEXP[self::TYPE_NUMERIC]);
     }
 
     public static function number(string $name = 'id')
