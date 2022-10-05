@@ -1,0 +1,8 @@
+{
+    "package.name": "Polymorphine/Routing",
+    "repository.name": "polymorphine/routing",
+    "package.description": "Composite routing library for HTTP applications",
+    "namespace.src": "Polymorphine\\Routing",
+    "author.name": "Shudd3r",
+    "author.email": "q3.shudder@gmail.com"
+}

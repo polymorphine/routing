@@ -1,5 +1,5 @@
 # Polymorphine/Routing
-[![Latest Stable Version](https://poser.pugx.org/polymorphine/routing/version)](https://packagist.org/packages/polymorphine/routing)
+[![Latest stable release](https://poser.pugx.org/polymorphine/routing/version)](https://packagist.org/packages/polymorphine/routing)
 [![Build status](https://github.com/polymorphine/routing/workflows/build/badge.svg)](https://github.com/polymorphine/routing/actions)
 [![Coverage status](https://coveralls.io/repos/github/polymorphine/routing/badge.svg?branch=develop)](https://coveralls.io/github/polymorphine/routing?branch=develop)
 [![PHP version](https://img.shields.io/packagist/php-v/polymorphine/routing.svg)](https://packagist.org/packages/polymorphine/routing)
@@ -34,7 +34,9 @@ It is also more readable due to the fact that builder method calls _resemble exe
 path_ in instantiated tree.
 
 ### Installation with [Composer](https://getcomposer.org/)
-    php composer.phar require polymorphine/routing
+```bash
+composer require polymorphine/routing
+```
 
 ### Routing build example
 Diagram below shows control flow of the request passed to matching endpoint in simplified blog page example.

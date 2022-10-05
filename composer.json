@@ -2,6 +2,13 @@
     "name": "polymorphine/routing",
     "description": "Composite routing library for HTTP applications",
     "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Shudd3r",
+            "email": "q3.shudder@gmail.com"
+        }
+    ],
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
@@ -12,15 +19,8 @@
         "psr/container": "^1.0"
     },
     "require-dev": {
-        "polymorphine/dev": "0.1.*"
+        "polymorphine/dev": "0.2.*"
     },
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Shudd3r",
-            "email": "q3.shudder@gmail.com"
-        }
-    ],
     "autoload": {
         "psr-4": {
             "Polymorphine\\Routing\\": "src/"
@@ -33,9 +33,11 @@
     },
     "scripts": {
         "test-cs": [
-            "vendor/bin/php-cs-fixer --dry-run -v --config=cs-fixer.php.dist --path-mode=intersection fix src tests",
-            "vendor/bin/phpcs --extensions=php --standard=vendor/polymorphine/dev/phpcs.xml src",
-            "vendor/bin/phpcs --extensions=php --standard=vendor/polymorphine/dev/phpcs.xml --ignore=*/CodeSamples/* tests"
-        ]
+            "php-cs-fixer --dry-run -v --config=cs-fixer.php.dist --path-mode=intersection fix src tests",
+            "phpcs --extensions=php --standard=vendor/polymorphine/dev/phpcs.xml src",
+            "phpcs --extensions=php --standard=vendor/polymorphine/dev/phpcs.xml --ignore=*/code-samples/* tests"
+        ],
+        "test-php": "phpunit",
+        "test-skeleton": "polymorphine-skeleton check"
     }
 }
