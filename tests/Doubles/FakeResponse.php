@@ -13,15 +13,17 @@ namespace Polymorphine\Routing\Tests\Doubles;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\RequestInterface;
 
 
 class FakeResponse implements ResponseInterface
 {
-    public string $body;
-    public array  $headers = [];
-    public string $protocol = '1.1';
-    public int    $status   = 200;
-    public string $reason   = 'OK';
+    public string           $body;
+    public array            $headers = [];
+    public string           $protocol = '1.1';
+    public int              $status   = 200;
+    public string           $reason   = 'OK';
+    public RequestInterface $fromRequest;
 
     public function __construct($body = '')
     {
