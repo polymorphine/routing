@@ -40,7 +40,7 @@ class ScanSwitch implements Route
      * @param Route[] $routes
      * @param ?Route  $defaultRoute
      */
-    public function __construct(array $routes, Route $defaultRoute = null)
+    public function __construct(array $routes, ?Route $defaultRoute = null)
     {
         $this->routes       = $routes;
         $this->defaultRoute = $defaultRoute;

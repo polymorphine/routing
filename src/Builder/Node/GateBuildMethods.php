@@ -44,7 +44,7 @@ trait GateBuildMethods
      *
      * @return static
      */
-    public function method(string $methods, Pattern $pattern = null): self
+    public function method(string $methods, ?Pattern $pattern = null): self
     {
         if (isset($pattern)) { $this->pattern($pattern); }
         $this->context->addGate(function (Route $route) use ($methods) {
@@ -158,7 +158,7 @@ trait GateBuildMethods
      *
      * @return static
      */
-    public function get(Pattern $pattern = null): self
+    public function get(?Pattern $pattern = null): self
     {
         return $this->method('GET', $pattern);
     }
@@ -168,7 +168,7 @@ trait GateBuildMethods
      *
      * @return static
      */
-    public function post(Pattern $pattern = null): self
+    public function post(?Pattern $pattern = null): self
     {
         return $this->method('POST', $pattern);
     }
@@ -178,7 +178,7 @@ trait GateBuildMethods
      *
      * @return static
      */
-    public function put(Pattern $pattern = null): self
+    public function put(?Pattern $pattern = null): self
     {
         return $this->method('PUT', $pattern);
     }
@@ -188,7 +188,7 @@ trait GateBuildMethods
      *
      * @return static
      */
-    public function patch(Pattern $pattern = null): self
+    public function patch(?Pattern $pattern = null): self
     {
         return $this->method('PATCH', $pattern);
     }
@@ -198,7 +198,7 @@ trait GateBuildMethods
      *
      * @return static
      */
-    public function delete(Pattern $pattern = null): self
+    public function delete(?Pattern $pattern = null): self
     {
         return $this->method('DELETE', $pattern);
     }
@@ -208,7 +208,7 @@ trait GateBuildMethods
      *
      * @return static
      */
-    public function head(Pattern $pattern = null): self
+    public function head(?Pattern $pattern = null): self
     {
         return $this->method('HEAD', $pattern);
     }
@@ -218,7 +218,7 @@ trait GateBuildMethods
      *
      * @return static
      */
-    public function options(Pattern $pattern = null): self
+    public function options(?Pattern $pattern = null): self
     {
         return $this->method('OPTIONS', $pattern);
     }

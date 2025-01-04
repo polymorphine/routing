@@ -60,7 +60,7 @@ class ResourceSwitchNode implements Node
      *
      * @return ResourceSwitchNode
      */
-    public function id(string $name, string $regexp = null): self
+    public function id(string $name, ?string $regexp = null): self
     {
         $this->idName = $name;
         return $regexp ? $this->withIdRegexp($regexp) : $this;

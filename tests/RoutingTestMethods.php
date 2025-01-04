@@ -11,6 +11,8 @@
 
 namespace Polymorphine\Routing\Tests;
 
+use Psr\Http\Message\RequestInterface;
+
 
 trait RoutingTestMethods
 {
@@ -21,10 +23,11 @@ trait RoutingTestMethods
         self::$prototype = new Doubles\FakeResponse();
     }
 
-    private function callbackResponse(&$response, string $body = '')
+    /** @return callable fn(RequestInterface) => Doubles\FakeResponse */
+    private function callbackResponse(?Doubles\FakeResponse &$response, string $body = ''): callable
     {
         $response = new Doubles\FakeResponse($body);
-        return function ($request) use (&$response) {
+        return function (RequestInterface $request) use (&$response) {
             $response->fromRequest = $request;
             return $response;
         };

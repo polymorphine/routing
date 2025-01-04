@@ -85,7 +85,7 @@ class PathSegmentTest extends TestCase
         return new Pattern\UriPart\PathSegment($name);
     }
 
-    private function request(string $uri, array $context = null): ServerRequestInterface
+    private function request(string $uri, ?array $context = null): ServerRequestInterface
     {
         $request = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString($uri));
         return isset($context) ? $request->withAttribute(Route::PATH_ATTRIBUTE, $context) : $request;

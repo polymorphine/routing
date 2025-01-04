@@ -29,7 +29,7 @@ use Psr\Http\Message\UriInterface;
  */
 abstract class Endpoint implements Route
 {
-    use Route\Gate\Pattern\PathContextMethods;
+    use Gate\Pattern\PathContextMethods;
 
     public function forward(Request $request, Response $prototype): Response
     {

@@ -207,7 +207,7 @@ class PathSwitchTest extends TestCase
         $splitter->routes($trace);
     }
 
-    private function routeForwardCall(Route $route, string $requestUri = null): ResponseInterface
+    private function routeForwardCall(Route $route, ?string $requestUri = null): ResponseInterface
     {
         $uri     = $requestUri ? Doubles\FakeUri::fromString($requestUri) : new Doubles\FakeUri();
         $request = new Doubles\FakeServerRequest('GET', $uri);
@@ -222,7 +222,7 @@ class PathSwitchTest extends TestCase
         return $route;
     }
 
-    private function splitter(array $routes = [], Route $root = null)
+    private function splitter(array $routes = [], ?Route $root = null)
     {
         $routes = $routes ?: ['dummy' => new Doubles\MockedRoute()];
         return $root ? new Route\Splitter\PathSwitch($routes, $root) : new Route\Splitter\PathSwitch($routes);

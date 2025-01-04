@@ -41,7 +41,7 @@ class CallbackSwitchNodeTest extends TestCase
     public function testRoutesCanBeAdded()
     {
         $switch = $this->builder([
-            'baz' => new Tests\Doubles\MockedRoute($bazResponse = new Tests\Doubles\FakeResponse())
+            'baz' => new Doubles\MockedRoute($bazResponse = new Doubles\FakeResponse())
         ]);
         $switch->route('foo')->callback($this->callbackResponse($fooResponse));
         $switch->route('bar')->callback($this->callbackResponse($barResponse));

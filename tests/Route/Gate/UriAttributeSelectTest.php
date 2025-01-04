@@ -57,7 +57,7 @@ class UriAttributeSelectTest extends TestCase
         $this->assertSame($trace, $route->trace);
     }
 
-    private function gate(Doubles\MockedRoute &$resource = null): Route\Gate\UriAttributeSelect
+    private function gate(?Doubles\MockedRoute &$resource = null): Route\Gate\UriAttributeSelect
     {
         $resource = new Doubles\MockedRoute(new Doubles\FakeResponse(), new Doubles\FakeUri());
         return new Route\Gate\UriAttributeSelect($resource, 'id', 'item', 'index');

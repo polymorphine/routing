@@ -23,7 +23,7 @@ use InvalidArgumentException;
 /**
  * Builder Node creating and configuring PathSwitch splitter route.
  *
- * @see \Polymorphine\Routing\Route\Splitter\PathSwitch
+ * @see Route\Splitter\PathSwitch
  */
 class PathSwitchNode implements Node
 {
@@ -66,7 +66,7 @@ class PathSwitchNode implements Node
      * @param string $name
      * @param array  $routes
      *
-     * @return Resource\ResourceSwitchNode
+     * @return ResourceSwitchNode
      */
     public function resource(string $name, array $routes = []): ResourceSwitchNode
     {
@@ -99,11 +99,10 @@ class PathSwitchNode implements Node
     }
 
     /**
-     * Creates builder context for route which URI path ends in
+     * Creates builder root route context for which URI path ends in
      * PathSwitch splitter with no continued path resolution.
      *
-     * @see \Polymorphine\Routing\Route\Splitter\PathSwitch constructor
-     * description for more information on root route.
+     * @see Route\Splitter\PathSwitch::__construct()
      *
      * @return RouteNode
      */
