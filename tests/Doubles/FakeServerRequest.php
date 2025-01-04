@@ -25,7 +25,7 @@ class FakeServerRequest implements ServerRequestInterface
     public array $cookies = [];
     public array $parsed  = [];
 
-    public function __construct(string $method = 'GET', UriInterface $uri = null)
+    public function __construct(string $method = 'GET', ?UriInterface $uri = null)
     {
         $this->method = $method;
         $this->uri    = $uri;

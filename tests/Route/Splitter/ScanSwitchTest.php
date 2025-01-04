@@ -165,7 +165,7 @@ class ScanSwitchTest extends TestCase
         $splitter->routes($trace);
     }
 
-    private function splitter(array $routes = [], Route $default = null)
+    private function splitter(array $routes = [], ?Route $default = null)
     {
         $routes = $routes ?: ['dummy' => new Doubles\MockedRoute()];
         return $default ? new Route\Splitter\ScanSwitch($routes, $default) : new Route\Splitter\ScanSwitch($routes);

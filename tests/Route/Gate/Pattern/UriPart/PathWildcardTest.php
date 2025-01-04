@@ -57,7 +57,7 @@ class PathWildcardTest extends TestCase
         $this->assertSame('http://example.com/foo/bar' . $this->placeholder('/*') . '?query=baz', (string) $pattern->templateUri($uri));
     }
 
-    private function request(string $uri, string $relativePath = null)
+    private function request(string $uri, ?string $relativePath = null)
     {
         $request = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString($uri));
         return $relativePath ? $request->withAttribute(Route::PATH_ATTRIBUTE, explode('/', $relativePath)) : $request;

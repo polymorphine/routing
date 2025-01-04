@@ -39,7 +39,7 @@ class Builder
      *
      * @param MappedRoutes|null $mappedRoutes
      */
-    public function __construct(MappedRoutes $mappedRoutes = null)
+    public function __construct(?MappedRoutes $mappedRoutes = null)
     {
         $routerCallback = fn () => $this->router;
         if ($mappedRoutes && !$mappedRoutes->hasRouterCallback()) {

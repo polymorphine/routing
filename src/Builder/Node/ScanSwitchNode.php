@@ -65,7 +65,7 @@ class ScanSwitchNode implements Node
      *
      * @return RouteNode
      */
-    public function route(string $name = null): RouteNode
+    public function route(?string $name = null): RouteNode
     {
         return $this->addBuilder($name);
     }
