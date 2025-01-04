@@ -48,7 +48,7 @@ class RouteNode implements Node
     /**
      * Adds CallbackEndpoint created with given callback.
      *
-     * @see \Polymorphine\Routing\Route\Endpoint\CallbackEndpoint
+     * @see Route\Endpoint\CallbackEndpoint
      *
      * @param callable $callback fn(ServerRequestInterface) => ResponseInterface
      */
@@ -60,7 +60,7 @@ class RouteNode implements Node
     /**
      * Adds HandlerEndpoint created with given handler.
      *
-     * @see \Polymorphine\Routing\Route\Endpoint\HandlerEndpoint
+     * @see Route\Endpoint\HandlerEndpoint
      *
      * @param RequestHandlerInterface $handler
      */
@@ -73,7 +73,7 @@ class RouteNode implements Node
      * Adds LazyRoute gate that invokes routes with given
      * callback on forward request call.
      *
-     * @see \Polymorphine\Routing\Route\Gate\LazyRoute
+     * @see Route\Gate\LazyRoute
      *
      * @param callable $routeCallback fn() => Route
      */
@@ -90,7 +90,7 @@ class RouteNode implements Node
      * needs to be able to provide Router callback that this endpoint
      * depends on - otherwise ConfigException will be thrown.
      *
-     * @see \Polymorphine\Routing\Route\Endpoint\RedirectEndpoint
+     * @see Route\Endpoint\RedirectEndpoint
      * @see \Polymorphine\Routing\Builder\MappedRoutes::redirect()
      *
      * @param string $routingPath
@@ -148,7 +148,7 @@ class RouteNode implements Node
      * Optionally already defined array of Routes with keys representing
      * Uri (and routing) path segment might be given as parameter.
      *
-     * @see \Polymorphine\Routing\Route\Splitter\PathSwitch
+     * @see Route\Splitter\PathSwitch
      *
      * @param Route[] $routes associated with Uri & routing path segment keys
      *
@@ -166,7 +166,7 @@ class RouteNode implements Node
      * Anonymous Routes (without key) cannot be explicitly selected
      * (to produce Uri), but matched request would reach them.
      *
-     * @see \Polymorphine\Routing\Route\Splitter\ScanSwitch
+     * @see Route\Splitter\ScanSwitch
      *
      * @param Route[] $routes associated with routing path segment keys
      *
@@ -182,7 +182,7 @@ class RouteNode implements Node
      * Optionally already defined array of Routes with keys representing
      * http methods (and routing path segment) might be given as parameter.
      *
-     * @see \Polymorphine\Routing\Route\Splitter\MethodSwitch
+     * @see Route\Splitter\MethodSwitch
      *
      * @param Route[] $routes associated with http method keys
      *
@@ -198,7 +198,7 @@ class RouteNode implements Node
      * Optional defined associative array of Routes with id keys
      * returned by callback.
      *
-     * @see \Polymorphine\Routing\Route\Splitter\CallbackSwitch
+     * @see Route\Splitter\CallbackSwitch
      *
      * @param callable $idCallback fn(ServerRequestInterface) => string
      * @param array    $routes

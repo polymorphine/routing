@@ -104,7 +104,7 @@ class UriPattern implements Pattern
 
         $internalParams = '#(?:[^/]' . self::DELIM_LEFT . '|' . self::DELIM_RIGHT . '[^/])#';
         if (preg_match($internalParams, $path)) {
-            $pattern = new Pattern\Regexp\RegexpPath($path, $this->getParams($path));
+            $pattern = new Regexp\RegexpPath($path, $this->getParams($path));
             return $wildcard ? new CompositePattern([$pattern, $wildcard]) : $pattern;
         }
 
@@ -118,7 +118,7 @@ class UriPattern implements Pattern
             $patterns[] = $wildcard;
         }
 
-        return count($patterns) === 1 ? $patterns[0] : new Pattern\CompositePattern($patterns);
+        return count($patterns) === 1 ? $patterns[0] : new CompositePattern($patterns);
     }
 
     private function pathSegment(string $segment): Pattern
@@ -134,7 +134,7 @@ class UriPattern implements Pattern
     private function queryPattern(string $query): Pattern
     {
         return strpos($query, self::DELIM_LEFT)
-            ? new Pattern\Regexp\RegexpQuery($query, $this->getParams($query))
+            ? new Regexp\RegexpQuery($query, $this->getParams($query))
             : Uri\Query::fromQueryString($query);
     }
 

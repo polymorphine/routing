@@ -21,7 +21,7 @@ use InvalidArgumentException;
  * Builder Node creating and configuring MethodSwitch splitter route.
  * MethodSwitch route manages automatic OPTIONS resolving.
  *
- * @see \Polymorphine\Routing\Route\Splitter\MethodSwitch
+ * @see Route\Splitter\MethodSwitch
  */
 class MethodSwitchNode implements Node
 {

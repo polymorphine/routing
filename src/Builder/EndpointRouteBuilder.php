@@ -38,7 +38,7 @@ class EndpointRouteBuilder
     /**
      * Creates CallbackEndpoint with given callback.
      *
-     * @see \Polymorphine\Routing\Route\Endpoint\CallbackEndpoint
+     * @see Route\Endpoint\CallbackEndpoint
      *
      * @param callable $callback fn(ServerRequestInterface) => ResponseInterface
      *
@@ -53,7 +53,7 @@ class EndpointRouteBuilder
     /**
      * Creates HandlerEndpoint with given handler.
      *
-     * @see \Polymorphine\Routing\Route\Endpoint\HandlerEndpoint
+     * @see Route\Endpoint\HandlerEndpoint
      *
      * @param RequestHandlerInterface $handler
      *
@@ -69,7 +69,7 @@ class EndpointRouteBuilder
      * Creates LazyRoute gate that invokes routes with given
      * callback on forward request call.
      *
-     * @see \Polymorphine\Routing\Route\Gate\LazyRoute
+     * @see Route\Gate\LazyRoute
      *
      * @param callable $routeCallback fn() => Route
      *
@@ -89,8 +89,8 @@ class EndpointRouteBuilder
      * needs to be able to provide Router callback that this endpoint
      * depends on - otherwise ConfigException will be thrown.
      *
-     * @see \Polymorphine\Routing\Route\Endpoint\RedirectEndpoint
-     * @see \Polymorphine\Routing\Builder\MappedRoutes::redirect()
+     * @see Route\Endpoint\RedirectEndpoint
+     * @see MappedRoutes::redirect()
      *
      * @param string $routingPath
      * @param int    $code
@@ -112,7 +112,7 @@ class EndpointRouteBuilder
      * MappedRoutes has to be defined or ConfigException will
      * be thrown.
      *
-     * @see \Polymorphine\Routing\Builder\MappedRoutes::endpoint()
+     * @see MappedRoutes::endpoint()
      *
      * @param string $id
      *

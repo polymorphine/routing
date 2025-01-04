@@ -20,7 +20,7 @@ use InvalidArgumentException;
 /**
  * Builder Node creating and configuring CallbackSwitch route splitter.
  *
- * @see \Polymorphine\Routing\Route\Splitter\CallbackSwitch
+ * @see Route\Splitter\CallbackSwitch
  */
 class CallbackSwitchNode implements Node
 {
