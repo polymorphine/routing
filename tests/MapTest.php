@@ -27,13 +27,13 @@ class MapTest extends TestCase
     {
         $map = new Map();
 
-        $path1 = new Map\Path('some.path', 'POST', (string) Doubles\FakeUri::fromString('/foo/bar'));
-        $map->addPath($path1);
-        $this->assertSame([$path1], $map->paths());
+        $pathA = new Map\Path('some.path', 'POST', (string) Doubles\FakeUri::fromString('/foo/bar'));
+        $map->addPath($pathA);
+        $this->assertSame([$pathA], $map->paths());
 
-        $path2 = new Map\Path('other.path', '*', (string) Doubles\FakeUri::fromString('/foo/bar/baz'));
-        $map->addPath($path2);
-        $this->assertSame([$path1, $path2], $map->paths());
+        $pathB = new Map\Path('other.path', '*', (string) Doubles\FakeUri::fromString('/foo/bar/baz'));
+        $map->addPath($pathB);
+        $this->assertSame([$pathA, $pathB], $map->paths());
     }
 
     public function testTraceCanAddPaths()

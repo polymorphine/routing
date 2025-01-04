@@ -163,7 +163,7 @@ abstract class ReadmeExampleTest extends TestCase
 
     protected function csrfMiddleware(): MiddlewareInterface
     {
-        return new class() implements MiddlewareInterface {
+        return new class implements MiddlewareInterface {
             public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
             {
                 if ($request->getAttribute('csrfTokenError')) {
@@ -177,7 +177,7 @@ abstract class ReadmeExampleTest extends TestCase
 
     protected function authMiddleware(): MiddlewareInterface
     {
-        return new class() implements MiddlewareInterface {
+        return new class implements MiddlewareInterface {
             public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
             {
                 $auth    = $request->getAttribute('authenticate');
