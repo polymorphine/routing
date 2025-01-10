@@ -26,6 +26,11 @@ class RouteNodeTest extends TestCase
     use Routing\Tests\RoutingTestMethods;
     use Routing\Tests\Builder\ContextCreateMethod;
 
+    public static function wildcardPaths(): iterable
+    {
+        return [['foo/bar*'], ['foo/bar/*'], ['foo*'], ['foo/*'], ['*']];
+    }
+
     public function test_Instantiation()
     {
         $this->assertInstanceOf(Node\RouteNode::class, $this->builder());
@@ -86,11 +91,7 @@ class RouteNodeTest extends TestCase
         $this->assertSame($prototype, $builder->build()->forward($request, $prototype));
     }
 
-    /**
-     * @dataProvider wildcardPaths
-     *
-     * @param string $path
-     */
+    /** @dataProvider wildcardPaths */
     public function test_WildcardPathPattern_ForNotFullyMatchedRequestPath_ReturnsEndpointResponse(string $path)
     {
         $request   = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString('http://example.com/foo/bar/baz'));
@@ -99,11 +100,6 @@ class RouteNodeTest extends TestCase
         $builder = $this->builder()->path($path);
         $builder->callback($this->callbackResponse($response));
         $this->assertSame($response, $builder->build()->forward($request, $prototype));
-    }
-
-    public function wildcardPaths()
-    {
-        return [['foo/bar*'], ['foo/bar/*'], ['foo*'], ['foo/*'], ['*']];
     }
 
     public function test_GateWrappers()

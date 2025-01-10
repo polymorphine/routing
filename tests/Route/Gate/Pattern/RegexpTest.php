@@ -23,6 +23,34 @@ class RegexpTest extends TestCase
 {
     use Pattern\UriTemplatePlaceholder;
 
+    public static function matchingRequests(): iterable
+    {
+        return [
+            'id'          => ['/page/no-{#no}', '/page/no-4', ['no' => '4']],
+            'id+slug'     => ['/page/no-{#no}/{$title}.pdf', '/page/no-576/foo-bar-45.pdf', ['no' => '576', 'title' => 'foo-bar-45']],
+            'prefixed_id' => ['/foo-{@name}', '/foo-bar5000', ['name' => 'bar5000']],
+            'query'       => ['?user={#id}', '?user=938', ['id' => '938']],
+            'query+path'  => ['/path/user/id-{#id}?foo={$bar}', '/path/user/id-938?foo=bar-BAZ', ['bar' => 'bar-BAZ', 'id' => '938']]
+        ];
+    }
+
+    public static function prototypeConflict(): iterable
+    {
+        return [
+            'expected fizz=buzz'  => ['?anything&fizz={#id}', '?anything=foo&fizz=baz'],
+            'expected empty fizz' => ['?some=query&fizz={#id}}', '?some=query&fizz=']
+        ];
+    }
+
+    public static function prototypeSegmentMatch(): iterable
+    {
+        return [
+            ['id-{#id}', '/user', ['id' => 1500], '/user/id-1500'],
+            ['foo/xxx{#id}xxx?some={$x}', '?other=bar', ['id' => 673, 'x' => 'foo'], '/foo/xxx673xxx?other=bar&some=foo'],
+            ['foo/num.{#id}?some={#x}&fizz=buzz', '?some&fizz=buzz', ['id' => 123, 'x' => 1], '/foo/num.123?some=1&fizz=buzz']
+        ];
+    }
+
     public function test_NotMatchedRequest_ReturnsNull()
     {
         $pattern = $this->pattern('/page/id-{#no}');
@@ -36,27 +64,16 @@ class RegexpTest extends TestCase
         $this->assertNull($pattern->matchedRequest($this->request('?page=next')));
     }
 
-    /**
-     * @dataProvider matchingRequests
-     *
-     * @param $pattern
-     * @param $uri
-     */
-    public function test_MatchedRequest_ReturnsRequestBack($pattern, $uri)
+    /** @dataProvider matchingRequests */
+    public function test_MatchedRequest_ReturnsRequestBack(string $pattern, string $uri)
     {
         $pattern = $this->pattern($pattern);
         $request = $this->request($uri);
         $this->assertInstanceOf(ServerRequestInterface::class, $pattern->matchedRequest($request));
     }
 
-    /**
-     * @dataProvider matchingRequests
-     *
-     * @param $pattern
-     * @param $uri
-     * @param $attr
-     */
-    public function test_MatchedRequest_ReturnsRequestWithMatchedAttributes($pattern, $uri, $attr)
+    /** @dataProvider matchingRequests */
+    public function test_MatchedRequest_ReturnsRequestWithMatchedAttributes(string $pattern, string $uri, array $attr)
     {
         $pattern = $this->pattern($pattern);
         $request = $this->request($uri);
@@ -83,28 +100,11 @@ class RegexpTest extends TestCase
         $this->assertNull($pattern->matchedRequest($request));
     }
 
-    /**
-     * @dataProvider matchingRequests
-     *
-     * @param $pattern
-     * @param $uri
-     * @param $attr
-     */
-    public function test_Uri_ReplacesProvidedValues($pattern, $uri, $attr)
+    /** @dataProvider matchingRequests */
+    public function test_Uri_ReplacesProvidedValues(string $pattern, string $uri, array $attr)
     {
         $pattern = $this->pattern($pattern);
         $this->assertSame($uri, (string) $pattern->uri(new Doubles\FakeUri(), $attr));
-    }
-
-    public function matchingRequests()
-    {
-        return [
-            'id'          => ['/page/no-{#no}', '/page/no-4', ['no' => '4']],
-            'id+slug'     => ['/page/no-{#no}/{$title}.pdf', '/page/no-576/foo-bar-45.pdf', ['no' => '576', 'title' => 'foo-bar-45']],
-            'prefixed_id' => ['/foo-{@name}', '/foo-bar5000', ['name' => 'bar5000']],
-            'query'       => ['?user={#id}', '?user=938', ['id' => '938']],
-            'query+path'  => ['/path/user/id-{#id}?foo={$bar}', '/path/user/id-938?foo=bar-BAZ', ['bar' => 'bar-BAZ', 'id' => '938']]
-        ];
     }
 
     public function test_Uri_MissingPathParam_ThrowsException()
@@ -203,48 +203,23 @@ class RegexpTest extends TestCase
         $this->assertSame('https://www.example.com/foo/file.xml?name=slug-string&fizz=buzz', (string) $uri);
     }
 
-    /**
-     * @dataProvider prototypeConflict
-     *
-     * @param $pattern
-     * @param $uri
-     */
-    public function test_Uri_OverwritingPrototypeSegment_ThrowsException($pattern, $uri)
+    /** @dataProvider prototypeConflict */
+    public function test_Uri_OverwritingPrototypeSegment_ThrowsException(string $pattern, string $uri)
     {
         $pattern = $this->pattern($pattern);
         $this->expectException(Exception\InvalidUriPrototypeException::class);
         $pattern->uri(Doubles\FakeUri::fromString($uri), ['id' => 1500]);
     }
 
-    public function prototypeConflict()
-    {
-        return [
-            'expected fizz=buzz'  => ['?anything&fizz={#id}', '?anything=foo&fizz=baz'],
-            'expected empty fizz' => ['?some=query&fizz={#id}}', '?some=query&fizz=']
-        ];
-    }
-
-    /**
-     * @dataProvider prototypeSegmentMatch
-     *
-     * @param $pattern
-     * @param $proto
-     * @param $params
-     * @param $expected
-     */
-    public function test_Uri_MatchingPrototypeSegment_ReturnsUriWithMissingPartsAppended($pattern, $proto, $params, $expected)
-    {
+    /** @dataProvider prototypeSegmentMatch */
+    public function test_Uri_MatchingPrototypeSegment_ReturnsUriWithMissingPartsAppended(
+        string $pattern,
+        string $proto,
+        array $params,
+        string $expected
+    ) {
         $pattern = $this->pattern($pattern);
         $this->assertSame($expected, (string) $pattern->uri(Doubles\FakeUri::fromString($proto), $params));
-    }
-
-    public function prototypeSegmentMatch()
-    {
-        return [
-            ['id-{#id}', '/user', ['id' => 1500], '/user/id-1500'],
-            ['foo/xxx{#id}xxx?some={$x}', '?other=bar', ['id' => 673, 'x' => 'foo'], '/foo/xxx673xxx?other=bar&some=foo'],
-            ['foo/num.{#id}?some={#x}&fizz=buzz', '?some&fizz=buzz', ['id' => 123, 'x' => 1], '/foo/num.123?some=1&fizz=buzz']
-        ];
     }
 
     public function test_MatchedRequest_WithProvidedPattern()
@@ -330,13 +305,8 @@ class RegexpTest extends TestCase
         $this->assertEquals($expected, $pattern->templateUri($uri));
     }
 
-    /**
-     * @dataProvider prototypeConflict
-     *
-     * @param $pattern
-     * @param $uri
-     */
-    public function test_TemplateUri_OverwritingPrototypeSegment_ThrowsException($pattern, $uri)
+    /** @dataProvider prototypeConflict */
+    public function test_TemplateUri_OverwritingPrototypeSegment_ThrowsException(string $pattern, string $uri)
     {
         $pattern = $this->pattern($pattern);
         $this->expectException(Exception\InvalidUriPrototypeException::class);

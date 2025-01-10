@@ -27,6 +27,16 @@ class RouterTest extends TestCase
         self::$prototype = new Doubles\FakeResponse();
     }
 
+    public static function routeExceptions(): iterable
+    {
+        return [
+            [new Exception\RouteNotFoundException('test')],
+            [new Exception\AmbiguousEndpointException('test')],
+            [new Exception\InvalidUriPrototypeException('test')],
+            [new Exception\InvalidUriParamException('test')]
+        ];
+    }
+
     public function test_Instantiation()
     {
         $this->assertInstanceOf(Router::class, $this->router());
@@ -89,11 +99,7 @@ class RouterTest extends TestCase
         $this->assertSame($router, $router->select('home'));
     }
 
-    /**
-     * @dataProvider routeExceptions
-     *
-     * @param \Exception $exception
-     */
+    /** @dataProvider routeExceptions */
     public function test_ThrownExceptions_IncludeRoutePathInfo(\Exception $exception)
     {
         $route = new Doubles\MockedRoute();
@@ -106,16 +112,6 @@ class RouterTest extends TestCase
             $this->assertSame('test (called route: foo.bar.baz)', $e->getMessage());
             $this->assertInstanceOf(get_class($exception), $e);
         }
-    }
-
-    public function routeExceptions(): array
-    {
-        return [
-            [new Exception\RouteNotFoundException('test')],
-            [new Exception\AmbiguousEndpointException('test')],
-            [new Exception\InvalidUriPrototypeException('test')],
-            [new Exception\InvalidUriParamException('test')]
-        ];
     }
 
     public function test_Routes_ReturnsRoutePathsArray()

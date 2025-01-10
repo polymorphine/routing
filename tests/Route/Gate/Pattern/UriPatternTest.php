@@ -20,30 +20,7 @@ use InvalidArgumentException;
 
 class UriPatternTest extends TestCase
 {
-    public function test_Instantiation()
-    {
-        $this->assertInstanceOf(Route\Gate\Pattern\UriPattern::class, $this->pattern('http:/some/path&query=foo'));
-    }
-
-    public function test_Instantiation_WithInvalidUriString_ThrowsException()
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->pattern('http:///example.com');
-    }
-
-    /**
-     * @dataProvider matchingPatterns
-     *
-     * @param $patternString
-     * @param $uriString
-     */
-    public function test_MatchedRequest_AgainstDefinedUriParts($patternString, $uriString)
-    {
-        $request = $this->request($uriString);
-        $this->assertInstanceOf(ServerRequestInterface::class, $this->pattern($patternString)->matchedRequest($request));
-    }
-
-    public function matchingPatterns()
+    public static function matchingPatterns(): iterable
     {
         return [
             ['https:', 'https://example.com'],
@@ -59,19 +36,7 @@ class UriPatternTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider notMatchingPatterns
-     *
-     * @param $patternString
-     * @param $uriString
-     */
-    public function test_NotMatchedRequest_AgainstDefinedUriParts($patternString, $uriString)
-    {
-        $request = $this->request($uriString);
-        $this->assertNull($this->pattern($patternString)->matchedRequest($request));
-    }
-
-    public function notMatchingPatterns()
+    public static function notMatchingPatterns(): iterable
     {
         return [
             ['https:', 'http://example.com'],
@@ -86,6 +51,59 @@ class UriPatternTest extends TestCase
             ['?query=bar&foo=', '?foo=emptyRequired&query=bar'],
             ['/some/path?query=string', '/some/path']
         ];
+    }
+
+    public static function patterns(): iterable
+    {
+        return [
+            ['', 'https://example.com/some/path?query=params&foo=bar', 'https://example.com/some/path?query=params&foo=bar'],
+            ['https:', '//example.com/some/path?query=params&foo=bar', 'https://example.com/some/path?query=params&foo=bar'],
+            ['//example.com', 'https:/some/path?query=params&foo=bar', 'https://example.com/some/path?query=params&foo=bar'],
+            ['/some/path', 'https://example.com?query=params&foo=bar', 'https://example.com/some/path?query=params&foo=bar'],
+            ['?query=params&foo=bar', 'https://example.com/some/path', 'https://example.com/some/path?query=params&foo=bar'],
+            ['https://example.com?query=params&foo=bar', '//example.com/some/path', 'https://example.com/some/path?query=params&foo=bar'],
+            ['//example.com/some/path', 'https:?query=params&foo=bar', 'https://example.com/some/path?query=params&foo=bar'],
+            ['//user:pass@example.com?query=params&foo=bar', 'https://example.com/some/path?query=params&foo=bar', 'https://user:pass@example.com/some/path?query=params&foo=bar'],
+            ['//example.com:9001', 'http://example.com/foo/bar', 'http://example.com:9001/foo/bar'],
+            ['?foo=&some', 'foo/bar?some=value', 'foo/bar?some=value&foo='],
+            ['?foo=&some=value', 'foo/bar?foo&some', 'foo/bar?foo=&some=value']
+        ];
+    }
+
+    public static function prototypeConflict(): iterable
+    {
+        return [
+            ['http:', 'https://example.com'],
+            ['https://www.example.com', 'https://example.com'],
+            ['//user:pass@example.com', '//user@example.com'],
+            ['?foo=bar&some=value', '?foo=bar&some=otherValue'],
+            ['?foo=&some=value', '?foo=something&some=value']
+        ];
+    }
+
+    public function test_Instantiation()
+    {
+        $this->assertInstanceOf(Route\Gate\Pattern\UriPattern::class, $this->pattern('http:/some/path&query=foo'));
+    }
+
+    public function test_Instantiation_WithInvalidUriString_ThrowsException()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->pattern('http:///example.com');
+    }
+
+    /** @dataProvider matchingPatterns */
+    public function test_MatchedRequest_AgainstDefinedUriParts(string $patternString, string $uriString)
+    {
+        $request = $this->request($uriString);
+        $this->assertInstanceOf(ServerRequestInterface::class, $this->pattern($patternString)->matchedRequest($request));
+    }
+
+    /** @dataProvider notMatchingPatterns */
+    public function test_NotMatchedRequest_AgainstDefinedUriParts(string $patternString, string $uriString)
+    {
+        $request = $this->request($uriString);
+        $this->assertNull($this->pattern($patternString)->matchedRequest($request));
     }
 
     public function test_PathFragmentAndQuery_CanBeMatched()
@@ -122,35 +140,12 @@ class UriPatternTest extends TestCase
         $this->assertSame($request, $patternB->matchedRequest($request));
     }
 
-    /**
-     * @dataProvider patterns
-     *
-     * @param $patternString
-     * @param $uriString
-     * @param $expected
-     */
-    public function test_Uri_IsReturnedWithDefinedUriParts($patternString, $uriString, $expected)
+    /** @dataProvider patterns */
+    public function test_Uri_IsReturnedWithDefinedUriParts(string $patternString, string $uriString, string $expected)
     {
         $prototype = Doubles\FakeUri::fromString($uriString);
         $pattern   = $this->pattern($patternString);
         $this->assertSame($expected, (string) $pattern->uri($prototype, []));
-    }
-
-    public function patterns()
-    {
-        return [
-            ['', 'https://example.com/some/path?query=params&foo=bar', 'https://example.com/some/path?query=params&foo=bar'],
-            ['https:', '//example.com/some/path?query=params&foo=bar', 'https://example.com/some/path?query=params&foo=bar'],
-            ['//example.com', 'https:/some/path?query=params&foo=bar', 'https://example.com/some/path?query=params&foo=bar'],
-            ['/some/path', 'https://example.com?query=params&foo=bar', 'https://example.com/some/path?query=params&foo=bar'],
-            ['?query=params&foo=bar', 'https://example.com/some/path', 'https://example.com/some/path?query=params&foo=bar'],
-            ['https://example.com?query=params&foo=bar', '//example.com/some/path', 'https://example.com/some/path?query=params&foo=bar'],
-            ['//example.com/some/path', 'https:?query=params&foo=bar', 'https://example.com/some/path?query=params&foo=bar'],
-            ['//user:pass@example.com?query=params&foo=bar', 'https://example.com/some/path?query=params&foo=bar', 'https://user:pass@example.com/some/path?query=params&foo=bar'],
-            ['//example.com:9001', 'http://example.com/foo/bar', 'http://example.com:9001/foo/bar'],
-            ['?foo=&some', 'foo/bar?some=value', 'foo/bar?some=value&foo='],
-            ['?foo=&some=value', 'foo/bar?foo&some', 'foo/bar?foo=&some=value']
-        ];
     }
 
     public function test_Uri_MatchingPrototypeSegment_ReturnsUriWithMissingPartAppended()
@@ -171,28 +166,12 @@ class UriPatternTest extends TestCase
         $this->assertSame('/foo/bar/last/segments?query=string', (string) $pattern->uri($prototype, []));
     }
 
-    /**
-     * @dataProvider prototypeConflict
-     *
-     * @param $patternString
-     * @param $uriString
-     */
-    public function test_Uri_OverwritingPrototypeSegment_ThrowsException($patternString, $uriString)
+    /** @dataProvider prototypeConflict */
+    public function test_Uri_OverwritingPrototypeSegment_ThrowsException(string $patternString, string $uriString)
     {
         $pattern = $this->pattern($patternString);
         $this->expectException(Route\Exception\InvalidUriPrototypeException::class);
         $pattern->uri(Doubles\FakeUri::fromString($uriString), []);
-    }
-
-    public function prototypeConflict()
-    {
-        return [
-            ['http:', 'https://example.com'],
-            ['https://www.example.com', 'https://example.com'],
-            ['//user:pass@example.com', '//user@example.com'],
-            ['?foo=bar&some=value', '?foo=bar&some=otherValue'],
-            ['?foo=&some=value', '?foo=something&some=value']
-        ];
     }
 
     public function test_EmptySegmentPattern_Uri_WithNotEmptyUriPrototype_ThrowsException()
@@ -211,13 +190,8 @@ class UriPatternTest extends TestCase
         $this->assertSame('https://example.com:5000/foo/bar', (string) $pattern->templateUri($uri));
     }
 
-    /**
-     * @dataProvider prototypeConflict
-     *
-     * @param $patternString
-     * @param $uriString
-     */
-    public function test_TemplateUri_OverwritingPrototypeSegment_ThrowsException($patternString, $uriString)
+    /** @dataProvider prototypeConflict */
+    public function test_TemplateUri_OverwritingPrototypeSegment_ThrowsException(string $patternString, string $uriString)
     {
         $pattern = $this->pattern($patternString);
         $this->expectException(Route\Exception\InvalidUriPrototypeException::class);

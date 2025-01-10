@@ -23,6 +23,15 @@ class PathSwitchTest extends TestCase
 {
     use RoutingTestMethods;
 
+    public static function segmentCombinations(): iterable
+    {
+        return [
+            [['foo', 'bar'], 'http://example.com?query=string', 'http://example.com/foo/bar?query=string'],
+            [['foo', 'bar', 'baz'], 'http://example.com?query=string', 'http://example.com/foo/bar/baz?query=string'],
+            [['foo'], 'http:?query', 'http:/foo?query']
+        ];
+    }
+
     public function test_Instantiation()
     {
         $this->assertInstanceOf(Route::class, $this->splitter());
@@ -129,13 +138,7 @@ class PathSwitchTest extends TestCase
         $this->assertEquals('/foo/bar', (string) $implicit->uri(new Doubles\FakeUri(), []));
     }
 
-    /**
-     * @dataProvider segmentCombinations
-     *
-     * @param array  $segments
-     * @param string $prototype
-     * @param string $expected
-     */
+    /** @dataProvider segmentCombinations */
     public function test_EndpointUri_ReturnsUriThatCanReachEndpoint(array $segments, string $prototype, string $expected)
     {
         $prototype = Doubles\FakeUri::fromString($prototype);
@@ -148,15 +151,6 @@ class PathSwitchTest extends TestCase
 
         $request = new Doubles\FakeServerRequest('GET', $prototype);
         $this->assertSame(self::$prototype, $splitter->forward($request, self::$prototype));
-    }
-
-    public function segmentCombinations()
-    {
-        return [
-            [['foo', 'bar'], 'http://example.com?query=string', 'http://example.com/foo/bar?query=string'],
-            [['foo', 'bar', 'baz'], 'http://example.com?query=string', 'http://example.com/foo/bar/baz?query=string'],
-            [['foo'], 'http:?query', 'http:/foo?query']
-        ];
     }
 
     public function test_Routes_AddsRouteTracedPathsToRoutingMap()
