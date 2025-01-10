@@ -86,8 +86,8 @@ class MethodSwitchTest extends TestCase
     public function test_Select_MatchingRouteWithImplicitPath_ReturnsRouteFromNextSwitches()
     {
         $splitter = new Route\Splitter\MethodSwitch($routes = [
-            'GET' => $routeGet = new Doubles\MockedRoute(),
-            'PUT' => $routePut = new Doubles\MockedRoute()
+            'GET' => new Doubles\MockedRoute(),
+            'PUT' => new Doubles\MockedRoute()
         ], 'GET');
         $route = $splitter->select('implicit.path');
         $this->assertSame($route, $routes['GET']->subRoute);

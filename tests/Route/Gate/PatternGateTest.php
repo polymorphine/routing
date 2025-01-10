@@ -22,7 +22,7 @@ class PatternGateTest extends TestCase
 {
     public function test_Instantiation()
     {
-        $this->assertInstanceOf(Route::class, $default = $this->gate());
+        $this->assertInstanceOf(Route::class, $this->gate());
 
         $gateway = Gate\PatternGate::fromPatternString('/test/{#testId}', new Doubles\MockedRoute());
         $this->assertInstanceOf(Route::class, $gateway);

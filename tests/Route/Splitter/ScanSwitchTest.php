@@ -122,7 +122,7 @@ class ScanSwitchTest extends TestCase
 
     public function test_Select_DefinedPathWhenDefaultRoutePresent_SelectsRouteForDefinedPath()
     {
-        $nested   = $this->splitter(['route' => $subRoute = new Doubles\MockedRoute()]);
+        $nested   = $this->splitter(['route' => new Doubles\MockedRoute()]);
         $splitter = $this->splitter(['route' => $topRoute = new Doubles\MockedRoute()], $nested);
         $this->assertSame($topRoute, $splitter->select('route'));
     }
