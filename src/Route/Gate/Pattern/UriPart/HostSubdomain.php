@@ -47,10 +47,9 @@ class HostSubdomain implements Route\Gate\Pattern
         $host = $request->getUri()->getHost();
         [$subdomain] = explode('.', $host, 2) + [null, null];
 
-        if (!$subdomain || !in_array($subdomain, $this->values, true)) {
-            return null;
-        }
-        return $request->withAttribute($this->id, $subdomain);
+        return $subdomain && in_array($subdomain, $this->values, true)
+            ? $request->withAttribute($this->id, $subdomain)
+            : null;
     }
 
     public function uri(UriInterface $prototype, array $params): UriInterface

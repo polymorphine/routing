@@ -241,11 +241,11 @@ class RouteNode implements Node
      */
     public function resource(array $routes = [], ?FormsContext $formsBuilder = null): ResourceSwitchNode
     {
-        return $this->contextBuilder(
-            $formsBuilder
+        $switchNode = $formsBuilder
             ? new LinkedFormsResourceSwitchNode($formsBuilder, $this->context, $routes)
-            : new ResourceSwitchNode($this->context, $routes)
-        );
+            : new ResourceSwitchNode($this->context, $routes);
+
+        return $this->contextBuilder($switchNode);
     }
 
     private function contextBuilder($builder)

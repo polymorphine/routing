@@ -118,10 +118,7 @@ class PathSwitchNode implements Node
 
     protected function router(array $routes): Route
     {
-        if ($this->rootNode) {
-            return new Route\Splitter\PathSwitch($routes, $this->rootNode->build());
-        }
-
-        return new Route\Splitter\PathSwitch($routes);
+        $root = $this->rootNode ? $this->rootNode->build() : null;
+        return new Route\Splitter\PathSwitch($routes, $root);
     }
 }

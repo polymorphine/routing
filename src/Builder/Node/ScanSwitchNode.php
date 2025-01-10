@@ -81,12 +81,8 @@ class ScanSwitchNode implements Node
      */
     public function resource(string $name, array $routes = []): Resource\ResourceSwitchNode
     {
-        if ($this->resourcesForms) {
-            $formsContext = new Resource\FormsContext($name, $this->resourcesForms);
-            return $this->route($name)->path($name)->resource($routes, $formsContext);
-        }
-
-        return $this->route($name)->path($name)->resource($routes);
+        $formsContext = $this->resourcesForms ? new Resource\FormsContext($name, $this->resourcesForms) : null;
+        return $this->route($name)->path($name)->resource($routes, $formsContext);
     }
 
     /**
