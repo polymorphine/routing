@@ -53,9 +53,9 @@ class MiddlewareGatewayTest extends TestCase
         $this->assertSame($trace, $route->trace);
     }
 
-    private function gate(?Route &$route = null)
+    private function gate(?Doubles\MockedRoute &$route = null)
     {
-        $route = $route ?? new Doubles\MockedRoute(new Doubles\FakeResponse('response'), new Doubles\FakeUri());
+        $route ??= new Doubles\MockedRoute(new Doubles\FakeResponse('response'), new Doubles\FakeUri());
         return new Route\Gate\MiddlewareGateway(new Doubles\FakeMiddleware(), $route);
     }
 }

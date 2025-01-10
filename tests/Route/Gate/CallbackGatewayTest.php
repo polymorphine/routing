@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 use Polymorphine\Routing\Route;
 use Polymorphine\Routing\Map;
 use Polymorphine\Routing\Tests\Doubles;
-use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ServerRequestInterface as Request;
 
 
 class CallbackGatewayTest extends TestCase
@@ -60,12 +60,11 @@ class CallbackGatewayTest extends TestCase
         $this->assertSame($trace, $route->trace);
     }
 
-    private function gate(?Route &$route = null)
+    private function gate(?Doubles\MockedRoute &$route = null)
     {
-        $route = $route ?? Doubles\MockedRoute::response('default');
-        $callback = function (ServerRequestInterface $request) {
-            return $request->getMethod() === 'POST' ? $request : null;
-        };
-        return new Route\Gate\CallbackGateway($callback, $route);
+        return new Route\Gate\CallbackGateway(
+            fn (Request $request): ?Request => $request->getMethod() === 'POST' ? $request : null,
+            $route ??= Doubles\MockedRoute::response('default')
+        );
     }
 }

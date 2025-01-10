@@ -58,7 +58,7 @@ class LazyRouteTest extends TestCase
         $this->assertSame($trace, $route->trace);
     }
 
-    private function gate(?Route &$route = null)
+    private function gate(?Doubles\MockedRoute &$route = null)
     {
         return new Route\Gate\LazyRoute(function () use (&$route) {
             return $route = new Doubles\MockedRoute(

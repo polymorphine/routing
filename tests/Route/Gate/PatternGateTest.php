@@ -76,10 +76,11 @@ class PatternGateTest extends TestCase
         $this->assertEquals($trace->withPattern($pattern), $route->trace);
     }
 
-    private function gate(?Gate\Pattern &$pattern = null, ?Route &$route = null)
+    private function gate(?Gate\Pattern &$pattern = null, ?Doubles\MockedRoute &$route = null)
     {
-        $route   = $route ?? new Doubles\MockedRoute(new Doubles\FakeResponse(), new Doubles\FakeUri());
-        $pattern = $pattern ?? new Doubles\MockedPattern();
-        return new Gate\PatternGate($pattern, $route);
+        return new Gate\PatternGate(
+            $pattern ??= new Doubles\MockedPattern(),
+            $route ??= new Doubles\MockedRoute(new Doubles\FakeResponse(), new Doubles\FakeUri())
+        );
     }
 }

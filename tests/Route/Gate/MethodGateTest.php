@@ -67,23 +67,17 @@ class MethodGateTest extends TestCase
 
     public function test_WhenAnyOfTestedMethodsIsAllowed_ForwardedOptionsRequest_ReturnsResponseWithAllowedMethods()
     {
-        $methodsAllowed = 'PATCH|PUT|DELETE';
-        $methodsTested  = ['GET', 'POST', 'PATCH', 'PUT'];
-
-        $endpoint = new Doubles\DummyEndpoint();
-        $response = $this->gate($methodsAllowed, $endpoint)
-                         ->forward($this->optionsRequest($methodsTested), new Doubles\FakeResponse());
+        $methods  = ['GET', 'POST', 'PATCH', 'PUT'];
+        $gate     = new Route\Gate\MethodGate('PATCH|PUT|DELETE', new Doubles\DummyEndpoint());
+        $response = $gate->forward($this->optionsRequest($methods), new Doubles\FakeResponse());
         $this->assertSame(['PATCH, PUT'], $response->getHeader('Allow'));
     }
 
     public function test_WhenNoneOfTestedMethodsIsAllowed_ForwardedOptionRequest_ReturnsPrototypeResponse()
     {
-        $methodsAllowed = 'PATCH|PUT|DELETE';
-        $methodsTested  = ['GET', 'POST'];
-
-        $endpoint = new Doubles\DummyEndpoint();
-        $response = $this->gate($methodsAllowed, $endpoint)
-                         ->forward($this->optionsRequest($methodsTested), $prototype = new Doubles\FakeResponse());
+        $methods  = ['GET', 'POST'];
+        $gate     = new Route\Gate\MethodGate('PATCH|PUT|DELETE', new Doubles\DummyEndpoint());
+        $response = $gate->forward($this->optionsRequest($methods), $prototype = new Doubles\FakeResponse());
         $this->assertSame($prototype, $response);
     }
 
@@ -105,9 +99,9 @@ class MethodGateTest extends TestCase
         $this->assertEquals($trace->withMethod($method), $route->trace);
     }
 
-    private function gate(string $methods = 'GET', ?Route &$route = null)
+    private function gate(string $methods = 'GET', ?Doubles\MockedRoute &$route = null)
     {
-        $route = $route ?? new Doubles\MockedRoute(new Doubles\FakeResponse(), new Doubles\FakeUri());
+        $route ??= new Doubles\MockedRoute(new Doubles\FakeResponse(), new Doubles\FakeUri());
         return new Route\Gate\MethodGate($methods, $route);
     }
 
