@@ -109,10 +109,7 @@ class UriPattern implements Pattern
         }
 
         $segments = $path ? explode('/', $path) : [];
-        $patterns = [];
-        foreach ($segments as $segment) {
-            $patterns[] = $this->pathSegment($segment);
-        }
+        $patterns = array_map(fn (string $segment): Pattern => $this->pathSegment($segment), $segments);
 
         if ($wildcard) {
             $patterns[] = $wildcard;
@@ -169,11 +166,8 @@ class UriPattern implements Pattern
 
     private function resolvedPattern(): Pattern
     {
-        $patterns = [];
-        foreach ($this->uri as $name => $value) {
-            if (!$pattern = $this->resolveUriPart($name, $value)) { continue; }
-            $patterns[] = $pattern;
-        }
+        $createPattern = fn (string $name, string $value): ?Pattern => $this->resolveUriPart($name, $value);
+        $patterns      = array_filter(array_map($createPattern, array_keys($this->uri), $this->uri));
 
         return count($patterns) === 1 ? $patterns[0] : new CompositePattern($patterns);
     }
