@@ -18,8 +18,9 @@ use Psr\Http\Message\UriInterface;
 
 class FakeServerRequest implements ServerRequestInterface
 {
-    public string        $method;
-    public ?UriInterface $uri;
+    public string           $method;
+    public ?UriInterface    $uri;
+    public ?StreamInterface $body;
 
     public array $attr    = [];
     public array $cookies = [];
@@ -31,17 +32,17 @@ class FakeServerRequest implements ServerRequestInterface
         $this->uri    = $uri;
     }
 
-    public function getMethod()
+    public function getMethod(): string
     {
         return $this->method ?: 'GET';
     }
 
-    public function getUri()
+    public function getUri(): UriInterface
     {
         return $this->uri ?: FakeUri::fromString('//example.com');
     }
 
-    public function getRequestTarget()
+    public function getRequestTarget(): string
     {
         $query = $this->getUri()->getquery();
         $path  = $this->getUri()->getPath();
@@ -49,97 +50,113 @@ class FakeServerRequest implements ServerRequestInterface
         return $query ? $path . '?' . $query : $path;
     }
 
-    public function getProtocolVersion()
+    public function getProtocolVersion(): string
     {
+        return '1.1';
     }
 
-    public function withProtocolVersion($version)
+    public function withProtocolVersion($version): self
     {
+        return $this;
     }
 
-    public function getHeaders()
+    public function getHeaders(): array
     {
         return $this->attr;
     }
 
-    public function hasHeader($name)
+    public function hasHeader($name): bool
     {
+        return false;
     }
 
-    public function getHeader($name)
+    public function getHeader($name): array
     {
+        return [];
     }
 
-    public function getHeaderLine($name)
+    public function getHeaderLine($name): string
     {
+        return '';
     }
 
-    public function withHeader($name, $value)
+    public function withHeader($name, $value): self
     {
         return $this->withAttribute($name, $value);
     }
 
-    public function withAddedHeader($name, $value)
+    public function withAddedHeader($name, $value): self
     {
+        return $this;
     }
 
-    public function withoutHeader($name)
+    public function withoutHeader($name): self
     {
+        return $this;
     }
 
-    public function getBody()
+    public function getBody(): StreamInterface
     {
+        return $this->body;
     }
 
-    public function withBody(StreamInterface $body)
+    public function withBody(StreamInterface $body): self
     {
+        return $this;
     }
 
-    public function withRequestTarget($requestTarget)
+    public function withRequestTarget($requestTarget): self
     {
+        return $this;
     }
 
-    public function withMethod($method)
+    public function withMethod($method): self
     {
         $clone = clone $this;
         $clone->method = $method;
         return $clone;
     }
 
-    public function withUri(UriInterface $uri, $preserveHost = false)
+    public function withUri(UriInterface $uri, $preserveHost = false): self
     {
         $clone = clone $this;
         $clone->uri = $uri;
         return $clone;
     }
 
-    public function getServerParams()
+    public function getServerParams(): array
     {
+        return [];
     }
 
-    public function getCookieParams()
+    public function getCookieParams(): array
     {
         return $this->cookies;
     }
 
-    public function withCookieParams(array $cookies)
+    public function withCookieParams(array $cookies): self
     {
+        return $this;
     }
 
-    public function getQueryParams()
+    public function getQueryParams(): array
     {
+        return [];
     }
 
-    public function withQueryParams(array $query)
+    public function withQueryParams(array $query): self
     {
+        return $this;
     }
 
-    public function getUploadedFiles()
+    public function getUploadedFiles(): array
     {
+        return [];
     }
 
-    public function withUploadedFiles(array $uploadedFiles)
+    public function withUploadedFiles(array $uploadedFiles): self
     {
+        return $this;
     }
 
     public function getParsedBody()
@@ -147,11 +164,12 @@ class FakeServerRequest implements ServerRequestInterface
         return $this->parsed;
     }
 
-    public function withParsedBody($data)
+    public function withParsedBody($data): self
     {
+        return $this;
     }
 
-    public function getAttributes()
+    public function getAttributes(): array
     {
         return $this->attr;
     }
@@ -161,14 +179,14 @@ class FakeServerRequest implements ServerRequestInterface
         return $this->attr[$name] ?? $default;
     }
 
-    public function withAttribute($name, $value)
+    public function withAttribute($name, $value): self
     {
         $clone = clone $this;
         $clone->attr[$name] = $value;
         return $clone;
     }
 
-    public function withoutAttribute($name)
+    public function withoutAttribute($name): self
     {
         $clone = clone $this;
         unset($clone->attr[$name]);

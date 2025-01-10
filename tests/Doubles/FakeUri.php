@@ -66,7 +66,7 @@ class FakeUri implements UriInterface
         return $this->host;
     }
 
-    public function getPort()
+    public function getPort(): ?int
     {
         $default = $this->port && $this->scheme && $this->supportedSchemes[$this->scheme]['port'] === $this->port;
 

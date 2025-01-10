@@ -23,12 +23,12 @@ class FakeStream implements StreamInterface
         $this->body = $body;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->body;
     }
 
-    public function close()
+    public function close(): void
     {
     }
 
@@ -36,48 +36,57 @@ class FakeStream implements StreamInterface
     {
     }
 
-    public function getSize()
+    public function getSize(): ?int
+    {
+        return null;
+    }
+
+    public function tell(): int
+    {
+        return 0;
+    }
+
+    public function eof(): bool
+    {
+        return false;
+    }
+
+    public function isSeekable(): bool
+    {
+        return true;
+    }
+
+    public function seek($offset, $whence = SEEK_SET): void
     {
     }
 
-    public function tell()
+    public function rewind(): void
     {
     }
 
-    public function eof()
+    public function isWritable(): bool
     {
+        return true;
     }
 
-    public function isSeekable()
+    public function write($string): int
     {
+        return strlen($string);
     }
 
-    public function seek($offset, $whence = SEEK_SET)
+    public function isReadable(): bool
     {
+        return true;
     }
 
-    public function rewind()
+    public function read($length): string
     {
+        return '';
     }
 
-    public function isWritable()
+    public function getContents(): string
     {
-    }
-
-    public function write($string)
-    {
-    }
-
-    public function isReadable()
-    {
-    }
-
-    public function read($length)
-    {
-    }
-
-    public function getContents()
-    {
+        return '';
     }
 
     public function getMetadata($key = null)

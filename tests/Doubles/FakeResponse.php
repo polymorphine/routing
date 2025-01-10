@@ -30,76 +30,80 @@ class FakeResponse implements ResponseInterface
         $this->body = $body;
     }
 
-    public function getProtocolVersion()
+    public function getProtocolVersion(): string
     {
         return $this->protocol;
     }
 
-    public function withProtocolVersion($version)
+    public function withProtocolVersion($version): self
     {
+        return $this;
     }
 
-    public function getHeaders()
+    public function getHeaders(): array
     {
         return $this->headers;
     }
 
-    public function hasHeader($name)
+    public function hasHeader($name): bool
     {
+        return array_key_exists($name, $this->headers);
     }
 
-    public function getHeader($name)
+    public function getHeader($name): array
     {
         return $this->headers[$name];
     }
 
-    public function getHeaderLine($name)
+    public function getHeaderLine($name): string
     {
+        return $this->headers[$name][0] ?? '';
     }
 
-    public function withHeader($name, $value)
+    public function withHeader($name, $value): self
     {
         $clone = clone $this;
         $clone->headers[$name] = [$value];
         return $clone;
     }
 
-    public function withAddedHeader($name, $value)
+    public function withAddedHeader($name, $value): self
     {
         $clone = clone $this;
         $clone->headers[$name][] = $value;
         return $clone;
     }
 
-    public function withoutHeader($name)
+    public function withoutHeader($name): self
     {
+        return $this;
     }
 
-    public function getBody()
+    public function getBody(): StreamInterface
     {
         return is_string($this->body) ? new FakeStream($this->body) : $this->body;
     }
 
-    public function withBody(StreamInterface $body)
+    public function withBody(StreamInterface $body): self
     {
         $clone = clone $this;
         $clone->body = (string) $body;
         return $clone;
     }
 
-    public function getStatusCode()
+    public function getStatusCode(): int
     {
         return $this->status;
     }
 
-    public function withStatus($code, $reasonPhrase = '')
+    public function withStatus($code, $reasonPhrase = ''): self
     {
         $clone = clone $this;
         $clone->status = $code;
         return $clone;
     }
 
-    public function getReasonPhrase()
+    public function getReasonPhrase(): string
     {
         return $this->reason;
     }
