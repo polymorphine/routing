@@ -13,8 +13,7 @@ namespace Polymorphine\Routing\Builder;
 
 use Polymorphine\Routing\Route;
 use Psr\Container\ContainerInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Http\Message\ServerRequestInterface as Request;
 
 
 /**
@@ -69,23 +68,13 @@ class MappedRoutes
      */
     public static function withContainerMapping(ContainerInterface $container): self
     {
-        $endpoint = function (string $class) use ($container): Route\Endpoint {
-            return new Route\Endpoint\CallbackEndpoint(
-                function (ServerRequestInterface $request) use ($class, $container) {
-                    /** @var object $factory */
-                    $factory = new $class($container);
-                    /** @var RequestHandlerInterface $handler */
-                    $handler = $factory->create($request->getHeaders());
-                    return $handler->handle($request);
-                }
-            );
-        };
+        $endpoint = fn (string $class): Route\Endpoint => new Route\Endpoint\CallbackEndpoint(
+            fn (Request $request) => (new $class($container))->create($request->getHeaders())->handle($request)
+        );
 
-        $gate = function ($middleware, Route $route) use ($container): Route {
-            return new Route\Gate\LazyRoute(function () use ($middleware, $container, $route) {
-                return new Route\Gate\MiddlewareGateway($container->get($middleware), $route);
-            });
-        };
+        $gate = fn ($middleware, Route $route): Route => new Route\Gate\LazyRoute(
+            fn () => new Route\Gate\MiddlewareGateway($container->get($middleware), $route)
+        );
 
         return new self(null, $endpoint, $gate);
     }

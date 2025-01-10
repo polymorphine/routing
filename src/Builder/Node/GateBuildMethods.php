@@ -47,9 +47,7 @@ trait GateBuildMethods
     public function method(string $methods, ?Pattern $pattern = null): self
     {
         if (isset($pattern)) { $this->pattern($pattern); }
-        $this->context->addGate(function (Route $route) use ($methods) {
-            return new Route\Gate\MethodGate($methods, $route);
-        });
+        $this->context->addGate(fn (Route $route) => new Route\Gate\MethodGate($methods, $route));
         return $this;
     }
 
@@ -62,9 +60,7 @@ trait GateBuildMethods
      */
     public function pattern(Pattern $pattern): self
     {
-        $this->context->addGate(function (Route $route) use ($pattern) {
-            return new Route\Gate\PatternGate($pattern, $route);
-        });
+        $this->context->addGate(fn (Route $route) => new Route\Gate\PatternGate($pattern, $route));
         return $this;
     }
 
@@ -78,10 +74,8 @@ trait GateBuildMethods
      */
     public function path(string $path, array $regexp = []): self
     {
-        $this->context->addGate(function (Route $route) use ($path, $regexp) {
-            $pattern = Pattern\UriPattern::path($path, $regexp);
-            return new Route\Gate\PatternGate($pattern, $route);
-        });
+        $pattern = Pattern\UriPattern::path($path, $regexp);
+        $this->context->addGate(fn (Route $route) => new Route\Gate\PatternGate($pattern, $route));
         return $this;
     }
 
@@ -94,9 +88,7 @@ trait GateBuildMethods
      */
     public function callbackGate(callable $callback): self
     {
-        $this->context->addGate(function (Route $route) use ($callback) {
-            return new Route\Gate\CallbackGateway($callback, $route);
-        });
+        $this->context->addGate(fn (Route $route) => new Route\Gate\CallbackGateway($callback, $route));
         return $this;
     }
 
@@ -109,9 +101,7 @@ trait GateBuildMethods
      */
     public function middleware(MiddlewareInterface $middleware): self
     {
-        $this->context->addGate(function (Route $route) use ($middleware) {
-            return new Route\Gate\MiddlewareGateway($middleware, $route);
-        });
+        $this->context->addGate(fn (Route $route) => new Route\Gate\MiddlewareGateway($middleware, $route));
         return $this;
     }
 
@@ -147,8 +137,7 @@ trait GateBuildMethods
     public function link(&$routeReference): self
     {
         $this->context->addGate(function (Route $route) use (&$routeReference) {
-            $routeReference = $route;
-            return $route;
+            return $routeReference = $route;
         });
         return $this;
     }
