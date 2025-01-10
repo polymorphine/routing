@@ -27,18 +27,18 @@ class CallbackSwitchNodeTest extends TestCase
 
     private const TEST_ID = 'route.id';
 
-    public function testInstantiation()
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(Builder\Node::class, $builder = $this->builder());
         $this->assertInstanceOf(Builder\Node\CallbackSwitchNode::class, $builder);
     }
 
-    public function testBuild_ReturnsCallbackSwitch()
+    public function test_Build_ReturnsCallbackSwitch()
     {
         $this->assertInstanceOf(Route\Splitter\CallbackSwitch::class, $this->builder()->build());
     }
 
-    public function testRoutesCanBeAdded()
+    public function test_Routes_CanBeAdded()
     {
         $switch = $this->builder([
             'baz' => new Doubles\MockedRoute($bazResponse = new Doubles\FakeResponse())
@@ -55,14 +55,14 @@ class CallbackSwitchNodeTest extends TestCase
         $this->assertSame($bazResponse, $route->forward($request->withAttribute(self::TEST_ID, 'baz'), $prototype));
     }
 
-    public function testEmptyIdName_ThrowsException()
+    public function test_EmptyIdName_ThrowsException()
     {
         $switch = $this->builder();
         $this->expectException(InvalidArgumentException::class);
         $switch->route('');
     }
 
-    public function testAddingRouteWithAlreadyDefinedMethod_ThrowsException()
+    public function test_AddingRoute_WithAlreadyDefinedMethod_ThrowsException()
     {
         $switch = $this->builder();
         $switch->route('foo')->callback(function () {});

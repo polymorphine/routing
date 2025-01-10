@@ -19,31 +19,31 @@ use Polymorphine\Routing\Tests\Doubles;
 
 class HostDomainTest extends TestCase
 {
-    public function testInstantiation()
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(Pattern::class, $this->domain('example.com'));
     }
 
-    public function testMatchingRequest_ReturnsRequest()
+    public function test_MatchedRequest_ReturnsRequest()
     {
         $request = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString('//test.example.com/foo/bar'));
         $this->assertSame($request, $this->domain('example.com')->matchedRequest($request));
     }
 
-    public function testNotMatchingRequest_ReturnsNull()
+    public function test_NotMatchedRequest_ReturnsNull()
     {
         $request = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString('//test.example.com/foo/bar'));
         $this->assertNull($this->domain('example.pl')->matchedRequest($request));
     }
 
-    public function testUri_ReturnsPrototypeWithHost()
+    public function test_Uri_ReturnsPrototypeWithHost()
     {
         $prototype = Doubles\FakeUri::fromString('https:/foo/bar');
         $domain    = $this->domain('example.com');
         $this->assertSame('https://example.com/foo/bar', (string) $domain->uri($prototype, []));
     }
 
-    public function testUriGivenPrototypeWithDifferentHost_ThrowsException()
+    public function test_Uri_ForPrototypeWithDifferentHost_ThrowsException()
     {
         $domain    = $this->domain('example.com');
         $prototype = Doubles\FakeUri::fromString('https://example.pl/foo/bar');
@@ -51,14 +51,14 @@ class HostDomainTest extends TestCase
         $domain->uri($prototype, []);
     }
 
-    public function testTemplateUri_ReturnsUriWithHostDomain()
+    public function test_TemplateUri_ReturnsUriWithHostDomain()
     {
         $uri    = Doubles\FakeUri::fromString('https:/foo/bar');
         $domain = $this->domain('example.com');
         $this->assertSame('https://example.com/foo/bar', (string) $domain->templateUri($uri));
     }
 
-    public function testTemplateUriGivenPrototypeWithDifferentHost_ThrowsException()
+    public function test_TemplateUri_ForPrototypeWithDifferentHost_ThrowsException()
     {
         $domain    = $this->domain('example.com');
         $prototype = Doubles\FakeUri::fromString('https://example.pl/foo/bar');

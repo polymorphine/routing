@@ -22,12 +22,12 @@ class ScanSwitchTest extends TestCase
 {
     use RoutingTestMethods;
 
-    public function testInstantiation()
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(Route::class, $this->splitter());
     }
 
-    public function testForwardingNotMatchingRequest_ReturnsPrototypeInstance()
+    public function test_Forward_NotMatchingRequest_ReturnsPrototypeInstance()
     {
         $splitter = $this->splitter();
         $this->assertSame(self::$prototype, $splitter->forward(new Doubles\FakeServerRequest(), self::$prototype));
@@ -36,13 +36,13 @@ class ScanSwitchTest extends TestCase
         $this->assertSame(self::$prototype, $splitter->forward(new Doubles\FakeServerRequest(), self::$prototype));
     }
 
-    public function testForwardingMatchingRequest_ReturnsEndpointResponse()
+    public function test_Forward_MatchingRequest_ReturnsEndpointResponse()
     {
         $splitter = $this->splitter(['name' => $this->responseRoute($response)]);
         $this->assertSame($response, $splitter->forward(new Doubles\FakeServerRequest(), self::$prototype));
     }
 
-    public function testForwardingRequest_ReturnsFirstMatchingEndpointResponse()
+    public function test_Forward_ReturnsFirstMatchingEndpointResponse()
     {
         $routes = [
             'block' => new Doubles\MockedRoute(),
@@ -57,19 +57,19 @@ class ScanSwitchTest extends TestCase
         $this->assertSame($secondMatch, $routes['last']->forward($request, self::$prototype));
     }
 
-    public function testUriMethodWithoutDefinedDefaultRoute_ThrowsException()
+    public function test_Uri_WithoutDefinedDefaultRoute_ThrowsException()
     {
         $this->expectException(Route\Exception\AmbiguousEndpointException::class);
         $this->splitter()->uri(new Doubles\FakeUri(), []);
     }
 
-    public function testUriIsCalledFromDefaultRoute()
+    public function test_Uri_IsCalledFromDefaultRoute()
     {
         $router = $this->splitter([], new Doubles\MockedRoute(null, $uri = new Doubles\FakeUri()));
         $this->assertSame($uri, $router->uri(new Doubles\FakeUri(), []));
     }
 
-    public function testSelectEndpointCall_ReturnsFoundRoute()
+    public function test_Select_Endpoint_ReturnsFoundRoute()
     {
         $splitter = $this->splitter($routes = [
             'A' => new Doubles\MockedRoute(),
@@ -79,7 +79,7 @@ class ScanSwitchTest extends TestCase
         $this->assertSame($routes['B'], $splitter->select('B'));
     }
 
-    public function testSelectSwitchCallWithMorePathSegments_AsksNextSwitch()
+    public function test_Select_SwitchWithMorePathSegments_AsksNextSwitch()
     {
         $splitter = $this->splitter($routes = [
             'A' => new Doubles\MockedRoute(),
@@ -94,40 +94,40 @@ class ScanSwitchTest extends TestCase
         $this->assertSame('nextB.nextB2', $routes['B']->path);
     }
 
-    public function testSelectWithEmptyPath_ThrowsException()
+    public function test_Select_WithEmptyPath_ThrowsException()
     {
         $this->expectException(Route\Exception\RouteNotFoundException::class);
         $this->splitter()->select('');
     }
 
-    public function testSelectWithUnknownPathName_ThrowsException()
+    public function test_Select_WithUnknownPathName_ThrowsException()
     {
         $this->expectException(Route\Exception\RouteNotFoundException::class);
         $this->splitter()->select('NotDefined');
     }
 
-    public function testDefaultRouteIsScannedFirst()
+    public function test_DefaultRouteIsScannedFirst()
     {
         $default  = $this->responseRoute($response);
         $splitter = $this->splitter([], $default);
         $this->assertSame($response, $splitter->forward(new Doubles\FakeServerRequest(), new Doubles\FakeResponse()));
     }
 
-    public function testSelectUnknownPathWhenDefaultRoutePresent_SelectsPathFromDefaultRoute()
+    public function test_Select_UnknownPathWhenDefaultRoutePresent_SelectsPathFromDefaultRoute()
     {
         $nested   = $this->splitter(['nested' => $subRoute = new Doubles\MockedRoute()]);
         $splitter = $this->splitter([], $nested);
         $this->assertSame($subRoute, $splitter->select('nested'));
     }
 
-    public function testSelectDefinedPathWhenDefaultRoutePresent_SelectsRouteForDefinedPath()
+    public function test_Select_DefinedPathWhenDefaultRoutePresent_SelectsRouteForDefinedPath()
     {
-        $nested   = $this->splitter(['route' => $subRoute = new Doubles\MockedRoute()]);
+        $nested   = $this->splitter(['route' => new Doubles\MockedRoute()]);
         $splitter = $this->splitter(['route' => $topRoute = new Doubles\MockedRoute()], $nested);
         $this->assertSame($topRoute, $splitter->select('route'));
     }
 
-    public function testRoutesMethod_AddsRouteTracedPathsToRoutingMap()
+    public function test_Routes_AddsRouteTracedPathsToRoutingMap()
     {
         $splitter = $this->splitter([
             'foo' => new Doubles\MockedRoute(),
@@ -150,7 +150,7 @@ class ScanSwitchTest extends TestCase
         $this->assertEquals($expected, $map->paths());
     }
 
-    public function testNameConflictWithinDefaultRoute_ThrowsException()
+    public function test_NameConflictWithinDefaultRoute_ThrowsException()
     {
         $splitter = $this->splitter([
             'foo' => new Doubles\MockedRoute(),

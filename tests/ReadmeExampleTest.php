@@ -25,26 +25,51 @@ abstract class ReadmeExampleTest extends TestCase
 {
     protected ?Router $router = null;
 
-    public function testInstantiation()
+    public static function endpointRequests(): iterable
+    {
+        $admin = ['authenticate' => 'admin'];
+
+        return [
+            ['LoginPage', ['GET', '/login'], 'login'],
+            ['Login', ['POST', '/login'], 'login'],
+            ['HomePage', ['GET', '/'], 'home'],
+            ['AdminPanel', ['GET', '/admin', $admin], 'admin'],
+            ['ApplySettings', ['POST', '/admin', $admin], 'admin'],
+            ['Logout', ['POST', '/logout', $admin], 'logout'],
+            ['ShowArticles', ['GET', '/articles'], 'articles'],
+            ['ShowArticle(123)', ['GET', '/articles/123'], 'articles', ['id' => 123]],
+            ['AddArticle', ['POST', '/articles', $admin], 'articles'],
+            ['AddArticle', ['POST', '/articles', $admin], 'articles.POST'],
+            ['UpdateArticle(234)', ['PATCH', '/articles/234', $admin], 'articles', ['id' => 234]],
+            ['DeleteArticle(87)', ['DELETE', '/articles/87', $admin], 'articles', ['id' => 87]],
+            ['AddArticleForm', ['GET', '/articles/new/form'], 'articles.form'],
+            ['EditArticleForm(22)', ['GET', '/articles/22/form'], 'articles.form', ['id' => 22]]
+        ];
+    }
+
+    public static function redirectedRequests(): iterable
+    {
+        return [
+            'Logout when not logged in'     => [['POST', '/logout'], 'home'],
+            'AdminPanel when not logged in' => [['', '/admin'], 'login'],
+            'Login when already logged in'  => [['POST', '/login', ['authenticate' => 'admin']], 'home']
+        ];
+    }
+
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(Router::class, $this->router());
     }
 
-    /**
-     * @dataProvider endpointRequests
-     *
-     * @param string                 $expectedOutput
-     * @param ServerRequestInterface $request
-     * @param string                 $routePath
-     * @param array                  $uriParams
-     */
-    public function testRequestCanReachItsEndpoint(
+    /** @dataProvider endpointRequests */
+    public function test_Request_CanReachItsEndpoint(
         string $expectedOutput,
-        ServerRequestInterface $request,
+        array $requestData,
         string $routePath,
         array $uriParams = []
     ) {
-        $router = $this->router();
+        $router  = $this->router();
+        $request = $this->request(...$requestData);
 
         $responseBody = (string) $router->handle($request)->getBody();
         $this->assertSame($expectedOutput, $responseBody);
@@ -53,51 +78,16 @@ abstract class ReadmeExampleTest extends TestCase
         $this->assertSame($uriString, (string) $router->uri($routePath, $uriParams));
     }
 
-    public function endpointRequests()
-    {
-        $admin = ['authenticate' => 'admin'];
-
-        return [
-            ['LoginPage', $this->request('GET', '/login'), 'login'],
-            ['Login', $this->request('POST', '/login'), 'login'],
-            ['HomePage', $this->request('GET', '/'), 'home'],
-            ['AdminPanel', $this->request('GET', '/admin', $admin), 'admin'],
-            ['ApplySettings', $this->request('POST', '/admin', $admin), 'admin'],
-            ['Logout', $this->request('POST', '/logout', $admin), 'logout'],
-            ['ShowArticles', $this->request('GET', '/articles'), 'articles'],
-            ['ShowArticle(123)', $this->request('GET', '/articles/123'), 'articles', ['id' => 123]],
-            ['AddArticle', $this->request('POST', '/articles', $admin), 'articles'],
-            ['AddArticle', $this->request('POST', '/articles', $admin), 'articles.POST'],
-            ['UpdateArticle(234)', $this->request('PATCH', '/articles/234', $admin), 'articles', ['id' => 234]],
-            ['DeleteArticle(87)', $this->request('DELETE', '/articles/87', $admin), 'articles', ['id' => 87]],
-            ['AddArticleForm', $this->request('GET', '/articles/new/form'), 'articles.form'],
-            ['EditArticleForm(22)', $this->request('GET', '/articles/22/form'), 'articles.form', ['id' => 22]]
-        ];
-    }
-
-    /**
-     * @dataProvider redirectedRequests
-     *
-     * @param ServerRequestInterface $request
-     * @param string                 $locationRoutePath
-     */
-    public function testRedirectedRequests(ServerRequestInterface $request, string $locationRoutePath)
+    /** @dataProvider redirectedRequests */
+    public function test_RedirectedRequests(array $requestData, string $locationRoutePath)
     {
         $router   = $this->router();
+        $request  = $this->request(...$requestData);
         $response = $router->handle($request);
         $this->assertSame((string) $router->uri($locationRoutePath), (string) $response->getHeader('Location')[0]);
     }
 
-    public function redirectedRequests()
-    {
-        return [
-            'Logout when not logged in'     => [$this->request('POST', '/logout'), 'home'],
-            'AdminPanel when not logged in' => [$this->request('', '/admin'), 'login'],
-            'Login when already logged in'  => [$this->request('POST', '/login', ['authenticate' => 'admin']), 'home']
-        ];
-    }
-
-    public function testRouterCanProduceRoutingMap()
+    public function test_Router_CanProduceRoutingMap()
     {
         $routes = $this->router()->routes();
         $expected = [

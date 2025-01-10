@@ -22,27 +22,7 @@ class QueryTest extends TestCase
 {
     use Pattern\UriTemplatePlaceholder;
 
-    public function testInstantiation()
-    {
-        $pattern = $this->pattern('foo=bar');
-        $this->assertInstanceOf(Pattern::class, $pattern);
-        $this->assertInstanceOf(Pattern\UriPart\Query::class, $pattern);
-    }
-
-    /**
-     * @dataProvider matchingPatterns
-     *
-     * @param string $pattern
-     * @param string $uri
-     */
-    public function testMatchedRequestWithMatchingQueryParams_ReturnsRequest(string $pattern, string $uri)
-    {
-        $pattern = $this->pattern($pattern);
-        $request = $this->request($uri);
-        $this->assertInstanceOf(ServerRequestInterface::class, $pattern->matchedRequest($request));
-    }
-
-    public function matchingPatterns()
+    public static function matchingPatterns(): iterable
     {
         return [
             ['foo', 'http://example.com/path?foo'],
@@ -57,20 +37,7 @@ class QueryTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider notMatchingPatterns
-     *
-     * @param string $pattern
-     * @param string $uri
-     */
-    public function testMatchedRequestWithNotMatchingQueryParams_ReturnsNull(string $pattern, string $uri)
-    {
-        $pattern = $this->pattern($pattern);
-        $request = $this->request($uri);
-        $this->assertNull($pattern->matchedRequest($request));
-    }
-
-    public function notMatchingPatterns()
+    public static function notMatchingPatterns(): iterable
     {
         return [
             ['foo', 'http://example.com/path?bar=foo'],
@@ -82,21 +49,7 @@ class QueryTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider uriBuilds
-     *
-     * @param string $pattern
-     * @param string $prototype
-     * @param string $uri
-     */
-    public function testUri_ReturnsUriWithAppendedQueryParams(string $pattern, string $prototype, string $uri)
-    {
-        $pattern   = $this->pattern($pattern);
-        $prototype = $this->uri('http://example.com/path?' . $prototype);
-        $this->assertSame('http://example.com/path?' . $uri, (string) $pattern->uri($prototype, []));
-    }
-
-    public function uriBuilds()
+    public static function uriBuilds(): iterable
     {
         return [
             ['foo', '', 'foo'],
@@ -107,21 +60,7 @@ class QueryTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider prototypeConflicts
-     *
-     * @param string $pattern
-     * @param string $prototype
-     */
-    public function testUriForNotMatchingPrototypeParam_ThrowsException(string $pattern, string $prototype)
-    {
-        $pattern   = $this->pattern($pattern);
-        $prototype = $this->uri('http://example.com/path?' . $prototype);
-        $this->expectException(Exception\InvalidUriPrototypeException::class);
-        $pattern->uri($prototype, []);
-    }
-
-    public function prototypeConflicts()
+    public static function prototypeConflicts(): iterable
     {
         return [
             ['foo=', 'foo=1'],
@@ -131,7 +70,47 @@ class QueryTest extends TestCase
         ];
     }
 
-    public function testUriMethodParamsSetQueryParametersForUndefinedPatternValues()
+    public function test_Instantiation()
+    {
+        $pattern = $this->pattern('foo=bar');
+        $this->assertInstanceOf(Pattern::class, $pattern);
+        $this->assertInstanceOf(Pattern\UriPart\Query::class, $pattern);
+    }
+
+    /** @dataProvider matchingPatterns */
+    public function test_MatchedRequest_WithMatchingQueryParams_ReturnsRequest(string $pattern, string $uri)
+    {
+        $pattern = $this->pattern($pattern);
+        $request = $this->request($uri);
+        $this->assertInstanceOf(ServerRequestInterface::class, $pattern->matchedRequest($request));
+    }
+
+    /** @dataProvider notMatchingPatterns */
+    public function test_MatchedRequest_WithNotMatchingQueryParams_ReturnsNull(string $pattern, string $uri)
+    {
+        $pattern = $this->pattern($pattern);
+        $request = $this->request($uri);
+        $this->assertNull($pattern->matchedRequest($request));
+    }
+
+    /** @dataProvider uriBuilds */
+    public function test_Uri_ReturnsUriWithAppendedQueryParams(string $pattern, string $prototype, string $uri)
+    {
+        $pattern   = $this->pattern($pattern);
+        $prototype = $this->uri('http://example.com/path?' . $prototype);
+        $this->assertSame('http://example.com/path?' . $uri, (string) $pattern->uri($prototype, []));
+    }
+
+    /** @dataProvider prototypeConflicts */
+    public function test_Uri_ForNotMatchingPrototypeParam_ThrowsException(string $pattern, string $prototype)
+    {
+        $pattern   = $this->pattern($pattern);
+        $prototype = $this->uri('http://example.com/path?' . $prototype);
+        $this->expectException(Exception\InvalidUriPrototypeException::class);
+        $pattern->uri($prototype, []);
+    }
+
+    public function test_UriParams_SetQueryParametersForUndefinedPatternValues()
     {
         $pattern   = $this->pattern('foo&bar&baz=qux');
         $prototype = $this->uri('');
@@ -143,7 +122,7 @@ class QueryTest extends TestCase
         $this->assertSame('foo=fizz&bar=buzz&baz=qux', $uri->getQuery());
     }
 
-    public function testUriTemplate_ReturnsUriWithQueryPlaceholders()
+    public function test_TemplateUri_ReturnsUriWithQueryPlaceholders()
     {
         $pattern  = $this->pattern('foo&bar=&baz=qux');
         $uri      = Doubles\FakeUri::fromString('/fizz/buzz');
@@ -151,13 +130,8 @@ class QueryTest extends TestCase
         $this->assertEquals($expected, $pattern->templateUri($uri));
     }
 
-    /**
-     * @dataProvider prototypeConflicts
-     *
-     * @param string $pattern
-     * @param string $prototype
-     */
-    public function testTemplateUriForNotMatchingPrototypeParam_ThrowsException(string $pattern, string $prototype)
+    /** @dataProvider prototypeConflicts */
+    public function test_TemplateUri_ForNotMatchingPrototypeParam_ThrowsException(string $pattern, string $prototype)
     {
         $pattern   = $this->pattern($pattern);
         $prototype = $this->uri('http://example.com/path?' . $prototype);

@@ -18,12 +18,12 @@ use Polymorphine\Routing\Route;
 
 class MapTest extends TestCase
 {
-    public function testInstantiation()
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(Map::class, new Map());
     }
 
-    public function testCanAddPaths()
+    public function test_PathsCanBeAdded()
     {
         $map = new Map();
 
@@ -36,7 +36,7 @@ class MapTest extends TestCase
         $this->assertSame([$pathA, $pathB], $map->paths());
     }
 
-    public function testTraceCanAddPaths()
+    public function test_Trace_CanAddPaths()
     {
         $map   = new Map();
         $trace = new Map\Trace($map, Doubles\FakeUri::fromString($uri = '/foo/bar'));
@@ -48,7 +48,7 @@ class MapTest extends TestCase
         $this->assertEquals([new Map\Path('some.path', '*', $uri), new Map\Path('other.path', '*', $uri)], $map->paths());
     }
 
-    public function testNoPathTraceResolvesToRoot()
+    public function test_NoPathTrace_ResolvesToRoot()
     {
         $map   = new Map();
         $trace = new Map\Trace($map, Doubles\FakeUri::fromString($uri = '/foo/bar'), 'rootLabel');
@@ -57,7 +57,7 @@ class MapTest extends TestCase
         $this->assertEquals([new Map\Path('rootLabel', '*', $uri)], $map->paths());
     }
 
-    public function testFalsyPathTraceIsPreserved()
+    public function test_FalsyPathTrace_IsPreserved()
     {
         $map   = new Map();
         $trace = new Map\Trace($map, Doubles\FakeUri::fromString($uri = '/foo/bar'), 'rootLabel');
@@ -66,7 +66,7 @@ class MapTest extends TestCase
         $this->assertEquals([new Map\Path('0', '*', $uri)], $map->paths());
     }
 
-    public function testExcludedTraceHop_ThrowsException()
+    public function test_ExcludedTraceHop_ThrowsException()
     {
         $trace = new Map\Trace(new Map(), new Doubles\FakeUri());
         $trace = $trace->withExcludedHops(['foo', 'bar', 'baz']);
@@ -74,7 +74,7 @@ class MapTest extends TestCase
         $trace->nextHop('bar');
     }
 
-    public function testExcludedHopsAreAddedUntilNextNamedHop()
+    public function test_ExcludedHops_AreAddedUntilNextNamedHop()
     {
         $trace = new Map\Trace(new Map(), new Doubles\FakeUri());
         $trace = $trace->withExcludedHops(['foo', 'bar', 'baz']);
@@ -83,7 +83,7 @@ class MapTest extends TestCase
         $trace->nextHop('foo');
     }
 
-    public function testExcludedRootLabelForRootEndpoint_ThrowsException()
+    public function test_ExcludedRootLabel_ForRootEndpoint_ThrowsException()
     {
         $trace = new Map\Trace(new Map(), new Doubles\FakeUri(), 'foo');
         $trace = $trace->withExcludedHops(['foo', 'bar', 'baz']);
@@ -91,7 +91,7 @@ class MapTest extends TestCase
         $trace->endpoint();
     }
 
-    public function testPathPatternForTraceWithLockedUriPath_ThrowsException()
+    public function test_PathPatternForTrace_WithLockedUriPath_ThrowsException()
     {
         $trace = new Map\Trace(new Map(), Doubles\FakeUri::fromString('/foo'));
         $trace = $trace->withLockedUriPath();
@@ -99,7 +99,7 @@ class MapTest extends TestCase
         $trace->withPattern(new Doubles\MockedPattern('/baz'));
     }
 
-    public function testTraceWithPatternPrototypeConflict_ThrowsException()
+    public function test_Trace_WithPatternPrototypeConflict_ThrowsException()
     {
         $trace   = new Map\Trace(new Map(), new Doubles\FakeUri());
         $pattern = new Doubles\MockedPattern();

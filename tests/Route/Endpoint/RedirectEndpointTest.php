@@ -19,12 +19,12 @@ use Polymorphine\Routing\Tests\Doubles;
 
 class RedirectEndpointTest extends TestCase
 {
-    public function testInstantiation()
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(Route::class, $this->redirect('/foo/bar'));
     }
 
-    public function testRequest_ReturnsRedirectResponse()
+    public function test_Forward_ReturnsRedirectResponse()
     {
         $response = $this->redirect('/foo/bar')->forward(new Doubles\FakeServerRequest(), new Doubles\FakeResponse());
         $this->assertSame(301, $response->getStatusCode());

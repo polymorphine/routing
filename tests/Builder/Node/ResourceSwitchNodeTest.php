@@ -24,17 +24,17 @@ class ResourceSwitchNodeTest extends TestCase
     use Tests\RoutingTestMethods;
     use Tests\Builder\ContextCreateMethod;
 
-    public function testInstantiation()
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(Node\Resource\ResourceSwitchNode::class, $this->builder());
     }
 
-    public function testBuild_ReturnsMethodSwitch()
+    public function test_Build_ReturnsMethodSwitch()
     {
         $this->assertInstanceOf(Route\Splitter\MethodSwitch::class, $this->builder()->build());
     }
 
-    public function testRoutesCanBeAdded()
+    public function test_Routes_CanBeAdded()
     {
         $resource = $this->builder();
         $resource->index()->callback($this->callbackResponse($index));
@@ -65,7 +65,7 @@ class ResourceSwitchNodeTest extends TestCase
         $this->assertSame($prototype, $route->forward($request, $prototype));
     }
 
-    public function testUriPathsForBuiltResourceRoutesIgnoreHttpMethod()
+    public function test_UriPathsForBuiltResourceRoutes_IgnoreHttpMethod()
     {
         $forward  = new Doubles\MockedRoute();
         $resource = $this->builder();
@@ -84,7 +84,7 @@ class ResourceSwitchNodeTest extends TestCase
         $this->assertEquals('/', (string) $route->select('index')->uri($prototype, ['resource.id' => 1234]));
     }
 
-    public function testUriCanBeGeneratedWithoutDefined_GET_or_INDEX_Routes()
+    public function test_Uri_CanBeGenerated_WithoutDefined_GET_or_INDEX_Routes()
     {
         $forward  = new Doubles\MockedRoute();
         $resource = $this->builder();
@@ -101,7 +101,7 @@ class ResourceSwitchNodeTest extends TestCase
         $this->assertEquals('/', (string) $route->select('index')->uri($prototype, ['resource.id' => 1234]));
     }
 
-    public function testSettingIdPropertiesAtAnyMoment()
+    public function test_SettingIdPropertiesAtAnyMoment()
     {
         $resource = $this->builder();
         $resource->get()->callback($this->callbackResponse($get));
@@ -122,7 +122,7 @@ class ResourceSwitchNodeTest extends TestCase
         $this->assertSame($prototype, $route->forward($request, $prototype));
     }
 
-    public function testSeparateFormRoutesCanBeDefinedWithResourceBuilder()
+    public function test_SeparateFormRoutes_CanBeDefinedWithResourceBuilder()
     {
         /** @var Node\PathSwitchNode $formsBuilder */
         $resource = $this->builderWithForms($formsBuilder);
@@ -151,7 +151,7 @@ class ResourceSwitchNodeTest extends TestCase
         $this->assertSame('567', $edit->fromRequest->getAttribute('resource.id'));
     }
 
-    public function testArgumentFormRoutesArePassedToSeparateContext()
+    public function test_ArgumentFormRoutes_ArePassedToSeparateContext()
     {
         /** @var Node\PathSwitchNode $formsBuilder */
         $route = $this->builderWithForms($formsBuilder, [
@@ -178,7 +178,7 @@ class ResourceSwitchNodeTest extends TestCase
         $this->assertSame('567', $edit->fromRequest->getAttribute('resource.id'));
     }
 
-    public function testFormsRouteCanBeBuiltBeforeResourceRoutes()
+    public function test_FormsRoute_CanBeBuiltBeforeResourceRoutes()
     {
         /** @var Node\PathSwitchNode $formsBuilder */
         $resource = $this->builderWithForms($formsBuilder);
@@ -190,13 +190,13 @@ class ResourceSwitchNodeTest extends TestCase
         $this->assertInstanceOf(Route::class, $resource->build());
     }
 
-    public function testSeparateFormsRoutesWillAllowAnyIdFormat()
+    public function test_SeparateFormsRoutes_WillAllowAnyIdFormat()
     {
         $resource = $this->builderWithForms($formsBuilder);
         $this->assertInstanceOf(Node\Resource\ResourceSwitchNode::class, $resource->id('foo.id', '[a-z0-9]{3}'));
     }
 
-    public function testIdWithRegexpMatchingNEWPseudoMethod_ThrowsException()
+    public function test_IdWithRegexpMatching_NEW_PseudoMethod_ThrowsException()
     {
         $resource = $this->builder();
         $this->expectException(Exception\BuilderLogicException::class);

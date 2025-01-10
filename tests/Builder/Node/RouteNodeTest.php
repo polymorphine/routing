@@ -26,12 +26,17 @@ class RouteNodeTest extends TestCase
     use Routing\Tests\RoutingTestMethods;
     use Routing\Tests\Builder\ContextCreateMethod;
 
-    public function testInstantiation()
+    public static function wildcardPaths(): iterable
+    {
+        return [['foo/bar*'], ['foo/bar/*'], ['foo*'], ['foo/*'], ['*']];
+    }
+
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(Node\RouteNode::class, $this->builder());
     }
 
-    public function testRouteCanBeSplit()
+    public function test_Route_CanBeSplit()
     {
         $this->assertInstanceOf(Node\ScanSwitchNode::class, $this->builder()->responseScan());
         $this->assertInstanceOf(Node\MethodSwitchNode::class, $this->builder()->methodSwitch());
@@ -40,28 +45,28 @@ class RouteNodeTest extends TestCase
         $this->assertInstanceOf(Node\Resource\ResourceSwitchNode::class, $this->builder()->resource());
     }
 
-    public function testCallbackEndpoint()
+    public function test_CallbackEndpoint()
     {
         $builder = $this->builder();
         $builder->callback(function () {});
         $this->assertInstanceOf(Route\Endpoint\CallbackEndpoint::class, $builder->build());
     }
 
-    public function testHandlerEndpoint()
+    public function test_HandlerEndpoint()
     {
         $builder = $this->builder();
         $builder->handler(new Doubles\FakeRequestHandler(new Doubles\FakeResponse()));
         $this->assertInstanceOf(Route\Endpoint\HandlerEndpoint::class, $builder->build());
     }
 
-    public function testLazyEndpoint()
+    public function test_LazyEndpoint()
     {
         $builder = $this->builder();
         $builder->lazy(function () {});
         $this->assertInstanceOf(Route\Gate\LazyRoute::class, $builder->build());
     }
 
-    public function testSetRouteWhenAlreadyBuilt_ThrowsException()
+    public function test_SetRouteWhenAlreadyBuilt_ThrowsException()
     {
         $route = $this->builder();
         $route->callback(function () {});
@@ -69,14 +74,14 @@ class RouteNodeTest extends TestCase
         $route->pathSwitch();
     }
 
-    public function testBuildUndefinedRoute_ThrowsException()
+    public function test_BuildUndefinedRoute_ThrowsException()
     {
         $builder = $this->builder();
         $this->expectException(Routing\Builder\Exception\BuilderLogicException::class);
         $builder->build();
     }
 
-    public function testNoWildcardPathPatternForNotFullyMatchedRequestPath_ReturnsPrototype()
+    public function test_NoWildcardPathPattern_ForNotFullyMatchedRequestPath_ReturnsPrototype()
     {
         $request   = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString('http://example.com/foo/bar/baz'));
         $prototype = new Doubles\FakeResponse();
@@ -86,12 +91,8 @@ class RouteNodeTest extends TestCase
         $this->assertSame($prototype, $builder->build()->forward($request, $prototype));
     }
 
-    /**
-     * @dataProvider wildcardPaths
-     *
-     * @param string $path
-     */
-    public function testWildcardPathPatternForNotFullyMatchedRequestPath_ReturnsEndpointResponse(string $path)
+    /** @dataProvider wildcardPaths */
+    public function test_WildcardPathPattern_ForNotFullyMatchedRequestPath_ReturnsEndpointResponse(string $path)
     {
         $request   = new Doubles\FakeServerRequest('GET', Doubles\FakeUri::fromString('http://example.com/foo/bar/baz'));
         $prototype = new Doubles\FakeResponse();
@@ -101,12 +102,7 @@ class RouteNodeTest extends TestCase
         $this->assertSame($response, $builder->build()->forward($request, $prototype));
     }
 
-    public function wildcardPaths()
-    {
-        return [['foo/bar*'], ['foo/bar/*'], ['foo*'], ['foo/*'], ['*']];
-    }
-
-    public function testGateWrappers()
+    public function test_GateWrappers()
     {
         $attrCheckCallback = function (ServerRequestInterface $request) {
             return $request->getAttribute('test') ? $request : null;
@@ -146,7 +142,7 @@ class RouteNodeTest extends TestCase
         $this->assertSame($prototype, $route->forward($block, $prototype));
     }
 
-    public function testMiddlewareGateway()
+    public function test_MiddlewareGateway()
     {
         $builder = $this->builder();
         $builder->middleware(new Doubles\FakeMiddleware('wrap'))->callback($this->callbackResponse($endpoint, 'body'));
@@ -159,7 +155,7 @@ class RouteNodeTest extends TestCase
         $this->assertSame('requestPassed: wrap body wrap', (string) $response->getBody());
     }
 
-    public function testRouteWrappedWithMultipleGates()
+    public function test_RouteWrappedWithMultipleGates()
     {
         $builder = $this->builder();
         $builder->method('PATCH')
@@ -177,7 +173,7 @@ class RouteNodeTest extends TestCase
         $this->assertSame('bar', $response->fromRequest->getAttribute('id'));
     }
 
-    public function testRouteCanBeWrappedWithCallbackInvokedWrapper()
+    public function test_Route_CanBeWrappedWithCallbackInvokedWrapper()
     {
         $builder = $this->builder();
         $builder->wrapRouteCallback(function (Route $route) {
@@ -190,7 +186,7 @@ class RouteNodeTest extends TestCase
         $this->assertSame($response, $route->forward(new Doubles\FakeServerRequest('POST'), $prototype));
     }
 
-    public function testGatesAreEvaluatedInCorrectOrder()
+    public function test_Gates_AreEvaluatedInCorrectOrder()
     {
         $builder = $this->builder();
         $builder->pattern(new Uri\PathSegment('foo'))
@@ -206,7 +202,7 @@ class RouteNodeTest extends TestCase
         $this->assertSame($response, $route->forward($request->withUri(Doubles\FakeUri::fromString('/foo/bar')), $prototype));
     }
 
-    public function testGatesCanWrapSplitterAndItsRoutes()
+    public function test_Gates_CanWrapSplitterAndItsRoutes()
     {
         $endpoint = function (ServerRequestInterface $request) {
             return new Doubles\FakeResponse('response:' . $request->getUri()->getPath());
@@ -224,7 +220,7 @@ class RouteNodeTest extends TestCase
         $this->assertSame('response:/foo/baz', (string) $route->forward($requestB, $prototype)->getBody());
     }
 
-    public function testRouteCanBeAttachedToBuilderNode()
+    public function test_Route_CanBeAttachedToBuilderNode()
     {
         $endpoint = function ($name) {
             return function (ServerRequestInterface $request) use ($name) {
@@ -254,7 +250,7 @@ class RouteNodeTest extends TestCase
         $this->assertSame('responseB:GET', (string) $route->forward($requestB, $prototype)->getBody());
     }
 
-    public function testBuilderNodeCanEstablishLinkInsideStructure()
+    public function test_BuilderNode_CanEstablishLinkInsideStructure()
     {
         $endpoint = $this->responseRoute($response);
         $builder  = $this->builder();
@@ -272,7 +268,7 @@ class RouteNodeTest extends TestCase
         $this->assertSame($postRoute, $route->select('POST'));
     }
 
-    public function testLinkMightBeUsedInStructureBeforeRouteIsBuilt()
+    public function test_Link_MightBeUsedInStructureBeforeRouteIsBuilt()
     {
         $builder = new Node\MethodSwitchNode($this->context());
 
@@ -285,7 +281,7 @@ class RouteNodeTest extends TestCase
         $this->assertSame($response, $builder->build()->forward(new Doubles\FakeServerRequest('POST'), self::$prototype));
     }
 
-    public function testRoutesCanBeJoinedAfterLinkIsDefined()
+    public function test_Routes_CanBeJoinedAfterLinkIsDefined()
     {
         $builder = new Node\ScanSwitchNode($this->context());
         $builder->route('second')->method('POST')->link($link)->callback($this->callbackResponse($response));
@@ -309,7 +305,7 @@ class RouteNodeTest extends TestCase
         $this->assertSame(self::$prototype, $route->forward(new Doubles\FakeServerRequest('DELETE'), self::$prototype));
     }
 
-    public function testRoutesCanBeJoinedBeforeLinkIsDefined()
+    public function test_Routes_CanBeJoinedBeforeLinkIsDefined()
     {
         $builder = new Node\ScanSwitchNode($this->context());
         $builder->route('first')->method('GET')->joinLink($link);
@@ -333,7 +329,7 @@ class RouteNodeTest extends TestCase
         $this->assertSame(self::$prototype, $route->forward(new Doubles\FakeServerRequest('DELETE'), self::$prototype));
     }
 
-    public function testRouteJoinedBackToItsOwnPath_ThrowsException()
+    public function test_Route_JoinedBackToItsOwnPath_ThrowsException()
     {
         $builder = new Node\MethodSwitchNode($this->context());
         $split   = $builder->get()->link($link)->responseScan();
@@ -343,7 +339,7 @@ class RouteNodeTest extends TestCase
         $builder->build();
     }
 
-    public function testRedirectEndpoint()
+    public function test_RedirectEndpoint()
     {
         $router  = null;
         $builder = $this->builder(null, function () use (&$router) { return $router; });
@@ -358,7 +354,7 @@ class RouteNodeTest extends TestCase
         $this->assertSame(301, $response->getStatusCode());
     }
 
-    public function testRedirectWithUndefinedRouterCallback_ThrowsException()
+    public function test_Redirect_WithUndefinedRouterCallback_ThrowsException()
     {
         $builder = new Node\RouteNode(new Routing\Builder\Context(new Routing\Builder\MappedRoutes(null, null, null)));
         $path    = $builder->pathSwitch();
@@ -368,7 +364,7 @@ class RouteNodeTest extends TestCase
         $node->redirect('admin');
     }
 
-    public function testDefaultMappedGateMethod()
+    public function test_DefaultMappedGateMethod()
     {
         $builder = $this->builder(new Doubles\FakeContainer(['middleware.id' => new Doubles\FakeMiddleware('wrap')]));
         $builder->gate('middleware.id')->callback($this->callbackResponse($endpoint, 'body'));
@@ -381,14 +377,14 @@ class RouteNodeTest extends TestCase
         $this->assertSame('requestPassed: wrap body wrap', (string) $response->getBody());
     }
 
-    public function testMappedGateWithoutIdResolver_ThrowsException()
+    public function test_MappedGate_WithoutIdResolver_ThrowsException()
     {
         $builder = $this->builder();
         $this->expectException(Routing\Builder\Exception\ConfigException::class);
         $builder->gate('something');
     }
 
-    public function testDefaultMappedEndpoint()
+    public function test_DefaultMappedEndpoint()
     {
         $container = new Doubles\FakeContainer([
             'handler' => new Doubles\FakeRequestHandler(new Doubles\FakeResponse('handler response'))
@@ -403,7 +399,7 @@ class RouteNodeTest extends TestCase
         $this->assertSame('handler response', (string) $response->getBody());
     }
 
-    public function testMappedEndpointWithoutIdResolver_ThrowsException()
+    public function test_MappedEndpoint_WithoutIdResolver_ThrowsException()
     {
         $builder = $this->builder();
         $this->expectException(Routing\Builder\Exception\ConfigException::class);

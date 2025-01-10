@@ -18,13 +18,13 @@ use Polymorphine\Routing\Tests\Doubles;
 
 class HandlerEndpointTest extends TestCase
 {
-    public function testInstantiation()
+    public function test_Instantiation()
     {
         $instance = new Endpoint\HandlerEndpoint(new Doubles\FakeRequestHandler(new Doubles\FakeResponse()));
         $this->assertInstanceOf(Endpoint::class, $instance);
     }
 
-    public function testForward_ReturnsHandlerResponse()
+    public function test_Forward_ReturnsHandlerResponse()
     {
         $endpoint = new Endpoint\HandlerEndpoint(new Doubles\FakeRequestHandler($response = new Doubles\FakeResponse()));
         $this->assertSame($response, $endpoint->forward(new Doubles\FakeServerRequest(), new Doubles\FakeResponse()));

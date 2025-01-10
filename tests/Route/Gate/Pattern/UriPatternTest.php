@@ -20,30 +20,7 @@ use InvalidArgumentException;
 
 class UriPatternTest extends TestCase
 {
-    public function testInstantiation()
-    {
-        $this->assertInstanceOf(Route\Gate\Pattern\UriPattern::class, $this->pattern('http:/some/path&query=foo'));
-    }
-
-    public function testInstantiationWithInvalidUriString_ThrowsException()
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->pattern('http:///example.com');
-    }
-
-    /**
-     * @dataProvider matchingPatterns
-     *
-     * @param $patternString
-     * @param $uriString
-     */
-    public function testMatchAgainstDefinedUriParts($patternString, $uriString)
-    {
-        $request = $this->request($uriString);
-        $this->assertInstanceOf(ServerRequestInterface::class, $this->pattern($patternString)->matchedRequest($request));
-    }
-
-    public function matchingPatterns()
+    public static function matchingPatterns(): iterable
     {
         return [
             ['https:', 'https://example.com'],
@@ -59,19 +36,7 @@ class UriPatternTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider notMatchingPatterns
-     *
-     * @param $patternString
-     * @param $uriString
-     */
-    public function testNotMatchAgainstDefinedUriParts($patternString, $uriString)
-    {
-        $request = $this->request($uriString);
-        $this->assertNull($this->pattern($patternString)->matchedRequest($request));
-    }
-
-    public function notMatchingPatterns()
+    public static function notMatchingPatterns(): iterable
     {
         return [
             ['https:', 'http://example.com'],
@@ -88,55 +53,7 @@ class UriPatternTest extends TestCase
         ];
     }
 
-    public function testPathFragmentAndQueryCanBeMatched()
-    {
-        $pattern = $this->pattern('foo/bar?query=foo');
-        $request = $this->request('//example.com/foo/bar/baz?param=bar&query=foo');
-        $this->assertInstanceOf(ServerRequestInterface::class, $pattern->matchedRequest($request));
-    }
-
-    public function testPathFragmentAndQueryCanBeMatchedInRelativeContext()
-    {
-        $pattern = $this->pattern('foo/bar?query=foo');
-        $request = $this->request('//example.com/fizz/foo/bar/baz?param=bar&query=foo')
-                        ->withAttribute(Route::PATH_ATTRIBUTE, ['foo', 'bar', 'baz']);
-        $this->assertInstanceOf(ServerRequestInterface::class, $pattern->matchedRequest($request));
-    }
-
-    public function testHostStartingWithAsteriskMatchesDomainAndSubdomainRequests()
-    {
-        $pattern = $this->pattern('//*example.com');
-        $request = $this->request('http://subdomain.example.com/foo');
-        $this->assertSame($request, $pattern->matchedRequest($request));
-
-        $request = $this->request('https://example.com/foo');
-        $this->assertSame($request, $pattern->matchedRequest($request));
-    }
-
-    public function testQueryPatternsArePartiallyMatched()
-    {
-        $patternA = $this->pattern('?foo');
-        $patternB = $this->pattern('?bar=buzz');
-        $request  = $this->request('http://subdomain.example.com/path?bar=buzz&foo=fizz');
-        $this->assertSame($request, $patternA->matchedRequest($request));
-        $this->assertSame($request, $patternB->matchedRequest($request));
-    }
-
-    /**
-     * @dataProvider patterns
-     *
-     * @param $patternString
-     * @param $uriString
-     * @param $expected
-     */
-    public function testUriIsReturnedWithDefinedUriParts($patternString, $uriString, $expected)
-    {
-        $prototype = Doubles\FakeUri::fromString($uriString);
-        $pattern   = $this->pattern($patternString);
-        $this->assertSame($expected, (string) $pattern->uri($prototype, []));
-    }
-
-    public function patterns()
+    public static function patterns(): iterable
     {
         return [
             ['', 'https://example.com/some/path?query=params&foo=bar', 'https://example.com/some/path?query=params&foo=bar'],
@@ -153,38 +70,7 @@ class UriPatternTest extends TestCase
         ];
     }
 
-    public function testUriMatchingPrototypeSegment_ReturnsUriWithMissingPartAppended()
-    {
-        $pattern   = $this->pattern('bar/baz');
-        $prototype = Doubles\FakeUri::fromString('/foo/bar');
-        $this->assertSame('/foo/bar/bar/baz', (string) $pattern->uri($prototype, []));
-
-        $pattern   = $this->pattern('bar/baz?fizz=buzz&other=param');
-        $prototype = Doubles\FakeUri::fromString('/foo?fizz=buzz');
-        $this->assertSame('/foo/bar/baz?fizz=buzz&other=param', (string) $pattern->uri($prototype, []));
-    }
-
-    public function testUriFromRelativePathWithQueryAndRootInPrototype_ReturnsUriWithAppendedPath()
-    {
-        $pattern   = $this->pattern('last/segments?query=string');
-        $prototype = Doubles\FakeUri::fromString('/foo/bar');
-        $this->assertSame('/foo/bar/last/segments?query=string', (string) $pattern->uri($prototype, []));
-    }
-
-    /**
-     * @dataProvider prototypeConflict
-     *
-     * @param $patternString
-     * @param $uriString
-     */
-    public function testUriOverwritingPrototypeSegment_ThrowsException($patternString, $uriString)
-    {
-        $pattern = $this->pattern($patternString);
-        $this->expectException(Route\Exception\InvalidUriPrototypeException::class);
-        $pattern->uri(Doubles\FakeUri::fromString($uriString), []);
-    }
-
-    public function prototypeConflict()
+    public static function prototypeConflict(): iterable
     {
         return [
             ['http:', 'https://example.com'],
@@ -195,7 +81,100 @@ class UriPatternTest extends TestCase
         ];
     }
 
-    public function testEmptySegmentConstraint_UriWithNotEmptyUriPrototype_ThrowsException()
+    public function test_Instantiation()
+    {
+        $this->assertInstanceOf(Route\Gate\Pattern\UriPattern::class, $this->pattern('http:/some/path&query=foo'));
+    }
+
+    public function test_Instantiation_WithInvalidUriString_ThrowsException()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->pattern('http:///example.com');
+    }
+
+    /** @dataProvider matchingPatterns */
+    public function test_MatchedRequest_AgainstDefinedUriParts(string $patternString, string $uriString)
+    {
+        $request = $this->request($uriString);
+        $this->assertInstanceOf(ServerRequestInterface::class, $this->pattern($patternString)->matchedRequest($request));
+    }
+
+    /** @dataProvider notMatchingPatterns */
+    public function test_NotMatchedRequest_AgainstDefinedUriParts(string $patternString, string $uriString)
+    {
+        $request = $this->request($uriString);
+        $this->assertNull($this->pattern($patternString)->matchedRequest($request));
+    }
+
+    public function test_PathFragmentAndQuery_CanBeMatched()
+    {
+        $pattern = $this->pattern('foo/bar?query=foo');
+        $request = $this->request('//example.com/foo/bar/baz?param=bar&query=foo');
+        $this->assertInstanceOf(ServerRequestInterface::class, $pattern->matchedRequest($request));
+    }
+
+    public function test_PathFragmentAndQuery_CanBeMatchedInRelativeContext()
+    {
+        $pattern = $this->pattern('foo/bar?query=foo');
+        $request = $this->request('//example.com/fizz/foo/bar/baz?param=bar&query=foo')
+                        ->withAttribute(Route::PATH_ATTRIBUTE, ['foo', 'bar', 'baz']);
+        $this->assertInstanceOf(ServerRequestInterface::class, $pattern->matchedRequest($request));
+    }
+
+    public function test_HostStartingWithAsterisk_MatchesDomainAndSubdomainRequests()
+    {
+        $pattern = $this->pattern('//*example.com');
+        $request = $this->request('http://subdomain.example.com/foo');
+        $this->assertSame($request, $pattern->matchedRequest($request));
+
+        $request = $this->request('https://example.com/foo');
+        $this->assertSame($request, $pattern->matchedRequest($request));
+    }
+
+    public function test_QueryPatterns_ArePartiallyMatched()
+    {
+        $patternA = $this->pattern('?foo');
+        $patternB = $this->pattern('?bar=buzz');
+        $request  = $this->request('http://subdomain.example.com/path?bar=buzz&foo=fizz');
+        $this->assertSame($request, $patternA->matchedRequest($request));
+        $this->assertSame($request, $patternB->matchedRequest($request));
+    }
+
+    /** @dataProvider patterns */
+    public function test_Uri_IsReturnedWithDefinedUriParts(string $patternString, string $uriString, string $expected)
+    {
+        $prototype = Doubles\FakeUri::fromString($uriString);
+        $pattern   = $this->pattern($patternString);
+        $this->assertSame($expected, (string) $pattern->uri($prototype, []));
+    }
+
+    public function test_Uri_MatchingPrototypeSegment_ReturnsUriWithMissingPartAppended()
+    {
+        $pattern   = $this->pattern('bar/baz');
+        $prototype = Doubles\FakeUri::fromString('/foo/bar');
+        $this->assertSame('/foo/bar/bar/baz', (string) $pattern->uri($prototype, []));
+
+        $pattern   = $this->pattern('bar/baz?fizz=buzz&other=param');
+        $prototype = Doubles\FakeUri::fromString('/foo?fizz=buzz');
+        $this->assertSame('/foo/bar/baz?fizz=buzz&other=param', (string) $pattern->uri($prototype, []));
+    }
+
+    public function test_Uri_FromRelativePathWithQueryAndRootInPrototype_ReturnsUriWithAppendedPath()
+    {
+        $pattern   = $this->pattern('last/segments?query=string');
+        $prototype = Doubles\FakeUri::fromString('/foo/bar');
+        $this->assertSame('/foo/bar/last/segments?query=string', (string) $pattern->uri($prototype, []));
+    }
+
+    /** @dataProvider prototypeConflict */
+    public function test_Uri_OverwritingPrototypeSegment_ThrowsException(string $patternString, string $uriString)
+    {
+        $pattern = $this->pattern($patternString);
+        $this->expectException(Route\Exception\InvalidUriPrototypeException::class);
+        $pattern->uri(Doubles\FakeUri::fromString($uriString), []);
+    }
+
+    public function test_EmptySegmentPattern_Uri_WithNotEmptyUriPrototype_ThrowsException()
     {
         $pattern   = new Route\Gate\Pattern\UriPart\Port('');
         $prototype = Doubles\FakeUri::fromString('//example.com:123');
@@ -203,7 +182,7 @@ class UriPatternTest extends TestCase
         $pattern->uri($prototype, []);
     }
 
-    public function testTemplateUri_ReturnsAppendsUriTemplatesFromAllPatterns()
+    public function test_TemplateUri_ReturnsAppendsUriTemplatesFromAllPatterns()
     {
         $pattern = $this->pattern('https://example.com:5000');
         $uri     = Doubles\FakeUri::fromString('/foo/bar');
@@ -211,20 +190,15 @@ class UriPatternTest extends TestCase
         $this->assertSame('https://example.com:5000/foo/bar', (string) $pattern->templateUri($uri));
     }
 
-    /**
-     * @dataProvider prototypeConflict
-     *
-     * @param $patternString
-     * @param $uriString
-     */
-    public function testTemplateUriOverwritingPrototypeSegment_ThrowsException($patternString, $uriString)
+    /** @dataProvider prototypeConflict */
+    public function test_TemplateUri_OverwritingPrototypeSegment_ThrowsException(string $patternString, string $uriString)
     {
         $pattern = $this->pattern($patternString);
         $this->expectException(Route\Exception\InvalidUriPrototypeException::class);
         $pattern->templateUri(Doubles\FakeUri::fromString($uriString));
     }
 
-    public function testEmptySegmentConstraint_TemplateUriWithNotEmptyUriPrototype_ThrowsException()
+    public function test_EmptySegmentPattern_TemplateUri_WithNotEmptyUriPrototype_ThrowsException()
     {
         $pattern   = new Route\Gate\Pattern\UriPart\Port('');
         $prototype = Doubles\FakeUri::fromString('//example.com:123');

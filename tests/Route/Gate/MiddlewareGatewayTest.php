@@ -19,12 +19,12 @@ use Polymorphine\Routing\Tests\Doubles;
 
 class MiddlewareGatewayTest extends TestCase
 {
-    public function testInstantiation()
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(Route::class, $this->gate());
     }
 
-    public function testMiddlewareForwardsRequest()
+    public function test_MiddlewareForwardsRequest()
     {
         $request  = (new Doubles\FakeServerRequest('POST'))->withAttribute('middleware', 'processed');
         $response = $this->gate($route)->forward($request, new Doubles\FakeResponse());
@@ -33,29 +33,29 @@ class MiddlewareGatewayTest extends TestCase
         $this->assertSame('processed: wrap response wrap', (string) $response->getBody());
     }
 
-    public function testSelectCallsNextRouteWithSameParameter()
+    public function test_Select_CallsNextRouteWithSameParameter()
     {
         $this->gate($subRoute)->select('some.name');
         $this->assertSame('some.name', $subRoute->path);
     }
 
-    public function testUriCallIsPassedToWrappedRoute()
+    public function test_Uri_CallIsPassedToWrappedRoute()
     {
         $uri   = 'http://example.com/foo/bar?test=baz';
         $route = Doubles\MockedRoute::withUri($uri);
         $this->assertSame($uri, (string) $this->gate($route)->uri(new Doubles\FakeUri(), []));
     }
 
-    public function testRoutesMethod_PassesTraceToNextRoute()
+    public function test_Routes_PassesTraceToNextRoute()
     {
         $trace = new Map\Trace(new Map(), new Doubles\FakeUri());
         $this->gate($route)->routes($trace);
         $this->assertSame($trace, $route->trace);
     }
 
-    private function gate(?Route &$route = null)
+    private function gate(?Doubles\MockedRoute &$route = null)
     {
-        $route = $route ?? new Doubles\MockedRoute(new Doubles\FakeResponse('response'), new Doubles\FakeUri());
+        $route ??= new Doubles\MockedRoute(new Doubles\FakeResponse('response'), new Doubles\FakeUri());
         return new Route\Gate\MiddlewareGateway(new Doubles\FakeMiddleware(), $route);
     }
 }

@@ -20,12 +20,12 @@ class CallbackEndpointTest extends TestCase
 {
     use Tests\RoutingTestMethods;
 
-    public function testInstantiation()
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(Endpoint::class, new Endpoint\CallbackEndpoint(function () {}));
     }
 
-    public function testForward_ReturnsCallbackResponse()
+    public function test_Forward_ReturnsCallbackResponse()
     {
         $endpoint = new Endpoint\CallbackEndpoint($this->callbackResponse($response));
         $this->assertSame($response, $endpoint->forward(new Tests\Doubles\FakeServerRequest(), new Tests\Doubles\FakeResponse()));
