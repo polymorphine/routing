@@ -28,7 +28,7 @@ class FakeContainer implements ContainerInterface
         return $this->records[$id] ?? null;
     }
 
-    public function has($id)
+    public function has($id): bool
     {
         return isset($this->records[$id]);
     }
