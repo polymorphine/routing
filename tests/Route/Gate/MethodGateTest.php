@@ -19,53 +19,53 @@ use Polymorphine\Routing\Tests\Doubles;
 
 class MethodGateTest extends TestCase
 {
-    public function testInstantiation()
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(Route::class, $this->gate());
     }
 
-    public function testNotMatchingGateMethodRequestForward_ReturnsPrototypeInstance()
+    public function test_Forward_NotMatchedGateMethodRequest_ReturnsPrototypeInstance()
     {
         $gate      = $this->gate('DELETE');
         $prototype = new Doubles\FakeResponse();
         $this->assertSame($prototype, $gate->forward(new Doubles\FakeServerRequest('POST'), $prototype));
     }
 
-    public function testMatchingGateMethodRequestForward_ReturnsRouteResponse()
+    public function test_Forward_MatchingGateMethodRequest_ReturnsRouteResponse()
     {
         $request  = new Doubles\FakeServerRequest('POST');
         $response = $this->gate('POST', $route)->forward($request, new Doubles\FakeResponse());
         $this->assertSame($response, $route->response);
     }
 
-    public function testNotMatchingAnyOfGateMethodsRequestForward_ReturnsPrototypeInstance()
+    public function test_Forward_NotMatchingAnyOfGateMethodsRequest_ReturnsPrototypeInstance()
     {
         $gate      = $this->gate('GET|POST|PUT');
         $prototype = new Doubles\FakeResponse();
         $this->assertSame($prototype, $gate->forward(new Doubles\FakeServerRequest('PATCH'), $prototype));
     }
 
-    public function testMatchingOneOfGateMethodsRequestForward_ReturnsRouteResponse()
+    public function test_Forward_MatchingOneOfGateMethodsRequest_ReturnsRouteResponse()
     {
         $request  = new Doubles\FakeServerRequest('PUT');
         $response = $this->gate('POST|PUT|PATCH', $route)->forward($request, new Doubles\FakeResponse());
         $this->assertSame($response, $route->response);
     }
 
-    public function testSelectCallIsPassedDirectlyToNextRoute()
+    public function test_Select_IsPassedDirectlyToNextRoute()
     {
         $selected = $this->gate('GET', $route)->select('some.name');
         $this->assertSame('some.name', $route->path);
         $this->assertSame($selected, $route->subRoute);
     }
 
-    public function testUriCallIsPassedDirectlyToNextRoute()
+    public function test_Uri_IsPassedDirectlyToNextRoute()
     {
         $uri = $this->gate('GET', $route)->uri(new Doubles\FakeUri(), []);
         $this->assertSame($uri, $route->uri);
     }
 
-    public function testWhenAnyOfTestedMethodsIsAllowed_ForwardedOptionsRequest_ReturnsResponseWithAllowedMethods()
+    public function test_WhenAnyOfTestedMethodsIsAllowed_ForwardedOptionsRequest_ReturnsResponseWithAllowedMethods()
     {
         $methodsAllowed = 'PATCH|PUT|DELETE';
         $methodsTested  = ['GET', 'POST', 'PATCH', 'PUT'];
@@ -76,7 +76,7 @@ class MethodGateTest extends TestCase
         $this->assertSame(['PATCH, PUT'], $response->getHeader('Allow'));
     }
 
-    public function testWhenNoneOfTestedMethodsIsAllowed_ForwardedOptionRequest_ReturnsPrototypeResponse()
+    public function test_WhenNoneOfTestedMethodsIsAllowed_ForwardedOptionRequest_ReturnsPrototypeResponse()
     {
         $methodsAllowed = 'PATCH|PUT|DELETE';
         $methodsTested  = ['GET', 'POST'];
@@ -87,7 +87,7 @@ class MethodGateTest extends TestCase
         $this->assertSame($prototype, $response);
     }
 
-    public function testWhenOptionsRouteIsDefined_ForwardedOptionsRequest_ReturnsStandardEndpointResponse()
+    public function test_WhenOptionsRouteIsDefined_ForwardedOptionsRequest_ReturnsStandardEndpointResponse()
     {
         $methodsAllowed = 'PATCH|PUT|OPTIONS';
         $methodsTested  = ['PATCH', 'PUT'];
@@ -97,7 +97,7 @@ class MethodGateTest extends TestCase
         $this->assertSame($response, $route->response);
     }
 
-    public function testRoutesMethod_PassesTraceToNextRoute()
+    public function test_Routes_PassesTraceToNextRoute()
     {
         $trace  = new Map\Trace(new Map(), new Doubles\FakeUri());
         $method = 'GET';

@@ -21,7 +21,7 @@ class PathRegexpSegmentTest extends TestCase
 {
     use Route\Gate\Pattern\UriTemplatePlaceholder;
 
-    public function testFirstNumericPathSegmentIsMatchedAndCapturedFromRelativePath()
+    public function test_FirstNumericPathSegment_IsMatchedAndCapturedFromRelativePath()
     {
         $request = $this->request('/post/7523/some-slug-part')->withAttribute(Route::PATH_ATTRIBUTE, ['7523', 'some-slug-part']);
         $matched = $this->pattern('name')->matchedRequest($request);
@@ -29,13 +29,13 @@ class PathRegexpSegmentTest extends TestCase
         $this->assertSame(['some-slug-part'], $matched->getAttribute(Route::PATH_ATTRIBUTE));
     }
 
-    public function testFirstNonNumericRelativePathSegmentIsNotMatched()
+    public function test_FirstNonNumericRelativePathSegment_IsNotMatched()
     {
         $request = $this->request('/post/foo/7523/anything')->withAttribute(Route::PATH_ATTRIBUTE, ['foo', '7523', 'anything']);
         $this->assertNull($this->pattern()->matchedRequest($request));
     }
 
-    public function testUriWithValidParamValue_ReturnsUriWithAppendedParam()
+    public function test_Uri_WithValidParamValue_ReturnsUriWithAppendedParam()
     {
         $uri = $this->pattern('id', '[0-9]+')->uri($this->uri('/foo/bar'), ['id' => '00765']);
         $this->assertSame('/foo/bar/00765', $uri->getPath());
@@ -44,19 +44,19 @@ class PathRegexpSegmentTest extends TestCase
         $this->assertSame('/foo/bar/225', $uri->getPath());
     }
 
-    public function testUriWithoutRequiredParam_ThrowsException()
+    public function test_Uri_WithoutRequiredParam_ThrowsException()
     {
         $this->expectException(Route\Exception\InvalidUriParamException::class);
         $this->pattern()->uri($this->uri('/foo/bar'), ['foo' => '00765']);
     }
 
-    public function testUriWithNotMatchingParam_ThrowsException()
+    public function test_Uri_WithNotMatchingParam_ThrowsException()
     {
         $this->expectException(Route\Exception\InvalidUriParamException::class);
         $this->pattern()->uri($this->uri('/foo/bar'), ['id' => 'id-00765']);
     }
 
-    public function testUriTemplate_ReturnsUriWithParameterPlaceholder()
+    public function test_TemplateUri_ReturnsUriWithParameterPlaceholder()
     {
         $pattern  = $this->pattern('id', 'post-[0-9]+');
         $uri      = $uri = $this->uri('/foo/bar');
@@ -64,7 +64,7 @@ class PathRegexpSegmentTest extends TestCase
         $this->assertEquals($expected, $pattern->templateUri($uri));
     }
 
-    public function testUriTemplateWithPredefinedRegexp_ReturnsUriWithParameterTypePlaceholder()
+    public function test_TemplateUri_WithPredefinedRegexp_ReturnsUriWithParameterTypePlaceholder()
     {
         $pattern  = $this->pattern('id', '[0-9]+');
         $uri      = $uri = $this->uri('/foo/bar');
@@ -72,7 +72,7 @@ class PathRegexpSegmentTest extends TestCase
         $this->assertEquals($expected, $pattern->templateUri($uri));
     }
 
-    public function testNamedConstructorsEquivalentToConcretePatterns()
+    public function test_NamedConstructors_AreEquivalentToConcretePatterns()
     {
         $this->assertEquals($this->pattern('id', '[0-9]+'), PathRegexpSegment::numeric());
         $this->assertEquals($this->pattern('id', '[0-9]{14}'), PathRegexpSegment::numeric('id', 14));

@@ -19,12 +19,12 @@ use Polymorphine\Routing\Tests\Doubles;
 
 class LazyRouteTest extends TestCase
 {
-    public function testInstantiation()
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(Route::class, $this->gate());
     }
 
-    public function testWrappedRouteInstantiationIsDeferred()
+    public function test_WrappedRouteInstantiation_IsDeferred()
     {
         $gate = $this->gate($route);
         $this->assertNull($route);
@@ -32,26 +32,26 @@ class LazyRouteTest extends TestCase
         $this->assertInstanceOf(Route::class, $route);
     }
 
-    public function testRequestIsPassedToInvokedRoute()
+    public function test_RequestIsPassedToInvokedRoute()
     {
         $request  = new Doubles\FakeServerRequest();
         $response = $this->gate($route)->forward($request, new Doubles\FakeResponse());
         $this->assertSame($response, $route->response);
     }
 
-    public function testUriIsCalledOnInvokedRoute()
+    public function test_Uri_IsCalledOnInvokedRoute()
     {
         $uri = $this->gate($route)->uri(new Doubles\FakeUri(), []);
         $this->assertSame($uri, $route->uri);
     }
 
-    public function testSelectIsCalledOnInvokedRoute()
+    public function test_Select_IsCalledOnInvokedRoute()
     {
         $this->gate($route)->select('invoked.route.path');
         $this->assertSame('invoked.route.path', $route->path);
     }
 
-    public function testRoutesMethod_PassesTraceToNextRoute()
+    public function test_Routes_PassesTraceToNextRoute()
     {
         $trace = new Map\Trace(new Map(), new Doubles\FakeUri());
         $this->gate($route)->routes($trace);

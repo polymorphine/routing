@@ -22,13 +22,13 @@ class CallbackSwitchTest extends TestCase
 {
     private const TEST_ID = 'route.id';
 
-    public function testInstantiation()
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(Route\Splitter\CallbackSwitch::class, $this->splitter());
         $this->assertInstanceOf(Route::class, $this->splitter());
     }
 
-    public function testRequestIsForwardedBasedOnCallbackResult()
+    public function test_RequestIsForwardedBasedOnCallbackResult()
     {
         $splitter = $this->splitter([
             'foo' => $this->responseRoute($fooResponse),
@@ -41,7 +41,7 @@ class CallbackSwitchTest extends TestCase
         $this->assertSame($barResponse, $splitter->forward($request->withAttribute(self::TEST_ID, 'bar'), $prototype));
     }
 
-    public function testRoutesCanBeSelected()
+    public function test_Routes_CanBeSelected()
     {
         $routes = [
             'foo' => new Doubles\MockedRoute(),
@@ -53,7 +53,7 @@ class CallbackSwitchTest extends TestCase
         $this->assertSame($routes['bar'], $splitter->select('bar'));
     }
 
-    public function testSelectingSubRoutesCallsSelectOnSplitterRoutes()
+    public function test_SelectingSubRoutes_CallsSelectOnSplitterRoutes()
     {
         $routes = [
             'foo' => new Doubles\MockedRoute(),
@@ -70,7 +70,7 @@ class CallbackSwitchTest extends TestCase
         $this->assertSame('path', $routes['bar']->path);
     }
 
-    public function testSelectingUndefinedRoute_ForwardsSelectionToImplicitRoute()
+    public function test_SelectingUndefinedRoute_ForwardsSelectionToImplicitRoute()
     {
         $routes = [
             'route1' => new Doubles\MockedRoute(),
@@ -83,14 +83,14 @@ class CallbackSwitchTest extends TestCase
         $this->assertSame('some.path', $routes['route2']->path);
     }
 
-    public function testUriMethodWithoutImplicitRoute_ThrowsException()
+    public function test_Uri_WithoutImplicitRoute_ThrowsException()
     {
         $splitter = $this->splitter(['route' => new Doubles\MockedRoute()]);
         $this->expectException(Route\Exception\AmbiguousEndpointException::class);
         $splitter->uri(new Doubles\FakeUri(), []);
     }
 
-    public function testUriMethodWithImplicitRoute_ReturnsImplicitRouteUri()
+    public function test_Uri_WithImplicitRoute_ReturnsImplicitRouteUri()
     {
         $routes = [
             'route1' => new Doubles\MockedRoute(),
@@ -100,7 +100,7 @@ class CallbackSwitchTest extends TestCase
         $this->assertSame($uri, $splitter->uri(new Doubles\FakeUri(), []));
     }
 
-    public function testRoutesMethod_AddsRouteTracedPathsToRoutingMap()
+    public function test_Routes_AddsRouteTracedPathsToRoutingMap()
     {
         $splitter = $this->splitter([
             'foo' => new Doubles\MockedRoute(),
@@ -121,7 +121,7 @@ class CallbackSwitchTest extends TestCase
         $this->assertEquals($expected, $map->paths());
     }
 
-    public function testRoutesWithNameConflictOnImplicitRoute_ThrowsException()
+    public function test_Routes_WithNameConflictOnImplicitRoute_ThrowsException()
     {
         $splitter = $this->splitter([
             'foo' => Doubles\MockedRoute::withTraceCallback(function (Map\Trace $trace) {

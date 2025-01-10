@@ -20,7 +20,7 @@ use Polymorphine\Routing\Tests\Doubles;
 
 class PatternGateTest extends TestCase
 {
-    public function testInstantiation()
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(Route::class, $default = $this->gate());
 
@@ -31,13 +31,13 @@ class PatternGateTest extends TestCase
         $this->assertInstanceOf(Route::class, $gateway);
     }
 
-    public function testNotMatchingPattern_ReturnsPrototypeInstance()
+    public function test_NotMatchingPattern_ReturnsPrototypeInstance()
     {
         $prototype = new Doubles\FakeResponse();
         $this->assertSame($prototype, $this->gate()->forward(new Doubles\FakeServerRequest(), $prototype));
     }
 
-    public function testMatchingPattern_ReturnsForwardedRouteResponse()
+    public function test_MatchingPattern_ReturnsForwardedRouteResponse()
     {
         $request  = new Doubles\FakeServerRequest();
         $pattern  = new Doubles\MockedPattern('foo');
@@ -48,7 +48,7 @@ class PatternGateTest extends TestCase
         $this->assertSame($response, $route->response);
     }
 
-    public function testUri_ReturnsUriProcessedByPatternAndFollowingRoute()
+    public function test_Uri_ReturnsUriProcessedByPatternAndFollowingRoute()
     {
         $prototype = new Doubles\FakeUri();
         $pattern   = new Doubles\MockedPattern('foo');
@@ -61,14 +61,14 @@ class PatternGateTest extends TestCase
         $this->assertSame($uri, $route->uri);
     }
 
-    public function testSelectMethod_ReturnsPatternGateWithSelectedSubRoute()
+    public function test_Select_ReturnsPatternGateWithSelectedSubRoute()
     {
         $selected = $this->gate($pattern, $route)->select('some.path');
         $this->assertSame('some.path', $route->path);
         $this->assertEquals($selected, new Gate\PatternGate($pattern, $route->subRoute));
     }
 
-    public function testRoutesMethod_PassesTraceWithModifiedUriToNextRoute()
+    public function test_Routes_PassesTraceWithModifiedUriToNextRoute()
     {
         $trace   = new Map\Trace(new Map(), new Doubles\FakeUri());
         $pattern = new Doubles\MockedPattern('/foo/bar');

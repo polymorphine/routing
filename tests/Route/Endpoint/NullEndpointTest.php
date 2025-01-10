@@ -18,12 +18,12 @@ use Polymorphine\Routing\Tests\Doubles;
 
 class NullEndpointTest extends TestCase
 {
-    public function testInstantiation()
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(Endpoint::class, new Endpoint\NullEndpoint());
     }
 
-    public function testForward_ReturnsPrototype()
+    public function test_Forward_ReturnsPrototype()
     {
         $endpoint  = new Endpoint\NullEndpoint();
         $prototype = new Doubles\FakeResponse();

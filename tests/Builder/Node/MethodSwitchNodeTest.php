@@ -24,17 +24,17 @@ class MethodSwitchNodeTest extends TestCase
     use Tests\RoutingTestMethods;
     use Tests\Builder\ContextCreateMethod;
 
-    public function testInstantiation()
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(Builder\Node\MethodSwitchNode::class, $this->builder());
     }
 
-    public function testBuild_ReturnsResponseScanSwitch()
+    public function test_Build_ReturnsResponseScanSwitch()
     {
         $this->assertInstanceOf(Route\Splitter\MethodSwitch::class, $this->builder()->build());
     }
 
-    public function testRoutesCanBeAdded()
+    public function test_Routes_CanBeAdded()
     {
         $switch = $this->builder();
         $switch->get()->callback($this->callbackResponse($get));
@@ -53,7 +53,7 @@ class MethodSwitchNodeTest extends TestCase
         $this->assertSame($delete, $route->forward($request->withMethod('DELETE'), $prototype));
     }
 
-    public function testRouteForMultipleMethodsCanBeAdded()
+    public function test_RouteForMultipleMethods_CanBeAdded()
     {
         $switch = $this->builder();
         $switch->get()->callback($this->callbackResponse($single));
@@ -67,7 +67,7 @@ class MethodSwitchNodeTest extends TestCase
         $this->assertSame($multiple, $route->forward($request->withMethod('PATCH'), $prototype));
     }
 
-    public function testImplicitRouteIsPassedToMethodSwitch()
+    public function test_ImplicitRoute_IsPassedToMethodSwitch()
     {
         $switch = $this->builder()->implicitPath('POST');
         $switch->post()->path('routeIMPLICIT')->callback(function () {});
@@ -75,7 +75,7 @@ class MethodSwitchNodeTest extends TestCase
         $this->assertSame('/routeIMPLICIT', (string) $route->uri(new Doubles\FakeUri(), []));
     }
 
-    public function testRemovingImplicitRoute()
+    public function test_RemovingImplicitRoute()
     {
         $switch = $this->builder()->explicitPath();
         $switch->post()->path('routePOST')->callback(function () {});
@@ -86,21 +86,21 @@ class MethodSwitchNodeTest extends TestCase
         $route->uri(new Doubles\FakeUri(), []);
     }
 
-    public function testEmptyHttpMethodRouteName_ThrowsException()
+    public function test_EmptyHttpMethodRouteName_ThrowsException()
     {
         $switch = $this->builder();
         $this->expectException(InvalidArgumentException::class);
         $switch->route('');
     }
 
-    public function testUnknownHttpMethodRouteName_ThrowsException()
+    public function test_UnknownHttpMethodRouteName_ThrowsException()
     {
         $switch = $this->builder();
         $this->expectException(InvalidArgumentException::class);
         $switch->route('FOO');
     }
 
-    public function testAddingRouteWithAlreadyDefinedMethod_ThrowsException()
+    public function test_AddingRouteWithAlreadyDefinedMethod_ThrowsException()
     {
         $switch = $this->builder();
         $switch->post()->callback(function () {});
@@ -108,7 +108,7 @@ class MethodSwitchNodeTest extends TestCase
         $switch->route('POST');
     }
 
-    public function testRepeatedMethodInMultipleMethodsParameter_ThrowsException()
+    public function test_RepeatedMethodInMultipleMethodsParameter_ThrowsException()
     {
         $switch = $this->builder();
         $switch->post()->callback(function () {});

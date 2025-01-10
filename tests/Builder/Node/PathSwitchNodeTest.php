@@ -25,17 +25,17 @@ class PathSwitchNodeTest extends TestCase
     use Tests\RoutingTestMethods;
     use Tests\Builder\ContextCreateMethod;
 
-    public function testInstantiation()
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(Node\PathSwitchNode::class, $this->builder());
     }
 
-    public function testBuild_ReturnsResponseScanSwitch()
+    public function test_Build_ReturnsResponseScanSwitch()
     {
         $this->assertInstanceOf(Route\Splitter\PathSwitch::class, $this->builder()->build());
     }
 
-    public function testRoutesCanBeAdded()
+    public function test_Routes_CanBeAdded()
     {
         $switch = $this->builder();
         $switch->route('first')->callback($this->callbackResponse($first));
@@ -48,14 +48,14 @@ class PathSwitchNodeTest extends TestCase
         $this->assertSame($second, $route->forward($request->withUri(Doubles\FakeUri::fromString('/second')), $prototype));
     }
 
-    public function testEmptyRouteName_ThrowsException()
+    public function test_EmptyRouteName_ThrowsException()
     {
         $switch = $this->builder();
         $this->expectException(InvalidArgumentException::class);
         $switch->route('');
     }
 
-    public function testRootRouteInPathSegmentSwitch()
+    public function test_RootRouteInPathSegmentSwitch()
     {
         $switch = $this->builder();
         $switch->route('dummy')->callback($this->callbackResponse($dummy));
@@ -70,7 +70,7 @@ class PathSwitchNodeTest extends TestCase
         $this->assertSame($root, $route->forward($absoluteRootRequest, $prototype));
     }
 
-    public function testSettingRootRouteSecondTime_ThrowsException()
+    public function test_SettingRootRouteSecondTime_ThrowsException()
     {
         $switch = $this->builder();
         $switch->root();
@@ -78,7 +78,7 @@ class PathSwitchNodeTest extends TestCase
         $switch->root();
     }
 
-    public function testAddingRouteWithAlreadyDefinedName_ThrowsException()
+    public function test_AddingRouteWithAlreadyDefinedName_ThrowsException()
     {
         $switch = $this->builder();
         $switch->route('foo')->callback(function () {});
@@ -86,12 +86,12 @@ class PathSwitchNodeTest extends TestCase
         $switch->route('foo');
     }
 
-    public function testResourceBuilderCanBeAdded()
+    public function test_ResourceBuilder_CanBeAdded()
     {
         $this->assertInstanceOf(Node\Resource\ResourceSwitchNode::class, $this->builder()->resource('res'));
     }
 
-    public function testSeparateFormsPathForResourceBuilderCanBeSet()
+    public function test_SeparateFormsPathForResourceBuilder_CanBeSet()
     {
         $builder  = $this->builder()->withResourcesFormsPath('forms');
         $resource = $builder->resource('resource');
@@ -113,7 +113,7 @@ class PathSwitchNodeTest extends TestCase
         $this->assertSame((string) $editFormUri, (string) $route->select('forms.resource')->uri($uriPrototype, ['resource.id' => 997]));
     }
 
-    public function testResourceFormsPathOverwrite_ThrowsException()
+    public function test_ResourceFormsPathOverwrite_ThrowsException()
     {
         $builder = $this->builder()->withResourcesFormsPath('forms');
         $this->expectException(Exception\BuilderLogicException::class);

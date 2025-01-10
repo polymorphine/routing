@@ -20,12 +20,12 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class PathSegmentTest extends TestCase
 {
-    public function testInstantiation()
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(Pattern::class, $this->pattern('name'));
     }
 
-    public function testMatchingRequest_ReturnsRequestWithNewContext()
+    public function test_MatchedRequest_ReturnsRequestWithNewContext()
     {
         $pattern = $this->pattern('foo');
         $request = $this->request('foo/bar/baz');
@@ -43,7 +43,7 @@ class PathSegmentTest extends TestCase
         $this->assertSame(['baz'], $matched->getAttribute(Route::PATH_ATTRIBUTE));
     }
 
-    public function testNotMatchingRequest_ReturnsNull()
+    public function test_NotMatchedRequest_ReturnsNull()
     {
         $pattern = $this->pattern('foo');
         $request = $this->request('foo/bar/baz', ['bar', 'baz']);
@@ -58,7 +58,7 @@ class PathSegmentTest extends TestCase
         $this->assertNull($pattern->matchedRequest($request));
     }
 
-    public function testUri_ReturnsPrototypeWithExpandedPath()
+    public function test_Uri_ReturnsPrototypeWithExpandedPath()
     {
         $pattern   = $this->pattern('foo');
         $prototype = Doubles\FakeUri::fromString('http://example.com');
@@ -69,7 +69,7 @@ class PathSegmentTest extends TestCase
         $this->assertSame('http://example.com/foo/bar', (string) $pattern->uri($prototype, []));
     }
 
-    public function testUriTemplate_ReturnsUriWithExpandedPath()
+    public function test_TemplateUri_ReturnsUriWithExpandedPath()
     {
         $pattern   = $this->pattern('foo');
         $prototype = Doubles\FakeUri::fromString('http://example.com');

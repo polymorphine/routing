@@ -25,7 +25,7 @@ abstract class ReadmeExampleTest extends TestCase
 {
     protected ?Router $router = null;
 
-    public function testInstantiation()
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(Router::class, $this->router());
     }
@@ -38,7 +38,7 @@ abstract class ReadmeExampleTest extends TestCase
      * @param string                 $routePath
      * @param array                  $uriParams
      */
-    public function testRequestCanReachItsEndpoint(
+    public function test_Request_CanReachItsEndpoint(
         string $expectedOutput,
         ServerRequestInterface $request,
         string $routePath,
@@ -81,7 +81,7 @@ abstract class ReadmeExampleTest extends TestCase
      * @param ServerRequestInterface $request
      * @param string                 $locationRoutePath
      */
-    public function testRedirectedRequests(ServerRequestInterface $request, string $locationRoutePath)
+    public function test_RedirectedRequests(ServerRequestInterface $request, string $locationRoutePath)
     {
         $router   = $this->router();
         $response = $router->handle($request);
@@ -97,7 +97,7 @@ abstract class ReadmeExampleTest extends TestCase
         ];
     }
 
-    public function testRouterCanProduceRoutingMap()
+    public function test_Router_CanProduceRoutingMap()
     {
         $routes = $this->router()->routes();
         $expected = [

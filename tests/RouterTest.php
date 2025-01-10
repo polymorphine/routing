@@ -27,7 +27,7 @@ class RouterTest extends TestCase
         self::$prototype = new Doubles\FakeResponse();
     }
 
-    public function testInstantiation()
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(Router::class, $this->router());
         $this->assertInstanceOf(Router::class, Router::withPrototypeFactories(
@@ -37,20 +37,20 @@ class RouterTest extends TestCase
         ));
     }
 
-    public function testNotMatchedRequestDispatch_ReturnsPrototypeInstance()
+    public function test_NotMatchedRequestDispatch_ReturnsPrototypeInstance()
     {
         $router = $this->router(false);
         $this->assertSame(self::$prototype, $router->handle(new Doubles\FakeServerRequest()));
     }
 
-    public function testMatchingRequestDispatch_ReturnsEndpointResponse()
+    public function test_MatchingRequestDispatch_ReturnsEndpointResponse()
     {
         $router = $this->router(true);
         $this->assertNotSame(self::$prototype, $router->handle(new Doubles\FakeServerRequest()));
         $this->assertSame('matched', $router->handle(new Doubles\FakeServerRequest())->body);
     }
 
-    public function testUri_ReturnsUriBasedOnDefault()
+    public function test_Uri_ReturnsUriBasedOnDefault()
     {
         $router = $this->router(false, $uri = new Doubles\FakeUri());
         $this->assertSame($uri, $router->uri('anything'));
@@ -60,7 +60,7 @@ class RouterTest extends TestCase
         $this->assertEquals($uri->withPath('matched'), $response);
     }
 
-    public function testUriWithRootPath_ReturnsUriDirectlyFromRoute()
+    public function test_Uri_WithRootPath_ReturnsUriDirectlyFromRoute()
     {
         $route  = new Doubles\MockedRoute();
         $router = new Router($route, new Doubles\FakeUri(), new Doubles\FakeResponse());
@@ -71,7 +71,7 @@ class RouterTest extends TestCase
         $this->assertEquals('some.path', $route->path);
     }
 
-    public function testSelectMethod_ReturnsRouterInstanceWithNewRootRoute()
+    public function test_Select_ReturnsRouterInstanceWithNewRootRoute()
     {
         $route  = Doubles\MockedRoute::response('matched');
         $router = new Router($route, new Doubles\FakeUri(), self::$prototype);
@@ -83,7 +83,7 @@ class RouterTest extends TestCase
         $this->assertSame('new.context', $route->path);
     }
 
-    public function testSelectRootRoute_ReturnsSameRouterInstance()
+    public function test_Select_ForRootRoute_ReturnsSameRouterInstance()
     {
         $router = new Router(new Doubles\MockedRoute(), new Doubles\FakeUri(), self::$prototype, 'home');
         $this->assertSame($router, $router->select('home'));
@@ -94,7 +94,7 @@ class RouterTest extends TestCase
      *
      * @param \Exception $exception
      */
-    public function testThrownExceptionIncludesRoutePathInfo(\Exception $exception)
+    public function test_ThrownExceptions_IncludeRoutePathInfo(\Exception $exception)
     {
         $route = new Doubles\MockedRoute();
         $route->exception = $exception;
@@ -118,7 +118,7 @@ class RouterTest extends TestCase
         ];
     }
 
-    public function testRoutesMethod_ReturnsRoutePathsArray()
+    public function test_Routes_ReturnsRoutePathsArray()
     {
         $router = new Router(new Doubles\MockedRoute(), Doubles\FakeUri::fromString('/foo/bar'), self::$prototype, 'home');
         $this->assertEquals([new Path('home', '*', '/foo/bar')], $router->routes());

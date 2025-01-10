@@ -19,26 +19,26 @@ use Polymorphine\Routing\Tests\Doubles;
 
 class EndpointTest extends TestCase
 {
-    public function testInstantiation()
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(Route\Endpoint::class, new Doubles\DummyEndpoint());
     }
 
-    public function testSelectCall_ThrowsException()
+    public function test_Select_ThrowsException()
     {
         $route = new Doubles\DummyEndpoint();
         $this->expectException(Route\Exception\RouteNotFoundException::class);
         $route->select('foo');
     }
 
-    public function testUriCall_ReturnsPrototype()
+    public function test_Uri_ReturnsPrototype()
     {
         $route = new Doubles\DummyEndpoint();
         $uri   = new Doubles\FakeUri();
         $this->assertSame($uri, $route->uri($uri, []));
     }
 
-    public function testOptionsMethod_ReturnsAllowedMethodsHeader()
+    public function test_Options_ReturnsAllowedMethodsHeader()
     {
         $route   = new Doubles\DummyEndpoint();
         $methods = ['GET', 'POST', 'DELETE'];
@@ -47,7 +47,7 @@ class EndpointTest extends TestCase
         $this->assertSame([implode(', ', $methods)], $route->forward($request, new Doubles\FakeResponse())->getHeader('Allow'));
     }
 
-    public function testForwardedRequestWithFullyProcessedPathOrWildcardAttribute_ReturnsResponse()
+    public function test_Forward_RequestWithFullyProcessedPathOrWildcardAttribute_ReturnsResponse()
     {
         $route     = new Doubles\DummyEndpoint();
         $request   = new Doubles\FakeServerRequest();
@@ -60,7 +60,7 @@ class EndpointTest extends TestCase
         $this->assertNotSame($prototype, $route->forward($request->withAttribute(Route::PATH_ATTRIBUTE, []), $prototype));
     }
 
-    public function testForwardedRequestWithUnprocessedPathAndNoWildcardAttribute_ReturnsPrototype()
+    public function test_Forward_RequestWithUnprocessedPathAndNoWildcardAttribute_ReturnsPrototype()
     {
         $route     = new Doubles\DummyEndpoint();
         $request   = new Doubles\FakeServerRequest();
@@ -73,7 +73,7 @@ class EndpointTest extends TestCase
         $this->assertSame($prototype, $route->forward($request->withAttribute(Route::PATH_ATTRIBUTE, ['some', 'path']), $prototype));
     }
 
-    public function testRoutesMethod_AddsTracedPathToRoutingMap()
+    public function test_Routes_AddsTracedPathToRoutingMap()
     {
         $path  = new Map\Path('some.routing.path', '*', 'https://example.com/foo/bar');
         $trace = new Map\Trace($map = new Map(), Doubles\FakeUri::fromString($path->uri));

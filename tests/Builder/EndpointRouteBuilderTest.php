@@ -22,12 +22,12 @@ class EndpointRouteBuilderTest extends TestCase
 {
     use ContextCreateMethod;
 
-    public function testInstantiation()
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(Builder\EndpointRouteBuilder::class, $this->builder());
     }
 
-    public function testRouteBuildingMethodsWithoutGateWrappers_ReturnConcreteRoutes()
+    public function test_RouteBuildingMethods_WithoutGateWrappers_ReturnConcreteRoutes()
     {
         $callback = function () {};
         $this->assertInstanceOf(Endpoint\CallbackEndpoint::class, $this->builder()->callback($callback));

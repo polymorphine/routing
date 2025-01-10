@@ -22,7 +22,7 @@ class QueryTest extends TestCase
 {
     use Pattern\UriTemplatePlaceholder;
 
-    public function testInstantiation()
+    public function test_Instantiation()
     {
         $pattern = $this->pattern('foo=bar');
         $this->assertInstanceOf(Pattern::class, $pattern);
@@ -35,7 +35,7 @@ class QueryTest extends TestCase
      * @param string $pattern
      * @param string $uri
      */
-    public function testMatchedRequestWithMatchingQueryParams_ReturnsRequest(string $pattern, string $uri)
+    public function test_MatchedRequest_WithMatchingQueryParams_ReturnsRequest(string $pattern, string $uri)
     {
         $pattern = $this->pattern($pattern);
         $request = $this->request($uri);
@@ -63,7 +63,7 @@ class QueryTest extends TestCase
      * @param string $pattern
      * @param string $uri
      */
-    public function testMatchedRequestWithNotMatchingQueryParams_ReturnsNull(string $pattern, string $uri)
+    public function test_MatchedRequest_WithNotMatchingQueryParams_ReturnsNull(string $pattern, string $uri)
     {
         $pattern = $this->pattern($pattern);
         $request = $this->request($uri);
@@ -89,7 +89,7 @@ class QueryTest extends TestCase
      * @param string $prototype
      * @param string $uri
      */
-    public function testUri_ReturnsUriWithAppendedQueryParams(string $pattern, string $prototype, string $uri)
+    public function test_Uri_ReturnsUriWithAppendedQueryParams(string $pattern, string $prototype, string $uri)
     {
         $pattern   = $this->pattern($pattern);
         $prototype = $this->uri('http://example.com/path?' . $prototype);
@@ -113,7 +113,7 @@ class QueryTest extends TestCase
      * @param string $pattern
      * @param string $prototype
      */
-    public function testUriForNotMatchingPrototypeParam_ThrowsException(string $pattern, string $prototype)
+    public function test_Uri_ForNotMatchingPrototypeParam_ThrowsException(string $pattern, string $prototype)
     {
         $pattern   = $this->pattern($pattern);
         $prototype = $this->uri('http://example.com/path?' . $prototype);
@@ -131,7 +131,7 @@ class QueryTest extends TestCase
         ];
     }
 
-    public function testUriMethodParamsSetQueryParametersForUndefinedPatternValues()
+    public function test_UriParams_SetQueryParametersForUndefinedPatternValues()
     {
         $pattern   = $this->pattern('foo&bar&baz=qux');
         $prototype = $this->uri('');
@@ -143,7 +143,7 @@ class QueryTest extends TestCase
         $this->assertSame('foo=fizz&bar=buzz&baz=qux', $uri->getQuery());
     }
 
-    public function testUriTemplate_ReturnsUriWithQueryPlaceholders()
+    public function test_TemplateUri_ReturnsUriWithQueryPlaceholders()
     {
         $pattern  = $this->pattern('foo&bar=&baz=qux');
         $uri      = Doubles\FakeUri::fromString('/fizz/buzz');
@@ -157,7 +157,7 @@ class QueryTest extends TestCase
      * @param string $pattern
      * @param string $prototype
      */
-    public function testTemplateUriForNotMatchingPrototypeParam_ThrowsException(string $pattern, string $prototype)
+    public function test_TemplateUri_ForNotMatchingPrototypeParam_ThrowsException(string $pattern, string $prototype)
     {
         $pattern   = $this->pattern($pattern);
         $prototype = $this->uri('http://example.com/path?' . $prototype);

@@ -22,12 +22,12 @@ class MethodSwitchTest extends TestCase
 {
     use RoutingTestMethods;
 
-    public function testInstantiation()
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(Route::class, $this->splitter());
     }
 
-    public function testRequestMatchingMethod_ReturnsResponseFromMatchedRoute()
+    public function test_Forward_RequestMatchingMethod_ReturnsResponseFromMatchedRoute()
     {
         $splitter = new Route\Splitter\MethodSwitch([
             'POST'   => $this->responseRoute($post),
@@ -46,14 +46,14 @@ class MethodSwitchTest extends TestCase
         $this->assertSame($patch, $splitter->forward($request->withMethod('PATCH'), $prototype));
     }
 
-    public function testRequestNotMatchingMethod_ReturnsPrototypeResponse()
+    public function test_Forward_RequestNotMatchingMethod_ReturnsPrototypeResponse()
     {
         $splitter  = $this->splitter(['POST', 'GET', 'PATCH', 'DELETE']);
         $prototype = new Doubles\FakeResponse();
         $this->assertSame($prototype, $splitter->forward(new Doubles\FakeServerRequest('PUT'), $prototype));
     }
 
-    public function testSelectMatchingRouteWithMethodName_ReturnsRouteForThisMethod()
+    public function test_Select_MatchingRouteWithMethodName_ReturnsRouteForThisMethod()
     {
         $splitter = new Route\Splitter\MethodSwitch($routes = [
             'POST'   => new Doubles\MockedRoute(),
@@ -68,7 +68,7 @@ class MethodSwitchTest extends TestCase
         $this->assertNull($routes['DELETE']->path);
     }
 
-    public function testSelectMatchingRouteWithPath_ReturnsRouteFromNextSwitches()
+    public function test_Select_MatchingRouteWithPath_ReturnsRouteFromNextSwitches()
     {
         $splitter = new Route\Splitter\MethodSwitch($routes = [
             'GET' => new Doubles\MockedRoute(),
@@ -83,7 +83,7 @@ class MethodSwitchTest extends TestCase
         $this->assertSame('path.after.put', $routes['PUT']->path);
     }
 
-    public function testSelectMatchingRouteWithImplicitPath_ReturnsRouteFromNextSwitches()
+    public function test_Select_MatchingRouteWithImplicitPath_ReturnsRouteFromNextSwitches()
     {
         $splitter = new Route\Splitter\MethodSwitch($routes = [
             'GET' => $routeGet = new Doubles\MockedRoute(),
@@ -98,7 +98,7 @@ class MethodSwitchTest extends TestCase
         $this->assertSame('explicit.path', $routes['PUT']->path);
     }
 
-    public function testUriMethodWithoutImplicitMethod_ThrowsException()
+    public function test_Uri_WithoutImplicitMethod_ThrowsException()
     {
         $splitter = new Route\Splitter\MethodSwitch([
             'GET'  => Doubles\MockedRoute::withUri('get'),
@@ -108,7 +108,7 @@ class MethodSwitchTest extends TestCase
         $splitter->uri(new Doubles\FakeUri(), []);
     }
 
-    public function testUriMethodWithImplicitMethod_ForwardsCallToImplicitRoute()
+    public function test_Uri_WithImplicitMethod_ForwardsCallToImplicitRoute()
     {
         $splitter = new Route\Splitter\MethodSwitch([
             'GET'  => Doubles\MockedRoute::withUri('get/implicit'),
@@ -117,7 +117,7 @@ class MethodSwitchTest extends TestCase
         $this->assertSame('get/implicit', (string) $splitter->uri(new Doubles\FakeUri(), []));
     }
 
-    public function testWhenAnyOfTestedMethodsIsAllowed_ForwardedOptionsRequest_ReturnsResponseWithAllowedMethods()
+    public function test_WhenAnyOfTestedMethodsIsAllowed_ForwardedOptionsRequest_ReturnsResponseWithAllowedMethods()
     {
         $methodsAllowed = ['GET', 'POST', 'PUT', 'DELETE'];
         $methodsTested  = ['GET', 'PUT', 'DELETE', 'PATCH'];
@@ -127,7 +127,7 @@ class MethodSwitchTest extends TestCase
         $this->assertSame(['GET, PUT, DELETE'], $splitter->forward($request, new Doubles\FakeResponse())->getHeader('Allow'));
     }
 
-    public function testWhenNoneOfTestedMethodsIsAllowed_ForwardedOptionRequest_ReturnsPrototypeResponse()
+    public function test_WhenNoneOfTestedMethodsIsAllowed_ForwardedOptionRequest_ReturnsPrototypeResponse()
     {
         $methodsAllowed = ['POST', 'PATCH'];
         $methodsTested  = ['GET', 'PUT', 'DELETE'];
@@ -138,7 +138,7 @@ class MethodSwitchTest extends TestCase
         $this->assertSame($prototype, $splitter->forward($request, $prototype));
     }
 
-    public function testWhenOptionsRouteIsDefined_ForwardedOptionsRequest_ReturnsStandardEndpointResponse()
+    public function test_WhenOptionsRouteIsDefined_ForwardedOptionsRequest_ReturnsStandardEndpointResponse()
     {
         $methodsAllowed = ['GET', 'POST', 'OPTIONS', 'DELETE'];
         $methodsTested  = ['GET', 'PUT', 'DELETE', 'PATCH'];
@@ -149,7 +149,7 @@ class MethodSwitchTest extends TestCase
         $this->assertSame($response, $splitter->forward($request, new Doubles\FakeResponse()));
     }
 
-    public function testRoutesMethod_AddsRouteTracedPathsToRoutingMap()
+    public function test_Routes_AddsRouteTracedPathsToRoutingMap()
     {
         $splitter = new Route\Splitter\MethodSwitch([
             'GET'  => new Doubles\MockedRoute(),
@@ -170,7 +170,7 @@ class MethodSwitchTest extends TestCase
         $this->assertEquals($expected, $map->paths());
     }
 
-    public function testImplicitRouteNameConflict_ThrowsException()
+    public function test_ImplicitRouteNameConflict_ThrowsException()
     {
         $splitter = new Route\Splitter\MethodSwitch([
             'GET' => Doubles\MockedRoute::withTraceCallback(function (Map\Trace $trace) {

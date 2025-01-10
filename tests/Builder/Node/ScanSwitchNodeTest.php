@@ -25,17 +25,17 @@ class ScanSwitchNodeTest extends TestCase
     use RoutingTestMethods;
     use Builder\ContextCreateMethod;
 
-    public function testInstantiation()
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(Node\ScanSwitchNode::class, $this->builder());
     }
 
-    public function testBuild_ReturnsResponseScanSwitch()
+    public function test_Build_ReturnsResponseScanSwitch()
     {
         $this->assertInstanceOf(Route\Splitter\ScanSwitch::class, $this->builder()->build());
     }
 
-    public function testRoutesCanBeAdded()
+    public function test_Routes_CanBeAdded()
     {
         $switch = $this->builder();
         $switch->route('first')->callback($this->callbackResponse($first));
@@ -48,7 +48,7 @@ class ScanSwitchNodeTest extends TestCase
         $this->assertSame($second, $route->select('second')->forward($request, $prototype));
     }
 
-    public function testUnnamedRoutesCanBeAdded()
+    public function test_UnnamedRoutes_CanBeAdded()
     {
         $switch = $this->builder();
         $switch->route()->method('POST')->callback($this->callbackResponse($first));
@@ -61,7 +61,7 @@ class ScanSwitchNodeTest extends TestCase
         $this->assertSame($second, $route->forward($request, $prototype));
     }
 
-    public function testDefaultRouteInResponseScanSwitch()
+    public function test_DefaultRouteInResponseScanSwitch()
     {
         $switch = $this->builder();
         $switch->route('dummy')->callback($this->callbackResponse($dummy));
@@ -73,7 +73,7 @@ class ScanSwitchNodeTest extends TestCase
         $this->assertSame($default, $route->forward($request, $prototype));
     }
 
-    public function testSettingDefaultRouteSecondTime_ThrowsException()
+    public function test_SettingDefaultRouteSecondTime_ThrowsException()
     {
         $switch = $this->builder();
         $switch->defaultRoute()->callback(function () {});
@@ -81,7 +81,7 @@ class ScanSwitchNodeTest extends TestCase
         $switch->defaultRoute();
     }
 
-    public function testAddingRouteWithAlreadyDefinedName_ThrowsException()
+    public function test_AddingRouteWithAlreadyDefinedName_ThrowsException()
     {
         $switch = $this->builder();
         $switch->route('exists')->callback(function () {});
@@ -89,12 +89,12 @@ class ScanSwitchNodeTest extends TestCase
         $switch->route('exists');
     }
 
-    public function testResourceBuilderCanBeAdded()
+    public function test_ResourceBuilder_CanBeAdded()
     {
         $this->assertInstanceOf(Node\Resource\ResourceSwitchNode::class, $this->builder()->resource('res'));
     }
 
-    public function testSeparateFormsPathForResourceBuilderCanBeSet()
+    public function test_SeparateFormsPath_ForResourceBuilder_CanBeSet()
     {
         $builder  = $this->builder()->withResourcesFormsPath('forms');
         $resource = $builder->resource('resource');
@@ -116,7 +116,7 @@ class ScanSwitchNodeTest extends TestCase
         $this->assertSame((string) $editFormUri, (string) $route->select('forms.resource')->uri($uriPrototype, ['resource.id' => 997]));
     }
 
-    public function testResourceFormsPathOverwrite_ThrowsException()
+    public function test_ResourceFormsPathOverwrite_ThrowsException()
     {
         $builder = $this->builder()->withResourcesFormsPath('forms');
         $this->expectException(Exception\BuilderLogicException::class);

@@ -19,13 +19,13 @@ use Polymorphine\Routing\Tests\Doubles;
 
 class UriAttributeSelectTest extends TestCase
 {
-    public function testInstantiation()
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(Route\Gate\UriAttributeSelect::class, $gate = $this->gate());
         $this->assertInstanceOf(Route::class, $gate);
     }
 
-    public function testRequestIsForwardedToResourceRoute()
+    public function test_Request_IsForwardedToResourceRoute()
     {
         $request  = new Doubles\FakeServerRequest();
         $response = $this->gate($resource)->forward($request, new Doubles\FakeResponse());
@@ -33,14 +33,14 @@ class UriAttributeSelectTest extends TestCase
         $this->assertSame($request, $resource->forwardedRequest);
     }
 
-    public function testSelectMethod_SelectsResourceRoute()
+    public function test_Select_SelectsResourceRoute()
     {
         $selected = $this->gate($resource)->select('some.path');
         $this->assertSame('some.path', $resource->path);
         $this->assertSame($selected, $resource->subRoute);
     }
 
-    public function testUriIsSelectedFromIndexResourceRouteBasedOnIdParam()
+    public function test_Uri_IsSelectedFromIndexResourceRouteBasedOnIdParam()
     {
         $gate = $this->gate($resource);
         $this->assertSame($resource->uri, $gate->uri(new Doubles\FakeUri(), ['notId' => 'something']));
@@ -50,7 +50,7 @@ class UriAttributeSelectTest extends TestCase
         $this->assertSame('item', $resource->path);
     }
 
-    public function testRoutesMethod_PassesTraceToNextRoute()
+    public function test_Routes_PassesTraceToNextRoute()
     {
         $trace = new Map\Trace(new Map(), new Doubles\FakeUri());
         $this->gate($route)->routes($trace);

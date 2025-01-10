@@ -20,12 +20,12 @@ class PathWildcardTest extends TestCase
 {
     use Route\Gate\Pattern\UriTemplatePlaceholder;
 
-    public function testInstantiation()
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(Route\Gate\Pattern::class, new Route\Gate\Pattern\UriPart\PathWildcard());
     }
 
-    public function testMatchedRequestMethod_ReturnsRequestWithCapturedAndClearedRelativePath()
+    public function test_MatchedRequest_ReturnsRequestWithCapturedAndClearedRelativePath()
     {
         $pattern = new Route\Gate\Pattern\UriPart\PathWildcard();
 
@@ -42,7 +42,7 @@ class PathWildcardTest extends TestCase
         $this->assertSame([], $request->getAttribute(Route::PATH_ATTRIBUTE));
     }
 
-    public function testUriMethod_ReturnsPrototype()
+    public function test_Uri_ReturnsPrototype()
     {
         $pattern   = new Route\Gate\Pattern\UriPart\PathWildcard();
         $prototype = Doubles\FakeUri::fromString('http://example.com/foo/bar?query=baz');
@@ -50,7 +50,7 @@ class PathWildcardTest extends TestCase
         $this->assertSame($prototype, $pattern->uri($prototype, ['anything' => 'xxx']));
     }
 
-    public function testUriTemplate_ReturnsUriWithAsteriskEndingPath()
+    public function test_UriTemplate_ReturnsUriWithAsteriskEndingPath()
     {
         $pattern = new Route\Gate\Pattern\UriPart\PathWildcard();
         $uri     = Doubles\FakeUri::fromString('http://example.com/foo/bar?query=baz');

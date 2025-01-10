@@ -20,40 +20,40 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class CallbackGatewayTest extends TestCase
 {
-    public function testInstantiation()
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(Route::class, $this->gate());
     }
 
-    public function testCallbackPreventsForwardingRequest()
+    public function test_CallbackThatPreventsForwardingRequest()
     {
         $request   = new Doubles\FakeServerRequest();
         $prototype = new Doubles\FakeResponse();
         $this->assertSame($prototype, $this->gate()->forward($request, $prototype));
     }
 
-    public function testCallbackForwardsRequest()
+    public function test_CallbackForwardingRequest()
     {
         $request = new Doubles\FakeServerRequest('POST');
         $route   = new Doubles\MockedRoute($response = new Doubles\FakeResponse());
         $this->assertSame($response, $this->gate($route)->forward($request, new Doubles\FakeResponse()));
     }
 
-    public function testSelectCallsWrappedRouteWithSameParameter()
+    public function test_Select_CallsWrappedRouteWithSameParameter()
     {
         $selected = $this->gate($route)->select('some.name');
         $this->assertSame('some.name', $route->path);
         $this->assertSame($selected, $route->subRoute);
     }
 
-    public function testUriCallIsPassedToWrappedRoute()
+    public function test_Uri_IsPassedToWrappedRoute()
     {
         $uri   = 'http://example.com/foo/bar?test=baz';
         $route = Doubles\MockedRoute::withUri($uri);
         $this->assertSame($uri, (string) $this->gate($route)->uri(new Doubles\FakeUri(), []));
     }
 
-    public function testRoutesMethod_PassesTraceToNextRoute()
+    public function test_Routes_PassesTraceToNextRoute()
     {
         $trace = new Map\Trace(new Map(), new Doubles\FakeUri());
         $this->gate($route)->routes($trace);

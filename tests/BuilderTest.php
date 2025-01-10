@@ -18,13 +18,13 @@ use Polymorphine\Routing\Router;
 
 class BuilderTest extends TestCase
 {
-    public function testInstantiation()
+    public function test_Instantiation()
     {
         $this->assertInstanceOf(Builder::class, $this->builder());
         $this->assertInstanceOf(Builder::class, $this->builder(new Doubles\FakeContainer()));
     }
 
-    public function testMissingRouterCallbackIsAddedToMappedRoutes()
+    public function test_MissingRouterCallback_IsAddedToMappedRoutes()
     {
         $mappedRoutes = new Doubles\MockedMappedRoutes(null, null, null);
         $this->assertFalse($mappedRoutes->hasRouterCallback());
@@ -33,7 +33,7 @@ class BuilderTest extends TestCase
         $this->assertTrue($mappedRoutes->hasRouterCallback());
     }
 
-    public function testRouterCallbackIsNotOverwrittenInMappedRoutes()
+    public function test_RouterCallback_IsNotOverwrittenInMappedRoutes()
     {
         $mappedRoutes = new Doubles\MockedMappedRoutes(function () {}, null, null);
         $this->assertTrue($mappedRoutes->hasRouterCallback());
@@ -41,13 +41,13 @@ class BuilderTest extends TestCase
         $this->assertFalse($mappedRoutes->modified);
     }
 
-    public function testRouterMethodWithoutSetup_ThrowsException()
+    public function test_RouterMethod_WithoutSetup_ThrowsException()
     {
         $this->expectException(Builder\Exception\BuilderLogicException::class);
         $this->builder()->router(new Doubles\FakeUri(), new Doubles\FakeResponse());
     }
 
-    public function testWithRootNodeDefinedRouterCanBeCreated()
+    public function test_WithRootNodeDefined_RouterCanBeCreated()
     {
         $root = $this->builder();
         $root->rootNode()->callback(function () {});
@@ -59,7 +59,7 @@ class BuilderTest extends TestCase
         $this->assertInstanceOf(Router::class, $router);
     }
 
-    public function testSecondRootNode_ThrowsException()
+    public function test_SecondRootNode_ThrowsException()
     {
         $root = $this->builder();
         $root->rootNode();
@@ -67,13 +67,13 @@ class BuilderTest extends TestCase
         $root->rootNode();
     }
 
-    public function testEndpointMethod_ReturnsEndpointRouteBuilder()
+    public function test_EndpointMethod_ReturnsEndpointRouteBuilder()
     {
         $root = $this->builder();
         $this->assertInstanceOf(Builder\EndpointRouteBuilder::class, $root->route());
     }
 
-    public function testBuilderMethod_ReturnsBuilderRouteNode()
+    public function test_BuilderMethod_ReturnsBuilderRouteNode()
     {
         $root = $this->builder();
         $this->assertInstanceOf(Builder\Node\RouteNode::class, $root->detachedNode());
