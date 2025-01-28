@@ -24,6 +24,21 @@ use Psr\Http\Message\UriFactoryInterface;
 
 class Builder
 {
+    /**
+     * Produces Builder with predefined configuration for mapping
+     * endpoints and gates using string identifier.
+     *
+     * @see MappedRoutes
+     *
+     * @param ContainerInterface $container
+     *
+     * @return Builder
+     */
+    public static function withContainer(ContainerInterface $container): self
+    {
+        return new self(MappedRoutes::withContainerMapping($container));
+    }
+
     private ?MappedRoutes $mappedRoutes;
     private ?Node         $builder = null;
     private ?Router       $router  = null;
@@ -47,21 +62,6 @@ class Builder
         } else {
             $this->mappedRoutes = $mappedRoutes ?? new MappedRoutes($routerCallback, null, null);
         }
-    }
-
-    /**
-     * Produces Builder with predefined configuration for mapping
-     * endpoints and gates using string identifier.
-     *
-     * @see MappedRoutes
-     *
-     * @param ContainerInterface $container
-     *
-     * @return Builder
-     */
-    public static function withContainer(ContainerInterface $container): self
-    {
-        return new self(MappedRoutes::withContainerMapping($container));
     }
 
     /**

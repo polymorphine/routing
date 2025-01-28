@@ -21,6 +21,15 @@ use Psr\Http\Message\ResponseFactoryInterface;
 
 class Router implements RequestHandlerInterface
 {
+    public static function withPrototypeFactories(
+        Route $route,
+        UriFactoryInterface $uriFactory,
+        ResponseFactoryInterface $responseFactory,
+        string $rootPath = 'ROOT'
+    ): self {
+        return new self($route, $uriFactory->createUri(), $responseFactory->createResponse(404), $rootPath);
+    }
+
     private Route             $route;
     private UriInterface      $baseUri;
     private ResponseInterface $baseResponse;
@@ -52,15 +61,6 @@ class Router implements RequestHandlerInterface
         $this->baseUri      = $baseUri;
         $this->baseResponse = $baseResponse;
         $this->rootPath     = $rootPath;
-    }
-
-    public static function withPrototypeFactories(
-        Route $route,
-        UriFactoryInterface $uriFactory,
-        ResponseFactoryInterface $responseFactory,
-        string $rootPath = 'ROOT'
-    ): self {
-        return new self($route, $uriFactory->createUri(), $responseFactory->createResponse(404), $rootPath);
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface

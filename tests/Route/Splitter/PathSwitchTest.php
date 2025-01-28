@@ -23,15 +23,6 @@ class PathSwitchTest extends TestCase
 {
     use RoutingTestMethods;
 
-    public static function segmentCombinations(): iterable
-    {
-        return [
-            [['foo', 'bar'], 'http://example.com?query=string', 'http://example.com/foo/bar?query=string'],
-            [['foo', 'bar', 'baz'], 'http://example.com?query=string', 'http://example.com/foo/bar/baz?query=string'],
-            [['foo'], 'http:?query', 'http:/foo?query']
-        ];
-    }
-
     public function test_Instantiation()
     {
         $this->assertInstanceOf(Route::class, $this->splitter());
@@ -199,6 +190,15 @@ class PathSwitchTest extends TestCase
         $trace = new Map\Trace(new Map(), new Doubles\FakeUri());
         $this->expectException(Map\Exception\UnreachableEndpointException::class);
         $splitter->routes($trace);
+    }
+
+    public static function segmentCombinations(): iterable
+    {
+        return [
+            [['foo', 'bar'], 'http://example.com?query=string', 'http://example.com/foo/bar?query=string'],
+            [['foo', 'bar', 'baz'], 'http://example.com?query=string', 'http://example.com/foo/bar/baz?query=string'],
+            [['foo'], 'http:?query', 'http:/foo?query']
+        ];
     }
 
     private function routeForwardCall(Route $route, ?string $requestUri = null): ResponseInterface

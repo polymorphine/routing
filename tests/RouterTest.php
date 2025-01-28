@@ -27,16 +27,6 @@ class RouterTest extends TestCase
         self::$prototype = new Doubles\FakeResponse();
     }
 
-    public static function routeExceptions(): iterable
-    {
-        return [
-            [new Exception\RouteNotFoundException('test')],
-            [new Exception\AmbiguousEndpointException('test')],
-            [new Exception\InvalidUriPrototypeException('test')],
-            [new Exception\InvalidUriParamException('test')]
-        ];
-    }
-
     public function test_Instantiation()
     {
         $this->assertInstanceOf(Router::class, $this->router());
@@ -118,6 +108,16 @@ class RouterTest extends TestCase
     {
         $router = new Router(new Doubles\MockedRoute(), Doubles\FakeUri::fromString('/foo/bar'), self::$prototype, 'home');
         $this->assertEquals([new Path('home', '*', '/foo/bar')], $router->routes());
+    }
+
+    public static function routeExceptions(): iterable
+    {
+        return [
+            [new Exception\RouteNotFoundException('test')],
+            [new Exception\AmbiguousEndpointException('test')],
+            [new Exception\InvalidUriPrototypeException('test')],
+            [new Exception\InvalidUriParamException('test')]
+        ];
     }
 
     private function router(bool $matched = true, $uri = null)

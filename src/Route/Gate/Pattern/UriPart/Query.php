@@ -25,6 +25,31 @@ class Query implements Route\Gate\Pattern
 {
     use Route\Gate\Pattern\UriTemplatePlaceholder;
 
+    /**
+     * Query string parameter MUST NOT begin with `?` character.
+     *
+     * Given query string will be exploded into associative array with
+     * undefined values (foo&bar) as null and empty (foo=&bar=) values
+     * as empty string.
+     */
+    public static function fromQueryString(string $query): self
+    {
+        return new self(self::queryValues($query));
+    }
+
+    private static function queryValues(string $query): array
+    {
+        $segments = $query ? explode('&', $query) : [];
+
+        $segmentValues = [];
+        foreach ($segments as $segment) {
+            [$name, $value] = explode('=', $segment) + [false, null];
+            $segmentValues[$name] = $value;
+        }
+
+        return $segmentValues;
+    }
+
     private array $params;
 
     /**
@@ -41,22 +66,6 @@ class Query implements Route\Gate\Pattern
     public function __construct(array $params)
     {
         $this->params = $params;
-    }
-
-    /**
-     * Query string parameter MUST NOT begin with `?` character.
-     *
-     * Given query string will be exploded into associative array with
-     * undefined values (foo&bar) as null and empty (foo=&bar=) values
-     * as empty string.
-     *
-     * @param string $query
-     *
-     * @return self
-     */
-    public static function fromQueryString(string $query): self
-    {
-        return new self(self::queryValues($query));
     }
 
     public function matchedRequest(Request $request): ?Request
@@ -112,18 +121,5 @@ class Query implements Route\Gate\Pattern
         }
 
         return implode('&', $query);
-    }
-
-    private static function queryValues(string $query): array
-    {
-        $segments = $query ? explode('&', $query) : [];
-
-        $segmentValues = [];
-        foreach ($segments as $segment) {
-            [$name, $value] = explode('=', $segment) + [false, null];
-            $segmentValues[$name] = $value;
-        }
-
-        return $segmentValues;
     }
 }

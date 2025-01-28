@@ -23,34 +23,6 @@ class RegexpTest extends TestCase
 {
     use Pattern\UriTemplatePlaceholder;
 
-    public static function matchingRequests(): iterable
-    {
-        return [
-            'id'          => ['/page/no-{#no}', '/page/no-4', ['no' => '4']],
-            'id+slug'     => ['/page/no-{#no}/{$title}.pdf', '/page/no-576/foo-bar-45.pdf', ['no' => '576', 'title' => 'foo-bar-45']],
-            'prefixed_id' => ['/foo-{@name}', '/foo-bar5000', ['name' => 'bar5000']],
-            'query'       => ['?user={#id}', '?user=938', ['id' => '938']],
-            'query+path'  => ['/path/user/id-{#id}?foo={$bar}', '/path/user/id-938?foo=bar-BAZ', ['bar' => 'bar-BAZ', 'id' => '938']]
-        ];
-    }
-
-    public static function prototypeConflict(): iterable
-    {
-        return [
-            'expected fizz=buzz'  => ['?anything&fizz={#id}', '?anything=foo&fizz=baz'],
-            'expected empty fizz' => ['?some=query&fizz={#id}}', '?some=query&fizz=']
-        ];
-    }
-
-    public static function prototypeSegmentMatch(): iterable
-    {
-        return [
-            ['id-{#id}', '/user', ['id' => 1500], '/user/id-1500'],
-            ['foo/xxx{#id}xxx?some={$x}', '?other=bar', ['id' => 673, 'x' => 'foo'], '/foo/xxx673xxx?other=bar&some=foo'],
-            ['foo/num.{#id}?some={#x}&fizz=buzz', '?some&fizz=buzz', ['id' => 123, 'x' => 1], '/foo/num.123?some=1&fizz=buzz']
-        ];
-    }
-
     public function test_NotMatchedRequest_ReturnsNull()
     {
         $pattern = $this->pattern('/page/id-{#no}');
@@ -311,6 +283,34 @@ class RegexpTest extends TestCase
         $pattern = $this->pattern($pattern);
         $this->expectException(Exception\InvalidUriPrototypeException::class);
         $pattern->templateUri(Doubles\FakeUri::fromString($uri));
+    }
+
+    public static function matchingRequests(): iterable
+    {
+        return [
+            'id'          => ['/page/no-{#no}', '/page/no-4', ['no' => '4']],
+            'id+slug'     => ['/page/no-{#no}/{$title}.pdf', '/page/no-576/foo-bar-45.pdf', ['no' => '576', 'title' => 'foo-bar-45']],
+            'prefixed_id' => ['/foo-{@name}', '/foo-bar5000', ['name' => 'bar5000']],
+            'query'       => ['?user={#id}', '?user=938', ['id' => '938']],
+            'query+path'  => ['/path/user/id-{#id}?foo={$bar}', '/path/user/id-938?foo=bar-BAZ', ['bar' => 'bar-BAZ', 'id' => '938']]
+        ];
+    }
+
+    public static function prototypeConflict(): iterable
+    {
+        return [
+            'expected fizz=buzz'  => ['?anything&fizz={#id}', '?anything=foo&fizz=baz'],
+            'expected empty fizz' => ['?some=query&fizz={#id}}', '?some=query&fizz=']
+        ];
+    }
+
+    public static function prototypeSegmentMatch(): iterable
+    {
+        return [
+            ['id-{#id}', '/user', ['id' => 1500], '/user/id-1500'],
+            ['foo/xxx{#id}xxx?some={$x}', '?other=bar', ['id' => 673, 'x' => 'foo'], '/foo/xxx673xxx?other=bar&some=foo'],
+            ['foo/num.{#id}?some={#x}&fizz=buzz', '?some&fizz=buzz', ['id' => 123, 'x' => 1], '/foo/num.123?some=1&fizz=buzz']
+        ];
     }
 
     private function pattern($pattern = '', array $params = []): Pattern

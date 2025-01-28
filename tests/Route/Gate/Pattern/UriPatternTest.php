@@ -20,67 +20,6 @@ use InvalidArgumentException;
 
 class UriPatternTest extends TestCase
 {
-    public static function matchingPatterns(): iterable
-    {
-        return [
-            ['https:', 'https://example.com'],
-            ['//www.example.com', 'http://www.example.com/some/path'],
-            ['http:/some/path', 'http://whatever.com/some/path?query=part&ignored=values'],
-            ['?query=foo&bar=baz', 'http://example.com/some/path?query=foo&bar=baz'],
-            ['//example.com:9002', 'https://example.com:9002/foo/path'],
-            ['/foo/bar/{#baz.Qux}', 'https://example.com:9002/foo/bar/123/another?some=query'],
-            ['foo/{$bar}/baz', 'https://example.com:9002/foo/bar-part/baz/another?some=query'],
-            ['?query=bar&foo', '?query=bar&foo=anything'],
-            ['?query=bar&foo', '?foo&query=bar'],
-            ['?query=bar&foo=', '?foo=&query=bar']
-        ];
-    }
-
-    public static function notMatchingPatterns(): iterable
-    {
-        return [
-            ['https:', 'http://example.com'],
-            ['//www.example.com', 'http://example.com/some/path'],
-            ['http:/some/path', 'http://whatever.com/some/other/path?query=part&ignored=values'],
-            ['?query=foo&bar=baz', 'http://example.com/some/path?query=foo&bar=qux'],
-            ['//example.com:8080', '//example.com:9001'],
-            ['//example.com:8080', '//example.com'],
-            ['/foo/bar/{#baz}', 'https://example.com:9002/foo/bar/123zzz/another?some=query'],
-            ['foo/{$bar}/baz', 'https://example.com:9002/foo/bar_part/baz/another?some=query'],
-            ['?query=bar&foo', '?query=bar'],
-            ['?query=bar&foo=', '?foo=emptyRequired&query=bar'],
-            ['/some/path?query=string', '/some/path']
-        ];
-    }
-
-    public static function patterns(): iterable
-    {
-        return [
-            ['', 'https://example.com/some/path?query=params&foo=bar', 'https://example.com/some/path?query=params&foo=bar'],
-            ['https:', '//example.com/some/path?query=params&foo=bar', 'https://example.com/some/path?query=params&foo=bar'],
-            ['//example.com', 'https:/some/path?query=params&foo=bar', 'https://example.com/some/path?query=params&foo=bar'],
-            ['/some/path', 'https://example.com?query=params&foo=bar', 'https://example.com/some/path?query=params&foo=bar'],
-            ['?query=params&foo=bar', 'https://example.com/some/path', 'https://example.com/some/path?query=params&foo=bar'],
-            ['https://example.com?query=params&foo=bar', '//example.com/some/path', 'https://example.com/some/path?query=params&foo=bar'],
-            ['//example.com/some/path', 'https:?query=params&foo=bar', 'https://example.com/some/path?query=params&foo=bar'],
-            ['//user:pass@example.com?query=params&foo=bar', 'https://example.com/some/path?query=params&foo=bar', 'https://user:pass@example.com/some/path?query=params&foo=bar'],
-            ['//example.com:9001', 'http://example.com/foo/bar', 'http://example.com:9001/foo/bar'],
-            ['?foo=&some', 'foo/bar?some=value', 'foo/bar?some=value&foo='],
-            ['?foo=&some=value', 'foo/bar?foo&some', 'foo/bar?foo=&some=value']
-        ];
-    }
-
-    public static function prototypeConflict(): iterable
-    {
-        return [
-            ['http:', 'https://example.com'],
-            ['https://www.example.com', 'https://example.com'],
-            ['//user:pass@example.com', '//user@example.com'],
-            ['?foo=bar&some=value', '?foo=bar&some=otherValue'],
-            ['?foo=&some=value', '?foo=something&some=value']
-        ];
-    }
-
     public function test_Instantiation()
     {
         $this->assertInstanceOf(Route\Gate\Pattern\UriPattern::class, $this->pattern('http:/some/path&query=foo'));
@@ -204,6 +143,67 @@ class UriPatternTest extends TestCase
         $prototype = Doubles\FakeUri::fromString('//example.com:123');
         $this->expectException(Route\Exception\InvalidUriPrototypeException::class);
         $pattern->templateUri($prototype);
+    }
+
+    public static function matchingPatterns(): iterable
+    {
+        return [
+            ['https:', 'https://example.com'],
+            ['//www.example.com', 'http://www.example.com/some/path'],
+            ['http:/some/path', 'http://whatever.com/some/path?query=part&ignored=values'],
+            ['?query=foo&bar=baz', 'http://example.com/some/path?query=foo&bar=baz'],
+            ['//example.com:9002', 'https://example.com:9002/foo/path'],
+            ['/foo/bar/{#baz.Qux}', 'https://example.com:9002/foo/bar/123/another?some=query'],
+            ['foo/{$bar}/baz', 'https://example.com:9002/foo/bar-part/baz/another?some=query'],
+            ['?query=bar&foo', '?query=bar&foo=anything'],
+            ['?query=bar&foo', '?foo&query=bar'],
+            ['?query=bar&foo=', '?foo=&query=bar']
+        ];
+    }
+
+    public static function notMatchingPatterns(): iterable
+    {
+        return [
+            ['https:', 'http://example.com'],
+            ['//www.example.com', 'http://example.com/some/path'],
+            ['http:/some/path', 'http://whatever.com/some/other/path?query=part&ignored=values'],
+            ['?query=foo&bar=baz', 'http://example.com/some/path?query=foo&bar=qux'],
+            ['//example.com:8080', '//example.com:9001'],
+            ['//example.com:8080', '//example.com'],
+            ['/foo/bar/{#baz}', 'https://example.com:9002/foo/bar/123zzz/another?some=query'],
+            ['foo/{$bar}/baz', 'https://example.com:9002/foo/bar_part/baz/another?some=query'],
+            ['?query=bar&foo', '?query=bar'],
+            ['?query=bar&foo=', '?foo=emptyRequired&query=bar'],
+            ['/some/path?query=string', '/some/path']
+        ];
+    }
+
+    public static function patterns(): iterable
+    {
+        return [
+            ['', 'https://example.com/some/path?query=params&foo=bar', 'https://example.com/some/path?query=params&foo=bar'],
+            ['https:', '//example.com/some/path?query=params&foo=bar', 'https://example.com/some/path?query=params&foo=bar'],
+            ['//example.com', 'https:/some/path?query=params&foo=bar', 'https://example.com/some/path?query=params&foo=bar'],
+            ['/some/path', 'https://example.com?query=params&foo=bar', 'https://example.com/some/path?query=params&foo=bar'],
+            ['?query=params&foo=bar', 'https://example.com/some/path', 'https://example.com/some/path?query=params&foo=bar'],
+            ['https://example.com?query=params&foo=bar', '//example.com/some/path', 'https://example.com/some/path?query=params&foo=bar'],
+            ['//example.com/some/path', 'https:?query=params&foo=bar', 'https://example.com/some/path?query=params&foo=bar'],
+            ['//user:pass@example.com?query=params&foo=bar', 'https://example.com/some/path?query=params&foo=bar', 'https://user:pass@example.com/some/path?query=params&foo=bar'],
+            ['//example.com:9001', 'http://example.com/foo/bar', 'http://example.com:9001/foo/bar'],
+            ['?foo=&some', 'foo/bar?some=value', 'foo/bar?some=value&foo='],
+            ['?foo=&some=value', 'foo/bar?foo&some', 'foo/bar?foo=&some=value']
+        ];
+    }
+
+    public static function prototypeConflict(): iterable
+    {
+        return [
+            ['http:', 'https://example.com'],
+            ['https://www.example.com', 'https://example.com'],
+            ['//user:pass@example.com', '//user@example.com'],
+            ['?foo=bar&some=value', '?foo=bar&some=otherValue'],
+            ['?foo=&some=value', '?foo=something&some=value']
+        ];
     }
 
     private function pattern(string $uri)

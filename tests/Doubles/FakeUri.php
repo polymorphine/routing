@@ -16,6 +16,11 @@ use Psr\Http\Message\UriInterface;
 
 class FakeUri implements UriInterface
 {
+    public static function fromString($uri = ''): self
+    {
+        return new self(parse_url($uri));
+    }
+
     protected array $supportedSchemes = [
         'http'  => ['port' => 80],
         'https' => ['port' => 443]
@@ -39,11 +44,6 @@ class FakeUri implements UriInterface
         isset($segments['path']) and $this->path = $segments['path'];
         isset($segments['query']) and $this->query = $segments['query'];
         isset($segments['fragment']) and $this->fragment = $segments['fragment'];
-    }
-
-    public static function fromString($uri = ''): self
-    {
-        return new self(parse_url($uri));
     }
 
     public function __toString(): string

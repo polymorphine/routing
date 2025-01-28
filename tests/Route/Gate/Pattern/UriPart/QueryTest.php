@@ -22,54 +22,6 @@ class QueryTest extends TestCase
 {
     use Pattern\UriTemplatePlaceholder;
 
-    public static function matchingPatterns(): iterable
-    {
-        return [
-            ['foo', 'http://example.com/path?foo'],
-            ['foo', 'http://example.com/path?foo='],
-            ['foo', 'http://example.com/path?foo=bar'],
-            ['foo=', 'http://example.com/path?foo='],
-            ['foo=bar', 'http://example.com/path?other=param&foo=bar'],
-            ['foo=bar', 'http://example.com/path?foo=bar&other=param'],
-            ['foo=bar&fizz=buzz', 'http://example.com/path?fizz=buzz&foo=bar&other=param'],
-            ['foo=bar&fizz', 'http://example.com/path?fizz=buzz&foo=bar&other=param'],
-            ['foo=bar&fizz', 'http://example.com/path?fizz&foo=bar&other=param']
-        ];
-    }
-
-    public static function notMatchingPatterns(): iterable
-    {
-        return [
-            ['foo', 'http://example.com/path?bar=foo'],
-            ['foo=', 'http://example.com/path?foo'],
-            ['foo=', 'http://example.com/path?foo=bar'],
-            ['foo=bar', 'http://example.com/path?other=param&foo=fizz'],
-            ['foo=bar&fizz=buzz', 'http://example.com/path?fizz=buzz&other=param'],
-            ['foo=bar&fizz=', 'http://example.com/path?fizz=buzz&foo=bar&other=param']
-        ];
-    }
-
-    public static function uriBuilds(): iterable
-    {
-        return [
-            ['foo', '', 'foo'],
-            ['foo=', 'other=param', 'other=param&foo='],
-            ['foo=bar', 'other=param', 'other=param&foo=bar'],
-            ['foo=bar', 'foo&other=param', 'foo=bar&other=param'],
-            ['foo=bar&fizz=buzz', 'fizz&other=param', 'fizz=buzz&other=param&foo=bar']
-        ];
-    }
-
-    public static function prototypeConflicts(): iterable
-    {
-        return [
-            ['foo=', 'foo=1'],
-            ['foo=bar', 'foo=baz'],
-            ['foo=bar', 'other=param&foo=baz'],
-            ['foo=bar&fizz=buzz', 'fizz=buzz&foo=baz&other=param']
-        ];
-    }
-
     public function test_Instantiation()
     {
         $pattern = $this->pattern('foo=bar');
@@ -137,6 +89,54 @@ class QueryTest extends TestCase
         $prototype = $this->uri('http://example.com/path?' . $prototype);
         $this->expectException(Exception\InvalidUriPrototypeException::class);
         $pattern->templateUri($prototype);
+    }
+
+    public static function matchingPatterns(): iterable
+    {
+        return [
+            ['foo', 'http://example.com/path?foo'],
+            ['foo', 'http://example.com/path?foo='],
+            ['foo', 'http://example.com/path?foo=bar'],
+            ['foo=', 'http://example.com/path?foo='],
+            ['foo=bar', 'http://example.com/path?other=param&foo=bar'],
+            ['foo=bar', 'http://example.com/path?foo=bar&other=param'],
+            ['foo=bar&fizz=buzz', 'http://example.com/path?fizz=buzz&foo=bar&other=param'],
+            ['foo=bar&fizz', 'http://example.com/path?fizz=buzz&foo=bar&other=param'],
+            ['foo=bar&fizz', 'http://example.com/path?fizz&foo=bar&other=param']
+        ];
+    }
+
+    public static function notMatchingPatterns(): iterable
+    {
+        return [
+            ['foo', 'http://example.com/path?bar=foo'],
+            ['foo=', 'http://example.com/path?foo'],
+            ['foo=', 'http://example.com/path?foo=bar'],
+            ['foo=bar', 'http://example.com/path?other=param&foo=fizz'],
+            ['foo=bar&fizz=buzz', 'http://example.com/path?fizz=buzz&other=param'],
+            ['foo=bar&fizz=', 'http://example.com/path?fizz=buzz&foo=bar&other=param']
+        ];
+    }
+
+    public static function uriBuilds(): iterable
+    {
+        return [
+            ['foo', '', 'foo'],
+            ['foo=', 'other=param', 'other=param&foo='],
+            ['foo=bar', 'other=param', 'other=param&foo=bar'],
+            ['foo=bar', 'foo&other=param', 'foo=bar&other=param'],
+            ['foo=bar&fizz=buzz', 'fizz&other=param', 'fizz=buzz&other=param&foo=bar']
+        ];
+    }
+
+    public static function prototypeConflicts(): iterable
+    {
+        return [
+            ['foo=', 'foo=1'],
+            ['foo=bar', 'foo=baz'],
+            ['foo=bar', 'other=param&foo=baz'],
+            ['foo=bar&fizz=buzz', 'fizz=buzz&foo=baz&other=param']
+        ];
     }
 
     private function pattern(string $query): Pattern

@@ -26,11 +26,6 @@ class RouteNodeTest extends TestCase
     use Routing\Tests\RoutingTestMethods;
     use Routing\Tests\Builder\ContextCreateMethod;
 
-    public static function wildcardPaths(): iterable
-    {
-        return [['foo/bar*'], ['foo/bar/*'], ['foo*'], ['foo/*'], ['*']];
-    }
-
     public function test_Instantiation()
     {
         $this->assertInstanceOf(Node\RouteNode::class, $this->builder());
@@ -127,19 +122,13 @@ class RouteNodeTest extends TestCase
             [$this->builder()->options(), $request->withMethod('OPTIONS'), $request]
         ];
 
-        foreach ($cases as $case) {
-            $this->checkCase(...$case);
+        foreach ($cases as [$builder, $match, $block]) {
+            $builder->path('*')->callback($this->callbackResponse($response));
+            $route = $builder->build();
+
+            $this->assertResponse($response, $route, $match);
+            $this->assertPrototype($route, $block);
         }
-    }
-
-    public function checkCase(Node\RouteNode $builder, ServerRequestInterface $match, ServerRequestInterface $block)
-    {
-        $builder->path('*')->callback($this->callbackResponse($response));
-        $route = $builder->build();
-
-        $prototype = new Doubles\FakeResponse();
-        $this->assertSame($response, $route->forward($match, $prototype));
-        $this->assertSame($prototype, $route->forward($block, $prototype));
     }
 
     public function test_MiddlewareGateway()
@@ -404,6 +393,22 @@ class RouteNodeTest extends TestCase
         $builder = $this->builder();
         $this->expectException(Routing\Builder\Exception\ConfigException::class);
         $builder->endpoint('something');
+    }
+
+    public static function wildcardPaths(): iterable
+    {
+        return [['foo/bar*'], ['foo/bar/*'], ['foo*'], ['foo/*'], ['*']];
+    }
+
+    protected function assertResponse(ResponseInterface $response, Route $route, ServerRequestInterface $request): void
+    {
+        $this->assertSame($response, $route->forward($request, new Doubles\FakeResponse()));
+    }
+
+    protected function assertPrototype(Route $route, ServerRequestInterface $request): void
+    {
+        $prototype = new Doubles\FakeResponse();
+        $this->assertSame($prototype, $route->forward($request, $prototype));
     }
 
     private function builder($container = null, ?callable $router = null): Node\RouteNode

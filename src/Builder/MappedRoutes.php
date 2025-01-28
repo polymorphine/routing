@@ -24,6 +24,33 @@ use Psr\Http\Message\ServerRequestInterface as Request;
  */
 class MappedRoutes
 {
+    /**
+     * Creates container based convention for endpoint and gate mapping.
+     *
+     * Endpoint will resolve class name (FQN) as RequestHandlerInterface
+     * factory instantiated with container parameter, creating handler
+     * instance using request headers.
+     *
+     * Gate will attempt to get MiddlewareInterface from container, and
+     * create MiddlewareRoute with it.
+     *
+     * @param ContainerInterface $container
+     *
+     * @return static
+     */
+    public static function withContainerMapping(ContainerInterface $container): self
+    {
+        $endpoint = fn (string $class): Route\Endpoint => new Route\Endpoint\CallbackEndpoint(
+            fn (Request $request) => (new $class($container))->create($request->getHeaders())->handle($request)
+        );
+
+        $gate = fn ($middleware, Route $route): Route => new Route\Gate\LazyRoute(
+            fn () => new Route\Gate\MiddlewareGateway($container->get($middleware), $route)
+        );
+
+        return new self(null, $endpoint, $gate);
+    }
+
     private $endpoint;
     private $gateway;
     private $router;
@@ -50,33 +77,6 @@ class MappedRoutes
         $this->router   = $router;
         $this->endpoint = $endpoint;
         $this->gateway  = $gateway;
-    }
-
-    /**
-     * Creates container based convention for endpoint and gate mapping.
-     *
-     * Endpoint will resolve class name (FQN) as RequestHandlerInterface
-     * factory instantiated with container parameter, creating handler
-     * instance using request headers.
-     *
-     * Gate will attempt to get MiddlewareInterface from container, and
-     * create MiddlewareRoute with it.
-     *
-     * @param ContainerInterface $container
-     *
-     * @return static
-     */
-    public static function withContainerMapping(ContainerInterface $container): self
-    {
-        $endpoint = fn (string $class): Route\Endpoint => new Route\Endpoint\CallbackEndpoint(
-            fn (Request $request) => (new $class($container))->create($request->getHeaders())->handle($request)
-        );
-
-        $gate = fn ($middleware, Route $route): Route => new Route\Gate\LazyRoute(
-            fn () => new Route\Gate\MiddlewareGateway($container->get($middleware), $route)
-        );
-
-        return new self(null, $endpoint, $gate);
     }
 
     /**

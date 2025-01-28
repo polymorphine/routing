@@ -21,6 +21,23 @@ use Exception;
 
 class MockedRoute implements Route
 {
+    public static function response(string $response): self
+    {
+        return new self(new FakeResponse($response), null);
+    }
+
+    public static function withUri(string $uri): self
+    {
+        return new self(null, FakeUri::fromString($uri));
+    }
+
+    public static function withTraceCallback(callable $callback): self
+    {
+        $route = new self();
+        $route->traceCallback = $callback;
+        return $route;
+    }
+
     public ServerRequestInterface $forwardedRequest;
     public ?ResponseInterface     $response;
     public ?UriInterface          $uri;
@@ -38,23 +55,6 @@ class MockedRoute implements Route
     {
         $this->response = $response;
         $this->uri      = $uri;
-    }
-
-    public static function response(string $response): self
-    {
-        return new self(new FakeResponse($response), null);
-    }
-
-    public static function withUri(string $uri): self
-    {
-        return new self(null, FakeUri::fromString($uri));
-    }
-
-    public static function withTraceCallback(callable $callback): self
-    {
-        $route = new self();
-        $route->traceCallback = $callback;
-        return $route;
     }
 
     public function forward(ServerRequestInterface $request, ResponseInterface $prototype): ResponseInterface

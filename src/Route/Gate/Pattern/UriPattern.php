@@ -23,21 +23,6 @@ use InvalidArgumentException;
  */
 class UriPattern implements Pattern
 {
-    private array $uri;
-    private array $regexp;
-
-    private Pattern $pattern;
-
-    /**
-     * @param array $segments associative array of URI segments as returned by parse_url() function
-     * @param array $regexp   associative array of REGEXP patterns for uri parameters
-     */
-    public function __construct(array $segments, array $regexp = [])
-    {
-        $this->uri    = $segments;
-        $this->regexp = $regexp;
-    }
-
     public static function fromUriString(string $uri, array $regexp = []): self
     {
         self::parseTypedParams($uri, $regexp);
@@ -52,6 +37,38 @@ class UriPattern implements Pattern
     {
         self::parseTypedParams($path, $regexp);
         return new self(['path' => $path], $regexp);
+    }
+
+    private static function parseTypedParams(string &$uri, array &$params): void
+    {
+        if (strpos($uri, self::DELIM_LEFT) === false) { return; }
+
+        $types     = array_keys(self::TYPE_REGEXP);
+        $idPattern = '(?P<type>[' . preg_quote(implode('', $types), '/') . '])(?P<id>[a-zA-Z]+)';
+        $regexp    = '/' . self::DELIM_LEFT . $idPattern . self::DELIM_RIGHT . '/';
+
+        preg_match_all($regexp, $uri, $matches, PREG_SET_ORDER);
+        foreach ($matches as $match) {
+            $params[$match['id']] = self::TYPE_REGEXP[$match['type']];
+        }
+
+        $replace = array_map(function ($type) { return self::DELIM_LEFT . $type; }, $types);
+        $uri     = str_replace($replace, self::DELIM_LEFT, $uri);
+    }
+
+    private array $uri;
+    private array $regexp;
+
+    private Pattern $pattern;
+
+    /**
+     * @param array $segments associative array of URI segments as returned by parse_url() function
+     * @param array $regexp   associative array of REGEXP patterns for uri parameters
+     */
+    public function __construct(array $segments, array $regexp = [])
+    {
+        $this->uri    = $segments;
+        $this->regexp = $regexp;
     }
 
     public function matchedRequest(ServerRequestInterface $request): ?ServerRequestInterface
@@ -145,23 +162,6 @@ class UriPattern implements Pattern
             }
         }
         return $params;
-    }
-
-    private static function parseTypedParams(string &$uri, array &$params): void
-    {
-        if (strpos($uri, self::DELIM_LEFT) === false) { return; }
-
-        $types     = array_keys(self::TYPE_REGEXP);
-        $idPattern = '(?P<type>[' . preg_quote(implode('', $types), '/') . '])(?P<id>[a-zA-Z]+)';
-        $regexp    = '/' . self::DELIM_LEFT . $idPattern . self::DELIM_RIGHT . '/';
-
-        preg_match_all($regexp, $uri, $matches, PREG_SET_ORDER);
-        foreach ($matches as $match) {
-            $params[$match['id']] = self::TYPE_REGEXP[$match['type']];
-        }
-
-        $replace = array_map(function ($type) { return self::DELIM_LEFT . $type; }, $types);
-        $uri     = str_replace($replace, self::DELIM_LEFT, $uri);
     }
 
     private function resolvedPattern(): Pattern

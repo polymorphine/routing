@@ -25,6 +25,26 @@ class PathRegexpSegment implements Route\Gate\Pattern
     use Route\Gate\Pattern\PathContextMethods;
     use Route\Gate\Pattern\UriTemplatePlaceholder;
 
+    public static function numeric(string $name = 'id', ?int $length = null)
+    {
+        return new static($name, $length ? '[0-9]{' . $length . '}' : self::TYPE_REGEXP[self::TYPE_NUMERIC]);
+    }
+
+    public static function number(string $name = 'id')
+    {
+        return new static($name);
+    }
+
+    public static function slug(string $name = 'slug')
+    {
+        return new static($name, self::TYPE_REGEXP[self::TYPE_SLUG]);
+    }
+
+    public static function name(string $name = 'name')
+    {
+        return new static($name, self::TYPE_REGEXP[self::TYPE_NAME]);
+    }
+
     private string $name;
     private string $regexp;
 
@@ -44,26 +64,6 @@ class PathRegexpSegment implements Route\Gate\Pattern
     {
         $this->name   = $name;
         $this->regexp = $regexp;
-    }
-
-    public static function numeric(string $name = 'id', ?int $length = null)
-    {
-        return new static($name, $length ? '[0-9]{' . $length . '}' : self::TYPE_REGEXP[self::TYPE_NUMERIC]);
-    }
-
-    public static function number(string $name = 'id')
-    {
-        return new static($name);
-    }
-
-    public static function slug(string $name = 'slug')
-    {
-        return new static($name, self::TYPE_REGEXP[self::TYPE_SLUG]);
-    }
-
-    public static function name(string $name = 'name')
-    {
-        return new static($name, self::TYPE_REGEXP[self::TYPE_NAME]);
     }
 
     public function matchedRequest(ServerRequestInterface $request): ?ServerRequestInterface

@@ -25,37 +25,6 @@ abstract class ReadmeExampleTest extends TestCase
 {
     protected ?Router $router = null;
 
-    public static function endpointRequests(): iterable
-    {
-        $admin = ['authenticate' => 'admin'];
-
-        return [
-            ['LoginPage', ['GET', '/login'], 'login'],
-            ['Login', ['POST', '/login'], 'login'],
-            ['HomePage', ['GET', '/'], 'home'],
-            ['AdminPanel', ['GET', '/admin', $admin], 'admin'],
-            ['ApplySettings', ['POST', '/admin', $admin], 'admin'],
-            ['Logout', ['POST', '/logout', $admin], 'logout'],
-            ['ShowArticles', ['GET', '/articles'], 'articles'],
-            ['ShowArticle(123)', ['GET', '/articles/123'], 'articles', ['id' => 123]],
-            ['AddArticle', ['POST', '/articles', $admin], 'articles'],
-            ['AddArticle', ['POST', '/articles', $admin], 'articles.POST'],
-            ['UpdateArticle(234)', ['PATCH', '/articles/234', $admin], 'articles', ['id' => 234]],
-            ['DeleteArticle(87)', ['DELETE', '/articles/87', $admin], 'articles', ['id' => 87]],
-            ['AddArticleForm', ['GET', '/articles/new/form'], 'articles.form'],
-            ['EditArticleForm(22)', ['GET', '/articles/22/form'], 'articles.form', ['id' => 22]]
-        ];
-    }
-
-    public static function redirectedRequests(): iterable
-    {
-        return [
-            'Logout when not logged in'     => [['POST', '/logout'], 'home'],
-            'AdminPanel when not logged in' => [['', '/admin'], 'login'],
-            'Login when already logged in'  => [['POST', '/login', ['authenticate' => 'admin']], 'home']
-        ];
-    }
-
     public function test_Instantiation()
     {
         $this->assertInstanceOf(Router::class, $this->router());
@@ -129,6 +98,37 @@ abstract class ReadmeExampleTest extends TestCase
         ];
 
         $this->assertEquals($expected, $routes);
+    }
+
+    public static function endpointRequests(): iterable
+    {
+        $admin = ['authenticate' => 'admin'];
+
+        return [
+            ['LoginPage', ['GET', '/login'], 'login'],
+            ['Login', ['POST', '/login'], 'login'],
+            ['HomePage', ['GET', '/'], 'home'],
+            ['AdminPanel', ['GET', '/admin', $admin], 'admin'],
+            ['ApplySettings', ['POST', '/admin', $admin], 'admin'],
+            ['Logout', ['POST', '/logout', $admin], 'logout'],
+            ['ShowArticles', ['GET', '/articles'], 'articles'],
+            ['ShowArticle(123)', ['GET', '/articles/123'], 'articles', ['id' => 123]],
+            ['AddArticle', ['POST', '/articles', $admin], 'articles'],
+            ['AddArticle', ['POST', '/articles', $admin], 'articles.POST'],
+            ['UpdateArticle(234)', ['PATCH', '/articles/234', $admin], 'articles', ['id' => 234]],
+            ['DeleteArticle(87)', ['DELETE', '/articles/87', $admin], 'articles', ['id' => 87]],
+            ['AddArticleForm', ['GET', '/articles/new/form'], 'articles.form'],
+            ['EditArticleForm(22)', ['GET', '/articles/22/form'], 'articles.form', ['id' => 22]]
+        ];
+    }
+
+    public static function redirectedRequests(): iterable
+    {
+        return [
+            'Logout when not logged in'     => [['POST', '/logout'], 'home'],
+            'AdminPanel when not logged in' => [['', '/admin'], 'login'],
+            'Login when already logged in'  => [['POST', '/login', ['authenticate' => 'admin']], 'home']
+        ];
     }
 
     abstract protected function router(): Router;
